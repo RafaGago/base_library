@@ -46,7 +46,7 @@ filter {"configurations:*"}
   
 filter {"kind:SharedLib", "configurations:*debug*"}
   if os_is_posix() then
-    targetextension (".so" .. ".d" .. version)
+    targetextension (".d" .. ".so" .. version)
   end
   --this method of setting the output dir will be impractical if there are 
   --a lot of platforms...
@@ -62,7 +62,7 @@ filter {"kind:SharedLib", "configurations:*release*"}
 
 filter {"kind:StaticLib", "configurations:*debug*"}
   if os_is_posix() then
-    targetextension (".a" .. ".d" .. version )
+    targetextension (".d" .. ".a" .. version )
   end
   --this method of setting the output dir will be impractical if there are 
   --a lot of platforms...
