@@ -49,8 +49,8 @@ Folders
 =======
 * "include/base_library/hdr":  Code usable as header-only.
 * "include/base_library/lib":  May require compilation on some platform.
-* eclipse: Eclipse projects, unneeded to build, it just happens that I sometimes
- happen to use Eclipse as a gdb front end.
+* eclipse: Eclipse projects, unneeded to build. I sometimes use Eclipse as a gdb
+front end.
 * dependencies: External dependencies, as of now cmocka for the unit tests and
  premake5-alpha for building.
 * build/premake: The build script.
