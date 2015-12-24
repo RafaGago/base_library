@@ -1,5 +1,5 @@
-#ifndef __TIMESTAMP_POSIX_H__
-#define __TIMESTAMP_POSIX_H__
+#ifndef __TIMESTAMP_WINDOWS_H__
+#define __TIMESTAMP_WINDOWS_H__
 
 /* this file is made to be included from <base_library/hdr/time.h>, it is just
    to avoid clutter on that file, hence the lack of some includes to make it
