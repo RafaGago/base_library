@@ -118,7 +118,8 @@ filter {"language:C"}
   
 filter {"configurations:*", "kind:*Lib"}
   if is_gcc() then
-    buildoptions {"-fvisibility=hidden"}
+    --TODO: When exported library simbols are done default
+    --buildoptions {"-fvisibility=hidden"}
   end
 
 filter {"kind:ConsoleApp"}
