@@ -15,7 +15,7 @@
 #include <base_library/hdr/cache.h>
 #include <base_library/hdr/atomic.h>
 
-#include <base_library/lib/thread.h>
+#include <base_library/hdr/thread.h>
 #include <base_library/lib/semaphore_linux.c>
 
 #define thread_count 16

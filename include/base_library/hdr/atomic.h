@@ -3,11 +3,11 @@
 
 /*---------------------------------------------------------------------------*/
 #ifdef __cplusplus
-  #include <base_library/hdr/cpp_atomic.h>
-#elif defined (BL_HAS_C11_ATOMICS)
-  #include <base_library/hdr/c11_atomic.h>
+  #include <base_library/hdr/impl/atomic_cpp.hpp>
+#elif defined (BL_HAS_C11_ATOMICS) /*as of now this is undetected*/
+  #include <base_library/hdr/impl/atomic_c11.h>
 #elif defined (__GNUC__) && (__GNUC__ >= 4) && (__GNUC_MINOR__ >= 7)
-  #include <base_library/hdr/gcc_atomic.h>
+  #include <base_library/hdr/impl/atomic_gcc.h>
 #else
   #error "atomics unimplemented on this platform"
 #endif

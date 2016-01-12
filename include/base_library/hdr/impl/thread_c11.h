@@ -1,7 +1,12 @@
-#ifndef __BL_CC_THREAD_H__
-#define __BL_CC_THREAD_H__
+#ifndef __BL_C11_THREAD_H__
+#define __BL_C11_THREAD_H__
+
+#ifndef __BL_THREAD_H__
+  #error "don't include this file directly, use <hdr/thread.h> instead"
+#endif
 
 #include <threads.h>
+#include <assert.h>
 #include <base_library/hdr/platform.h>
 
 typedef thrd_t       bl_thread;
@@ -16,6 +21,7 @@ static inline int bl_thread_init(
   bl_thread* t, bl_thread_func f, void* context
   )
 {
+  assert (t);
   return thrd_create (t, f, context);
 }
 /*---------------------------------------------------------------------------*/
@@ -26,6 +32,7 @@ static inline void bl_thread_yield (void)
 /*---------------------------------------------------------------------------*/
 static inline int bl_thread_join (bl_thread* t)
 {
+  assert (t);
   return thrd_join (t, nullptr);
 }
 /*---------------------------------------------------------------------------*/

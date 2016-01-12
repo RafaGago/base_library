@@ -26,7 +26,7 @@ Now the library contains:
 
 * Timestamp wrappers.
 
-* Humble fixed-size data structures (mostly for microcontrollers) as a 
+* Humble fixed-size basic data structures (mostly for microcontrollers) as a 
  ringbuffer, ordered ringbuffer and array based linked lists
  (to save size on pointers)
 
@@ -35,9 +35,7 @@ Now the library contains:
 * A futex + atomics semaphore based on the Monotonic clock for Linux (POSIX
  doesn't provide this).
 
-* Wrappers for atomics and threads (no mutexes and convars yet). Now to
- speed up things I just used C++ in case C11 wasn't detected. I have to switch
- to gcc builtins for atomics and pthread for threads.
+* Wrappers for atomics and threads (adding as needed).
 
 * The beautiful and famous Dmitry Djukov's MPMC lockfree queue with some addons:
   1. Can be used as MPSC and SPMC.
@@ -48,7 +46,7 @@ Now the library contains:
 Folders
 =======
 * "include/base_library/hdr":  Code usable as header-only.
-* "include/base_library/lib":  May require compilation on some platform.
+* "include/base_library/lib":  May require compilation on some platforms.
 * eclipse: Eclipse projects, unneeded to build. I sometimes use Eclipse as a gdb
 front end.
 * dependencies: External dependencies, as of now cmocka for the unit tests and
@@ -77,6 +75,6 @@ This generates the makefile.
 
 Build on Windows
 ===============
-TBD
+TODO
 
 

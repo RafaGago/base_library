@@ -15,7 +15,7 @@
     the Linux Kernel tree for hints.*/
   #if defined (BL_INTEL_AMD_PC)
     /*same opcode than PAUSE (_mm_pause): F3 90*/
-    #define processor_pause()  __asm__ __volatile__("rep;nop": : :"memory")
+    #define processor_pause()  __asm__ __volatile__ ("rep;nop": : :"memory")
   #endif
 
   #if defined (BL_ARM)

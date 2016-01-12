@@ -8,9 +8,8 @@
 #include <linux/futex.h>
 /*----------------------------------------------------------------------------*/
 #include <base_library/hdr/integer_manipulation.h>
-#include <base_library/lib/semaphore.h>
-#include <base_library/lib/semaphore_linux.h>
 #include <base_library/hdr/atomic.h>
+#include <base_library/lib/semaphore.h>
 /*----------------------------------------------------------------------------*/
 static inline int futex_wait_masked_absolute_monotonic(
   u32* f, u32 expected_fval, u32 expected_fval_mask, const struct timespec* tp 

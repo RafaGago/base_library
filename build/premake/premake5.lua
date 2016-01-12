@@ -48,7 +48,7 @@ filter {"kind:SharedLib", "configurations:*debug*"}
   if os_is_posix() then
     targetextension (".d" .. ".so" .. version)
   end
-  --this method of setting the output dir will be impractical if there are 
+  --this method of setting the output dir won't be practical if there are 
   --a lot of platforms...
   targetdir (stage .. "/debug/lib")
   
@@ -56,7 +56,7 @@ filter {"kind:SharedLib", "configurations:*release*"}
   if os_is_posix() then
     targetextension (".so" .. version)
   end
-  --this method of setting the output dir will be impractical if there are 
+  --this method of setting the output dir won't be practical if there are 
   --a lot of platforms...
   targetdir (stage .. "/release/lib")
 
@@ -72,7 +72,7 @@ filter {"kind:StaticLib", "configurations:*release*"}
   if os_is_posix() then
     targetextension (".a" .. version)
   end
-  --this method of setting the output dir will be impractical if there are 
+  --this method of setting the output dir won't be practical if there are 
   --a lot of platforms...
   targetdir (stage .. "/release/lib")
   
@@ -80,7 +80,7 @@ filter {"kind:ConsoleApp", "configurations:*debug*"}
   if os_is_posix() then
     targetextension ("_d" .. version)
   end
-  --this method of setting the output dir will be impractical if there are 
+  --this method of setting the output dir won't be practical if there are 
   --a lot of platforms...
   targetdir (stage .. "/debug/bin")
   
@@ -88,7 +88,7 @@ filter {"kind:ConsoleApp", "configurations:*release*"}
   if os_is_posix() then
     targetextension (version)
   end
-  --this method of setting the output dir will be impractical if there are 
+  --this method of setting the output dir won't be practical if there are 
   --a lot of platforms...
   targetdir (stage .. "/release/bin")
 
@@ -100,56 +100,40 @@ local function is_gcc()
   return os.get() ~= "windows"
 end
 
-filter {"language:*"}  
-  if is_gcc() then    
-    buildoptions {"-Wfatal-errors"}
-  end
-
-filter {"language:C++"}  
-  if is_gcc() then    
-    buildoptions {"-std=c++11"}
-  end
-
 filter {"language:C"}  
   if is_gcc() then    
+    buildoptions {"-Wfatal-errors"}
     buildoptions {"-std=c11"}
     defines {"_XOPEN_SOURCE=700"}
   end
   
 filter {"configurations:*", "kind:*Lib"}
   if is_gcc() then
-    --TODO: When exported library simbols are done default
+    --TODO: When exported library simbols are done default to hidden visibility
     --buildoptions {"-fvisibility=hidden"}
   end
 
 filter {"kind:ConsoleApp"}
   if is_gcc() then
-    links {"stdc++", "pthread", "rt"} --this linking to stdc++ is to avoid
+    links {"pthread", "rt"} 
   end
 -- WORKAROUND END --
 
-project (projname .. "_cpp")
-  kind "StaticLib"  
-  language "C++"
-  files {repo_src .. "/**.cpp", repo_src .. "/**.h"}
-
 project (projname)
   kind "StaticLib"
-  language "C"
-  files {repo_src .. "/**.c", repo_src .. "/**.h"}
-  links {projname .. "_cpp"}
+  language "C" --TODO: with visual studio it will be C++
+  files {repo_src .. "/**"}
   
 project (projname .. "_test")
   kind "ConsoleApp"
-  language "C"
+  language "C" --TODO: with visual studio it will be C++
   includedirs {cmocka .. "/include", repo_test_src }
   files {repo_test_src .. "/" .. projname .. "/**"}
-  links {projname .. "_cpp", cmocka .. "/lib/cmocka"} 
+  links {cmocka .. "/lib/cmocka"} 
   
 project "semaphore_test"
   kind "ConsoleApp"
-  language "C"
+  language "C" --TODO: with visual studio it will be C++
   includedirs {repo_test_src}
   files {repo_test_src .. "/semaphore/**"}
-  links {projname .. "_cpp"} 
 

@@ -6,9 +6,9 @@
 #define bl_tm_sem_infinity 0
 /*----------------------------------------------------------------------------*/
 #if defined (BL_LINUX)
-  #include <base_library/lib/semaphore_linux.h>
+  #include <base_library/lib/impl/semaphore_linux.h>
 #elif defined (BL_WINDOWS)
-  #include <base_library/lib/semaphore_win.h>
+  #include <base_library/lib/impl/semaphore_win.h>
 #else
  #error "semaphore unimplemented on this platform"
 #endif

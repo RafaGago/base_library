@@ -3,7 +3,7 @@
 #ifdef BL_LINUX
 
 #include <base_library/cmocka_pre.h>
-#include <base_library/lib/thread.h>
+#include <base_library/hdr/thread.h>
 #include <base_library/lib/semaphore.h>
 #include <base_library/lib/semaphore_linux.c>
 /*---------------------------------------------------------------------------*/

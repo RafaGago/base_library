@@ -122,11 +122,11 @@ static inline ststamp tstamp_compare (tstamp a, tstamp b)
   #include BL_CUSTOM_TIMESTAMP_HEADER
 #elif defined (BL_POSIX)
 #include <time.h>
-#include <base_library/hdr/timestamp_posix.h>
+#include <base_library/hdr/impl/timestamp_posix.h>
 /*---------------------------------------------------------------------------*/
 #elif defined (BL_WINDOWS)
 /*---------------------------------------------------------------------------*/
-#include <base_library/hdr/timestamp_windows.h>
+#include <base_library/hdr/impl/timestamp_windows.h>
 /*---------------------------------------------------------------------------*/
 #else
  #error "tstamp unimplemented on this platform"
