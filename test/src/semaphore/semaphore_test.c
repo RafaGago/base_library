@@ -13,9 +13,9 @@
 #include <base_library/hdr/time.h>
 #include <base_library/hdr/deadline.h>
 #include <base_library/hdr/cache.h>
+#include <base_library/hdr/atomic.h>
 
 #include <base_library/lib/thread.h>
-#include <base_library/lib/atomic.h>
 #include <base_library/lib/semaphore_linux.c>
 
 #define thread_count 16
