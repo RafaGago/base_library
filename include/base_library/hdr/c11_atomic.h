@@ -1,14 +1,18 @@
-#ifndef __EVK_ATOMIC_H__
-#define __EVK_ATOMIC_H__
+#ifndef __BL_C11_ATOMIC_H__
+#define __BL_C11_ATOMIC_H__
 
-#include <stdatomic.h>
+#ifndef __BL_ATOMIC_H__
+  #error "don't include this file directly, use <hdr/atomic.h> instead"
+#endif
+
 #include <base_library/hdr/platform.h>
 #include <base_library/hdr/integer.h>
-
+#include <stdatomic.h>
 /*---------------------------------------------------------------------------*/
 typedef atomic_uintptr_t atomic_uword;
 typedef atomic_intptr_t  atomic_word;
-typedef atomic_u32       atomic_ulong
+typedef atomic_ulong     atomic_u32
+typedef int              memory_order;
 /*---------------------------------------------------------------------------*/
 #define mo_relaxed  memory_order_relaxed
 #define mo_consume  memory_order_consume
@@ -26,11 +30,11 @@ static inline void atomic_uword_store(
   atomic_store_explicit (a, v, mo);
 }
 /*---------------------------------------------------------------------------*/
-static inline void atomic_uword_load(
+static inline uword atomic_uword_load(
   volatile atomic_uword* a, memory_order mo
   )
 {
-  atomic_load_explicit (a, mo);
+  return atomic_load_explicit (a, mo);
 }
 /*---------------------------------------------------------------------------*/
 static inline bool atomic_uword_strong_cas(
@@ -42,7 +46,7 @@ static inline bool atomic_uword_strong_cas(
   )
 {
   return atomic_compare_exchange_strong_explicit(
-    a, expected, desired, success, fail
+    a, expected, desired, success, failure
     );
 }
 /*---------------------------------------------------------------------------*/
@@ -55,7 +59,7 @@ static inline bool atomic_uword_weak_cas(
   )
 {
   return atomic_compare_exchange_weak_explicit(
-    a, expected, desired, success, fail
+    a, expected, desired, success, failure
     );
 }
 /*---------------------------------------------------------------------------*/
@@ -103,9 +107,9 @@ static inline void atomic_word_store(
   atomic_store_explicit (a, v, mo);
 }
 /*---------------------------------------------------------------------------*/
-static inline void atomic_word_load (volatile atomic_word* a, memory_order mo)
+static inline word atomic_word_load (volatile atomic_word* a, memory_order mo)
 {
-  atomic_load_explicit (a, mo);
+  return atomic_load_explicit (a, mo);
 }
 /*---------------------------------------------------------------------------*/
 static inline bool atomic_word_strong_cas(
@@ -117,7 +121,7 @@ static inline bool atomic_word_strong_cas(
   )
 {
   return atomic_compare_exchange_strong_explicit(
-    a, expected, desired, success, fail
+    a, expected, desired, success, failure
     );
 }
 /*---------------------------------------------------------------------------*/
@@ -130,7 +134,7 @@ static inline bool atomic_word_weak_cas(
   )
 {
   return atomic_compare_exchange_weak_explicit(
-    a, expected, desired, success, fail
+    a, expected, desired, success, failure
     );
 }
 /*---------------------------------------------------------------------------*/
@@ -178,23 +182,21 @@ static inline void atomic_u32_store(
   atomic_store_explicit (a, v, mo);
 }
 /*---------------------------------------------------------------------------*/
-static inline void atomic_u32_load(
-  volatile atomic_u32* a, memory_order mo
-  )
+static inline u32 atomic_u32_load (volatile atomic_u32* a, memory_order mo)
 {
-  atomic_load_explicit (a, mo);
+  return atomic_load_explicit (a, mo);
 }
 /*---------------------------------------------------------------------------*/
 static inline bool atomic_u32_strong_cas(
   volatile atomic_u32* a,
   u32*                 expected,
   u32                  desired,
-  memory_order           success,
-  memory_order           failure
+  memory_order         success,
+  memory_order         failure
   )
 {
   return atomic_compare_exchange_strong_explicit(
-    a, expected, desired, success, fail
+    a, expected, desired, success, failure
     );
 }
 /*---------------------------------------------------------------------------*/
@@ -207,7 +209,7 @@ static inline bool atomic_u32_weak_cas(
   )
 {
   return atomic_compare_exchange_weak_explicit(
-    a, expected, desired, success, fail
+    a, expected, desired, success, failure
     );
 }
 /*---------------------------------------------------------------------------*/
@@ -246,5 +248,5 @@ static inline u32 atomic_u32_fetch_and(
   return atomic_fetch_and_explicit (a, v, o);
 }
 /*---------------------------------------------------------------------------*/
-#endif
 
+#endif /*__BL_C11_ATOMIC_H__*/

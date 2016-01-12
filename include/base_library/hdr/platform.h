@@ -29,7 +29,7 @@
 
   #define BL_CPP_COMPILER_FOR_WHOLE_PROJECT 1
 
-  #define likely(x)   (x)
+  #define likely(x)   (x) /*TODO move to <utility.h> ?*/
   #define unlikely(x) (x)
 #endif
 /*---------------------------------------------------------------------------*/
@@ -71,10 +71,8 @@
     #define nullptr NULL
   #endif
 
-  #define likely(x)   __builtin_expect(!!(x), 1)
+  #define likely(x)   __builtin_expect(!!(x), 1) /*TODO move to <utility.h> ?*/
   #define unlikely(x) __builtin_expect(!!(x), 0)
- /*todo check for versions and __STDC_NO_ATOMICS__ to set BL_HAS_C11_ATOMICS
-   now disabled*/
 #endif
 /*---------------------------------------------------------------------------*/
 #if !defined (BL_INTEL_AMD_PC) && !defined (BL_INTEL_AMD_PC)

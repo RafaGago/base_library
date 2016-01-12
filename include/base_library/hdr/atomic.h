@@ -2,10 +2,6 @@
 #define __BL_ATOMIC_H__
 
 /*---------------------------------------------------------------------------*/
-
-/*TODO: __STDC_NO_ATOMICS__ is not detected now... and BL_HAS_C11_ATOMICS is
-  never set*/
-
 #ifdef __cplusplus
   #include <base_library/hdr/cpp_atomic.h>
 #elif defined (BL_HAS_C11_ATOMICS)
@@ -13,7 +9,7 @@
 #elif defined (__GNUC__) && (__GNUC__ >= 4) && (__GNUC_MINOR__ >= 7)
   #include <base_library/hdr/gcc_atomic.h>
 #else
-  #error "atomics unimplemented on this platform/compiler"
+  #error "atomics unimplemented on this platform"
 #endif
 /*---------------------------------------------------------------------------*/
 static_assert_outside_func_ns (sizeof (atomic_uword)  == sizeof (uword));

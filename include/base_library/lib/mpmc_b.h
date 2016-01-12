@@ -9,7 +9,7 @@
 #include <base_library/hdr/allocator.h>
 #include <base_library/hdr/error.h>
 #include <base_library/hdr/utility.h>
-#include <base_library/lib/atomic.h>
+#include <base_library/hdr/atomic.h>
 /*---------------------------------------------------------------------------*/
 /*
   This is the Dimitry Dyukov bounded MPMC queue with some modifications:
