@@ -277,7 +277,7 @@ void setup_timeout_only_test(
   uword i;
   for (i = 0; i < (arr_elems (*thr) / 2); ++i) {
     thread_context* c = &(*thr)[i].c;
-    c->wait_us        = 1;
+    c->wait_us        = 10;
     c->is_signaler    = false;
     c->remaining      = remaining;
   }

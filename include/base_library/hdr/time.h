@@ -138,7 +138,7 @@ static inline ststamp tstamp_compare (tstamp a, tstamp b)
 static void timespec_normalize (struct timespec* t)
 {
   if (unlikely (t->tv_nsec >= nsec_in_sec)) {   
-    uword div   =(t->tv_nsec / nsec_in_sec);
+    uword div   = (t->tv_nsec / nsec_in_sec);
     t->tv_sec  += div;
     t->tv_nsec -= (div * nsec_in_sec);
     static_assert_ns (sizeof div >= sizeof t->tv_nsec);
@@ -148,10 +148,10 @@ static void timespec_normalize (struct timespec* t)
 static struct timespec timespec_us_from_now (u32 usec, int clock)
 {
   struct timespec t;
-  u32 sec = usec / 1000000;
+  u32 sec = usec / usec_in_sec;
   clock_gettime (clock, &t);
   t.tv_sec  += sec;
-  t.tv_nsec += usec - (sec * 1000000);
+  t.tv_nsec += (usec - (sec * usec_in_sec)) * nsec_in_usec;
   timespec_normalize (&t);
   return t;
 }
