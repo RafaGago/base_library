@@ -2,9 +2,6 @@
 #define __BL_ATOMIC_H__
 
 #include <base_library/hdr/platform.h>
-#if defined (BL_GCC) && BL_GCC >= BL_GCC_VER (4, 9, 0)
-  #define BL_HAS_C11_ATOMICS
-#endif
 /*---------------------------------------------------------------------------*/
 #ifdef __cplusplus
   #include <base_library/hdr/impl/atomic_cpp.hpp>

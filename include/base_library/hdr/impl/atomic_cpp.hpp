@@ -10,7 +10,7 @@
 #endif
 
 #include <atomic>
-#include <type_traits>
+#include <base_library/hdr/alignment.h>
 #include <base_library/hdr/platform.h>
 #include <base_library/hdr/integer.h>
 /*---------------------------------------------------------------------------*/
@@ -18,7 +18,7 @@ template <class T>
 struct cpp_atomic_size_align_checker {
   static const bool ok = 
     sizeof (std::atomic<T>) == sizeof (T) &&
-    (std::alignment_of<std::atomic<T>>::value == std::alignment_of<T>::value);
+    bl_alignof (std::atomic<T>) == bl_alignof (T);
 };
 /*---------------------------------------------------------------------------*/
 extern "C" {

@@ -4,15 +4,18 @@
 /*----------------------------------------------------------------------------*/
 #include <unistd.h>
 #include <sys/syscall.h>
-#include <errno.h>
 #include <linux/futex.h>
+#include <errno.h>
 /*----------------------------------------------------------------------------*/
 #include <base_library/hdr/integer_manipulation.h>
 #include <base_library/hdr/atomic.h>
 #include <base_library/lib/semaphore.h>
 /*----------------------------------------------------------------------------*/
 static inline int futex_wait_masked_absolute_monotonic(
-  u32* f, u32 expected_fval, u32 expected_fval_mask, const struct timespec* tp 
+  atomic_u32*            f,
+  u32                    expected_fval,
+  u32                    expected_fval_mask,
+  const struct timespec* tp 
   )
 {
   return syscall(
@@ -26,7 +29,7 @@ static inline int futex_wait_masked_absolute_monotonic(
     );
 }
 /*----------------------------------------------------------------------------*/
-static inline int futex_wake (u32* f, i32 thread_count)
+static inline int futex_wake (atomic_u32* f, i32 thread_count)
 {
   return syscall(
     SYS_futex,

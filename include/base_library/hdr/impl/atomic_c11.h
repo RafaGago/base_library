@@ -7,12 +7,12 @@
 
 #include <base_library/hdr/platform.h>
 #include <base_library/hdr/integer.h>
+#include <base_library/hdr/alignment.h>
 #include <stdatomic.h>
 /*---------------------------------------------------------------------------*/
 typedef atomic_uintptr_t atomic_uword;
 typedef atomic_intptr_t  atomic_word;
-typedef atomic_ulong     atomic_u32
-typedef int              memory_order;
+typedef atomic_ulong     atomic_u32;
 /*---------------------------------------------------------------------------*/
 #define mo_relaxed  memory_order_relaxed
 #define mo_consume  memory_order_consume
@@ -22,6 +22,11 @@ typedef int              memory_order;
 #define mo_seq_cst  memory_order_seq_cst
 /*---------------------------------------------------------------------------*/
 /* uword */
+/*---------------------------------------------------------------------------*/
+static_assert_outside_func_ns(
+  sizeof (atomic_uword) == sizeof (uword) && 
+  bl_alignof (atomic_uword) == bl_alignof (uword)
+  );
 /*---------------------------------------------------------------------------*/
 static inline void atomic_uword_store(
   volatile atomic_uword* a, uword v, memory_order mo
@@ -100,6 +105,11 @@ static inline uword atomic_uword_fetch_and(
 /*---------------------------------------------------------------------------*/
 /* word */
 /*---------------------------------------------------------------------------*/
+static_assert_outside_func_ns(
+  sizeof (atomic_word) == sizeof (word) && 
+  bl_alignof (atomic_word) == bl_alignof (word)
+  );
+/*---------------------------------------------------------------------------*/
 static inline void atomic_word_store(
   volatile atomic_word* a, word v, memory_order mo
   )
@@ -174,6 +184,11 @@ static inline uword atomic_word_fetch_and(
 }
 /*---------------------------------------------------------------------------*/
 /* u32 */
+/*---------------------------------------------------------------------------*/
+static_assert_outside_func_ns(
+  sizeof (atomic_u32) == sizeof (u32) && 
+  bl_alignof (atomic_u32) == bl_alignof (u32)
+  );
 /*---------------------------------------------------------------------------*/
 static inline void atomic_u32_store(
   volatile atomic_u32* a, u32 v, memory_order mo

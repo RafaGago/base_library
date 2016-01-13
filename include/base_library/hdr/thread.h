@@ -2,9 +2,6 @@
 #define __BL_THREAD_H__
 
 #include <base_library/hdr/platform.h>
-#if defined (BL_GCC) && BL_GCC >= BL_GCC_VER (4, 9, 0)
-  #define BL_HAS_C11_THREAD
-#endif
 /*---------------------------------------------------------------------------*/
 #if defined (__cplusplus)
   #include <base_library/hdr/impl/thread_cpp.hpp>

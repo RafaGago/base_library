@@ -78,6 +78,21 @@
 
   #define likely(x)   __builtin_expect(!!(x), 1) /*TODO move to <utility.h> ?*/
   #define unlikely(x) __builtin_expect(!!(x), 0)
+
+  #if BL_GCC >= BL_GCC_VER (4, 9, 0)
+    #define BL_HAS_C11_ATOMICS
+  #endif
+
+#if 0 /*not sure about how to test on gcc (depends on glib)*/
+  #if BL_GCC >= BL_GCC_VER (4, 9, 0)
+    #define BL_HAS_C11_THREAD
+  #endif
+#endif
+
+  #if BL_GCC >= BL_GCC_VER (4, 7, 0)
+    #define BL_HAS_C11_STDALIGN
+  #endif
+
 #endif
 /*---------------------------------------------------------------------------*/
 #if !defined (BL_INTEL_AMD_PC) && !defined (BL_INTEL_AMD_PC)

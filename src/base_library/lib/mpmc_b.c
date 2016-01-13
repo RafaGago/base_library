@@ -46,9 +46,9 @@ typedef union mpmc_b_i {
 }
 mpmc_b_i;
 /*---------------------------------------------------------------------------*/
-static inline u32* mpmc_b_gate_ptr (mpmc_b* q, u8* join_data_ptr)
+static inline atomic_u32* mpmc_b_gate_ptr (mpmc_b* q, u8* join_data_ptr)
 {
-  return (u32*) (join_data_ptr + q->gate_offset);
+  return (atomic_u32*) (join_data_ptr + q->gate_offset);
 }
 /*---------------------------------------------------------------------------*/
 static inline u8* mpmc_b_mem_content_ptr (mpmc_b* q, u8* join_data_ptr)
@@ -122,15 +122,15 @@ extern bl_err mpmc_b_produce_sig_fallback(
   mpmc_b_i next;
 
   now.raw = atomic_uword_load_rlx (&q->i_producer);
-  
+
   while (1) {
     word status;
     u32  gate;
-    
+
     *inf = now.inf;
     if ((now.inf.signal & sig_fallback_mask) == sig_fallback_match) {
       return bl_preconditions;
-    }    
+    }
     join_data  = mpmc_b_join_data_ptr (q, now.inf.transaction);
     gate       = atomic_u32_load (mpmc_b_gate_ptr (q, join_data), mo_acquire);
     status     = mpmc_b_transaction_status (gate, now);
@@ -195,10 +195,10 @@ extern bl_err mpmc_b_consume_sig_fallback(
   mpmc_b_i next;
 
   now.raw = atomic_uword_load_rlx (&q->i_consumer);
-    
+
   while (1) {
     u32 gate;
-    
+
     *inf = now.inf;
     if ((now.inf.signal & sig_fallback_mask) == sig_fallback_match) {
       return bl_preconditions;
@@ -353,8 +353,8 @@ bl_err mpmc_b_init_private(
 
   uword bytes = (join_size * buffer_size);
   q->buffer   = bl_allocate (alloc, bytes);
-  if (!q->buffer) { 
-    return bl_alloc; 
+  if (!q->buffer) {
+    return bl_alloc;
   }
   q->buffer_mask    = buffer_size - 1;
   q->join_size      = join_size;

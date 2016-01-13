@@ -94,7 +94,7 @@ retry:
         }
       }
       else {
-        printf ("on " thcon_hdr ": semaphore error &d", thcon_hdr_v (c), err);
+        printf ("on " thcon_hdr ": semaphore error %d", thcon_hdr_v (c), err);
         break;
       }
     }
@@ -110,7 +110,7 @@ static inline void run_waiter (thread_context* c)
   do {
     err = bl_tm_sem_wait (c->sem, c->wait_us);
     if (err && err != bl_timeout) {
-      printf ("on " thcon_hdr ": semaphore error &d", thcon_hdr_v (c), err);
+      printf ("on " thcon_hdr ": semaphore error %d", thcon_hdr_v (c), err);
       break;
     }
     c->w.timed_out += (uword)(err == bl_timeout);
@@ -126,7 +126,7 @@ int thread (void* context)
 
   if (barrier_err && barrier_err != PTHREAD_BARRIER_SERIAL_THREAD) {
     c->last_error = barrier_err;
-    printf ("on " thcon_hdr ": barrier error &d", thcon_hdr_v (c), barrier_err);
+    printf ("on " thcon_hdr ": barrier error %d", thcon_hdr_v (c), barrier_err);
   }
   tstamp start = bl_get_tstamp();
   if (c->is_signaler) {
@@ -202,9 +202,9 @@ bool join_threads_and_show_results(
 bool check_print_sem_status (bl_tm_sem* sem, bool sem_val_zero)
 {
   printf(
-    "sem status: sig_count:%u, no_waiters=%u\n",
-	tm_sem_futex_get_sig (sem->sem),
-	tm_sem_futex_get_wait (sem->sem) == 0
+    "sem status: sig_count:%lu, no_waiters=%d\n",
+  	tm_sem_futex_get_sig (sem->sem),
+	  tm_sem_futex_get_wait (sem->sem) == 0
     );
   if ((sem_val_zero && tm_sem_futex_get_sig (sem->sem) != 0) ||
 	   tm_sem_futex_get_wait (sem->sem) != 0
