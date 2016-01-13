@@ -1,14 +1,18 @@
 #ifndef __BL_ATOMIC_H__
 #define __BL_ATOMIC_H__
 
+#include <base_library/hdr/platform.h>
+#if defined (BL_GCC) && BL_GCC >= BL_GCC_VER (4, 9, 0)
+  #define BL_HAS_C11_ATOMICS
+#endif
 /*---------------------------------------------------------------------------*/
 #ifdef __cplusplus
   #include <base_library/hdr/impl/atomic_cpp.hpp>
-#elif defined (BL_HAS_C11_ATOMICS) /*as of now this is undetected*/
+#elif defined (BL_HAS_C11_ATOMICS)
   #include <base_library/hdr/impl/atomic_c11.h>
-#elif defined (__GNUC__) && (__GNUC__ >= 4) && (__GNUC_MINOR__ >= 7)
+#elif defined (BL_GCC) && BL_GCC >= BL_GCC_VER (4, 7, 0) 
   #include <base_library/hdr/impl/atomic_gcc.h>
-#else
+#else /*older "_sync" atomic builtins with full fences might be used on gcc*/
   #error "atomics unimplemented on this platform"
 #endif
 /*---------------------------------------------------------------------------*/

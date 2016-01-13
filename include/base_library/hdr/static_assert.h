@@ -1,7 +1,7 @@
 #ifndef __BL_STATIC_ASSERT_H__
 #define __BL_STATIC_ASSERT_H__
 
-#if !defined __cplusplus && !defined (_MSC_VER)
+#if !defined __cplusplus && !defined (_MSC_VER) && !defined (static_assert)
   #define static_assert(cond, str) _Static_assert(cond, str)
 #endif
 
