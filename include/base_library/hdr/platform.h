@@ -35,8 +35,8 @@
 /*---------------------------------------------------------------------------*/
 #if defined (__GNUC__) || defined (GCC)
 
-  #define BL_GCC_VER(minor, major, patchlevel)\
-    ((minor * 10000) + (major * 100) + patchlevel)
+  #define BL_GCC_VER(major, minor, patchlevel)\
+    ((major * 10000) + (minor * 100) + patchlevel)
   #define BL_GCC BL_GCC_VER (__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
 
   #if defined (_WIN64) || defined (_WIN32) || defined (_WIN32)
