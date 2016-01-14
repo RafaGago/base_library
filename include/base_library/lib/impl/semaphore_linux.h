@@ -42,7 +42,7 @@ static inline bl_err bl_sem_signal (bl_sem* s)
   return sem_post (s) == 0 ? bl_ok : bl_error;
 }
 /*----------------------------------------------------------------------------*/
-#define bl_tm_sem_resolution_us 500 /*TODO just an informed guess */
+#define bl_tm_sem_resolution_us 200 /*TODO just an informed guess */
 /*----------------------------------------------------------------------------*/
 typedef struct bl_tm_sem {
   atomic_u32 sem;
