@@ -4,6 +4,7 @@
 /*---------------------------------------------------------------------------*/
 #include <assert.h>
 #include <base_library/hdr/platform.h>
+#include <base_library/hdr/libexport.h>
 #include <base_library/hdr/cache.h>
 #include <base_library/hdr/alignment.h>
 #include <base_library/hdr/allocator.h>
@@ -65,7 +66,7 @@ static_assert_outside_func_ns (sizeof (atomic_uword) == sizeof (mpmc_b_info));
     align_combined_type2_offset (type_contained, u32)\
     )
 /*---------------------------------------------------------------------------*/
-extern void mpmc_b_destroy (mpmc_b* q, const alloc_tbl* alloc);
+extern void BL_EXPORT mpmc_b_destroy (mpmc_b* q, const alloc_tbl* alloc);
 /*------------------------------------------------------------------------------
  Inserts to the queue on multiple producer (MP) mode.
  
@@ -88,7 +89,7 @@ extern void mpmc_b_destroy (mpmc_b* q, const alloc_tbl* alloc);
  that represents "on termination" and with an according mask + match the 
  producers will be blocked.
 ------------------------------------------------------------------------------*/
-extern bl_err mpmc_b_produce_sig_fallback(
+extern bl_err BL_EXPORT mpmc_b_produce_sig_fallback(
   mpmc_b*      q,
   mpmc_b_info* info_out,
   const void*  value,
@@ -135,7 +136,7 @@ static inline bl_err mpmc_b_produce(
  Single producer (SP) mode insert. Remember that you can't mix single and 
  multiple producer modes on the same queue.
 -----------------------------------------------------------------------------*/
-extern bl_err mpmc_b_produce_single_p(
+extern bl_err BL_EXPORT mpmc_b_produce_single_p(
   mpmc_b* q, mpmc_b_info* info_out, const void* value
   );
 /*------------------------------------------------------------------------------
@@ -160,7 +161,7 @@ extern bl_err mpmc_b_produce_single_p(
  that represents "on termination" and with an according mask + match the 
  consumers will be blocked.
 ------------------------------------------------------------------------------*/
-extern bl_err mpmc_b_consume_sig_fallback(
+extern bl_err BL_EXPORT mpmc_b_consume_sig_fallback(
   mpmc_b*      q,
   mpmc_b_info* info_out,
   void*        value,
@@ -207,7 +208,7 @@ static inline bl_err mpmc_b_consume(
  Single consumer (SC) mode insert. Remember that you can't mix single and 
  multiple consumer modes on the same queue.
 -----------------------------------------------------------------------------*/
-extern bl_err mpmc_b_consume_single_c(
+extern bl_err BL_EXPORT mpmc_b_consume_single_c(
   mpmc_b* q, mpmc_b_info* info_out, void* value
   );
 /*-----------------------------------------------------------------------------
@@ -219,27 +220,27 @@ extern bl_err mpmc_b_consume_single_c(
   The error "bl_preconditions" will be returned in case that "expected" didn't
   match. It is up to the user to retry or not.
 -----------------------------------------------------------------------------*/
-extern bl_err mpmc_b_producer_signal_try_set(
+extern bl_err BL_EXPORT mpmc_b_producer_signal_try_set(
   mpmc_b* q, mpmc_b_sig* expected, mpmc_b_sig desired
   );
 /*-----------------------------------------------------------------------------
  Same as the above but the transaction has to match too
 -----------------------------------------------------------------------------*/
-extern bl_err mpmc_b_producer_signal_try_set_tmatch(
+extern bl_err BL_EXPORT mpmc_b_producer_signal_try_set_tmatch(
   mpmc_b* q, mpmc_b_info* expected, mpmc_b_sig desired
   );
 /*-----------------------------------------------------------------------------
   Same as above but for consumers
 -----------------------------------------------------------------------------*/
-extern bl_err mpmc_b_consumer_signal_try_set(
+extern bl_err BL_EXPORT mpmc_b_consumer_signal_try_set(
   mpmc_b* q, mpmc_b_sig* expected, mpmc_b_sig desired
   );
 /*--------------------------- ------------------------------------------------*/
-extern bl_err mpmc_b_consumer_signal_try_set_tmatch(
+extern bl_err BL_EXPORT mpmc_b_consumer_signal_try_set_tmatch(
   mpmc_b* q, mpmc_b_info* expected, mpmc_b_sig desired
   );
 /*--------------------------- ------------------------------------------------*/
-extern bl_err mpmc_b_init_private(
+extern bl_err BL_EXPORT mpmc_b_init_private(
   mpmc_b*          q,
   const alloc_tbl* alloc,
   uword            buffer_size,

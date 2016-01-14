@@ -43,7 +43,7 @@ filter {"configurations:*"}
       "%{cfg.buildtarget.name:gsub ('.%d+.%d+.%d+', '')}"    
     }
   end
-  
+--[[  
 filter {"kind:SharedLib", "configurations:*debug*"}
   if os_is_posix() then
     targetextension (".d" .. ".so" .. version)
@@ -59,7 +59,7 @@ filter {"kind:SharedLib", "configurations:*release*"}
   --this method of setting the output dir won't be practical if there are 
   --a lot of platforms...
   targetdir (stage .. "/release/lib")
-
+]]--
 filter {"kind:StaticLib", "configurations:*debug*"}
   if os_is_posix() then
     targetextension (".d" .. ".a" .. version )
@@ -109,8 +109,7 @@ filter {"language:C"}
   
 filter {"configurations:*", "kind:*Lib"}
   if is_gcc() then
-    --TODO: When exported library simbols are done default to hidden visibility
-    --buildoptions {"-fvisibility=hidden"}
+    buildoptions {"-fvisibility=hidden"}
   end
 
 filter {"kind:ConsoleApp"}

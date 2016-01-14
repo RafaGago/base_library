@@ -106,7 +106,7 @@ static inline word mpmc_b_transaction_status (u32 gate, mpmc_b_i now)
 }
 #endif
 /*---------------------------------------------------------------------------*/
-extern bl_err mpmc_b_produce_sig_fallback(
+bl_err BL_EXPORT mpmc_b_produce_sig_fallback(
   mpmc_b*      q,
   mpmc_b_info* inf,
   const void*  value,
@@ -153,7 +153,7 @@ extern bl_err mpmc_b_produce_sig_fallback(
   return bl_ok;
 }
 /*---------------------------------------------------------------------------*/
-bl_err mpmc_b_produce_single_p(
+bl_err BL_EXPORT mpmc_b_produce_single_p(
   mpmc_b* q, mpmc_b_info* inf, const void* value
   )
 {
@@ -179,7 +179,7 @@ bl_err mpmc_b_produce_single_p(
   return bl_would_overflow;
 }
 /*---------------------------------------------------------------------------*/
-extern bl_err mpmc_b_consume_sig_fallback(
+bl_err BL_EXPORT mpmc_b_consume_sig_fallback(
   mpmc_b*      q,
   mpmc_b_info* inf,
   void*        value,
@@ -227,7 +227,7 @@ extern bl_err mpmc_b_consume_sig_fallback(
   return bl_ok;
 }
 /*---------------------------------------------------------------------------*/
-bl_err mpmc_b_consume_single_c (mpmc_b* q, mpmc_b_info* inf, void* value)
+bl_err BL_EXPORT mpmc_b_consume_single_c (mpmc_b* q, mpmc_b_info* inf, void* value)
 {
   assert (q->buffer && inf && value);
   u8*      join_data;
@@ -252,7 +252,7 @@ bl_err mpmc_b_consume_single_c (mpmc_b* q, mpmc_b_info* inf, void* value)
   return bl_empty;
 }
 /*---------------------------------------------------------------------------*/
-void mpmc_b_destroy (mpmc_b* q, const alloc_tbl* alloc)
+void BL_EXPORT mpmc_b_destroy (mpmc_b* q, const alloc_tbl* alloc)
 {
   if (q->buffer) {
     bl_deallocate (alloc, q->buffer);
@@ -306,35 +306,35 @@ save_expected:
   return err;
 }
 /*---------------------------------------------------------------------------*/
-bl_err mpmc_b_producer_signal_try_set(
+bl_err BL_EXPORT mpmc_b_producer_signal_try_set(
   mpmc_b* q, mpmc_b_sig* expected, mpmc_b_sig desired
   )
 {
   return mpmc_b_signal (&q->i_producer, expected, desired);
 }
 /*---------------------------------------------------------------------------*/
-bl_err mpmc_b_consumer_signal_try_set(
+bl_err BL_EXPORT mpmc_b_consumer_signal_try_set(
   mpmc_b* q, mpmc_b_sig* expected, mpmc_b_sig desired
   )
 {
   return mpmc_b_signal (&q->i_consumer, expected, desired);
 
 /*---------------------------------------------------------------------------*/}
-bl_err mpmc_b_producer_signal_try_set_tmatch(
+bl_err BL_EXPORT mpmc_b_producer_signal_try_set_tmatch(
   mpmc_b* q, mpmc_b_info* expected, mpmc_b_sig desired
   )
 {
   return mpmc_b_signal_trans (&q->i_producer, expected, desired);
 }
 /*---------------------------------------------------------------------------*/
-bl_err mpmc_b_consumer_signal_try_set_tmatch(
+bl_err BL_EXPORT mpmc_b_consumer_signal_try_set_tmatch(
   mpmc_b* q, mpmc_b_info* expected, mpmc_b_sig desired
   )
 {
   return mpmc_b_signal_trans (&q->i_consumer, expected, desired);
 }
 /*---------------------------------------------------------------------------*/
-bl_err mpmc_b_init_private(
+bl_err BL_EXPORT mpmc_b_init_private(
   mpmc_b*          q,
   const alloc_tbl* alloc,
   uword            buffer_size,

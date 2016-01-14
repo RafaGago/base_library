@@ -8,6 +8,7 @@
 #include <errno.h>
 /*----------------------------------------------------------------------------*/
 #include <base_library/hdr/integer_manipulation.h>
+#include <base_library/hdr/libexport.h>
 #include <base_library/hdr/utility.h>
 #include <base_library/hdr/atomic.h>
 #include <base_library/lib/semaphore.h>
@@ -52,7 +53,7 @@ static inline int futex_wake (atomic_u32* f, i32 thread_count)
 #define tm_sem_futex_set(s, w)\
   (((s) & tm_sem_futex_sig_mask) | ((w) << tm_sem_futex_sig_bits))
 /*----------------------------------------------------------------------------*/
-bl_err bl_tm_sem_signal (bl_tm_sem* s)
+bl_err BL_EXPORT bl_tm_sem_signal (bl_tm_sem* s)
 {
   u32 sig, wait, curr;
   u32 prev = atomic_u32_load_rlx (&s->sem);
@@ -73,7 +74,7 @@ bl_err bl_tm_sem_signal (bl_tm_sem* s)
   return bl_ok;
 }
 /*----------------------------------------------------------------------------*/
-bl_err bl_tm_sem_wait (bl_tm_sem* s, u32 usec)
+bl_err BL_EXPORT bl_tm_sem_wait (bl_tm_sem* s, u32 usec)
 {
   u32    sig;
   u32    wait;
@@ -149,13 +150,13 @@ bl_err bl_tm_sem_wait (bl_tm_sem* s, u32 usec)
   return err;
 }
 /*----------------------------------------------------------------------------*/
-bl_err bl_tm_sem_init (bl_tm_sem* s)
+bl_err BL_EXPORT bl_tm_sem_init (bl_tm_sem* s)
 {
   atomic_u32_store_rlx (&s->sem, 0);
   return bl_ok;
 }
 /*----------------------------------------------------------------------------*/
-bl_err bl_tm_sem_destroy (bl_tm_sem* s)
+bl_err BL_EXPORT bl_tm_sem_destroy (bl_tm_sem* s)
 {
   word woken = futex_wake (&s->sem, itype_max (word));
   assert (woken == 0);
