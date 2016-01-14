@@ -2,6 +2,7 @@
 #define __BL_SEMAPHORE_WIN_H__
 
 #include <base_library/hdr/platform.h>
+#include <base_library/hdr/utility.h>
 #include <base_library/hdr/integer.h>
 #include <base_library/hdr/error.h>
 #include <base_library/hdr/deadline.h>

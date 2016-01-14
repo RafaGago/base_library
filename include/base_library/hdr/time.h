@@ -3,6 +3,7 @@
 
 /*----------------------------------------------------------------------------*/
 #include <base_library/hdr/platform.h>
+#include <base_library/hdr/utility.h>
 #include <base_library/hdr/integer.h>
 /*---------------------------------------------------------------------------*/
 #define si_unit_factor 1000

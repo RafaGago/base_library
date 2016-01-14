@@ -26,11 +26,6 @@
   #if defined (_M_IX86) || defined (_M_AMD64) || defined (_M_IA64)
     #define BL_INTEL_AMD_PC 1
   #endif
-
-  #define BL_CPP_COMPILER_FOR_WHOLE_PROJECT 1
-
-  #define likely(x)   (x) /*TODO move to <utility.h> ?*/
-  #define unlikely(x) (x)
 #endif
 /*---------------------------------------------------------------------------*/
 #if defined (__GNUC__) || defined (GCC)
@@ -75,9 +70,6 @@
     #include <stddef.h>
     #define nullptr NULL
   #endif
-
-  #define likely(x)   __builtin_expect(!!(x), 1) /*TODO move to <utility.h> ?*/
-  #define unlikely(x) __builtin_expect(!!(x), 0)
 
   #if BL_GCC >= BL_GCC_VER (4, 9, 0)
     #define BL_HAS_C11_ATOMICS

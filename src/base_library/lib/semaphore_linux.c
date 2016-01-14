@@ -8,6 +8,7 @@
 #include <errno.h>
 /*----------------------------------------------------------------------------*/
 #include <base_library/hdr/integer_manipulation.h>
+#include <base_library/hdr/utility.h>
 #include <base_library/hdr/atomic.h>
 #include <base_library/lib/semaphore.h>
 /*----------------------------------------------------------------------------*/
