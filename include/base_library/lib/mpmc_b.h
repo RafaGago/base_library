@@ -216,8 +216,8 @@ extern bl_err mpmc_b_consume_single_c(
   matches. On return expected always has the previous value. If expected didn't
   match the error code "bl_preconditions" is returned.
 
-  The error "bl_busy" will be returned in case there is contention. It is up
-  to the user to retry or not.
+  The error "bl_preconditions" will be returned in case that "expected" didn't
+  match. It is up to the user to retry or not.
 -----------------------------------------------------------------------------*/
 extern bl_err mpmc_b_producer_signal_try_set(
   mpmc_b* q, mpmc_b_sig* expected, mpmc_b_sig desired

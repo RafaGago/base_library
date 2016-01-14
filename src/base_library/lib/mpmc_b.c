@@ -265,17 +265,17 @@ static inline bl_err mpmc_b_signal(
 {
   mpmc_b_i r;
   mpmc_b_i w;
-  bl_err err = bl_preconditions;
-  r.raw        = atomic_uword_load_rlx (dst);
-
-  if (r.inf.signal != *expected) {
-    goto save_expected;
+  bl_err err = bl_ok;
+  r.raw      = atomic_uword_load_rlx (dst);
+  do {
+    if (r.inf.signal != *expected) {
+      err = bl_preconditions;
+      break;
+    }
+    w            = r;
+    w.inf.signal = desired;
   }
-  w            = r;
-  w.inf.signal = desired;
-  err = atomic_uword_weak_cas_rlx (dst, &r.raw, w.raw) ? bl_ok : bl_busy;
-
-save_expected:
+  while (!atomic_uword_weak_cas_rlx (dst, &r.raw, w.raw));
   *expected = r.inf.signal;
   return err;
 }
@@ -287,7 +287,7 @@ static inline bl_err mpmc_b_signal_trans(
   mpmc_b_i r;
   mpmc_b_i w;
   mpmc_b_i exp;
-  bl_err err;
+  bl_err   err;
 
   err     = bl_preconditions;
   exp.inf = *expected;
@@ -298,8 +298,9 @@ static inline bl_err mpmc_b_signal_trans(
   }
   w            = r;
   w.inf.signal = desired;
-  err = atomic_uword_weak_cas_rlx (dst, &r.raw, w.raw) ? bl_ok : bl_busy;
-
+  if (atomic_uword_weak_cas_rlx (dst, &r.raw, w.raw)) {
+    err = bl_ok;
+  }
 save_expected:
   *expected = r.inf;
   return err;

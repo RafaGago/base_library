@@ -201,7 +201,7 @@ static void mpmc_b_producer_signals_set (void **state)
   mpmc_b_info     inf;
   mpmc_b_type     v = 0;
   mpmc_b_sig      exp;
-  bl_err        err;
+  bl_err          err;
 
   exp = 0;
   err = mpmc_b_producer_signal_try_set (&c->q, &exp, 1);
@@ -233,7 +233,7 @@ static void mpmc_b_consumer_signals_set (void **state)
   mpmc_b_info     inf;
   mpmc_b_type     v = 0;
   mpmc_b_sig      exp;
-  bl_err        err;
+  bl_err          err;
 
   assert_true (mpmc_b_produce (&c->q, &inf, &v) == bl_ok);
   assert_true (mpmc_b_produce (&c->q, &inf, &v) == bl_ok);
@@ -267,7 +267,7 @@ static void mpmc_b_producer_signals_set_tmatch (void **state)
   mpmc_b_context* c = (mpmc_b_context*) *state;
   mpmc_b_info     inf, exp;
   mpmc_b_type     v = 0;
-  bl_err        err;
+  bl_err          err;
 
   exp.transaction = 0;
   exp.signal      = 0;
@@ -309,7 +309,7 @@ static void mpmc_b_consumer_signals_set_tmatch (void **state)
   mpmc_b_context* c = (mpmc_b_context*) *state;
   mpmc_b_info     inf, exp;
   mpmc_b_type     v = 0;
-  bl_err        err;
+  bl_err          err;
 
   assert_true (mpmc_b_produce (&c->q, &inf, &v) == bl_ok);
   assert_true (mpmc_b_produce (&c->q, &inf, &v) == bl_ok);
@@ -355,7 +355,7 @@ static void mpmc_b_producer_fallback (void **state)
   mpmc_b_info     inf;
   mpmc_b_type     v = 0;
   mpmc_b_sig      exp;
-  bl_err        err;
+  bl_err          err;
 
   exp = 0;
   err = mpmc_b_producer_signal_try_set (&c->q, &exp, 1);
@@ -382,7 +382,7 @@ static void mpmc_b_consumer_fallback (void **state)
   mpmc_b_info     inf;
   mpmc_b_type     v = 0;
   mpmc_b_sig      exp;
-  bl_err        err;
+  bl_err          err;
 
   assert_true (mpmc_b_produce (&c->q, &inf, &v) == bl_ok);
   assert_true (mpmc_b_produce (&c->q, &inf, &v) == bl_ok);
@@ -412,7 +412,7 @@ static void mpmc_b_producer_signal_change (void **state)
   mpmc_b_info     inf;
   mpmc_b_type     v = 0;
   mpmc_b_sig      exp;
-  bl_err        err;
+  bl_err          err;
 
   exp = 0;
   err = mpmc_b_producer_signal_try_set (&c->q, &exp, 1);
@@ -433,7 +433,7 @@ static void mpmc_b_consumer_signal_change (void **state)
   mpmc_b_info     inf;
   mpmc_b_type     v = 0;
   mpmc_b_sig      exp;
-  bl_err        err;
+  bl_err          err;
 
   assert_true (mpmc_b_produce (&c->q, &inf, &v) == bl_ok);
   assert_true (mpmc_b_produce (&c->q, &inf, &v) == bl_ok);
