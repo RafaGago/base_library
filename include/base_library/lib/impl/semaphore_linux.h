@@ -9,6 +9,7 @@
 /*----------------------------------------------------------------------------*/
 #include <semaphore.h>
 #include <errno.h>
+#include <base_library/hdr/libexport.h>
 #include <base_library/hdr/atomic.h>
 #include <base_library/hdr/error.h>
 #include <base_library/hdr/integer.h>
