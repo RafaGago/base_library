@@ -7,9 +7,6 @@
 #define bl_min(v1, v2) ((v1) <= (v2) ? (v1) : (v2))
 #define bl_max(v1, v2) ((v1) <= (v2) ? (v2) : (v1))
 /*---------------------------------------------------------------------------*/
-#define tokconcat2(a, b) a##b
-#define tokconcat(a, b) tokconcat2 (a, b)
-/*---------------------------------------------------------------------------*/
 #define sizeof_member(struct_type, member_name)\
   (sizeof ((struct_type*) 0)->member_name)
 /*---------------------------------------------------------------------------*/

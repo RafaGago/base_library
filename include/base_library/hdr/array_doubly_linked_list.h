@@ -20,7 +20,7 @@
 #include <base_library/hdr/platform.h>
 #include <base_library/hdr/integer.h>
 #include <base_library/hdr/utility.h>
-#include <base_library/hdr/array_doubly_linked_list_private.h>
+#include <base_library/hdr/impl/array_doubly_linked_list_private.h>
 
 typedef uword adlnls_it;
 /*---------------------------------------------------------------------------*/

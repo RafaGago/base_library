@@ -20,4 +20,3 @@ int main (void)
   printf ("\n[SUITE ERR ] %d suite(s)\n", failed);
   return failed;
 }
-
