@@ -311,15 +311,23 @@ THE SOFTWARE.
 
  1. pp_vargs_end is concatenated with the first argument.
  2. If the first argument is not present then only "pp_vargs_end" will
-    remain, otherwise "_END_OF_ARGUMENTS something_here" will remain.
+    remain, otherwise "pp_vargs_end something_here" will remain.
  3. In the former case, the pp_vargs_end() macro expands to a
     0 when it is expanded. In the latter, a non-zero result remains.
  4. pp_bool is used to force non-zero results into 1 giving the clean 0 or 1
     output required.
 */
 /*---------------------------------------------------------------------------*/
-#define pp_vargs_end() 0
-#define pp_has_vargs(...) pp_bool (pp_vargs_first (pp_vargs_end __VA_ARGS__)())
+#if 0 /*original*/
+  #define pp_vargs_end() 0
+  #define pp_has_vargs(...) pp_bool (pp_vargs_first (pp_vargs_end __VA_ARGS__)())
+#else
+/*this is an improvement over the original, which failed if the first argument
+  contained parentheses*/
+#define pp_vargs_end_fn() 0
+#define pp_has_vargs(...)\
+  pp_bool (pp_tokconcat (pp_vargs_first (pp_vargs_end __VA_ARGS__), _fn)())
+#endif
 /*---------------------------------------------------------------------------*/
 /**
  Macro pp_apply/list comprehension. Usage:
@@ -541,17 +549,17 @@ pp_varg_count(...) : Counts va_args e.g.
   pp_varg_count() -> is evaluated to 0.
 */
 /*---------------------------------------------------------------------------*/
-#define pp_varg_count_private_name() pp_varg_count_private
+#define pp_vargs_count_private_name() pp_vargs_count_private
 
-#define pp_varg_count_private(cnt,cur_val, ...) \
+#define pp_vargs_count_private(cnt,cur_val, ...) \
   pp_if_else (pp_not (pp_has_vargs (__VA_ARGS__)))(\
     (cnt),\
-    (pp_defer2 (pp_varg_count_private_name) () (pp_inc (cnt), __VA_ARGS__))\
+    (pp_defer2 (pp_vargs_count_private_name) () (pp_inc (cnt), __VA_ARGS__))\
     )
 
-#define pp_varg_count(...) \
+#define pp_vargs_count(...) \
   pp_if_else (pp_has_vargs (__VA_ARGS__))(\
-    pp_eval (pp_varg_count_private (1, __VA_ARGS__)),\
+    pp_eval (pp_vargs_count_private (1, __VA_ARGS__)),\
     0\
     )
 /*---------------------------------------------------------------------------*/
@@ -588,7 +596,5 @@ pp_add (x, y) : Positive numeric substraction. Result has to be positive too.
     )
 
 #define pp_sub(x, y) pp_eval (pp_sub_private (x, y))
-
-/*---------------------------------------------------------------------------*/
-
+/*----------------------------------------------------------------------------*/
 #endif /* __BL_PREPROCESSOR_H__ */
