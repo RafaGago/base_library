@@ -555,6 +555,8 @@ pp_varg_count(...) : Counts va_args e.g.
     0\
     )
 /*---------------------------------------------------------------------------*/
+#define pp_vargs_ignore_first(a, ...) __VA_ARGS__
+/*---------------------------------------------------------------------------*/
 /*
 pp_add (x, y) : Positive numeric addition
 
@@ -586,6 +588,7 @@ pp_add (x, y) : Positive numeric substraction. Result has to be positive too.
     )
 
 #define pp_sub(x, y) pp_eval (pp_sub_private (x, y))
+
 /*---------------------------------------------------------------------------*/
 
 #endif /* __BL_PREPROCESSOR_H__ */
