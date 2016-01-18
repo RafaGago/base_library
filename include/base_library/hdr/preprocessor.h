@@ -140,18 +140,17 @@ THE SOFTWARE.
 
 #define pp_eval(...) pp_tokconcat (pp_eval_, BL_PP_MAX_RECURSION) (__VA_ARGS__)
 /*---------------------------------------------------------------------------*/
-
 /**
  Macros which expand to common values
 */
-
+/*---------------------------------------------------------------------------*/
 #define pp_pass(...) __VA_ARGS__
 #define pp_empty()
 #define pp_comma() ,
 #define pp_plus() +
 #define pp_zero() 0
 #define pp_one() 1
-
+/*---------------------------------------------------------------------------*/
 /**
  Causes a function-style macro to require an additional pass to be expanded.
 
@@ -295,11 +294,12 @@ THE SOFTWARE.
 
  The mechanism is analogous to pp_if.
 */
+/*---------------------------------------------------------------------------*/
 #define pp_if_else_0(t,f) f
 #define pp_if_else_1(t,f) t
 #define pp_if_else_private(c) pp_concat (pp_if_else_,c)
 #define pp_if_else(c)         pp_if_else_private (pp_bool(c))
-
+/*---------------------------------------------------------------------------*/
 /**
  Macro which checks if it has any arguments. Returns '0' if there are no
  arguments, '1' otherwise.
@@ -317,10 +317,10 @@ THE SOFTWARE.
  4. pp_bool is used to force non-zero results into 1 giving the clean 0 or 1
     output required.
 */
+/*---------------------------------------------------------------------------*/
 #define pp_vargs_end() 0
 #define pp_has_vargs(...) pp_bool (pp_vargs_first (pp_vargs_end __VA_ARGS__)())
-
-
+/*---------------------------------------------------------------------------*/
 /**
  Macro pp_apply/list comprehension. Usage:
 
@@ -388,6 +388,7 @@ THE SOFTWARE.
    expander never marks pp_apply_private_name as expanding to itself and thus
    it will still be expanded in future productions of itself.
 */
+/*---------------------------------------------------------------------------*/
 #define pp_apply_private_name() pp_apply_private
 
 #define pp_apply_private(op,sep,cur_val, ...) \
@@ -398,8 +399,7 @@ THE SOFTWARE.
 
 #define pp_apply(...) \
   pp_if (pp_has_vargs (__VA_ARGS__)) (pp_eval (pp_apply_private (__VA_ARGS__)))
-
-
+/*---------------------------------------------------------------------------*/
 /**
  This is a variant of the pp_apply macro which also includes as an argument to
  the operation a valid C variable name which is different for each iteration.
@@ -422,6 +422,7 @@ THE SOFTWARE.
 
  The mechanism is analogous to the pp_apply macro.
 */
+/*---------------------------------------------------------------------------*/
 #define pp_apply_wid(op,sep,...) \
   pp_if (pp_has_vargs (__VA_ARGS__))\
    (pp_eval (pp_apply_wid_private (op, sep, I, ##__VA_ARGS__)))
@@ -433,7 +434,8 @@ THE SOFTWARE.
   pp_if (pp_has_vargs (__VA_ARGS__))( \
     sep() pp_defer2 (pp_apply_wid_private_name)()\
      (op, sep, pp_concat (id,I), ##__VA_ARGS__) \
-  )
+    )
+/*---------------------------------------------------------------------------*/
 /**
  This is a variant of the pp_apply macro which iterates over pairs rather than
  singletons.
@@ -454,6 +456,7 @@ THE SOFTWARE.
 
  The mechanism is analogous to the pp_apply macro.
 */
+/*---------------------------------------------------------------------------*/
 #define pp_apply_pairs_private_name() pp_apply_pairs_private
 
 #define pp_apply_pairs_private(op,sep,cur_val_1, cur_val_2, ...) \
@@ -465,7 +468,7 @@ THE SOFTWARE.
 #define pp_apply_pairs(op,sep,...) \
   pp_if (pp_has_vargs (__VA_ARGS__))\
     (pp_eval (pp_apply_pairs_private (op,sep,__VA_ARGS__)))
-
+/*---------------------------------------------------------------------------*/
 /**
  This is a variant of the pp_apply macro which iterates over a two-element
  sliding window.
@@ -495,6 +498,7 @@ THE SOFTWARE.
 
  The mechanism is analogous to the pp_apply macro.
 */
+/*---------------------------------------------------------------------------*/
 #define pp_apply_slide_private_name() pp_apply_slide_private
 
 #define pp_apply_slide_private(op,last_op,sep,cur_val, ...) \
@@ -509,31 +513,34 @@ THE SOFTWARE.
 #define pp_apply_slide(op,last_op,sep,...) \
   pp_if (pp_has_vargs (__VA_ARGS__))\
    (pp_eval (pp_apply_slide_private (op,last_op,sep,__VA_ARGS__)))
-
+/*---------------------------------------------------------------------------*/
 /**
  Strip any excess commas from a set of arguments.
 */
+/*---------------------------------------------------------------------------*/
 #define pp_remove_trailing_commas(...) \
 	pp_apply (pp_pass, pp_comma, __VA_ARGS__)
-
-/*END OF BORROWED "uSHET" code. Bruteforce own addons*/
-
+/*---------------------------------------------------------------------------*/
+/*END OF BORROWED "uSHET" code. Own bruteforce addons*/
+/*---------------------------------------------------------------------------*/
 /**
 Increment/decrement the numeric token value.
 */
-
+/*---------------------------------------------------------------------------*/
+#ifndef BL_PP_MAX_INC_DEC
+  #define BL_PP_MAX_INC_DEC (BL_PP_MAX_RECURSION * 2)
+#endif
 #include <base_library/hdr/impl/preprocessor_inc_dec.h>
-
 #define pp_inc(x) pp_tokconcat (pp_inc, x)
 #define pp_dec(x) pp_tokconcat (pp_dec, x)
-
+/*---------------------------------------------------------------------------*/
 /*
-Counts va_args e.g.
+pp_varg_count(...) : Counts va_args e.g.
 
   pp_varg_count (a, b, c) -> is evaluated to 3.
   pp_varg_count() -> is evaluated to 0.
 */
-
+/*---------------------------------------------------------------------------*/
 #define pp_varg_count_private_name() pp_varg_count_private
 
 #define pp_varg_count_private(cnt,cur_val, ...) \
@@ -547,5 +554,38 @@ Counts va_args e.g.
     pp_eval (pp_varg_count_private (1, __VA_ARGS__)),\
     0\
     )
+/*---------------------------------------------------------------------------*/
+/*
+pp_add (x, y) : Positive numeric addition
+
+  pp_add (4, 11) -> is evaluated to 15.
+*/
+/*---------------------------------------------------------------------------*/
+#define pp_add_private_name() pp_add_private
+
+#define pp_add_private(x,y) \
+  pp_if_else (pp_not (y))(\
+    x,\
+    pp_defer2 (pp_add_private_name) () (pp_inc (x), pp_dec (y))\
+    )
+
+#define pp_add(x, y) pp_eval (pp_add_private (x, y))
+/*---------------------------------------------------------------------------*/
+/*
+pp_add (x, y) : Positive numeric substraction. Result has to be positive too.
+
+  pp_sub (11, 4) -> 7.
+*/
+/*---------------------------------------------------------------------------*/
+#define pp_sub_private_name() pp_sub_private
+
+#define pp_sub_private(x,y) \
+  pp_if_else (pp_not (y))(\
+    x,\
+    pp_defer2 (pp_sub_private_name) () (pp_dec (x), pp_dec (y))\
+    )
+
+#define pp_sub(x, y) pp_eval (pp_sub_private (x, y))
+/*---------------------------------------------------------------------------*/
 
 #endif /* __BL_PREPROCESSOR_H__ */
