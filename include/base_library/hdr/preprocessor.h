@@ -135,7 +135,7 @@ THE SOFTWARE.
 #define pp_eval_2048(...) pp_eval_1024 (pp_eval_1024 (__VA_ARGS__))
 
 #ifndef BL_PP_MAX_RECURSION
-  #define BL_PP_MAX_RECURSION 128
+  #define BL_PP_MAX_RECURSION 32
 #endif
 
 #define pp_eval(...) pp_tokconcat (pp_eval_, BL_PP_MAX_RECURSION) (__VA_ARGS__)
@@ -251,7 +251,7 @@ THE SOFTWARE.
 #define pp_or_01 1
 #define pp_or_10 1
 #define pp_or_11 1
-#define pp_or(a,b) pp_concat3 (pp_or_, a, b)
+#define pp_or(a,b) pp_tokconcat3 (pp_or_, a, b)
 /*---------------------------------------------------------------------------*/
 /**
  Logical AND. Simply performs a lookup.
@@ -260,7 +260,7 @@ THE SOFTWARE.
 #define pp_and_01 0
 #define pp_and_10 0
 #define pp_and_11 1
-#define pp_and(a,b) pp_concat3 (pp_and_, a, b)
+#define pp_and(a,b) pp_tokconcat3 (pp_and_, a, b)
 /*---------------------------------------------------------------------------*/
 /**
  Macro if statement. Usage:
@@ -516,12 +516,36 @@ THE SOFTWARE.
 #define pp_remove_trailing_commas(...) \
 	pp_apply (pp_pass, pp_comma, __VA_ARGS__)
 
-/*END OF BORROWED "uSHET" code. Bruteforce Addons*/
+/*END OF BORROWED "uSHET" code. Bruteforce own addons*/
 
 /**
-Increment the numeric token value.
+Increment/decrement the numeric token value.
 */
 
+#include <base_library/hdr/impl/preprocessor_inc_dec.h>
 
+#define pp_inc(x) pp_tokconcat (pp_inc, x)
+#define pp_dec(x) pp_tokconcat (pp_dec, x)
+
+/*
+Counts va_args e.g.
+
+  pp_varg_count (a, b, c) -> is evaluated to 3.
+  pp_varg_count() -> is evaluated to 0.
+*/
+
+#define pp_varg_count_private_name() pp_varg_count_private
+
+#define pp_varg_count_private(cnt,cur_val, ...) \
+  pp_if_else (pp_not (pp_has_vargs (__VA_ARGS__)))(\
+    (cnt),\
+    (pp_defer2 (pp_varg_count_private_name) () (pp_inc (cnt), __VA_ARGS__))\
+    )
+
+#define pp_varg_count(...) \
+  pp_if_else (pp_has_vargs (__VA_ARGS__))(\
+    pp_eval (pp_varg_count_private (1, __VA_ARGS__)),\
+    0\
+    )
 
 #endif /* __BL_PREPROCESSOR_H__ */
