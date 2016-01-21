@@ -1,4 +1,4 @@
-#include <bl/base/cmocka_pre.h>
+#include <bl/cmocka_pre.h>
 #include <bl/base/hdr/integer_manipulation_test.h>
 
 #include <bl/hdr/base/integer.h>

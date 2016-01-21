@@ -1,9 +1,9 @@
-#include <bl/base/cmocka_pre.h>
-#include <bl/base/lib/mpmc_b_test.h>
+#include <bl/cmocka_pre.h>
+#include <bl/nonblock/mpmc_b_test.h>
 
 #include <bl/hdr/base/integer.h>
-#include <bl/lib/base/mpmc_b.h>
-#include <bl/lib/base/mpmc_b.c>
+#include <bl/lib/nonblock/mpmc_b.h>
+#include <bl/lib/nonblock/mpmc_b.c>
 #include <bl/hdr/base/utility.h>
 #include <bl/hdr/base/integer_math.h>
 #include <bl/hdr/base/to_type_containing.h>

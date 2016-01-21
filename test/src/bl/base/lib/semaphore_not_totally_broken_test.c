@@ -2,7 +2,7 @@
 
 #ifdef BL_LINUX
 
-#include <bl/base/cmocka_pre.h>
+#include <bl/cmocka_pre.h>
 #include <bl/base/lib/semaphore_not_totally_broken_test.h>
 
 #include <bl/hdr/base/thread.h>

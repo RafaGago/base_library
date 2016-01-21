@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include <bl/base/cmocka_pre.h>
+#include <bl/cmocka_pre.h>
 #include <bl/base/hdr/ringbuffer_test.h>
 
 #include <bl/hdr/base/integer.h>

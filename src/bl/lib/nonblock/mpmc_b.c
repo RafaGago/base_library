@@ -30,10 +30,13 @@ of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of Dmitry Vyukov.
 /*---------------------------------------------------------------------------*/
 #include <string.h>
-#include <bl/hdr/base//platform.h>
-#include <bl/hdr/base//integer_math.h>
-#include <bl/hdr/base//integer_manipulation.h>
-#include <bl/lib/base//mpmc_b.h>
+
+#include <bl/lib/nonblock/mpmc_b.h>
+
+#include <bl/hdr/base/platform.h>
+#include <bl/hdr/base/integer_math.h>
+#include <bl/hdr/base/integer_manipulation.h>
+
 /*---------------------------------------------------------------------------*/
 static_assert_outside_func(
   bl_has_two_comp_arithmetic,
@@ -106,7 +109,7 @@ static inline word mpmc_b_transaction_status (u32 gate, mpmc_b_i now)
 }
 #endif
 /*---------------------------------------------------------------------------*/
-bl_err BL_EXPORT mpmc_b_produce_sig_fallback(
+bl_err NONBLOCK_EXPORT mpmc_b_produce_sig_fallback(
   mpmc_b*      q,
   mpmc_b_info* inf,
   const void*  value,
@@ -153,7 +156,7 @@ bl_err BL_EXPORT mpmc_b_produce_sig_fallback(
   return bl_ok;
 }
 /*---------------------------------------------------------------------------*/
-bl_err BL_EXPORT mpmc_b_produce_single_p(
+bl_err NONBLOCK_EXPORT mpmc_b_produce_single_p(
   mpmc_b* q, mpmc_b_info* inf, const void* value
   )
 {
@@ -179,7 +182,7 @@ bl_err BL_EXPORT mpmc_b_produce_single_p(
   return bl_would_overflow;
 }
 /*---------------------------------------------------------------------------*/
-bl_err BL_EXPORT mpmc_b_consume_sig_fallback(
+bl_err NONBLOCK_EXPORT mpmc_b_consume_sig_fallback(
   mpmc_b*      q,
   mpmc_b_info* inf,
   void*        value,
@@ -227,7 +230,7 @@ bl_err BL_EXPORT mpmc_b_consume_sig_fallback(
   return bl_ok;
 }
 /*---------------------------------------------------------------------------*/
-bl_err BL_EXPORT mpmc_b_consume_single_c (mpmc_b* q, mpmc_b_info* inf, void* value)
+bl_err NONBLOCK_EXPORT mpmc_b_consume_single_c (mpmc_b* q, mpmc_b_info* inf, void* value)
 {
   assert (q->buffer && inf && value);
   u8*      join_data;
@@ -252,7 +255,7 @@ bl_err BL_EXPORT mpmc_b_consume_single_c (mpmc_b* q, mpmc_b_info* inf, void* val
   return bl_empty;
 }
 /*---------------------------------------------------------------------------*/
-void BL_EXPORT mpmc_b_destroy (mpmc_b* q, const alloc_tbl* alloc)
+void NONBLOCK_EXPORT mpmc_b_destroy (mpmc_b* q, const alloc_tbl* alloc)
 {
   if (q->buffer) {
     bl_deallocate (alloc, q->buffer);
@@ -306,35 +309,35 @@ save_expected:
   return err;
 }
 /*---------------------------------------------------------------------------*/
-bl_err BL_EXPORT mpmc_b_producer_signal_try_set(
+bl_err NONBLOCK_EXPORT mpmc_b_producer_signal_try_set(
   mpmc_b* q, mpmc_b_sig* expected, mpmc_b_sig desired
   )
 {
   return mpmc_b_signal (&q->i_producer, expected, desired);
 }
 /*---------------------------------------------------------------------------*/
-bl_err BL_EXPORT mpmc_b_consumer_signal_try_set(
+bl_err NONBLOCK_EXPORT mpmc_b_consumer_signal_try_set(
   mpmc_b* q, mpmc_b_sig* expected, mpmc_b_sig desired
   )
 {
   return mpmc_b_signal (&q->i_consumer, expected, desired);
 
 /*---------------------------------------------------------------------------*/}
-bl_err BL_EXPORT mpmc_b_producer_signal_try_set_tmatch(
+bl_err NONBLOCK_EXPORT mpmc_b_producer_signal_try_set_tmatch(
   mpmc_b* q, mpmc_b_info* expected, mpmc_b_sig desired
   )
 {
   return mpmc_b_signal_trans (&q->i_producer, expected, desired);
 }
 /*---------------------------------------------------------------------------*/
-bl_err BL_EXPORT mpmc_b_consumer_signal_try_set_tmatch(
+bl_err NONBLOCK_EXPORT mpmc_b_consumer_signal_try_set_tmatch(
   mpmc_b* q, mpmc_b_info* expected, mpmc_b_sig desired
   )
 {
   return mpmc_b_signal_trans (&q->i_consumer, expected, desired);
 }
 /*---------------------------------------------------------------------------*/
-bl_err BL_EXPORT mpmc_b_init_private(
+bl_err NONBLOCK_EXPORT mpmc_b_init_private(
   mpmc_b*          q,
   const alloc_tbl* alloc,
   uword            buffer_size,

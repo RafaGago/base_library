@@ -4,19 +4,19 @@ Under development. Not tested on Windows.
 
 Description
 ===========
-A project where I will place generic base utilities for C programming as 
-needed. This is the result of splitting the utilities part of a project to
-its own library so they can evolve independently. This also means that if e.g.
-the thread library didn't need condition variables this library isn't having
-them until they are needed.
-
-I'm planning to make explicit on each "object" interface if memory allocations/
-deallocations happen and where.
+A project where I will place generic base utilities for C programming on an
+"as needed" basis.
 
 As of now everything is just programmed for Linux and should be compilable on 
 Windows.
 
-Now the library contains:
+Now the library is divided in some independent very tiny sublibraries to avoid
+binary bloating.
+
+1. (base) Base library
+----------------------
+
+Depends on: -
 
 * Platform detection (very primitive, will get bigger).
 
@@ -37,13 +37,29 @@ Now the library contains:
 
 * Wrappers for atomics and threads (adding as needed).
 
+
+2. (noblock) Non (OS) blocking queues 
+-------------------------------------
+
+Depends on: base
+
+Some non blocking queues (in the sense that never aquire OS locks (mutexes,
+semaphores ...))
+
 * The beautiful and famous Dmitry Djukov's MPMC lockfree queue with some addons:
   1. Can be used as MPSC and SPMC.
   2. Uses the high part of the CAS'ed counter as a broadcast signaling mechanism
     that can communicate with producers (on MP mode) or consumers (on MC mode)
     almost for free.
 
-* A MPMC event queue with timed event triggering based on the queue Below.
+
+3. (task_queue) MPSC task queue with delayed/scheduled tasks
+------------------------------------------------------------
+
+Depends on: base, noblock
+
+A queue for worker/event dispatcher threads.
+
    
 Folders
 =======
@@ -71,7 +87,7 @@ Check that everything builds.
 3. Go to the "build/premake" folder and execute "./premake5 gmake".
 This generates the makefile.
 
-4. Go to the "build/linux".  Now you can use make for building. If you specify
+4. The makefile is now on the "build/linux" folder. If you specify
 "config=debug" yo will build debug binaries. Binaries are placed under
 "build/stage".
 

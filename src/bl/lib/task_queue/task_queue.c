@@ -7,7 +7,8 @@
 #include <bl/hdr/base/processor_pause.h>
 #include <bl/hdr/base/atomic.h>
 #include <bl/lib/base/semaphore.h>
-#include <bl/lib/base/mpmc_b.h>
+
+#include <bl/lib/nonblock/mpmc_b.h>
 /*---------------------------------------------------------------------------*/
 enum cmd_type_e {
   cmd_task,

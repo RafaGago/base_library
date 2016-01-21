@@ -1,5 +1,5 @@
 #include <bl/hdr/base/platform.h>
-#include <bl/task_queue/cmocka_pre.h>
+#include <bl/cmocka_pre.h>
 /*---------------------------------------------------------------------------*/
 #define BL_TIME_NO_TIMESTAMP 1
 #include <bl/hdr/base/time.h>
