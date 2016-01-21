@@ -1,20 +1,25 @@
-local projname          = "base_library"
+local projname              = "base_library"
+local version               = ".0.0.0"
+local task_queue_name       = projname .. "_task_queue"
 
-local repo              = path.getabsolute ("../..")
-local repo_build        = repo .. "/build"
-local stage             = repo_build .. "/stage/" .. os.get()
-local build             = repo_build .. "/" .. os.get()
+local repo                  = path.getabsolute ("../..")
+local repo_build            = repo .. "/build"
+local stage                 = repo_build .. "/stage/" .. os.get()
+local build                 = repo_build .. "/" .. os.get()
 
-local cmocka            = repo .. "/dependencies/cmocka"
+local cmocka                = repo .. "/dependencies/cmocka"
 
-local repo_include      = repo .. "/include"
-local repo_src          = repo .. "/src"
-local repo_test_src     = repo .. "/test/src"
+local repo_include          = repo .. "/include"
+local repo_src              = repo .. "/src"
+local repo_test_src         = repo .. "/test/src"
 
-local bl_test_src       = repo_test_src .. "/bl/base"
-local bl_sem_stress_src = repo_test_src .. "/bl/semaphore"
+local base_src              = repo_src .. "/bl/lib/base"
+local base_test_src         = repo_test_src .. "/bl/base"
+local sem_stress_src        = repo_test_src .. "/bl/semaphore_stress"
 
-local version           = ".0.0.0"
+local task_queue_src        = repo_src .. "/bl/lib/task_queue"
+local task_queue_test_src   = repo_test_src .. "/bl/task_queue"
+local task_queue_stress_src = repo_test_src .. "/bl/task_queue_stress"
 
 local function os_is_posix()
   return os.get() ~= "windows"
@@ -40,7 +45,7 @@ filter {"configurations:*debug*"}
 
 filter {"configurations:*"}
   flags {"MultiProcessorCompile"}
-  includedirs { repo_include, repo_src }
+  includedirs { repo_include }
 
 filter {"configurations:*"}
   if os_is_posix() then
@@ -125,21 +130,43 @@ filter {"kind:ConsoleApp"}
   end
 -- WORKAROUND END --
 
+--LIBRARY PROJECTS
 project (projname)
   kind "StaticLib"
-  language "C" --TODO: with visual studio it will be C++
-  files {repo_src .. "/bl/lib/base/**"}
+  language "C" --TODO: with visual studio might be C++
+  files {base_src  .. "/**"}
 
+project (task_queue_name)
+  kind "StaticLib"
+  includedirs {repo_src}
+  language "C" --TODO: with visual studio might be C++
+  files {task_queue_src  .. "/**"}
+
+--TEST PROJECTS
 project (projname .. "_test")
   kind "ConsoleApp"
-  language "C" --TODO: with visual studio it will be C++
-  includedirs {cmocka .. "/include", repo_test_src }
-  files { bl_test_src .. "/**" }
+  language "C" --TODO: with visual studio might be C++
+  includedirs {cmocka .. "/include", repo_src, repo_test_src}
+  files { base_test_src .. "/**" }
   links {cmocka .. "/lib/cmocka"}
 
-project "semaphore_test"
+project (task_queue_name .. "_test")
   kind "ConsoleApp"
-  language "C" --TODO: with visual studio it will be C++
-  includedirs {repo_test_src}
-  files {bl_sem_stress_src .. "/**"}
+  language "C" --TODO: with visual studio might be C++
+  includedirs {cmocka .. "/include", repo_src, repo_test_src}
+  files { task_queue_test_src .. "/**" }
+  links {cmocka .. "/lib/cmocka", projname}
+
+project "semaphore_stress"
+  kind "ConsoleApp"
+  language "C" --TODO: with visual studio might be C++
+  includedirs {repo_src, repo_test_src}
+  files {sem_stress_src .. "/**"}
+
+project (task_queue_name .. "_stress")
+  kind "ConsoleApp"
+  language "C" --TODO: with visual studio might be C++
+  includedirs {repo_src, repo_test_src}
+  files {task_queue_stress_src .. "/**"}
+  links {projname}
 

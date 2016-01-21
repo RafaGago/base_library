@@ -30,10 +30,10 @@ of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of Dmitry Vyukov.
 /*---------------------------------------------------------------------------*/
 #include <string.h>
-#include <bl/hdr/base/platform.h>
-#include <bl/hdr/base/integer_math.h>
-#include <bl/hdr/base/integer_manipulation.h>
-#include <bl/lib/base/mpmc_b.h>
+#include <bl/hdr/base//platform.h>
+#include <bl/hdr/base//integer_math.h>
+#include <bl/hdr/base//integer_manipulation.h>
+#include <bl/lib/base//mpmc_b.h>
 /*---------------------------------------------------------------------------*/
 static_assert_outside_func(
   bl_has_two_comp_arithmetic,

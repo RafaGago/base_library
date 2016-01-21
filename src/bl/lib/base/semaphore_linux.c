@@ -1,4 +1,4 @@
-#include <bl/hdr/base/platform.h>
+#include <bl/hdr/base//platform.h>
 
 #ifdef BL_LINUX
 /*----------------------------------------------------------------------------*/
@@ -7,10 +7,10 @@
 #include <linux/futex.h>
 #include <errno.h>
 /*----------------------------------------------------------------------------*/
-#include <bl/hdr/base/integer_manipulation.h>
-#include <bl/hdr/base/utility.h>
-#include <bl/hdr/base/atomic.h>
-#include <bl/lib/base/semaphore.h>
+#include <bl/hdr/base//integer_manipulation.h>
+#include <bl/hdr/base//utility.h>
+#include <bl/hdr/base//atomic.h>
+#include <bl/lib/base//semaphore.h>
 /*----------------------------------------------------------------------------*/
 static inline int futex_wait_masked_absolute_monotonic(
   atomic_u32*            f,

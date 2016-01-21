@@ -42,6 +42,8 @@ Now the library contains:
   2. Uses the high part of the CAS'ed counter as a broadcast signaling mechanism
     that can communicate with producers (on MP mode) or consumers (on MC mode)
     almost for free.
+
+* A MPMC event queue with timed event triggering based on the queue Below.
    
 Folders
 =======

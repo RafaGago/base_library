@@ -7,10 +7,16 @@
     #define BL_EXPORT __attribute__ ((visibility ("default")))
 
 #elif defined (_MSC_VER)
-  #if defined (BL_SHAREDLIB_COMPILATION) && !defined (BL_SHAREDLIB_USING_DEF)
+  #if (defined (BL_SHAREDLIB_COMPILATION) &&\
+      !defined (BL_SHAREDLIB_USING_DEF)) ||\
+      (defined (BL_ALL_LIBS_SHAREDLIB_COMPILATION) &&\
+      !defined (BL_ALL_LIBS_SHAREDLIB_USING_DEF))
     #define BL_EXPORT __declspec (dllexport)
 
-  #elif defined (BL_SHAREDLIB) && !defined (BL_SHAREDLIB_USING_DEF)
+  #elif (defined (BL_SHAREDLIB) &&\
+      !defined (BL_SHAREDLIB_USING_DEF)) ||\
+      (defined (BL_ALL_LIBS_SHAREDLIB) &&\
+      !defined (BL_ALL_LIBS_SHAREDLIB_USING_DEF))
     #define BL_EXPORT __declspec (dllimport)
 
   #else
