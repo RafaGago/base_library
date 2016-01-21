@@ -45,8 +45,8 @@ Now the library contains:
    
 Folders
 =======
-* "include/base_library/hdr":  Code usable as header-only.
-* "include/base_library/lib":  May require compilation on some platforms.
+* "include/bl/hdr":  Code usable as header-only.
+* "include/bl/lib":  May require compilation on some platforms.
 * eclipse: Eclipse projects, unneeded to build. I sometimes use Eclipse as a gdb
 front end.
 * dependencies: External dependencies, as of now cmocka for the unit tests and
