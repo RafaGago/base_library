@@ -8,7 +8,20 @@
 #ifndef __cplusplus
   #error "this file is being used by a non-C++ compiler"
 #endif
+/*---------------------------------------------------------------------------*/
+/* As a matter of fact I now when adding the "atomic_thread_fence" I realized
+  that the C++ version defines the C11  atomics with the same names and with
+  C linkage. TODO check and delete this if required.
 
+  If it works it's just to take the atomic_c11.h header and add:
+
+  #ifndef __cplusplus
+    #include <stdatomic.h>
+  #else
+    #include <atomic>
+  #endif
+*/
+/*---------------------------------------------------------------------------*/
 #include <atomic>
 #include <bl/hdr/base/alignment.h>
 #include <bl/hdr/base/platform.h>
@@ -263,6 +276,21 @@ static inline u32 atomic_u32_fetch_and(
 {
   return ((std::atomic<u32>*) a)->fetch_and (v, (std::memory_order) o);
 }
+/*---------------------------------------------------------------------------*/
+static inline void atomic_thread_fence (mem_order o)
+{
+  
+}
+/*---------------------------------------------------------------------------*/
+static inline u32 atomic_u32_fetch_and(
+  volatile atomic_u32* a, u32 v, mem_order o
+  )
+{
+  return ((std::atomic<u32>*) a)->fetch_and (v, (std::memory_order) o);
+}
+/*---------------------------------------------------------------------------*/
+/* just documentation */
+#define atomic_thread_fence(...) atomic_thread_fence (__VA_ARGS__)
 /*---------------------------------------------------------------------------*/
 } // extern "C" {
 

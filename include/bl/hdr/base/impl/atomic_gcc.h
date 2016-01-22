@@ -242,11 +242,9 @@ static inline u32 atomic_u32_fetch_xor(
   return __atomic_fetch_xor (a, v, o);
 }
 /*---------------------------------------------------------------------------*/
-static inline u32 atomic_u32_fetch_and(
-  volatile atomic_u32* a, u32 v, memory_order o
-  )
+static inline void atomic_thread_fence (memory_order o)
 {
-  return __atomic_fetch_and (a, v, o);
+  __atomic_thread_fence (o);
 }
 /*---------------------------------------------------------------------------*/
 

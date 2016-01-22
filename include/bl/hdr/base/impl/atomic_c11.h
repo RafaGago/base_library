@@ -263,5 +263,8 @@ static inline u32 atomic_u32_fetch_and(
   return atomic_fetch_and_explicit (a, v, o);
 }
 /*---------------------------------------------------------------------------*/
+/* just documentation */
+#define atomic_thread_fence(...) atomic_thread_fence (__VA_ARGS__)
+/*---------------------------------------------------------------------------*/
 
 #endif /*__BL_C11_ATOMIC_H__*/
