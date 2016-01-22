@@ -242,9 +242,14 @@ static inline u32 atomic_u32_fetch_xor(
   return __atomic_fetch_xor (a, v, o);
 }
 /*---------------------------------------------------------------------------*/
-static inline void atomic_thread_fence (memory_order o)
+static inline void atomic_fence (memory_order o)
 {
   __atomic_thread_fence (o);
+}
+/*---------------------------------------------------------------------------*/
+static inline void atomic_sigfence (memory_order o)
+{
+  __atomic_signal_fence (o);
 }
 /*---------------------------------------------------------------------------*/
 

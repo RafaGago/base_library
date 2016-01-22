@@ -263,8 +263,15 @@ static inline u32 atomic_u32_fetch_and(
   return atomic_fetch_and_explicit (a, v, o);
 }
 /*---------------------------------------------------------------------------*/
-/* just documentation */
-#define atomic_thread_fence(...) atomic_thread_fence (__VA_ARGS__)
+static inline void atomic_fence (memory_order o)
+{
+  __atomic_thread_fence (o);
+}
+/*---------------------------------------------------------------------------*/
+static inline void atomic_sigfence (memory_order o)
+{
+  __atomic_signal_fence (o);
+}
 /*---------------------------------------------------------------------------*/
 
 #endif /*__BL_C11_ATOMIC_H__*/

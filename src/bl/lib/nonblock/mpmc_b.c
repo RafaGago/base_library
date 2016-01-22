@@ -45,7 +45,7 @@ static_assert_outside_func(
 /*---------------------------------------------------------------------------*/
 typedef union mpmc_b_i {
   mpmc_b_info inf;
-  uword       raw;
+  u32         raw;
 }
 mpmc_b_i;
 /*---------------------------------------------------------------------------*/
@@ -59,7 +59,7 @@ static inline u8* mpmc_b_mem_content_ptr (mpmc_b* q, u8* join_data_ptr)
   return (u8*) join_data_ptr;
 }
 /*---------------------------------------------------------------------------*/
-static inline u8* mpmc_b_join_data_ptr (mpmc_b* q, uword position)
+static inline u8* mpmc_b_join_data_ptr (mpmc_b* q, u32 position)
 {
   return q->buffer + ((position & q->buffer_mask) * q->join_size);
 }
@@ -92,7 +92,7 @@ static inline void mpmc_b_read(
   transaction/gate maps to the MSB of a 32 bit integer (the sign).
 */
 static_assert_outside_func_ns (mpmc_b_info_transaction_bits < type_bits (i32));
-static inline word mpmc_b_transaction_status (u32 gate, mpmc_b_i now)
+static inline i32 mpmc_b_transaction_status (u32 gate, mpmc_b_i now)
 {
   u32 gate_u  = (gate << mpmc_b_info_signal_bits);
   u32 trans_u = ((u32) now.inf.transaction) << mpmc_b_info_signal_bits;
@@ -102,7 +102,7 @@ static inline word mpmc_b_transaction_status (u32 gate, mpmc_b_i now)
 /*---------------------------------------------------------------------------*/
 #elif defined (BL64)
 static_assert_outside_func_ns (mpmc_b_info_transaction_bits == type_bits (i32));
-static inline word mpmc_b_transaction_status (u32 gate, mpmc_b_i now)
+static inline i32 mpmc_b_transaction_status (u32 gate, mpmc_b_i now)
 {
   /*assert ((gate_u - trans_u) <= compare_unsigned_as_signed_max_diff (u32));*/
   return (i32) (gate -((u32) now.inf.transaction));
@@ -124,11 +124,11 @@ bl_err NONBLOCK_EXPORT mpmc_b_produce_sig_fallback(
   mpmc_b_i now;
   mpmc_b_i next;
 
-  now.raw = atomic_uword_load_rlx (&q->i_producer);
+  now.raw = atomic_u32_load_rlx (&q->i_producer);
 
   while (1) {
-    word status;
-    u32  gate;
+    i32 status;
+    u32 gate;
 
     *inf = now.inf;
     if ((now.inf.signal & sig_fallback_mask) == sig_fallback_match) {
@@ -141,7 +141,7 @@ bl_err NONBLOCK_EXPORT mpmc_b_produce_sig_fallback(
     if (status == 0) {
       next.inf.transaction = now.inf.transaction + 1;
       next.inf.signal      = replace_sig ? sig_replacement : now.inf.signal;
-      if (atomic_uword_weak_cas_rlx (&q->i_producer, &now.raw, next.raw)) {
+      if (atomic_u32_weak_cas_rlx (&q->i_producer, &now.raw, next.raw)) {
         break;
       }
     }
@@ -149,7 +149,7 @@ bl_err NONBLOCK_EXPORT mpmc_b_produce_sig_fallback(
       return bl_would_overflow;
     }
     else {
-      now.raw = atomic_uword_load_rlx (&q->i_producer);
+      now.raw = atomic_u32_load_rlx (&q->i_producer);
     }
   }
   mpmc_b_write (q, (u32) next.inf.transaction, join_data, value);
@@ -165,17 +165,17 @@ bl_err NONBLOCK_EXPORT mpmc_b_produce_single_p(
   mpmc_b_i now;
   u32      gate;
 
-  now.raw     = atomic_uword_load_rlx (&q->i_producer);
-  join_data   = mpmc_b_join_data_ptr (q, now.inf.transaction);
-  gate        = atomic_u32_load (mpmc_b_gate_ptr (q, join_data), mo_acquire);
-  word status = mpmc_b_transaction_status (gate, now);
+  now.raw    = atomic_u32_load_rlx (&q->i_producer);
+  join_data  = mpmc_b_join_data_ptr (q, now.inf.transaction);
+  gate       = atomic_u32_load (mpmc_b_gate_ptr (q, join_data), mo_acquire);
+  i32 status = mpmc_b_transaction_status (gate, now);
 
   if (status == 0) {
     *inf = now.inf;
     ++now.inf.transaction;
     now.inf.signal = 0;
     mpmc_b_write (q, (u32) now.inf.transaction, join_data, value);
-    atomic_uword_store_rlx (&q->i_producer, now.raw);
+    atomic_u32_store_rlx (&q->i_producer, now.raw);
     return bl_ok;
   }
   assert (status < 0);
@@ -197,7 +197,7 @@ bl_err NONBLOCK_EXPORT mpmc_b_consume_sig_fallback(
   mpmc_b_i now;
   mpmc_b_i next;
 
-  now.raw = atomic_uword_load_rlx (&q->i_consumer);
+  now.raw = atomic_u32_load_rlx (&q->i_consumer);
 
   while (1) {
     u32 gate;
@@ -211,10 +211,10 @@ bl_err NONBLOCK_EXPORT mpmc_b_consume_sig_fallback(
       atomic_u32_load (mpmc_b_gate_ptr (q, join_data), mo_acquire);
     next.inf.transaction   = now.inf.transaction + 1;
     next.inf.signal        = replace_sig ? sig_replacement : now.inf.signal;
-    word status            = mpmc_b_transaction_status (gate, next);
+    i32 status             = mpmc_b_transaction_status (gate, next);
 
     if (status == 0) {
-      if (atomic_uword_weak_cas_rlx (&q->i_consumer, &now.raw, next.raw)) {
+      if (atomic_u32_weak_cas_rlx (&q->i_consumer, &now.raw, next.raw)) {
         break;
       }
     }
@@ -222,7 +222,7 @@ bl_err NONBLOCK_EXPORT mpmc_b_consume_sig_fallback(
       return bl_empty;
     }
     else {
-      now.raw = atomic_uword_load_rlx (&q->i_consumer);
+      now.raw = atomic_u32_load_rlx (&q->i_consumer);
     }
   }
   next.inf.transaction += q->buffer_mask;
@@ -230,23 +230,25 @@ bl_err NONBLOCK_EXPORT mpmc_b_consume_sig_fallback(
   return bl_ok;
 }
 /*---------------------------------------------------------------------------*/
-bl_err NONBLOCK_EXPORT mpmc_b_consume_single_c (mpmc_b* q, mpmc_b_info* inf, void* value)
+bl_err NONBLOCK_EXPORT mpmc_b_consume_single_c(
+  mpmc_b* q, mpmc_b_info* inf, void* value
+  )
 {
   assert (q->buffer && inf && value);
   u8*      join_data;
   mpmc_b_i now;
   u32      gate;
 
-  now.raw    = atomic_uword_load_rlx (&q->i_consumer);
+  now.raw    = atomic_u32_load_rlx (&q->i_consumer);
   join_data  = mpmc_b_join_data_ptr (q, now.inf.transaction);
   gate       = atomic_u32_load (mpmc_b_gate_ptr (q, join_data), mo_acquire);
   *inf       = now.inf;
   ++now.inf.transaction;
-  word status = mpmc_b_transaction_status (gate, now);
+  i32 status = mpmc_b_transaction_status (gate, now);
 
   if (status == 0) {
     now.inf.signal       = 0;
-    atomic_uword_store_rlx (&q->i_consumer, now.raw);
+    atomic_u32_store_rlx (&q->i_consumer, now.raw);
     now.inf.transaction += q->buffer_mask;
     mpmc_b_read (q, now.inf.transaction, join_data, value);
     return bl_ok;
@@ -263,13 +265,13 @@ void NONBLOCK_EXPORT mpmc_b_destroy (mpmc_b* q, const alloc_tbl* alloc)
 }
 /*---------------------------------------------------------------------------*/
 static inline bl_err mpmc_b_signal(
-  atomic_uword* dst, mpmc_b_sig* expected, mpmc_b_sig desired
+  atomic_u32* dst, mpmc_b_sig* expected, mpmc_b_sig desired
   )
 {
   mpmc_b_i r;
   mpmc_b_i w;
   bl_err err = bl_ok;
-  r.raw      = atomic_uword_load_rlx (dst);
+  r.raw      = atomic_u32_load_rlx (dst);
   do {
     if (r.inf.signal != *expected) {
       err = bl_preconditions;
@@ -278,13 +280,13 @@ static inline bl_err mpmc_b_signal(
     w            = r;
     w.inf.signal = desired;
   }
-  while (!atomic_uword_weak_cas_rlx (dst, &r.raw, w.raw));
+  while (!atomic_u32_weak_cas_rlx (dst, &r.raw, w.raw));
   *expected = r.inf.signal;
   return err;
 }
 /*---------------------------------------------------------------------------*/
 static inline bl_err mpmc_b_signal_trans(
-  atomic_uword* dst, mpmc_b_info* expected, mpmc_b_sig desired
+  atomic_u32* dst, mpmc_b_info* expected, mpmc_b_sig desired
   )
 {
   mpmc_b_i r;
@@ -294,14 +296,14 @@ static inline bl_err mpmc_b_signal_trans(
 
   err     = bl_preconditions;
   exp.inf = *expected;
-  r.raw   = atomic_uword_load_rlx (dst);
+  r.raw   = atomic_u32_load_rlx (dst);
 
   if (r.raw != exp.raw) {
     goto save_expected;
   }
   w            = r;
   w.inf.signal = desired;
-  if (atomic_uword_weak_cas_rlx (dst, &r.raw, w.raw)) {
+  if (atomic_u32_weak_cas_rlx (dst, &r.raw, w.raw)) {
     err = bl_ok;
   }
 save_expected:
@@ -340,10 +342,10 @@ bl_err NONBLOCK_EXPORT mpmc_b_consumer_signal_try_set_tmatch(
 bl_err NONBLOCK_EXPORT mpmc_b_init_private(
   mpmc_b*          q,
   const alloc_tbl* alloc,
-  uword            buffer_size,
-  uword            join_size,
-  uword            contained_size,
-  uword            gate_offset
+  u32              buffer_size,
+  u32              join_size,
+  u32              contained_size,
+  u32              gate_offset
   )
 {
   assert (join_size > contained_size);
@@ -355,7 +357,7 @@ bl_err NONBLOCK_EXPORT mpmc_b_init_private(
     return bl_invalid;
   }
 
-  uword bytes = (join_size * buffer_size);
+  u32 bytes = (join_size * buffer_size);
   q->buffer   = bl_allocate (alloc, bytes);
   if (!q->buffer) {
     return bl_alloc;
@@ -369,12 +371,12 @@ bl_err NONBLOCK_EXPORT mpmc_b_init_private(
   mpmc_b_i v;
   v.raw = 0;
   while (v.inf.transaction < buffer_size) {
-    atomic_u32_store_rlx ( mpmc_b_gate_ptr (q, ptr), v.inf.transaction);
+    atomic_u32_store_rlx (mpmc_b_gate_ptr (q, ptr), v.inf.transaction);
     ptr += q->join_size;
     ++v.inf.transaction;
   }
-  atomic_uword_store_rlx (&q->i_producer, 0);
-  atomic_uword_store_rlx (&q->i_consumer, 0);
+  atomic_u32_store_rlx (&q->i_producer, 0);
+  atomic_u32_store_rlx (&q->i_consumer, 0);
   return bl_ok;
 }
 /*---------------------------------------------------------------------------*/

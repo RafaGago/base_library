@@ -289,8 +289,15 @@ static inline u32 atomic_u32_fetch_and(
   return ((std::atomic<u32>*) a)->fetch_and (v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-/* just documentation */
-#define atomic_thread_fence(...) atomic_thread_fence (__VA_ARGS__)
+static inline void atomic_fence (mem_order o)
+{
+  atomic_thread_fence (o);
+}
+/*---------------------------------------------------------------------------*/
+static inline void atomic_sigfence (mem_order o)
+{
+  atomic_signal_fence (o);
+}
 /*---------------------------------------------------------------------------*/
 } // extern "C" {
 

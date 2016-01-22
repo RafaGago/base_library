@@ -16,26 +16,23 @@
 /*
   This is the Dimitry Dyukov bounded MPMC queue with some modifications:
 
-    -Can be broken to MPMC SPMC MPSC. If you now that there just is one
-      reader/writer there is no need for CAS.
+    -Can be broken to MPMC SPMC MPSC SPSC. If you now that there just is one
+      reader/writer there is no need for CAS. This makes it a swiss-knife
+
     -Returns a transaction id (that was already available for free).
     -Takes 8 bytes from the enqueue/dequeue counter to use the CAS operation as
      a rudimentary external synchronization mechanism.
 */
-/*---------------------------------------------------------------------------*/
-#if defined(BL32)
-  #define mpmc_b_info_signal_bits 8
-#elif defined(BL64)
-  #define mpmc_b_info_signal_bits 32
-#endif
+/*---------------------------------------------------------------------------*/ 
 
-#define mpmc_b_info_transaction_bits\
-  (type_bits (uword) - mpmc_b_info_signal_bits)
+#define mpmc_b_info_signal_bits 8
 typedef u8 mpmc_b_sig;
+#define mpmc_b_info_transaction_bits\
+  (type_bits (u32) - mpmc_b_info_signal_bits)
 /*---------------------------------------------------------------------------*/
 typedef struct mpmc_b_info {
-  uword transaction : mpmc_b_info_transaction_bits;
-  uword signal      : mpmc_b_info_signal_bits;
+  u32 transaction : mpmc_b_info_transaction_bits;
+  u32 signal      : mpmc_b_info_signal_bits;
 }
 mpmc_b_info;
 /*---------------------------------------------------------------------------*/
@@ -43,14 +40,14 @@ mpmc_b_info;
 typedef struct mpmc_b {
   declare_cache_pad_member;
   u8*                       buffer;
-  uword                     buffer_mask;
-  uword                     join_size;
-  uword                     contained_size;
-  uword                     gate_offset;
+  u32                       buffer_mask;
+  u32                       join_size;
+  u32                       contained_size;
+  u32                       gate_offset;
   declare_cache_pad_member;
-  atomic_uword              i_producer;
+  atomic_u32                i_producer;
   declare_cache_pad_member;
-  atomic_uword              i_consumer;
+  atomic_u32                i_consumer;
   declare_cache_pad_member;
 }
 mpmc_b;
@@ -244,10 +241,10 @@ extern bl_err NONBLOCK_EXPORT mpmc_b_consumer_signal_try_set_tmatch(
 extern bl_err NONBLOCK_EXPORT mpmc_b_init_private(
   mpmc_b*          q,
   const alloc_tbl* alloc,
-  uword            buffer_size,
-  uword            join_size,
-  uword            contained_size,
-  uword            contained_offset
+  u32              buffer_size,
+  u32              join_size,
+  u32              contained_size,
+  u32              contained_offset
   );
 /*----------------------------------------------------------------------------*/
 #endif /* __BL_NONBLOCK_MPMC_H__ */
