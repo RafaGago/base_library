@@ -9,7 +9,7 @@
 /*----------------------------------------------------------------------------*/
 typedef void* bl_sharedlib;
 /*----------------------------------------------------------------------------*/
-static inline bl_sharedlib bl_sharedlib_load (const char* path)
+static inline bl_sharedlib bl_sharedlib_load (char const* path)
 {
   return dlopen (path, RTLD_NOW);
 }
@@ -20,7 +20,7 @@ static inline bool bl_sharedlib_unload (bl_sharedlib s)
     return true;
 }
 /*----------------------------------------------------------------------------*/
-static inline void* bl_sharedlib_loadsym (bl_sharedlib s, const char* symbol)
+static inline void* bl_sharedlib_loadsym (bl_sharedlib s, char const* symbol)
 {
     return dlsym (s, symbol);
 }
@@ -48,7 +48,7 @@ static inline const char* bl_sharedlib_last_sym_error (bl_sharedlib)
 /*----------------------------------------------------------------------------*/
 typedef HINSTANCE bl_sharedlib;
 /*----------------------------------------------------------------------------*/
-static inline bl_sharedlib bl_sharedlib_load (const char* path)
+static inline bl_sharedlib bl_sharedlib_load (char const* path)
 {
   return LoadLibraryA (path);
 }
@@ -58,7 +58,7 @@ static inline bool bl_sharedlib_unload (bl_sharedlib s)
   return FreeLibrary (s) ? true : false;
 }
 /*----------------------------------------------------------------------------*/
-static inline void* bl_sharedlib_loadsym (bl_sharedlib s, const char* symbol)
+static inline void* bl_sharedlib_loadsym (bl_sharedlib s, char const* symbol)
 {
   return GetProcAddress (hdlssymbol);
 }

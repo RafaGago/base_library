@@ -17,7 +17,8 @@
   This is the Dimitry Dyukov bounded MPMC queue with some modifications:
 
     -Can be broken to MPMC SPMC MPSC SPSC. If you now that there just is one
-      reader/writer there is no need for CAS. This makes it a swiss-knife
+     reader/writer there is no need for CAS. This makes it a swiss army knife
+     type of queue. 
 
     -Returns a transaction id (that was already available for free).
     -Takes 8 bytes from the enqueue/dequeue counter to use the CAS operation as
