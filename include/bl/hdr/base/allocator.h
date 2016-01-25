@@ -51,7 +51,7 @@ alloc_tbl;
   (alloc_tbl_ptr)->alloc ((bytes), (alloc_tbl_ptr))
 /*---------------------------------------------------------------------------*/
 #define bl_reallocate(alloc_tbl_ptr, void_ptr_mem, bytes)\
-  (alloc_tbl_ptr)->realloc ((bytes), (void_ptr_mem), (alloc_tbl_ptr))
+  (alloc_tbl_ptr)->realloc ((void_ptr_mem), (bytes), (alloc_tbl_ptr))
 /*---------------------------------------------------------------------------*/
 #define bl_deallocate(alloc_tbl_ptr, void_ptr_mem)\
   (alloc_tbl_ptr)->dealloc ((void_ptr_mem), (alloc_tbl_ptr))
