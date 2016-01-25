@@ -30,12 +30,12 @@ static inline void bl_sharedlib_clear_past_errors()
     dlerror();
 }
 /*----------------------------------------------------------------------------*/
-static inline const char* bl_sharedlib_last_load_error (bl_sharedlib)
+static inline char const* bl_sharedlib_last_load_error (bl_sharedlib)
 {
     return dlerror();
 }
 /*----------------------------------------------------------------------------*/
-static inline const char* bl_sharedlib_last_sym_error (bl_sharedlib)
+static inline char const* bl_sharedlib_last_sym_error (bl_sharedlib)
 {
     return dlerror();
 }
@@ -65,12 +65,12 @@ static inline void* bl_sharedlib_loadsym (bl_sharedlib s, char const* symbol)
 /*----------------------------------------------------------------------------*/
 static inline void bl_sharedlib_clear_past_errors() {}
 /*----------------------------------------------------------------------------*/
-static inline const char* bl_sharedlib_last_load_error (bl_sharedlib s)
+static inline char const* bl_sharedlib_last_load_error (bl_sharedlib s)
 {
     return s ? nullptr : "library loading failed\n";
 }
 /*----------------------------------------------------------------------------*/
-static inline const char* bl_sharedlib_last_sym_error (bl_sharedlib s)
+static inline char const* bl_sharedlib_last_sym_error (bl_sharedlib s)
 {
     return s ? nullptr : "symbol loading failed\n";
 }

@@ -9,6 +9,13 @@ static void* default_alloc_func (size_t bytes, const alloc_tbl* invoker)
   return malloc (bytes);
 }
 /*---------------------------------------------------------------------------*/
+static void* default_realloc_func(
+  void* mem, size_t new_size, const alloc_tbl* invoker
+  )
+{
+  return realloc (mem, new_size);
+}
+/*---------------------------------------------------------------------------*/
 static void default_dealloc_func (void* mem, const alloc_tbl* invoker)
 {
   free (mem);
@@ -18,7 +25,8 @@ static inline alloc_tbl get_default_alloc()
 {
   alloc_tbl default_alloc = {
     .alloc   = default_alloc_func,
-    .dealloc = default_dealloc_func
+    .realloc = default_realloc_func,
+    .dealloc = default_dealloc_func,    
   };
   return default_alloc;
 }

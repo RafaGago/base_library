@@ -35,16 +35,23 @@
 typedef struct alloc_tbl alloc_tbl;
 /*---------------------------------------------------------------------------*/
 typedef void* (*alloc_signature) (size_t bytes, const alloc_tbl* invoker);
+typedef void* (*realloc_signature)(
+  void* mem, size_t new_size, const alloc_tbl* invoker
+  );
 typedef void (*dealloc_signature) (void* mem, const alloc_tbl* invoker);
 /*---------------------------------------------------------------------------*/
 typedef struct alloc_tbl {
   alloc_signature   alloc;
+  realloc_signature realloc;
   dealloc_signature dealloc;
 }
 alloc_tbl;
 /*---------------------------------------------------------------------------*/
 #define bl_allocate(alloc_tbl_ptr, bytes)\
   (alloc_tbl_ptr)->alloc ((bytes), (alloc_tbl_ptr))
+/*---------------------------------------------------------------------------*/
+#define bl_reallocate(alloc_tbl_ptr, void_ptr_mem, bytes)\
+  (alloc_tbl_ptr)->realloc ((bytes), (void_ptr_mem), (alloc_tbl_ptr))
 /*---------------------------------------------------------------------------*/
 #define bl_deallocate(alloc_tbl_ptr, void_ptr_mem)\
   (alloc_tbl_ptr)->dealloc ((void_ptr_mem), (alloc_tbl_ptr))
