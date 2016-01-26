@@ -36,12 +36,12 @@ static inline void prefix##_destroy_extern (prefix* rb)\
 }\
 \
 static inline \
-bl_err prefix##_init (prefix* rb, const alloc_tbl* alloc, uword capacity)\
+bl_err prefix##_init (prefix* rb, alloc_tbl const* alloc, uword capacity)\
 {\
   return prefix##_private_init (rb, alloc, capacity);\
 }\
 \
-static inline void prefix##_destroy (prefix* rb, const alloc_tbl* alloc)\
+static inline void prefix##_destroy (prefix* rb, alloc_tbl const* alloc)\
 {\
   prefix##_private_destroy (rb, alloc);\
 }\

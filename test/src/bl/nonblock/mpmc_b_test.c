@@ -25,14 +25,14 @@ typedef struct mpmc_b_context {
 }
 mpmc_b_context;
 /*---------------------------------------------------------------------------*/
-static void* mpmc_b_alloc_func (size_t bytes, const alloc_tbl* invoker)
+static void* mpmc_b_alloc_func (size_t bytes, alloc_tbl const* invoker)
 {
   mpmc_b_context* c = to_type_containing (invoker, alloc, mpmc_b_context);
   assert_true (bytes == sizeof c->buff);
   return c->alloc_succeeds ? c->buff : nullptr;
 }
 /*---------------------------------------------------------------------------*/
-static void mpmc_b_dealloc_func (void* mem, const alloc_tbl* invoker)
+static void mpmc_b_dealloc_func (void* mem, alloc_tbl const* invoker)
 {
   mpmc_b_context* c = to_type_containing (invoker, alloc, mpmc_b_context);
   assert_true (mem == (void*) c->buff);

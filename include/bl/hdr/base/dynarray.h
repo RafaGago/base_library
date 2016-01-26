@@ -22,14 +22,14 @@ prefix;
 #define declare_dynarray_funcs(prefix, content_type, linkage_and_modif)\
 \
 linkage_and_modif \
-bl_err prefix##_init (prefix* d, uword size, const alloc_tbl* alloc);\
+bl_err prefix##_init (prefix* d, uword size, alloc_tbl const* alloc);\
 \
 linkage_and_modif \
-bl_err prefix##_resize (prefix* d, uword new_size, const alloc_tbl* alloc);\
+bl_err prefix##_resize (prefix* d, uword new_size, alloc_tbl const* alloc);\
 \
 \
 static inline \
-void prefix##_destroy (prefix* d, const alloc_tbl* alloc)\
+void prefix##_destroy (prefix* d, alloc_tbl const* alloc)\
 {\
   if (!d->arr) {\
     return;\
@@ -53,7 +53,7 @@ content_type* prefix##_at (prefix const* d, uword idx)\
 /*---------------------------------------------------------------------------*/
 #define define_dynarray_funcs(prefix, content_type, linkage_and_modif)\
 linkage_and_modif \
-bl_err prefix##_init (prefix* d, uword size, const alloc_tbl* alloc)\
+bl_err prefix##_init (prefix* d, uword size, alloc_tbl const* alloc)\
 {\
   assert (d);\
   d->arr  = nullptr;\
@@ -65,7 +65,7 @@ bl_err prefix##_init (prefix* d, uword size, const alloc_tbl* alloc)\
 }\
 \
 linkage_and_modif \
-bl_err prefix##_resize (prefix* d, uword new_size, const alloc_tbl* alloc)\
+bl_err prefix##_resize (prefix* d, uword new_size, alloc_tbl const* alloc)\
 {\
   assert (d);\
   assert (new_size != 0);\

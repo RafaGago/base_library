@@ -7,7 +7,7 @@
 
 /*---------------------------------------------------------------------------*/
 static inline word delayed_ordering_func(
-  const void* a, const void* b, void* context
+  void const* a, void const* b, void* context
   )
 {
   delayed* l = (delayed*) context;
@@ -87,7 +87,7 @@ bool delayed_try_get_task_and_drop(
 }
 /*---------------------------------------------------------------------------*/
 bl_err delayed_init(
-  delayed* dl, const alloc_tbl* alloc, uword capacity
+  delayed* dl, alloc_tbl const* alloc, uword capacity
   )
 {
   assert (dl);
@@ -96,7 +96,7 @@ bl_err delayed_init(
   return delayed_ringb_init (&dl->list, alloc, capacity);
 }
 /*---------------------------------------------------------------------------*/
-void delayed_destroy (delayed* dl, const alloc_tbl* alloc)
+void delayed_destroy (delayed* dl, alloc_tbl const* alloc)
 {
   assert (dl);
   delayed_ringb_destroy (&dl->list, alloc);

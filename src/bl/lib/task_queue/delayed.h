@@ -35,10 +35,10 @@ typedef struct delayed {
 delayed;
 /*---------------------------------------------------------------------------*/
 extern bl_err delayed_init(
-  delayed* dl, const alloc_tbl* alloc, uword capacity
+  delayed* dl, alloc_tbl const* alloc, uword capacity
   );
 /*---------------------------------------------------------------------------*/
-extern void delayed_destroy (delayed* dl, const alloc_tbl* alloc);
+extern void delayed_destroy (delayed* dl, alloc_tbl const* alloc);
 /*---------------------------------------------------------------------------*/
 extern bl_err delayed_insert (delayed* dl, delayed_entry* e);
 /*---------------------------------------------------------------------------*/

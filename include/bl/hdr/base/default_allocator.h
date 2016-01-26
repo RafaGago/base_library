@@ -4,19 +4,19 @@
 #include <bl/hdr/base/allocator.h>
 
 /*---------------------------------------------------------------------------*/
-static void* default_alloc_func (size_t bytes, const alloc_tbl* invoker)
+static void* default_alloc_func (size_t bytes, alloc_tbl const* invoker)
 {
   return malloc (bytes);
 }
 /*---------------------------------------------------------------------------*/
 static void* default_realloc_func(
-  void* mem, size_t new_size, const alloc_tbl* invoker
+  void* mem, size_t new_size, alloc_tbl const* invoker
   )
 {
   return realloc (mem, new_size);
 }
 /*---------------------------------------------------------------------------*/
-static void default_dealloc_func (void* mem, const alloc_tbl* invoker)
+static void default_dealloc_func (void* mem, alloc_tbl const* invoker)
 {
   free (mem);
 }

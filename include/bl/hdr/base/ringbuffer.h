@@ -29,9 +29,9 @@ bl_err prefix##_init_extern (prefix* rb, content_type* mem, uword capacity);\
 static inline void prefix##_destroy_extern (prefix* rb) {}\
 \
 linkage_and_modif \
-bl_err prefix##_init (prefix* rb, const alloc_tbl* alloc, uword capacity);\
+bl_err prefix##_init (prefix* rb, alloc_tbl const* alloc, uword capacity);\
 \
-static inline void prefix##_destroy (prefix* rb, const alloc_tbl* alloc)\
+static inline void prefix##_destroy (prefix* rb, alloc_tbl const* alloc)\
 {\
   assert (rb);\
   if (rb->stor) {\
@@ -158,7 +158,7 @@ bl_err prefix##_init_extern (prefix* rb, content_type* mem, uword capacity)\
 }\
 \
 linkage_and_modif \
-bl_err prefix##_init (prefix* rb, const alloc_tbl* alloc, uword capacity)\
+bl_err prefix##_init (prefix* rb, alloc_tbl const* alloc, uword capacity)\
 {\
   bl_err err = prefix##_init_extern (rb, (content_type*) 1, capacity);\
   if (err) {\

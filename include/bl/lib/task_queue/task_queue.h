@@ -58,7 +58,7 @@ typedef struct taskq taskq;
 /*---------------------------------------------------------------------------*/
 extern bl_err TASKQ_EXPORT taskq_init(
   taskq**          tq,
-  const alloc_tbl* alloc,
+  alloc_tbl const* alloc,
   uword            task_queue_capacity,
   uword            delayed_task_capacity
   );
@@ -168,7 +168,7 @@ extern bl_err TASKQ_EXPORT taskq_try_cancel_one (taskq* tq);
 */
 /*---------------------------------------------------------------------------*/
 extern bl_err TASKQ_EXPORT taskq_destroy(
-  taskq* taskq, const alloc_tbl* alloc
+  taskq* taskq, alloc_tbl const* alloc
   );
 /*---------------------------------------------------------------------------*/
 /*

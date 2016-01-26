@@ -34,11 +34,11 @@
 /*---------------------------------------------------------------------------*/
 typedef struct alloc_tbl alloc_tbl;
 /*---------------------------------------------------------------------------*/
-typedef void* (*alloc_signature) (size_t bytes, const alloc_tbl* invoker);
+typedef void* (*alloc_signature) (size_t bytes, alloc_tbl const* invoker);
 typedef void* (*realloc_signature)(
-  void* mem, size_t new_size, const alloc_tbl* invoker
+  void* mem, size_t new_size, alloc_tbl const* invoker
   );
-typedef void (*dealloc_signature) (void* mem, const alloc_tbl* invoker);
+typedef void (*dealloc_signature) (void* mem, alloc_tbl const* invoker);
 /*---------------------------------------------------------------------------*/
 typedef struct alloc_tbl {
   alloc_signature   alloc;

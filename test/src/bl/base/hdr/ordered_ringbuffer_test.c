@@ -13,7 +13,7 @@ typedef struct content {
 }
 content;
 /*---------------------------------------------------------------------------*/
-word cmp_func (const void* k1, const void* k2, void* cmp_context) 
+word cmp_func (void const* k1, void const* k2, void* cmp_context) 
 {
   return ((content*) k1)->key - ((content*) k2)->key;
 }

@@ -65,7 +65,7 @@ static_assert_outside_func_ns (sizeof (atomic_uword) == sizeof (mpmc_b_info));
     align_combined_type2_offset (type_contained, u32)\
     )
 /*---------------------------------------------------------------------------*/
-extern void NONBLOCK_EXPORT mpmc_b_destroy (mpmc_b* q, const alloc_tbl* alloc);
+extern void NONBLOCK_EXPORT mpmc_b_destroy (mpmc_b* q, alloc_tbl const* alloc);
 /*------------------------------------------------------------------------------
  Inserts to the queue on multiple producer (MP) mode.
  
@@ -91,7 +91,7 @@ extern void NONBLOCK_EXPORT mpmc_b_destroy (mpmc_b* q, const alloc_tbl* alloc);
 extern bl_err NONBLOCK_EXPORT mpmc_b_produce_sig_fallback(
   mpmc_b*      q,
   mpmc_b_info* info_out,
-  const void*  value,
+  void const*  value,
   bool         replace_sig,
   mpmc_b_sig   sig_replacement,
   mpmc_b_sig   sig_fallback_mask,
@@ -101,7 +101,7 @@ extern bl_err NONBLOCK_EXPORT mpmc_b_produce_sig_fallback(
 static inline bl_err mpmc_b_produce_sig(
   mpmc_b*      q,
   mpmc_b_info* info_out,
-  const void*  value,
+  void const*  value,
   mpmc_b_sig   sig_replacement
   )
 {
@@ -113,7 +113,7 @@ static inline bl_err mpmc_b_produce_sig(
 static inline bl_err mpmc_b_produce_fallback(
   mpmc_b*      q,
   mpmc_b_info* info_out,
-  const void*  value,
+  void const*  value,
   mpmc_b_sig   sig_fallback_mask,
   mpmc_b_sig   sig_fallback_match
   )
@@ -126,7 +126,7 @@ static inline bl_err mpmc_b_produce_fallback(
 static inline bl_err mpmc_b_produce(
   mpmc_b*      q,
   mpmc_b_info* info_out,
-  const void*  value
+  void const*  value
   )
 {
   return mpmc_b_produce_sig_fallback (q, info_out, value, false, 0, 0, 1);
@@ -136,7 +136,7 @@ static inline bl_err mpmc_b_produce(
  multiple producer modes on the same queue.
 -----------------------------------------------------------------------------*/
 extern bl_err NONBLOCK_EXPORT mpmc_b_produce_single_p(
-  mpmc_b* q, mpmc_b_info* info_out, const void* value
+  mpmc_b* q, mpmc_b_info* info_out, void const* value
   );
 /*------------------------------------------------------------------------------
  Inserts to the queue on multiple consumer (MC) mode.
@@ -241,7 +241,7 @@ extern bl_err NONBLOCK_EXPORT mpmc_b_consumer_signal_try_set_tmatch(
 /*--------------------------- ------------------------------------------------*/
 extern bl_err NONBLOCK_EXPORT mpmc_b_init_private(
   mpmc_b*          q,
-  const alloc_tbl* alloc,
+  alloc_tbl const* alloc,
   u32              buffer_size,
   u32              join_size,
   u32              contained_size,

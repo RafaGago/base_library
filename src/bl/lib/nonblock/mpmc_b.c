@@ -65,7 +65,7 @@ static inline u8* mpmc_b_join_data_ptr (mpmc_b* q, u32 position)
 }
 /*---------------------------------------------------------------------------*/
 static inline void mpmc_b_write(
-    mpmc_b* q, u32 gate, u8* join_data, const void* value
+    mpmc_b* q, u32 gate, u8* join_data, void const* value
     )
 {
   memcpy (mpmc_b_mem_content_ptr (q, join_data), value, q->contained_size);
@@ -112,7 +112,7 @@ static inline i32 mpmc_b_transaction_status (u32 gate, mpmc_b_i now)
 bl_err NONBLOCK_EXPORT mpmc_b_produce_sig_fallback(
   mpmc_b*      q,
   mpmc_b_info* inf,
-  const void*  value,
+  void const*  value,
   bool         replace_sig,
   mpmc_b_sig   sig_replacement,
   mpmc_b_sig   sig_fallback_mask,
@@ -157,7 +157,7 @@ bl_err NONBLOCK_EXPORT mpmc_b_produce_sig_fallback(
 }
 /*---------------------------------------------------------------------------*/
 bl_err NONBLOCK_EXPORT mpmc_b_produce_single_p(
-  mpmc_b* q, mpmc_b_info* inf, const void* value
+  mpmc_b* q, mpmc_b_info* inf, void const* value
   )
 {
   assert (q->buffer && inf && value);
@@ -257,7 +257,7 @@ bl_err NONBLOCK_EXPORT mpmc_b_consume_single_c(
   return bl_empty;
 }
 /*---------------------------------------------------------------------------*/
-void NONBLOCK_EXPORT mpmc_b_destroy (mpmc_b* q, const alloc_tbl* alloc)
+void NONBLOCK_EXPORT mpmc_b_destroy (mpmc_b* q, alloc_tbl const* alloc)
 {
   if (q->buffer) {
     bl_deallocate (alloc, q->buffer);
@@ -341,7 +341,7 @@ bl_err NONBLOCK_EXPORT mpmc_b_consumer_signal_try_set_tmatch(
 /*---------------------------------------------------------------------------*/
 bl_err NONBLOCK_EXPORT mpmc_b_init_private(
   mpmc_b*          q,
-  const alloc_tbl* alloc,
+  alloc_tbl const* alloc,
   u32              buffer_size,
   u32              join_size,
   u32              contained_size,

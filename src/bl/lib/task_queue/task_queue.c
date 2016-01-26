@@ -306,7 +306,7 @@ bl_err TASKQ_EXPORT taskq_post_try_cancel_delayed(
   return taskq_post_impl (tq, &cmd, &dummy);
 }
 /*---------------------------------------------------------------------------*/
-bl_err TASKQ_EXPORT taskq_destroy (taskq* tq, const alloc_tbl* alloc)
+bl_err TASKQ_EXPORT taskq_destroy (taskq* tq, alloc_tbl const* alloc)
 {
   assert (tq && alloc);
   mpmc_b_destroy (&tq->queue, alloc);
@@ -319,7 +319,7 @@ bl_err TASKQ_EXPORT taskq_destroy (taskq* tq, const alloc_tbl* alloc)
 /*---------------------------------------------------------------------------*/
 bl_err TASKQ_EXPORT taskq_init(
   taskq**          tqueue,
-  const alloc_tbl* alloc,
+  alloc_tbl const* alloc,
   uword            regular_capacity,
   uword            delayed_capacity
   )
