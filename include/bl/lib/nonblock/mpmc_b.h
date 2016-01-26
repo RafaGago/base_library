@@ -139,7 +139,7 @@ extern bl_err NONBLOCK_EXPORT mpmc_b_produce_single_p(
   mpmc_b* q, mpmc_b_info* info_out, void const* value
   );
 /*------------------------------------------------------------------------------
- Inserts to the queue on multiple consumer (MC) mode.
+ Comsumes from the queue on multiple consumer (MC) mode.
  
  info_out: will contain the current transaction id and the signal that was 
   present on the consumer's "channel". On return of the "bl_preconditions"
@@ -159,6 +159,8 @@ extern bl_err NONBLOCK_EXPORT mpmc_b_produce_single_p(
  This can be used e.g. on termination contexts, the signal is set to a value
  that represents "on termination" and with an according mask + match the 
  consumers will be blocked.
+
+ The "bl_empty" error code will be returned when no data is available.
 ------------------------------------------------------------------------------*/
 extern bl_err NONBLOCK_EXPORT mpmc_b_consume_sig_fallback(
   mpmc_b*      q,
