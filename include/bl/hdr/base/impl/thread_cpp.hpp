@@ -11,7 +11,8 @@
 
 #include <thread>
 #include <type_traits>
-#include <assert.h>
+
+#include <bl/hdr/base/assert.h>
 #include <bl/hdr/base/integer.h>
 #include <bl/hdr/base/platform.h>
 
@@ -37,7 +38,7 @@ static inline int bl_thread_init(
   bl_thread* t, bl_thread_func f, void* context
   )
 {
-  assert (t);
+  bl_assert (t);
   try {
     new ((std::thread*) t) std::thread (f, context);
     return bl_thread_success;
@@ -54,7 +55,7 @@ static inline void bl_thread_yield (void)
 /*---------------------------------------------------------------------------*/
 static inline int bl_thread_join (bl_thread* t)
 {
-  assert (t);
+  bl_assert (t);
   try {
     ((std::thread*) t)->join();
     return bl_thread_success;

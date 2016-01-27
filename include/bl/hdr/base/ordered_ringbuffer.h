@@ -1,7 +1,7 @@
 #ifndef __BL_ORDERED_RINGBUFFER_H__
 #define __BL_ORDERED_RINGBUFFER_H__
 
-#include <assert.h>
+#include <bl/hdr/base/assert.h>
 #include <bl/hdr/base/error.h>
 #include <bl/hdr/base/integer.h>
 #include <bl/hdr/base/integer_math.h>
@@ -168,7 +168,7 @@ define_ringb_extended_funcs (prefix##_private, content_type, linkage_and_modif)\
 linkage_and_modif \
 uword prefix##_find_eq_or_gt (prefix* rb, content_type const* v, void* context)\
 {\
-  assert (rb && v);\
+  bl_assert (rb && v);\
   if (prefix##_size (rb) == 0) {\
     return 0;\
   }\
@@ -217,8 +217,8 @@ oringb_insert_result prefix##_insert(\
   prefix* rb, content_type const* v, void* cmp_context\
   )\
 {\
-  assert (rb && v);\
-  assert (prefix##_can_insert (rb));\
+  bl_assert (rb && v);\
+  bl_assert (prefix##_can_insert (rb));\
   oringb_insert_result r;\
   r.idx           = prefix##_find_eq_or_gt (rb, v, cmp_context);\
   r.new_insertion = r.idx == prefix##_size (rb) ||\
@@ -234,8 +234,8 @@ uword prefix##_insert_lifo_duplicates(\
   prefix* rb, content_type const* v, void* cmp_context\
   )\
 {\
-  assert (rb && v);\
-  assert (prefix##_can_insert (rb));\
+  bl_assert (rb && v);\
+  bl_assert (prefix##_can_insert (rb));\
   uword idx = prefix##_find_eq_or_gt (rb, v, cmp_context);\
   prefix##_private_insert (rb, v, idx);\
   return idx;\
@@ -246,8 +246,8 @@ uword prefix##_insert_fifo_duplicates(\
   prefix* rb, content_type const* v, void* cmp_context\
   )\
 {\
-  assert (rb && v);\
-  assert (prefix##_can_insert (rb));\
+  bl_assert (rb && v);\
+  bl_assert (prefix##_can_insert (rb));\
   uword idx = prefix##_find_eq_or_gt (rb, v, cmp_context);\
   /*linear advance to one position after the last duplicate*/\
   while(\
@@ -263,7 +263,7 @@ uword prefix##_insert_fifo_duplicates(\
 linkage_and_modif \
 uword prefix##_find (prefix* rb, content_type const* f, void* cmp_context)\
 {\
-  assert (rb && f);\
+  bl_assert (rb && f);\
   uword pos  = prefix##_find_eq_or_gt (rb, f, cmp_context);\
   uword size = prefix##_size (rb);\
   if (size > 0 && pos < size) {\

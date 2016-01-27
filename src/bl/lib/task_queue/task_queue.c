@@ -2,6 +2,7 @@
 #include <bl/lib/task_queue/task_queue.h>
 #include <bl/lib/task_queue/delayed.h>
 
+#include <bl/hdr/base/assert.h>
 #include <bl/hdr/base/integer_math.h>
 #include <bl/hdr/base/deadline.h>
 #include <bl/hdr/base/processor_pause.h>
@@ -264,7 +265,7 @@ retry:
 /*---------------------------------------------------------------------------*/
 bl_err TASKQ_EXPORT taskq_post (taskq* tq, taskq_id* id, taskq_task task)
 {
-  assert (tq && id);
+  bl_assert (tq && id);
   cmd_elem cmd;
   cmd.type        = cmd_task;
   cmd.data.e.task = task;
@@ -279,7 +280,7 @@ bl_err TASKQ_EXPORT taskq_post_delayed(
   u32                  delay_us
   )
 {
-  assert (tq && id && h);
+  bl_assert (tq && id && h);
   cmd_elem cmd;
   cmd.type        = cmd_delayed;
   static_assert_ns (sizeof *h == sizeof cmd.data.d.tp);
@@ -297,7 +298,7 @@ bl_err TASKQ_EXPORT taskq_post_try_cancel_delayed(
   taskq* tq, taskq_id id, taskq_cancel_handle h
   )
 {
-  assert (tq);
+  bl_assert (tq);
   cmd_elem cmd;
   cmd.type                = cmd_delayed_cancel;
   cmd.data.dcancel.id     = id;
@@ -308,11 +309,11 @@ bl_err TASKQ_EXPORT taskq_post_try_cancel_delayed(
 /*---------------------------------------------------------------------------*/
 bl_err TASKQ_EXPORT taskq_destroy (taskq* tq, alloc_tbl const* alloc)
 {
-  assert (tq && alloc);
+  bl_assert (tq && alloc);
   mpmc_b_destroy (&tq->queue, alloc);
   delayed_destroy (&tq->delayed_ls, alloc);
   bl_err err = bl_tm_sem_destroy (&tq->sem);
-  assert (!err);
+  bl_assert (!err);
   bl_deallocate (alloc, tq);
   return err;
 }
@@ -324,7 +325,7 @@ bl_err TASKQ_EXPORT taskq_init(
   uword            delayed_capacity
   )
 {
-  assert (tqueue && alloc);
+  bl_assert (tqueue && alloc);
   regular_capacity = round_next_pow2_u (regular_capacity);
   delayed_capacity = round_next_pow2_u (delayed_capacity);
 

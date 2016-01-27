@@ -1,7 +1,7 @@
 #ifndef BL_RINGBUFFER_H
 #define BL_RINGBUFFER_H
 
-#include <assert.h>
+#include <bl/hdr/base/assert.h>
 #include <bl/hdr/base/error.h>
 #include <bl/hdr/base/integer.h>
 #include <bl/hdr/base/integer_math.h>
@@ -33,7 +33,7 @@ bl_err prefix##_init (prefix* rb, alloc_tbl const* alloc, uword capacity);\
 \
 static inline void prefix##_destroy (prefix* rb, alloc_tbl const* alloc)\
 {\
-  assert (rb);\
+  bl_assert (rb);\
   if (rb->stor) {\
     bl_deallocate (alloc, rb->stor);\
   }\
@@ -41,13 +41,13 @@ static inline void prefix##_destroy (prefix* rb, alloc_tbl const* alloc)\
 \
 static inline uword prefix##_capacity (const prefix* rb)\
 {\
-  assert (rb);\
+  bl_assert (rb);\
   return rb->mask + 1;\
 }\
 \
 static inline uword prefix##_size (const prefix* rb)\
 {\
-  assert (rb);\
+  bl_assert (rb);\
   return rb->size;\
 }\
 \
@@ -56,9 +56,9 @@ static inline uword prefix##_size (const prefix* rb)\
 /* called on empty ringbuffers                                             */\
 static inline void prefix##_set_start_position (prefix* rb, uword idx)\
 {\
-  assert (rb);\
-  assert (idx < prefix##_capacity (rb));\
-  assert (prefix##_size (rb) == 0);\
+  bl_assert (rb);\
+  bl_assert (idx < prefix##_capacity (rb));\
+  bl_assert (prefix##_size (rb) == 0);\
   rb->begin = idx;\
 }\
 \
@@ -71,22 +71,22 @@ static inline uword prefix##_contiguous_elems_from(\
   const prefix* rb, uword from_idx, uword element_count\
   )\
 {\
-  assert (rb);\
-  assert ((from_idx + element_count) <= prefix##_size (rb));\
+  bl_assert (rb);\
+  bl_assert ((from_idx + element_count) <= prefix##_size (rb));\
   return bl_min (element_count, prefix##_capacity (rb) - from_idx);\
 }\
 \
 static inline content_type* prefix##_at (const prefix* rb, uword idx)\
 {\
-  assert (rb);\
-  assert (idx < prefix##_size (rb));\
+  bl_assert (rb);\
+  bl_assert (idx < prefix##_size (rb));\
   return &rb->stor[(rb->begin + idx) & rb->mask];\
 }\
 \
 static inline content_type* prefix##_at_head (const prefix* rb)\
 {\
-  assert (rb);\
-  assert (prefix##_size (rb) > 0);\
+  bl_assert (rb);\
+  bl_assert (prefix##_size (rb) > 0);\
   return &rb->stor[rb->begin];\
 }\
 \
@@ -97,8 +97,8 @@ static inline content_type* prefix##_at_tail (const prefix* rb)\
 \
 static inline void prefix##_insert_head (prefix* rb, content_type const* v)\
 {\
-  assert (rb);\
-  assert (prefix##_can_insert (rb));\
+  bl_assert (rb);\
+  bl_assert (prefix##_can_insert (rb));\
   ++rb->size;\
   --rb->begin;\
   rb->begin &= rb->mask;\
@@ -107,16 +107,16 @@ static inline void prefix##_insert_head (prefix* rb, content_type const* v)\
 \
 static inline void prefix##_insert_tail (prefix* rb, content_type const* v)\
 {\
-  assert (rb);\
-  assert (prefix##_can_insert (rb));\
+  bl_assert (rb);\
+  bl_assert (prefix##_can_insert (rb));\
   rb->stor[(rb->begin + rb->size) & rb->mask] = *v;\
   ++rb->size;\
 }\
 \
 static inline void prefix##_drop_head_n (prefix* rb, uword n)\
 {\
-  assert (rb);\
-  assert (prefix##_size (rb) >= n);\
+  bl_assert (rb);\
+  bl_assert (prefix##_size (rb) >= n);\
   rb->size  -= n;\
   rb->begin += n;\
   rb->begin &= rb->mask;\
@@ -124,8 +124,8 @@ static inline void prefix##_drop_head_n (prefix* rb, uword n)\
 \
 static inline void prefix##_drop_tail_n (prefix* rb, uword n)\
 {\
-  assert (rb);\
-  assert (prefix##_size (rb) >= n);\
+  bl_assert (rb);\
+  bl_assert (prefix##_size (rb) >= n);\
   rb->size -= n;\
 }\
 \
@@ -144,8 +144,8 @@ static inline void prefix##_drop_tail (prefix* rb)\
 linkage_and_modif \
 bl_err prefix##_init_extern (prefix* rb, content_type* mem, uword capacity)\
 {\
-  assert (rb && mem);\
-  assert (is_pow2 (capacity));\
+  bl_assert (rb && mem);\
+  bl_assert (is_pow2 (capacity));\
 \
   if (!is_pow2 (capacity)) {\
     return bl_invalid;\
@@ -205,9 +205,9 @@ void prefix##_shift_backward_private (prefix* rb, uword beg, uword mid_last)\
 linkage_and_modif \
 void prefix##_insert (prefix* rb, content_type const* v, uword idx)\
 {\
-  assert (rb && v);\
-  assert (prefix##_can_insert (rb));\
-  assert (idx <= prefix##_size (rb));\
+  bl_assert (rb && v);\
+  bl_assert (prefix##_can_insert (rb));\
+  bl_assert (idx <= prefix##_size (rb));\
   ++rb->size;\
   if (idx < (prefix##_size (rb) / 2)) {\
     /*head backwards*/\
@@ -223,8 +223,8 @@ void prefix##_insert (prefix* rb, content_type const* v, uword idx)\
 linkage_and_modif \
 void prefix##_drop (prefix* rb, uword idx)\
 {\
-  assert (rb);\
-  assert (idx < prefix##_size (rb));\
+  bl_assert (rb);\
+  bl_assert (idx < prefix##_size (rb));\
 \
   if (idx <= (prefix##_size (rb) / 2)) {\
     prefix##_shift_forward_private (rb, 1, idx + 1, prefix##_at (rb, 0));\
@@ -240,8 +240,8 @@ void prefix##_drop (prefix* rb, uword idx)\
 linkage_and_modif \
 void prefix##_drop_range (prefix* rb, uword from_idx, uword element_count)\
 {\
-  assert (rb);\
-  assert ((from_idx + element_count) <= prefix##_size (rb));\
+  bl_assert (rb);\
+  bl_assert ((from_idx + element_count) <= prefix##_size (rb));\
 \
   uword src;\
   uword dst;\

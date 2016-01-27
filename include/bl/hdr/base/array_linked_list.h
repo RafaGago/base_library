@@ -16,7 +16,7 @@
   For further usage reference see the unit tests for this type.
 */
 /*---------------------------------------------------------------------------*/
-#include <assert.h>
+#include <bl/hdr/base/assert.h>
 #include <bl/hdr/base/platform.h>
 #include <bl/hdr/base/integer.h>
 #include <bl/hdr/base/utility.h>
@@ -40,14 +40,14 @@ typedef uword alnls_it;
 
 #define alnls_node_acquire_unsafe(type_ptr, it)\
 do {\
-  assert (it < alnls_capacity (type_ptr));\
-  assert (alnls_node_is_free (type_ptr, it));\
+  bl_assert (it < alnls_capacity (type_ptr));\
+  bl_assert (alnls_node_is_free (type_ptr, it));\
   alnls_it_next_priv (type_ptr, it) = alnls_it_end (type_ptr);\
 } while (0)
 
 #define alnls_node_release(type_ptr, it)\
 do {\
-  assert (it < alnls_capacity (type_ptr));\
+  bl_assert (it < alnls_capacity (type_ptr));\
   alnls_it_next_priv (type_ptr, it) = alnls_nfree_val_priv (it);\
 } while (0)
 /*---------------------------------------------------------------------------*/
@@ -227,7 +227,7 @@ static inline void alnls_test_find_two_previous_nodes_private(
   alnls_test* l, alnls_it* prev, alnls_it* prev2, alnls_it val
   )
 {
-  assert (!alnls_is_empty (l));
+  bl_assert (!alnls_is_empty (l));
   *prev2       = alnls_it_end (l);
   *prev        = alnls_it_end (l);
   alnls_it now = alnls_it_begin (l);
@@ -262,33 +262,33 @@ static inline alnls_it alnls_test_try_acquire_a_node (alnls_test* l)
 
 static inline void alnls_test_insert_head (alnls_test* l, alnls_it n)
 {
-  assert (alnls_it_next (l, n) == alnls_it_end (l));
+  bl_assert (alnls_it_next (l, n) == alnls_it_end (l));
   alnls_it_next_priv (l, n) = alnls_it_begin (l);
   alnls_it_begin_priv (l)   = (u8) n;
-  assert (alnls_it_begin (l) == n);
+  bl_assert (alnls_it_begin (l) == n);
 }
 
 static inline void alnls_test_insert_tail (alnls_test* l, alnls_it n)
 {
-  assert (alnls_it_next (l, n) == alnls_it_end (l));
+  bl_assert (alnls_it_next (l, n) == alnls_it_end (l));
   if (!alnls_is_empty (l)) {
     alnls_it tail, subtail;
     alnls_test_find_two_previous_nodes_private(
       l, &tail, &subtail, alnls_it_end (l)
       );
     alnls_it_next_priv (l, tail) = (u8) n;
-    assert (alnls_it_next (l, tail) == n);
+    bl_assert (alnls_it_next (l, tail) == n);
   }
   else {
     alnls_it_begin_priv (l) = (u8) n;
-    assert (alnls_it_begin (l) == n);
+    bl_assert (alnls_it_begin (l) == n);
   }
 }
 
 static inline alnls_it alnls_test_drop (alnls_test* l, alnls_it n)
 {
-  assert (alnls_it_in_range( l, n));
-  assert (!alnls_node_is_free (l, n));
+  bl_assert (alnls_it_in_range( l, n));
+  bl_assert (!alnls_node_is_free (l, n));
 
   if (alnls_is_empty (l)) {
     return alnls_it_end (l);
@@ -296,7 +296,7 @@ static inline alnls_it alnls_test_drop (alnls_test* l, alnls_it n)
   alnls_it should_be_n, prev, find;
   find = alnls_it_next (l, n);
   alnls_test_find_two_previous_nodes_private (l, &should_be_n, &prev, find);
-  assert (should_be_n == n);
+  bl_assert (should_be_n == n);
   if (prev != alnls_it_end (l)) {
     alnls_it_next_priv (l, prev) = find;
   }

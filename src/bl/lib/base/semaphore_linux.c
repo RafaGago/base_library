@@ -7,10 +7,11 @@
 #include <linux/futex.h>
 #include <errno.h>
 /*----------------------------------------------------------------------------*/
-#include <bl/hdr/base//integer_manipulation.h>
-#include <bl/hdr/base//utility.h>
-#include <bl/hdr/base//atomic.h>
-#include <bl/lib/base//semaphore.h>
+#include <bl/hdr/base/assert.h>
+#include <bl/hdr/base/integer_manipulation.h>
+#include <bl/hdr/base/utility.h>
+#include <bl/hdr/base/atomic.h>
+#include <bl/lib/base/semaphore.h>
 /*----------------------------------------------------------------------------*/
 static inline int futex_wait_masked_absolute_monotonic(
   atomic_u32*            f,
@@ -93,7 +94,7 @@ bl_err BL_EXPORT bl_tm_sem_wait (bl_tm_sem* s, u32 usec)
     else {
       curr = tm_sem_futex_set (sig, wait + 1); 
       if (unlikely (tm_sem_futex_get_wait (curr) < wait)) {
-        assert (false && "too many waiter threads");
+        bl_assert (false && "too many waiter threads");
         return bl_would_overflow;      
       }
     }
@@ -158,7 +159,7 @@ bl_err BL_EXPORT bl_tm_sem_init (bl_tm_sem* s)
 bl_err BL_EXPORT bl_tm_sem_destroy (bl_tm_sem* s)
 {
   word woken = futex_wake (&s->sem, itype_max (word));
-  assert (woken == 0);
+  bl_assert (woken == 0);
   /*if this returns an error there still are waiters -> wrong user shutdown*/
   return (woken == 0) ? bl_ok : bl_error;                                   
 }

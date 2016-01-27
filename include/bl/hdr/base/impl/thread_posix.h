@@ -5,9 +5,9 @@
   #error "don't include this file directly, use <hdr/thread.h> instead"
 #endif
 
-#include <assert.h>
 #include <pthread.h>
 #include <sched.h>
+#include <bl/hdr/base/assert.h>
 #include <bl/hdr/base/platform.h>
 
 typedef pthread_t bl_thread;
@@ -22,7 +22,7 @@ static inline int bl_thread_init(
   bl_thread* t, bl_thread_func f, void* context
   )
 {
-  assert (t);
+  bl_assert (t);
   return pthread_create (t, 0, (void* (*) (void*)) f, context) == 0 ? 
     bl_thread_success : bl_thread_error;
 }
@@ -34,7 +34,7 @@ static inline void bl_thread_yield (void)
 /*---------------------------------------------------------------------------*/
 static inline int bl_thread_join (bl_thread* t)
 {
-  assert (t);
+  bl_assert (t);
   return pthread_join (*t, nullptr) == 0 ? bl_thread_success : bl_thread_error;
 }
 /*---------------------------------------------------------------------------*/

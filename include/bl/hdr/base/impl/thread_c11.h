@@ -6,7 +6,7 @@
 #endif
 
 #include <threads.h>
-#include <assert.h>
+#include <bl/hdr/base/assert.h>
 #include <bl/hdr/base/platform.h>
 
 typedef thrd_t       bl_thread;
@@ -21,7 +21,7 @@ static inline int bl_thread_init(
   bl_thread* t, bl_thread_func f, void* context
   )
 {
-  assert (t);
+  bl_assert (t);
   return thrd_create (t, f, context);
 }
 /*---------------------------------------------------------------------------*/
@@ -32,7 +32,7 @@ static inline void bl_thread_yield (void)
 /*---------------------------------------------------------------------------*/
 static inline int bl_thread_join (bl_thread* t)
 {
-  assert (t);
+  bl_assert (t);
   return thrd_join (t, nullptr);
 }
 /*---------------------------------------------------------------------------*/

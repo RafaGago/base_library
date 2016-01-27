@@ -1,3 +1,5 @@
+#define BL_ASSERT_DEFAULT_BEHAVIOR 1 /*to avoid interfearing with cmocka */
+#include <bl/hdr/base/assert.h>
 #include <bl/hdr/base/platform.h>
 #include <bl/cmocka_pre.h>
 /*---------------------------------------------------------------------------*/
@@ -224,9 +226,9 @@ static void taskq_test_queue_overflow (void **state)
   taskq_id id;
   taskq_task task = taskq_task_rv (taskq_callback, c);
   for (uword i = 0; i < queue_size; ++i) {
-    assert (taskq_post (c->tq, &id, task) == bl_ok);
+    bl_assert (taskq_post (c->tq, &id, task) == bl_ok);
   }
-  assert (taskq_post (c->tq, &id, task) == bl_would_overflow);
+  bl_assert (taskq_post (c->tq, &id, task) == bl_would_overflow);
 }
 /*---------------------------------------------------------------------------*/
 static void taskq_test_delayed_queue_overflow (void **state)
@@ -326,7 +328,7 @@ static void taskq_test_try_cancel_one (void **state)
   taskq_id   id;
   taskq_task task = taskq_task_rv (taskq_callback, c);
   bl_err  err     = taskq_post (c->tq, &id, task);
-  assert (!err);
+  bl_assert (!err);
   err = taskq_try_cancel_one (c->tq);
   assert_true (!err);
   assert_true (c->last_err == bl_cancelled);

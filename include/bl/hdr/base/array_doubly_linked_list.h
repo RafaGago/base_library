@@ -16,7 +16,7 @@
   For further usage reference see the unit tests for this type.
 */
 /*---------------------------------------------------------------------------*/
-#include <assert.h>
+#include <bl/hdr/base/assert.h>
 #include <bl/hdr/base/platform.h>
 #include <bl/hdr/base/integer.h>
 #include <bl/hdr/base/utility.h>
@@ -47,15 +47,15 @@ typedef uword adlnls_it;
 
 #define adlnls_node_acquire_unsafe(type_ptr, it)\
 do {\
-  assert (it < adlnls_capacity (type_ptr));\
-  assert (adlnls_node_is_free (type_ptr, it));\
+  bl_assert (it < adlnls_capacity (type_ptr));\
+  bl_assert (adlnls_node_is_free (type_ptr, it));\
   adlnls_set_node_insert_ready_priv (type_ptr, it);\
 } while (0)
 
 #define adlnls_node_release(type_ptr, it)\
 do {\
-  assert (it < adlnls_capacity (type_ptr));\
-  assert (adlnls_is_node_insert_ready_priv (type_ptr, it));\
+  bl_assert (it < adlnls_capacity (type_ptr));\
+  bl_assert (adlnls_is_node_insert_ready_priv (type_ptr, it));\
   adlnls_it_next_priv (type_ptr, it) = adlnls_nfree_val_priv (it);\
   adlnls_it_prev_priv (type_ptr, it) = adlnls_nfree_val_priv (it);\
 } while (0)
@@ -280,42 +280,42 @@ static inline adlnls_it adlnls_test_try_acquire_a_node (adlnls_test* l)
 
 static inline void adlnls_test_insert_head (adlnls_test* l, adlnls_it n)
 {
-  assert (adlnls_is_node_insert_ready_priv (l, n));
+  bl_assert (adlnls_is_node_insert_ready_priv (l, n));
   if (!adlnls_is_empty (l)) {
     adlnls_it_prev_priv (l, adlnls_it_begin (l)) = n;
-    assert (adlnls_it_prev (l, adlnls_it_begin (l)) == n);
+    bl_assert (adlnls_it_prev (l, adlnls_it_begin (l)) == n);
     adlnls_it_next_priv (l, n) = adlnls_it_begin (l);
   }
   else {
     adlnls_it_rbegin_priv (l) = (u8) n;  
-    assert (adlnls_it_rbegin (l) == n);
+    bl_assert (adlnls_it_rbegin (l) == n);
   }
   adlnls_it_begin_priv (l) = (u8) n;
-  assert (adlnls_it_begin (l) == n);
+  bl_assert (adlnls_it_begin (l) == n);
 }
 
 static inline void adlnls_test_insert_tail (adlnls_test* l, adlnls_it n)
 {
-  assert (adlnls_is_node_insert_ready_priv (l, n));
+  bl_assert (adlnls_is_node_insert_ready_priv (l, n));
   if (!adlnls_is_empty (l)) {
     adlnls_it_next_priv (l, adlnls_it_rbegin (l)) = n;
-    assert (adlnls_it_next (l, adlnls_it_rbegin (l)) == n);
+    bl_assert (adlnls_it_next (l, adlnls_it_rbegin (l)) == n);
     adlnls_it_prev_priv (l, n) = adlnls_it_rbegin (l);
   }
   else {
     adlnls_it_begin_priv (l) = (u8) n;  
-    assert (adlnls_it_begin (l) == n);
+    bl_assert (adlnls_it_begin (l) == n);
   }
   adlnls_it_rbegin_priv (l) = (u8) n;
-  assert (adlnls_it_rbegin (l) == n);
+  bl_assert (adlnls_it_rbegin (l) == n);
 }
 
 static inline adlnls_it adlnls_test_drop(
   adlnls_test* l, adlnls_it n, bool return_previous
   )
 {
-  assert (adlnls_it_in_range (l, n));
-  assert (!adlnls_node_is_free (l, n));
+  bl_assert (adlnls_it_in_range (l, n));
+  bl_assert (!adlnls_node_is_free (l, n));
 
   if (adlnls_is_empty (l)) {
     return adlnls_it_end (l);

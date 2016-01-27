@@ -2,9 +2,7 @@
 #ifndef __BL_NONBLOCK_MPMC_B_H__
 #define __BL_NONBLOCK_MPMC_B_H__
 /*---------------------------------------------------------------------------*/
-#include <assert.h>
 #include <bl/lib/nonblock/libexport.h>
-
 #include <bl/hdr/base/platform.h>
 #include <bl/hdr/base/cache.h>
 #include <bl/hdr/base/alignment.h>

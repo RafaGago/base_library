@@ -119,35 +119,35 @@ func_prefix adlnls_it name##_try_acquire_a_node (name* l)\
 \
 func_prefix void name##_insert_head (name* l, adlnls_it n)\
 {\
-  assert (adlnls_is_node_insert_ready_priv (l, n));\
+  bl_assert (adlnls_is_node_insert_ready_priv (l, n));\
   if (!adlnls_is_empty (l)) {\
     adlnls_it_prev_priv (l, adlnls_it_begin (l)) = n;\
-    assert (adlnls_it_prev (l, adlnls_it_begin (l)) == n);\
+    bl_assert (adlnls_it_prev (l, adlnls_it_begin (l)) == n);\
     adlnls_it_next_priv (l, n) = adlnls_it_begin (l);\
   }\
   else {\
     adlnls_it_rbegin_priv (l) = (index_uint_type) n;  \
-    assert (adlnls_it_rbegin (l) == n);\
+    bl_assert (adlnls_it_rbegin (l) == n);\
   }\
   adlnls_it_begin_priv (l) = (index_uint_type) n;\
-  assert (adlnls_it_begin (l) == n);\
+  bl_assert (adlnls_it_begin (l) == n);\
   name##_size_set_private (l, name##_size_get_private (l) + 1);\
 }\
 \
 func_prefix void name##_insert_tail (name* l, adlnls_it n)\
 {\
-  assert (adlnls_is_node_insert_ready_priv (l, n));\
+  bl_assert (adlnls_is_node_insert_ready_priv (l, n));\
   if (!adlnls_is_empty (l)) {\
     adlnls_it_next_priv (l, adlnls_it_rbegin (l)) = n;\
-    assert (adlnls_it_next (l, adlnls_it_rbegin (l)) == n);\
+    bl_assert (adlnls_it_next (l, adlnls_it_rbegin (l)) == n);\
     adlnls_it_prev_priv (l, n) = adlnls_it_rbegin (l);\
   }\
   else {\
     adlnls_it_begin_priv (l) = (index_uint_type) n;  \
-    assert (adlnls_it_begin (l) == n);\
+    bl_assert (adlnls_it_begin (l) == n);\
   }\
   adlnls_it_rbegin_priv (l) = (index_uint_type) n;\
-  assert (adlnls_it_rbegin (l) == n);\
+  bl_assert (adlnls_it_rbegin (l) == n);\
   name##_size_set_private (l, name##_size_get_private (l) + 1);\
 }\
 \
@@ -155,8 +155,8 @@ func_prefix adlnls_it name##_drop_explicit(\
   name* l, adlnls_it n, bool return_previous\
   )\
 {\
-  assert (adlnls_it_in_range (l, n));\
-  assert (!adlnls_node_is_free (l, n));\
+  bl_assert (adlnls_it_in_range (l, n));\
+  bl_assert (!adlnls_node_is_free (l, n));\
 \
   if (adlnls_is_empty (l)) {\
     return adlnls_it_end (l);\

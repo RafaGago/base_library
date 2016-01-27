@@ -1,7 +1,7 @@
 #ifndef BL_INTEGER_MANIPULATION_H
 #define BL_INTEGER_MANIPULATION_H
 
-#include <assert.h>
+#include <bl/hdr/base/assert.h>
 #include <bl/hdr/base/platform.h>
 #include <bl/hdr/base/integer.h>
 
@@ -259,7 +259,7 @@ static inline u8 u8_get_bit_idx (u8 non_zero_pow2)
   static const u8 bruijn_seq_cycle_inv[8] = {
     0, 1, 2, 4, 7, 3, 6, 5,
   };
-  assert (non_zero_pow2 && has_one_or_zero_bits_set (non_zero_pow2));
+  bl_assert (non_zero_pow2 && has_one_or_zero_bits_set (non_zero_pow2));
   return bruijn_seq_cycle_inv[((u8)(non_zero_pow2 * bruijn_seq)) >> 5];
 }
 /*-----------------------------------------------------------------------------*/
@@ -269,7 +269,7 @@ static inline u8 u16_get_bit_idx (u16 non_zero_pow2)
   static const u8  bruijn_seq_cycle_inv[16] = {
     0, 1, 8, 2, 6, 9, 3, 11, 15, 7, 5, 10, 14, 4, 13, 12,
   };
-  assert (non_zero_pow2 && has_one_or_zero_bits_set (non_zero_pow2));
+  bl_assert (non_zero_pow2 && has_one_or_zero_bits_set (non_zero_pow2));
   return bruijn_seq_cycle_inv[((u16)(non_zero_pow2 * bruijn_seq)) >> 12];
 }
 /*-----------------------------------------------------------------------------*/
@@ -280,7 +280,7 @@ static inline u8 u32_get_bit_idx (u32 non_zero_pow2)
      0,  1,  2, 11, 17, 3, 20, 12, 30, 18,  4, 6,  8,  21, 13, 24, 
     31, 10, 16, 19, 29, 5,  7, 23,  9, 15, 28, 22, 14, 27, 26, 25,
   };
-  assert (non_zero_pow2 && has_one_or_zero_bits_set (non_zero_pow2));
+  bl_assert (non_zero_pow2 && has_one_or_zero_bits_set (non_zero_pow2));
   return bruijn_seq_cycle_inv[((u32)(non_zero_pow2 * bruijn_seq)) >> 27];
 }
 /*-----------------------------------------------------------------------------*/
@@ -293,7 +293,7 @@ static inline u8 u64_get_bit_idx (u64 non_zero_pow2)
     63,  7, 24, 33, 60, 28, 15, 44, 31, 42, 52, 54, 12, 39, 56, 19,
      6, 23, 59, 14, 41, 51, 38, 18, 22, 58, 50, 37, 21, 49, 48, 47,
   };
-  assert (non_zero_pow2 && has_one_or_zero_bits_set (non_zero_pow2));
+  bl_assert (non_zero_pow2 && has_one_or_zero_bits_set (non_zero_pow2));
   return bruijn_seq_cycle_inv[((u64)(non_zero_pow2 * bruijn_seq)) >> 58];
 }
 /*---------------------------------------------------------------------------*/

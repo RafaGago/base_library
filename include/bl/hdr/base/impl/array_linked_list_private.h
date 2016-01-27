@@ -58,7 +58,7 @@ func_prefix void name##_find_two_previous_nodes_private(\
   name* l, alnls_it* prev, alnls_it* prev2, alnls_it val\
   )\
 {\
-  assert (!alnls_is_empty (l));\
+  bl_assert (!alnls_is_empty (l));\
   *prev2       = alnls_it_end (l);\
   *prev        = alnls_it_end (l);\
   alnls_it now = alnls_it_begin (l);\
@@ -102,10 +102,10 @@ func_prefix alnls_it name##_try_acquire_a_node (name* l)\
 \
 func_prefix void name##_insert_head (name* l, alnls_it n)\
 {\
-  assert (alnls_it_next (l, n) == alnls_it_end (l));\
+  bl_assert (alnls_it_next (l, n) == alnls_it_end (l));\
   alnls_it_next_priv (l, n) = alnls_it_begin (l);\
   alnls_it_begin_priv (l)   = (index_uint_type) n;\
-  assert (alnls_it_begin (l) == n);\
+  bl_assert (alnls_it_begin (l) == n);\
   name##_size_set_private(\
     l, name##_size_get_private (l) + 1\
     );\
@@ -113,18 +113,18 @@ func_prefix void name##_insert_head (name* l, alnls_it n)\
 \
 func_prefix void name##_insert_tail (name* l, alnls_it n)\
 {\
-  assert (alnls_it_next (l, n) == alnls_it_end (l));\
+  bl_assert (alnls_it_next (l, n) == alnls_it_end (l));\
   if (!alnls_is_empty (l)) {\
     alnls_it tail, subtail;\
     name##_find_two_previous_nodes_private(\
       l, &tail, &subtail, alnls_it_end (l)\
       );\
     alnls_it_next_priv (l, tail) = (index_uint_type) n;\
-    assert (alnls_it_next (l, tail) == n);\
+    bl_assert (alnls_it_next (l, tail) == n);\
   }\
   else {\
     alnls_it_begin_priv (l) = (index_uint_type) n;\
-    assert (alnls_it_begin (l) == n);\
+    bl_assert (alnls_it_begin (l) == n);\
   }\
   name##_size_set_private(\
     l, name##_size_get_private (l) + 1\
@@ -133,8 +133,8 @@ func_prefix void name##_insert_tail (name* l, alnls_it n)\
 \
 func_prefix alnls_it name##_drop (name* l, alnls_it n)\
 {\
-  assert (alnls_it_in_range( l, n));\
-  assert (!alnls_node_is_free (l, n));\
+  bl_assert (alnls_it_in_range( l, n));\
+  bl_assert (!alnls_node_is_free (l, n));\
 \
   if (alnls_is_empty (l)) {\
     return alnls_it_end (l);\
@@ -144,7 +144,7 @@ func_prefix alnls_it name##_drop (name* l, alnls_it n)\
   name##_find_two_previous_nodes_private(\
     l, &should_be_n, &prev, find\
     );\
-  assert (should_be_n == n);\
+  bl_assert (should_be_n == n);\
   if (prev != alnls_it_end (l)) {\
     alnls_it_next_priv (l, prev) = find;\
   }\

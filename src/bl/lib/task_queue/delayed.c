@@ -2,6 +2,7 @@
 
 #include <bl/lib/task_queue/delayed.h>
 
+#include <bl/hdr/base/assert.h>
 #include <bl/hdr/base/time.h>
 #include <bl/hdr/base/integer_math.h>
 
@@ -46,8 +47,8 @@ delayed_entry const* delayed_get_head_if_expired (delayed* dl)
 /*---------------------------------------------------------------------------*/
 void delayed_drop_head (delayed* dl)
 {
-  assert (dl);
-  assert (delayed_ringb_size (&dl->list) > 0);
+  bl_assert (dl);
+  bl_assert (delayed_ringb_size (&dl->list) > 0);
   delayed_ringb_drop_head (&dl->list);
 }
 /*---------------------------------------------------------------------------*/
@@ -90,7 +91,7 @@ bl_err delayed_init(
   delayed* dl, alloc_tbl const* alloc, uword capacity
   )
 {
-  assert (dl);
+  bl_assert (dl);
   dl->time_offset = bl_get_tstamp();
   capacity        = round_next_pow2_u (capacity);
   return delayed_ringb_init (&dl->list, alloc, capacity);
@@ -98,7 +99,7 @@ bl_err delayed_init(
 /*---------------------------------------------------------------------------*/
 void delayed_destroy (delayed* dl, alloc_tbl const* alloc)
 {
-  assert (dl);
+  bl_assert (dl);
   delayed_ringb_destroy (&dl->list, alloc);
 }
 /*---------------------------------------------------------------------------*/

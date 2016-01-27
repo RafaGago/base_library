@@ -1,8 +1,7 @@
 #ifndef __BL_DYN_ARRAY_H__
 #define __BL_DYN_ARRAY_H__
 
-#include <assert.h>
-
+#include <bl/hdr/base/assert.h>
 #include <bl/hdr/base/platform.h>
 #include <bl/hdr/base/integer.h>
 #include <bl/hdr/base/error.h>
@@ -40,14 +39,14 @@ void prefix##_destroy (prefix* d, alloc_tbl const* alloc)\
 static inline \
 uword prefix##_size (prefix const* d)\
 {\
-  assert (d);\
+  bl_assert (d);\
   return d->size;\
 }\
 \
 static inline \
 content_type* prefix##_at (prefix const* d, uword idx)\
 {\
-  assert (idx < d->size);\
+  bl_assert (idx < d->size);\
   return d->arr + idx;\
 }
 /*---------------------------------------------------------------------------*/
@@ -55,7 +54,7 @@ content_type* prefix##_at (prefix const* d, uword idx)\
 linkage_and_modif \
 bl_err prefix##_init (prefix* d, uword size, alloc_tbl const* alloc)\
 {\
-  assert (d);\
+  bl_assert (d);\
   d->arr  = nullptr;\
   d->size = size;\
   if (size == 0) {\
@@ -67,8 +66,8 @@ bl_err prefix##_init (prefix* d, uword size, alloc_tbl const* alloc)\
 linkage_and_modif \
 bl_err prefix##_resize (prefix* d, uword new_size, alloc_tbl const* alloc)\
 {\
-  assert (d);\
-  assert (new_size != 0);\
+  bl_assert (d);\
+  bl_assert (new_size != 0);\
   d->arr = bl_reallocate (alloc, d->arr, new_size * sizeof (d->arr[0]));\
   if (d->arr) {\
     d->size = new_size;\

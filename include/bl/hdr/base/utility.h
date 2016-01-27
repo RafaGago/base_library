@@ -31,12 +31,6 @@
 /*---------------------------------------------------------------------------*/
 #define type_bits(type) (sizeof (type) * 8)
 /*---------------------------------------------------------------------------*/
-#ifdef NDEBUG
-  #define side_effect_assert(expr) (void) (expr)
-#else
-  #define side_effect_assert(expr) assert (expr)
-#endif
-/*---------------------------------------------------------------------------*/
 #define ptr_aligned_to_builtin_type (ptr, type)\
   (is_pow2 (sizeof (type)) && ((((uword) ptr) & (sizeof (type) - 1)) == 0))
 /*---------------------------------------------------------------------------*/

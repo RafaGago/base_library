@@ -33,6 +33,7 @@ either expressed or implied, of Dmitry Vyukov.
 
 #include <bl/lib/nonblock/mpmc_b.h>
 
+#include <bl/hdr/base/assert.h>
 #include <bl/hdr/base/platform.h>
 #include <bl/hdr/base/integer_math.h>
 #include <bl/hdr/base/integer_manipulation.h>
@@ -96,7 +97,7 @@ static inline i32 mpmc_b_transaction_status (u32 gate, mpmc_b_i now)
 {
   u32 gate_u  = (gate << mpmc_b_info_signal_bits);
   u32 trans_u = ((u32) now.inf.transaction) << mpmc_b_info_signal_bits;
-  /*assert ((gate_u - trans_u) <= compare_unsigned_as_signed_max_diff (u32));*/
+  /*bl_assert ((gate_u - trans_u) <= compare_unsigned_as_signed_max_diff (u32));*/
   return (i32) (gate_u - trans_u);
 }
 /*---------------------------------------------------------------------------*/
@@ -104,7 +105,7 @@ static inline i32 mpmc_b_transaction_status (u32 gate, mpmc_b_i now)
 static_assert_outside_func_ns (mpmc_b_info_transaction_bits == type_bits (i32));
 static inline i32 mpmc_b_transaction_status (u32 gate, mpmc_b_i now)
 {
-  /*assert ((gate_u - trans_u) <= compare_unsigned_as_signed_max_diff (u32));*/
+  /*bl_assert ((gate_u - trans_u) <= compare_unsigned_as_signed_max_diff (u32));*/
   return (i32) (gate -((u32) now.inf.transaction));
 }
 #endif
@@ -119,7 +120,7 @@ bl_err NONBLOCK_EXPORT mpmc_b_produce_sig_fallback(
   mpmc_b_sig   sig_fallback_match
   )
 {
-  assert (q && inf && value && q->buffer);
+  bl_assert (q && inf && value && q->buffer);
   u8*      join_data;
   mpmc_b_i now;
   mpmc_b_i next;
@@ -160,7 +161,7 @@ bl_err NONBLOCK_EXPORT mpmc_b_produce_single_p(
   mpmc_b* q, mpmc_b_info* inf, void const* value
   )
 {
-  assert (q->buffer && inf && value);
+  bl_assert (q->buffer && inf && value);
   u8*      join_data;
   mpmc_b_i now;
   u32      gate;
@@ -178,7 +179,7 @@ bl_err NONBLOCK_EXPORT mpmc_b_produce_single_p(
     atomic_u32_store_rlx (&q->i_producer, now.raw);
     return bl_ok;
   }
-  assert (status < 0);
+  bl_assert (status < 0);
   return bl_would_overflow;
 }
 /*---------------------------------------------------------------------------*/
@@ -192,7 +193,7 @@ bl_err NONBLOCK_EXPORT mpmc_b_consume_sig_fallback(
   mpmc_b_sig   sig_fallback_match
   )
 {
-  assert (q && inf && value && q->buffer);
+  bl_assert (q && inf && value && q->buffer);
   u8*      join_data;
   mpmc_b_i now;
   mpmc_b_i next;
@@ -234,7 +235,7 @@ bl_err NONBLOCK_EXPORT mpmc_b_consume_single_c(
   mpmc_b* q, mpmc_b_info* inf, void* value
   )
 {
-  assert (q->buffer && inf && value);
+  bl_assert (q->buffer && inf && value);
   u8*      join_data;
   mpmc_b_i now;
   u32      gate;
@@ -253,7 +254,7 @@ bl_err NONBLOCK_EXPORT mpmc_b_consume_single_c(
     mpmc_b_read (q, now.inf.transaction, join_data, value);
     return bl_ok;
   }
-  assert (status < 0);
+  bl_assert (status < 0);
   return bl_empty;
 }
 /*---------------------------------------------------------------------------*/
@@ -348,8 +349,8 @@ bl_err NONBLOCK_EXPORT mpmc_b_init_private(
   u32              gate_offset
   )
 {
-  assert (join_size > contained_size);
-  assert (gate_offset >= sizeof (u32));
+  bl_assert (join_size > contained_size);
+  bl_assert (gate_offset >= sizeof (u32));
 
   buffer_size = round_next_pow2_u (buffer_size);
   if (buffer_size < 2 ||

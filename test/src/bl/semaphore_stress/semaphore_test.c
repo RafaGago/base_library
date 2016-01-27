@@ -4,9 +4,9 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 #include <pthread.h>
 
+#include <bl/hdr/base/assert.h>
 #include <bl/hdr/base/platform.h>
 #include <bl/hdr/base/integer.h>
 #include <bl/hdr/base/utility.h>
@@ -105,7 +105,7 @@ retry:
 /*----------------------------------------------------------------------------*/
 static inline void run_waiter (thread_context* c)
 {
-  assert (c->remaining > 0);
+  bl_assert (c->remaining > 0);
   bl_err err;
   do {
     err = bl_tm_sem_wait (c->sem, c->wait_us);

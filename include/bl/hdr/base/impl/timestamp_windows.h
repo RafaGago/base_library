@@ -5,7 +5,7 @@
    to avoid clutter on that file, hence the lack of some includes to make it
    fail in case of the user triying to include it directly */
 
-#include <assert.h>
+#include <bl/hdr/base/assert.h>
 #include <bl/hdr/base/platform.h>
 #include <bl/hdr/base/integer.h>
 #include <bl/hdr/base/utility.h>
@@ -15,7 +15,7 @@
 static inline u64 qpc_get_freq_priv (void)
 {
   LARGE_INTEGER freq;
-  side_effect_assert (QueryPerformanceFrequency (&freq) != 0);
+  bl_side_effect_assert (QueryPerformanceFrequency (&freq) != 0);
   return freq;
 }
 /*---------------------------------------------------------------------------*/
@@ -28,7 +28,7 @@ static u64 qpc_get_freq (void)
 static inline tstamp bl_get_tstamp (void)
 {
   LARGE_INTEGER t;
-  side_effect_assert (QueryPerformanceCounter (&t) != 0);
+  bl_side_effect_assert (QueryPerformanceCounter (&t) != 0);
   return (tstamp) t.QuadPart;
 }
 /*---------------------------------------------------------------------------*/
@@ -79,19 +79,19 @@ static inline tstamp bl_tstamp_add_sec (tstamp ts, i32 sec)
 /*---------------------------------------------------------------------------*/
 static inline tstamp bl_tstamp_add_msec (tstamp ts, i32 msec)
 {
-  assert (qpc_get_freq() <= utype_max (u32));
+  bl_assert (qpc_get_freq() <= utype_max (u32));
   return ts + div_ceil ((i64) msec * qpc_get_freq(), msec_in_sec);
 }
 /*---------------------------------------------------------------------------*/
 static inline tstamp bl_tstamp_add_usec (tstamp ts, i32 usec)
 {
-  assert (qpc_get_freq() <= utype_max (u32));
+  bl_assert (qpc_get_freq() <= utype_max (u32));
   return ts + div_ceil ((i64) usec * qpc_get_freq(), usec_in_sec);
 }
 /*---------------------------------------------------------------------------*/
 static inline tstamp bl_tstamp_add_nsec (tstamp ts, i32 nsec)
 {
-  assert (qpc_get_freq() <= utype_max (u32));
+  bl_assert (qpc_get_freq() <= utype_max (u32));
   return ts + div_ceil ((i64) nsec * qpc_get_freq(), nsec_in_sec);
 }
 /*---------------------------------------------------------------------------*/
