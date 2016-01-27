@@ -47,13 +47,13 @@ typedef struct alloc_tbl {
 }
 alloc_tbl;
 /*---------------------------------------------------------------------------*/
-#define bl_allocate(alloc_tbl_ptr, bytes)\
+#define bl_alloc(alloc_tbl_ptr, bytes)\
   (alloc_tbl_ptr)->alloc ((bytes), (alloc_tbl_ptr))
 /*---------------------------------------------------------------------------*/
-#define bl_reallocate(alloc_tbl_ptr, void_ptr_mem, bytes)\
+#define bl_realloc(alloc_tbl_ptr, void_ptr_mem, bytes)\
   (alloc_tbl_ptr)->realloc ((void_ptr_mem), (bytes), (alloc_tbl_ptr))
 /*---------------------------------------------------------------------------*/
-#define bl_deallocate(alloc_tbl_ptr, void_ptr_mem)\
+#define bl_dealloc(alloc_tbl_ptr, void_ptr_mem)\
   (alloc_tbl_ptr)->dealloc ((void_ptr_mem), (alloc_tbl_ptr))
 /*---------------------------------------------------------------------------*/
 

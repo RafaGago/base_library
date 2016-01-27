@@ -33,7 +33,7 @@ void prefix##_destroy (prefix* d, alloc_tbl const* alloc)\
   if (!d->arr) {\
     return;\
   }\
-  bl_deallocate (alloc, d->arr);\
+  bl_dealloc (alloc, d->arr);\
 }\
 \
 static inline \
@@ -68,7 +68,7 @@ bl_err prefix##_resize (prefix* d, uword new_size, alloc_tbl const* alloc)\
 {\
   bl_assert (d);\
   bl_assert (new_size != 0);\
-  d->arr = bl_reallocate (alloc, d->arr, new_size * sizeof (d->arr[0]));\
+  d->arr = bl_realloc (alloc, d->arr, new_size * sizeof (d->arr[0]));\
   if (d->arr) {\
     d->size = new_size;\
     return bl_ok;\

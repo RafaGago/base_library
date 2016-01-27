@@ -35,7 +35,7 @@ static inline void prefix##_destroy (prefix* rb, alloc_tbl const* alloc)\
 {\
   bl_assert (rb);\
   if (rb->stor) {\
-    bl_deallocate (alloc, rb->stor);\
+    bl_dealloc (alloc, rb->stor);\
   }\
 }\
 \
@@ -164,7 +164,7 @@ bl_err prefix##_init (prefix* rb, alloc_tbl const* alloc, uword capacity)\
   if (err) {\
     return err;\
   }\
-  rb->stor  = bl_allocate (alloc, capacity * sizeof (content_type));\
+  rb->stor  = bl_alloc (alloc, capacity * sizeof (content_type));\
   return rb->stor ? bl_ok : bl_alloc;\
 }
 /*---------------------------------------------------------------------------*/

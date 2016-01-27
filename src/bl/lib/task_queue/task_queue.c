@@ -314,7 +314,7 @@ bl_err TASKQ_EXPORT taskq_destroy (taskq* tq, alloc_tbl const* alloc)
   delayed_destroy (&tq->delayed_ls, alloc);
   bl_err err = bl_tm_sem_destroy (&tq->sem);
   bl_assert (!err);
-  bl_deallocate (alloc, tq);
+  bl_dealloc (alloc, tq);
   return err;
 }
 /*---------------------------------------------------------------------------*/
@@ -332,7 +332,7 @@ bl_err TASKQ_EXPORT taskq_init(
   if (regular_capacity < 2 || delayed_capacity < 2) {
     return bl_invalid;
   }
-  taskq* tq = bl_allocate (alloc, sizeof *tq);
+  taskq* tq = bl_alloc (alloc, sizeof *tq);
   if (!tq) {
     return bl_alloc;
   }
@@ -364,7 +364,7 @@ taskq_queue_destroy:
   mpmc_b_destroy (&tq->queue, alloc);
 
 taskq_free:
-  bl_deallocate (alloc, tq);
+  bl_dealloc (alloc, tq);
   *tqueue = nullptr;
   return err;
 }

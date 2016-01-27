@@ -261,7 +261,7 @@ bl_err NONBLOCK_EXPORT mpmc_b_consume_single_c(
 void NONBLOCK_EXPORT mpmc_b_destroy (mpmc_b* q, alloc_tbl const* alloc)
 {
   if (q->buffer) {
-    bl_deallocate (alloc, q->buffer);
+    bl_dealloc (alloc, q->buffer);
   }
 }
 /*---------------------------------------------------------------------------*/
@@ -359,7 +359,7 @@ bl_err NONBLOCK_EXPORT mpmc_b_init_private(
   }
 
   u32 bytes = (join_size * buffer_size);
-  q->buffer   = bl_allocate (alloc, bytes);
+  q->buffer   = bl_alloc (alloc, bytes);
   if (!q->buffer) {
     return bl_alloc;
   }
