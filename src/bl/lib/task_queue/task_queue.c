@@ -30,8 +30,8 @@ typedef struct delayed_cmd {
 delayed_cmd;
 /*---------------------------------------------------------------------------*/
 typedef struct delayed_cancel_cmd {  
-  taskq_id            id;
-  taskq_cancel_handle handle;
+  taskq_id id;
+  tstamp   tp;
 }
 delayed_cancel_cmd;
 /*---------------------------------------------------------------------------*/
@@ -90,11 +90,10 @@ static inline bool taskq_handle_cmd (taskq* tq, cmd_elem* cmd, taskq_id tid)
   }
   case cmd_delayed_cancel: {
     taskq_task task;
-    static_assert_ns (sizeof (tstamp) == sizeof cmd->data.dcancel.handle);
     if (delayed_try_get_task_and_drop(
         &tq->delayed_ls,
         &task,
-        (tstamp) cmd->data.dcancel.handle,
+        cmd->data.dcancel.tp,
         cmd->data.dcancel.id
         )) {
       taskq_task_run (task, bl_cancelled, cmd->data.dcancel.id);
@@ -273,36 +272,34 @@ bl_err TASKQ_EXPORT taskq_post (taskq* tq, taskq_id* id, taskq_task task)
 }
 /*---------------------------------------------------------------------------*/
 bl_err TASKQ_EXPORT taskq_post_delayed(
-  taskq*               tq, 
-  taskq_id*            id, 
-  taskq_cancel_handle* h, 
-  taskq_task           task, 
-  u32                  delay_us
+  taskq*     tq, 
+  taskq_id*  id, 
+  tstamp*    scheduled_time_point, 
+  taskq_task task, 
+  u32        delay_us
   )
 {
   bl_assert (tq && id && h);
   cmd_elem cmd;
   cmd.type        = cmd_delayed;
-  static_assert_ns (sizeof *h == sizeof cmd.data.d.tp);
   cmd.data.d.task = task;
   bl_err err      = deadline_init (&cmd.data.d.tp, delay_us);
   if (unlikely (err)) {
     return err;
   }
-  static_assert_ns (sizeof *h == sizeof cmd.data.d.tp);
-  *h = (taskq_cancel_handle) cmd.data.d.tp;
+  *scheduled_time_point = cmd.data.d.tp;
   return taskq_post_impl (tq, &cmd, id);
 }
 /*---------------------------------------------------------------------------*/
 bl_err TASKQ_EXPORT taskq_post_try_cancel_delayed(
-  taskq* tq, taskq_id id, taskq_cancel_handle h
+  taskq* tq, taskq_id id, tstamp scheduled_time_point
   )
 {
   bl_assert (tq);
   cmd_elem cmd;
-  cmd.type                = cmd_delayed_cancel;
-  cmd.data.dcancel.id     = id;
-  cmd.data.dcancel.handle = h;
+  cmd.type            = cmd_delayed_cancel;
+  cmd.data.dcancel.id = id;
+  cmd.data.dcancel.tp = scheduled_time_point;
   taskq_id dummy;
   return taskq_post_impl (tq, &cmd, &dummy);
 }

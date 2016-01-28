@@ -9,6 +9,7 @@
 #include <bl/hdr/base/integer.h>
 #include <bl/hdr/base/allocator.h>
 #include <bl/hdr/base/error.h>
+#include <bl/hdr/base/time.h>
 
 /*---------------------------------------------------------------------------*/
 /* Taskq: A Fixed-size (preallocated) task queue with support for delayed    */
@@ -19,7 +20,6 @@
 /*---------------------------------------------------------------------------*/
 typedef uword taskq_id;
 typedef u32   taskq_usec;
-typedef u32   taskq_cancel_handle;
 /*---------------------------------------------------------------------------*/
 typedef void (*taskq_task_func) (bl_err error, taskq_id id, void* context);
 /*---------------------------------------------------------------------------*/
@@ -104,14 +104,18 @@ extern bl_err TASKQ_EXPORT taskq_post (taskq* tq, taskq_id* id, taskq_task task)
 
   If this call returns "taskq_would_overflow" you need to increment the
   "task_queue_capacity" parameter.
+
+  "scheduled_time_point" returns the absolute time that the task will be ready to run
+   at. Note that this absolute time is necessary if you want to cancel the task
+   through the "taskq_post_try_cancel_delayed" function.
 */
 /*---------------------------------------------------------------------------*/
 extern bl_err TASKQ_EXPORT taskq_post_delayed(
-  taskq*               tq, 
-  taskq_id*            id, 
-  taskq_cancel_handle* h, 
-  taskq_task           task, 
-  u32                  delay_us
+  taskq*     tq, 
+  taskq_id*  id, 
+  tstamp*    scheduled_time_point, 
+  taskq_task task, 
+  u32        delay_us
   );
 /*---------------------------------------------------------------------------*/
 /*
@@ -134,7 +138,7 @@ extern bl_err TASKQ_EXPORT taskq_post_delayed(
 */
 /*---------------------------------------------------------------------------*/
 extern bl_err TASKQ_EXPORT taskq_post_try_cancel_delayed(
-  taskq* tq, taskq_id id, taskq_cancel_handle h
+  taskq* tq, taskq_id id, tstamp scheduled_time_point
   );
 /*---------------------------------------------------------------------------*/
 /*

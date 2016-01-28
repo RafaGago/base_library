@@ -95,7 +95,7 @@ static inline ststamp tstamp_compare (tstamp a, tstamp b)
  "static inline uword bl_tstamp_usec_ceil (tstamp ts)"
  "static inline uword bl_tstamp_nsec_ceil (tstamp ts)"
 
-    Same as above, but the values are rounded to the ceiling.
+    Same as above, but the values are rounded to the floor.
  ---------------------------------------------------------------
  "static inline tstamp bl_tstamp_add_sec (tstamp ts, i32 sec)"
  "static inline tstamp bl_tstamp_add_msec (tstamp ts, i32 msec)"

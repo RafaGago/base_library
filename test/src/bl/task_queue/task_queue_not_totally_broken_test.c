@@ -94,7 +94,7 @@ static void taskq_test_simple (void **state)
 static void taskq_test_simple_delayed (void **state)
 {
   taskq_id            id;
-  taskq_cancel_handle ch;
+  tstamp              tp_cancel;
   taskq_test_context* c;
   taskq_task          task;
   bl_err              err;
@@ -102,7 +102,7 @@ static void taskq_test_simple_delayed (void **state)
   c   = (taskq_test_context*) *state;
   task = taskq_task_rv (taskq_callback, c);
   will_return (bl_get_tstamp, 0);
-  err = taskq_post_delayed (c->tq, &id, &ch, task, 2000);
+  err = taskq_post_delayed (c->tq, &id, &tp_cancel, task, 2000);
   assert_true (!err);
   will_return (bl_get_tstamp, 1000);
   err = taskq_try_run_one (c->tq);
@@ -124,7 +124,7 @@ static void taskq_test_simple_delayed (void **state)
 static void taskq_test_two_delayed (void **state)
 {
   taskq_id            id, id2;
-  taskq_cancel_handle ch;
+  tstamp              tp_cancel;
   taskq_test_context* c;
   taskq_task          task;
   bl_err              err;
@@ -132,7 +132,7 @@ static void taskq_test_two_delayed (void **state)
   c   = (taskq_test_context*) *state;
   task = taskq_task_rv (taskq_callback, c);
   will_return (bl_get_tstamp, 0);
-  err = taskq_post_delayed (c->tq, &id, &ch, task, 2000);
+  err = taskq_post_delayed (c->tq, &id, &tp_cancel, task, 2000);
   assert_true (!err);
   will_return (bl_get_tstamp, 1);
   err = taskq_try_run_one (c->tq);
@@ -141,7 +141,7 @@ static void taskq_test_two_delayed (void **state)
   assert_true (c->last_id == unset_id);
 
   will_return (bl_get_tstamp, 2);
-  err = taskq_post_delayed (c->tq, &id2, &ch, task, 1000);
+  err = taskq_post_delayed (c->tq, &id2, &tp_cancel, task, 1000);
   assert_true (!err);
   will_return (bl_get_tstamp, 3);
   will_return (bl_get_tstamp, 3);
@@ -166,7 +166,7 @@ static void taskq_test_two_delayed (void **state)
 static void taskq_test_two_delayed_same_tp (void **state)
 {
   taskq_id            id, id2;
-  taskq_cancel_handle ch;
+  tstamp              tp_cancel;
   taskq_test_context* c;
   taskq_task          task;
   bl_err              err;
@@ -174,11 +174,11 @@ static void taskq_test_two_delayed_same_tp (void **state)
   c   = (taskq_test_context*) *state;
   task = taskq_task_rv (taskq_callback, c);
   will_return (bl_get_tstamp, 0);
-  err = taskq_post_delayed (c->tq, &id, &ch, task, 2000);
+  err = taskq_post_delayed (c->tq, &id, &tp_cancel, task, 2000);
   assert_true (!err);
 
   will_return (bl_get_tstamp, 1);
-  err = taskq_post_delayed (c->tq, &id2, &ch, task, 1999);
+  err = taskq_post_delayed (c->tq, &id2, &tp_cancel, task, 1999);
   assert_true (!err);
 
   will_return (bl_get_tstamp, 1999);
@@ -203,7 +203,7 @@ static void taskq_test_two_delayed_same_tp (void **state)
 static void taskq_test_delayed_expired_on_first_run (void **state)
 {
   taskq_id            id;
-  taskq_cancel_handle ch;
+  tstamp              tp_cancel;
   taskq_test_context* c;
   taskq_task          task;
   bl_err              err;
@@ -211,7 +211,7 @@ static void taskq_test_delayed_expired_on_first_run (void **state)
   c   = (taskq_test_context*) *state;
   task = taskq_task_rv (taskq_callback, c);
   will_return (bl_get_tstamp, 0);
-  err = taskq_post_delayed (c->tq, &id, &ch, task, 2000);
+  err = taskq_post_delayed (c->tq, &id, &tp_cancel, task, 2000);
   assert_true (!err);
   will_return (bl_get_tstamp, 2000);
   err = taskq_try_run_one (c->tq);
@@ -234,7 +234,7 @@ static void taskq_test_queue_overflow (void **state)
 static void taskq_test_delayed_queue_overflow (void **state)
 {
   taskq_id            id[delayed_size + 1];
-  taskq_cancel_handle ch;
+  tstamp              tp_cancel;
   taskq_test_context* c;
   taskq_task          task;
   bl_err              err;
@@ -246,7 +246,7 @@ static void taskq_test_delayed_queue_overflow (void **state)
   will_return (bl_get_tstamp, 2);
 
   for (uword i = 0; i < arr_elems (id); ++i) {
-    err = taskq_post_delayed (c->tq, &id[i], &ch, task, 2000);
+    err = taskq_post_delayed (c->tq, &id[i], &tp_cancel, task, 2000);
     assert_true (!err);
   }
   will_return (bl_get_tstamp, 3);
@@ -261,7 +261,7 @@ static void taskq_test_delayed_queue_overflow (void **state)
 static void taskq_test_post_try_cancel_delayed (void **state)
 {
   taskq_id            id;
-  taskq_cancel_handle ch;
+  tstamp              tp_cancel;
   taskq_test_context* c;
   taskq_task          task;
   bl_err              err;
@@ -271,12 +271,12 @@ static void taskq_test_post_try_cancel_delayed (void **state)
 
   c   = (taskq_test_context*) *state;
   task = taskq_task_rv (taskq_callback, c);
-  err = taskq_post_delayed (c->tq, &id, &ch, task, 2000);
+  err = taskq_post_delayed (c->tq, &id, &tp_cancel, task, 2000);
   assert_true (!err);
   assert_true (c->last_err == unset_err);
   assert_true (c->last_id == unset_id);
 
-  taskq_post_try_cancel_delayed (c->tq, id, ch);
+  taskq_post_try_cancel_delayed (c->tq, id, tp_cancel);
   assert_true (c->last_err == unset_err);
   assert_true (c->last_id == unset_id);
 
@@ -295,8 +295,8 @@ static void taskq_run_one_timeout (void **state)
 /*---------------------------------------------------------------------------*/
 static void taskq_run_one_pending_delayed (void **state)
 {
-  taskq_id            id;
-  taskq_cancel_handle ch;
+  taskq_id            id;  
+  tstamp              tp_cancel;
   taskq_test_context* c;
   taskq_task          task;
   bl_err              err;
@@ -309,7 +309,7 @@ static void taskq_run_one_pending_delayed (void **state)
   will_return (bl_get_tstamp, 2);
   will_return (bl_get_tstamp, 998);
 
-  err = taskq_post_delayed (c->tq, &id, &ch, task, 2000);
+  err = taskq_post_delayed (c->tq, &id, &tp_cancel, task, 2000);
 
   err = taskq_run_one (c->tq, 1000);
   assert_true (err == bl_timeout);

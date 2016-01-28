@@ -112,15 +112,15 @@ int producer_thread_regular (producer_thread_data* td)
 /*----------------------------------------------------------------------------*/
 int producer_thread_delayed (producer_thread_data* td, u32 timeout_us)
 {
-  taskq_id            id;
-  bl_err              err;
-  taskq_cancel_handle ch;
+  taskq_id id;
+  bl_err   err;
+  tstamp   tp_cancel;
 
   while (td->remaining) {
     err = taskq_post_delayed(
             td->tq,
             &id,
-            &ch,
+            &tp_cancel,
             taskq_task_rv (task_callback_delayed, td->wd),
             timeout_us
             );
@@ -143,12 +143,12 @@ int producer_thread_delayed (producer_thread_data* td, u32 timeout_us)
 }
 /*----------------------------------------------------------------------------*/
 static inline bool producer_thread_post_delayed_cancel(
-  producer_thread_data* td, taskq_id id, taskq_cancel_handle ch
+  producer_thread_data* td, taskq_id id, tstamp tp_cancel
   )
 {
   bl_err err;
   while (1) {
-    err = taskq_post_try_cancel_delayed (td->tq, id, ch);
+    err = taskq_post_try_cancel_delayed (td->tq, id, tp_cancel);
     if (!err) {      
       return true;
     }
@@ -170,22 +170,22 @@ int producer_thread_delayed_cancel(
   producer_thread_data* td, u32 timeout_us
   )
 {
-  taskq_id            id;
-  bl_err              err;
-  taskq_cancel_handle ch;
+  taskq_id id;
+  bl_err   err;
+  tstamp   tp_cancel;
 
   while (td->remaining) {
     err = taskq_post_delayed(
             td->tq,
             &id,
-            &ch,
+            &tp_cancel,
             taskq_task_rv (task_callback_delayed, td->wd),
             timeout_us
             );
     if (!err) {      
       --td->remaining;
       if (td->remaining & 1) {
-        if (!producer_thread_post_delayed_cancel (td, id, ch)) {
+        if (!producer_thread_post_delayed_cancel (td, id, tp_cancel)) {
           return 1;
         }
       }
