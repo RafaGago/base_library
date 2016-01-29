@@ -1,10 +1,10 @@
 #ifndef __BL_MEMORY_RANGE_H__
 #define __BL_MEMORY_RANGE_H__
 
+#include <string.h>
 #include <bl/hdr/base/platform.h>
 #include <bl/hdr/base/integer.h>
 #include <bl/hdr/base/assert.h>
-#include <bl/hdr/base/string.h>
 #include <bl/hdr/base/preprocessor_basic.h>
 /*----------------------------------------------------------------------------*/
 #define memr_initializer(addr, size) { addr, size }
@@ -24,6 +24,7 @@ static inline memr8 memr8_rv (void* addr, uword size)
   memr8 ret = memr_initializer (addr, size);
   return ret;
 }
+#define memr8_rv_array(arr) memr8_rv (arr, sizeof arr)
 /*----------------------------------------------------------------------------*/
 static inline void* memr8_beg (memr8 m)
 {
@@ -115,6 +116,7 @@ static inline memr16 memr16_rv (void* addr, uword size)
   memr16 ret = memr_initializer (addr, size);
   return ret;
 }
+#define memr16_rv_array(arr) memr16_rv (arr, sizeof arr)
 /*----------------------------------------------------------------------------*/
 static inline void* memr16_beg (memr16 m)
 {
@@ -211,6 +213,7 @@ static inline memr32 memr32_rv (void* addr, uword size)
   memr32 ret = memr_initializer (addr, size);
   return ret;
 }
+#define memr32_rv_array(arr) memr32_rv (arr, sizeof arr)
 /*----------------------------------------------------------------------------*/
 static inline void* memr32_beg (memr32 m)
 {
@@ -308,6 +311,7 @@ static inline memr64 memr64_rv (void* addr, uword size)
   memr64 ret = memr_initializer (addr, size);
   return ret;
 }
+#define memr64_rv_array(arr) memr64_rv (arr, sizeof arr)
 /*----------------------------------------------------------------------------*/
 static inline void* memr64_beg (memr64 m)
 {
@@ -407,6 +411,7 @@ static inline u64 memr64_copy_offset(
 #endif
 /*----------------------------------------------------------------------------*/
 #define memr_rv(a, s)             pp_tokconcat (memr, _rv) ((a), (s))
+#define memr_rv_array(arr)        pp_tokconcat (memr, _rv_array) (arr)
 #define memr_beg(m)               pp_tokconcat (memr, _beg) (m)
 #define memr_size(m)              pp_tokconcat (memr, _end) (m)
 #define memr_end(m)               pp_tokconcat (memr, _size) (m)
