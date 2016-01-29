@@ -42,8 +42,8 @@
   typedef i64 word;
   typedef u32 half_uword; 
   typedef i32 half_word;
-  typedef u8  quarter_uword; 
-  typedef i8  quarter_word;
+  typedef u16 quarter_uword; 
+  typedef i16 quarter_word;
 /*----------------------------------------------------------------------------*/
 #else
   #error "unknown word size on this platform"
