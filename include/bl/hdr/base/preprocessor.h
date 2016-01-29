@@ -56,18 +56,8 @@ THE SOFTWARE.
  implementation and also a refusal to include any macros which require a O(N)
  macro definitions to handle O(N) arguments (with the exception of pp_defern).
 /
-
 /*---------------------------------------------------------------------------*/
-/**
- Indirection around the standard ## concatenation operator. This simply
- ensures that the arguments are expanded (once) before concatenation.
-*/
-/*---------------------------------------------------------------------------*/
-#define pp_concat(a, ...) a ## __VA_ARGS__
-#define pp_concat3(a, b, ...) a ## b ## __VA_ARGS__
-
-#define pp_tokconcat(a, ...) pp_concat (a, __VA_ARGS__)
-#define pp_tokconcat3(a, b, ...) pp_concat3 (a, __VA_ARGS__)
+#include <bl/hdr/base/preprocessor_basic.h>
 /*---------------------------------------------------------------------------*/
 /*
  Force the pre-processor to expand the macro a large number of times. Usage:
@@ -141,17 +131,6 @@ THE SOFTWARE.
 #define pp_eval(...) pp_tokconcat (pp_eval_, BL_PP_MAX_RECURSION) (__VA_ARGS__)
 /*---------------------------------------------------------------------------*/
 /**
- Macros which expand to common values
-*/
-/*---------------------------------------------------------------------------*/
-#define pp_pass(...) __VA_ARGS__
-#define pp_empty()
-#define pp_comma() ,
-#define pp_plus() +
-#define pp_zero() 0
-#define pp_one() 1
-/*---------------------------------------------------------------------------*/
-/**
  Causes a function-style macro to require an additional pass to be expanded.
 
  This is useful, for example, when trying to implement recursion since the
@@ -196,18 +175,6 @@ THE SOFTWARE.
 #define pp_defer8(id) id\
   pp_empty pp_empty pp_empty pp_empty pp_empty pp_empty pp_empty pp_empty\
   ()()()()()()()()
-/*---------------------------------------------------------------------------*/
-/**
- Get the first argument and ignore the rest.
-*/
-/*---------------------------------------------------------------------------*/
-#define pp_vargs_first(a, ...) a
-/*---------------------------------------------------------------------------*/
-/**
- Get the second argument and ignore the rest.
-*/
-/*---------------------------------------------------------------------------*/
-#define pp_vargs_second(a, b, ...) b
 /*---------------------------------------------------------------------------*/
 /**
  Expects a single input (not containing commas). Returns 1 if the input is
@@ -562,8 +529,6 @@ pp_varg_count(...) : Counts va_args e.g.
     pp_eval (pp_vargs_count_private (1, __VA_ARGS__)),\
     0\
     )
-/*---------------------------------------------------------------------------*/
-#define pp_vargs_ignore_first(a, ...) __VA_ARGS__
 /*---------------------------------------------------------------------------*/
 /*
 pp_add (x, y) : Positive numeric addition

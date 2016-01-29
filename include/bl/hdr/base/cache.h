@@ -2,7 +2,7 @@
 #define __BL_CACHE_H__
 
 #include <bl/hdr/base/static_integer_math.h>
-#include <bl/hdr/base/preprocessor.h>
+#include <bl/hdr/base/preprocessor_basic.h>
 /*---------------------------------------------------------------------------*/
 #ifndef BL_CACHE_LINE_SIZE
   #define BL_CACHE_LINE_SIZE 64
