@@ -34,6 +34,8 @@ void prefix##_destroy (prefix* d, alloc_tbl const* alloc)\
     return;\
   }\
   bl_dealloc (alloc, d->arr);\
+  d->arr  = nullptr;\
+  d->size = 0;\
 }\
 \
 static inline \

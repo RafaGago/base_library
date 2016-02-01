@@ -1,6 +1,7 @@
 #ifndef __BL_ALIGNMENT_H__
 #define __BL_ALIGNMENT_H__
 
+#include <bl/hdr/base/integer.h>
 #include <stddef.h>
 /*---------------------------------------------------------------------------*/
 #define align_anonymous_priv(type1, type2)\
@@ -25,6 +26,9 @@
   /*let the compiler generate errors just if the macro is used*/
 #endif
 /*---------------------------------------------------------------------------*/
-
+#define next_offset_aligned_to_type(offset_to_max_align_addr, type)\
+  (((offset_to_max_align_addr) + bl_alignof (type) - 1) &\
+   ~(bl_alignof (type) - 1))
+/*---------------------------------------------------------------------------*/
 #endif /* __BL_ALIGNMENT_H__ */
 
