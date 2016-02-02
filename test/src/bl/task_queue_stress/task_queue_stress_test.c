@@ -214,13 +214,11 @@ int producer_thread (void* context)
     case thr_regular:
       return producer_thread_regular (td);
     case thr_delayed_spin: 
-      return producer_thread_delayed (td, bl_tm_sem_resolution_us);
+      return producer_thread_delayed (td, BL_SCHED_TMIN_US);
     case thr_delayed_sem:  
-      return producer_thread_delayed (td, bl_tm_sem_resolution_us * 2);
+      return producer_thread_delayed (td, BL_SCHED_TMIN_US * 2);
     case thr_delayed_cancel: 
-      return producer_thread_delayed_cancel(
-        td, bl_tm_sem_resolution_us * 5
-        );
+      return producer_thread_delayed_cancel (td, BL_SCHED_TMIN_US * 5);
     default:
       printf ("bug\n");
       return 1;

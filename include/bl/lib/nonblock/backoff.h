@@ -26,10 +26,10 @@ void nonblock_backoff_init(
   i32               sleep_us_max
   );
 /*----------------------------------------------------------------------------*/
+void nonblock_backoff_init_default (nonblock_backoff* nb, i32 sleep_us_max);  
+/*----------------------------------------------------------------------------*/
 void nonblock_backoff_run (nonblock_backoff* nb);
 /*----------------------------------------------------------------------------*/
-
-
 
 #endif /* __BL_NONBLOCK_BACKOFF_H__ */
 

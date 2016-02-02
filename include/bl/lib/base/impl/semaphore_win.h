@@ -34,8 +34,6 @@ static inline bl_err bl_sem_signal (bl_sem* s)
 /*----------------------------------------------------------------------------*/
 typedef bl_sem bl_tm_sem;
 /*----------------------------------------------------------------------------*/
-#define bl_tm_sem_resolution_us 2000 /*TODO just an informed guess */
-/*----------------------------------------------------------------------------*/
 static inline bl_err bl_tm_sem_init (bl_tm_sem* s)
 {
   return bl_sem_create (s);

@@ -99,4 +99,12 @@ static_assert_outside_func ((bool) 1 == true, "bool type check failed");
 static_assert_outside_func ((bool) 0 == false, "bool type check failed");
 static_assert_outside_func ((int) nullptr == 0, "nullptr check failed");
 /*---------------------------------------------------------------------------*/
+#if defined (BL_WINDOWS)
+  #define BL_SCHED_TMIN_US 1000
+#elif defined (BL_LINUX)
+  #define BL_SCHED_TMIN_US 100
+#else
+  #error "define this for your the os"
+#endif
+
 #endif /*EVK_PLATFORM_H_*/
