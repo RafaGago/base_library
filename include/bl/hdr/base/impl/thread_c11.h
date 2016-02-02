@@ -6,6 +6,7 @@
 #endif
 
 #include <threads.h>
+#include <bl/hdr/base/integer.h>
 #include <bl/hdr/base/assert.h>
 #include <bl/hdr/base/platform.h>
 

@@ -2,6 +2,7 @@
 #define __BL_THREAD_H__
 
 #include <bl/hdr/base/platform.h>
+#include <bl/hdr/base/integer.h>
 /*---------------------------------------------------------------------------*/
 #if defined (__cplusplus)
   #include <bl/hdr/base/impl/thread_cpp.hpp>
@@ -15,6 +16,7 @@
 #else
   #error "threads unimplemented on this platform"
 #endif
+#include <bl/hdr/base/impl/micro_sleep.h>
 /*---------------------------------------------------------------------------*/
 
 #endif /* __BL_THREAD_H__ */
