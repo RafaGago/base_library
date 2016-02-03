@@ -19,13 +19,6 @@ typedef struct memr8 {
 }
 memr8;
 /*----------------------------------------------------------------------------*/
-static inline memr8 memr8_rv (void* addr, uword size)
-{
-  memr8 ret = memr_initializer (addr, size);
-  return ret;
-}
-#define memr8_rv_array(arr) memr8_rv (arr, sizeof arr)
-/*----------------------------------------------------------------------------*/
 static inline void* memr8_beg (memr8 m)
 {
   return m.addr;
@@ -96,10 +89,18 @@ static inline u8 memr8_copy_offset (memr8 dst, memr8 src, u8 dst_offset_bytes)
   memr8_copy (&dst_off, src);
 }
 /*----------------------------------------------------------------------------*/
-#define memr8_beg_as (memr_ptr, type) ((type*) memr8_beg (memr_ptr))
-#define memr8_end_as (memr_ptr, type) ((type*) memr8_end (memr_ptr))
-#define memr8_at_as (memr_ptr, idx, type)\
-  ((type*) memr8_at ((memr_ptr), idx * sizeof (type)))
+static inline memr8 memr8_rv (void* addr, u8 size)
+{
+  memr8 ret = memr_initializer (addr, size);
+  bl_assert (memr8_is_valid (ret));
+  return ret;
+}
+/*----------------------------------------------------------------------------*/
+#define memr8_rv_array(arr) memr8_rv (arr, sizeof arr)
+#define memr8_beg_as (memr_val, type) ((type*) memr8_beg (memr_val))
+#define memr8_end_as (memr_val, type) ((type*) memr8_end (memr_val))
+#define memr8_at_as (memr_val, idx, type)\
+  ((type*) memr8_at ((memr_val), idx * sizeof (type)))
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
 /* memr16                                                                     */
@@ -110,13 +111,6 @@ typedef struct memr16 {
   u16   size;
 }
 memr16;
-/*----------------------------------------------------------------------------*/
-static inline memr16 memr16_rv (void* addr, uword size)
-{
-  memr16 ret = memr_initializer (addr, size);
-  return ret;
-}
-#define memr16_rv_array(arr) memr16_rv (arr, sizeof arr)
 /*----------------------------------------------------------------------------*/
 static inline void* memr16_beg (memr16 m)
 {
@@ -192,10 +186,18 @@ static inline u16 memr16_copy_offset(
   memr16_copy (&dst_off, src);
 }
 /*----------------------------------------------------------------------------*/
-#define memr16_beg_as (memr_ptr, type) ((type*) memr16_beg (memr_ptr))
-#define memr16_end_as (memr_ptr, type) ((type*) memr16_end (memr_ptr))
-#define memr16_at_as (memr_ptr, idx, type)\
-  ((type*) memr16_at ((memr_ptr), idx * sizeof (type)))
+static inline memr16 memr16_rv (void* addr, u16 size)
+{
+  memr16 ret = memr_initializer (addr, size);
+  bl_assert (memr16_is_valid (ret));
+  return ret;
+}
+/*----------------------------------------------------------------------------*/
+#define memr16_rv_array(arr) memr16_rv (arr, sizeof arr)
+#define memr16_beg_as (memr_val, type) ((type*) memr16_beg (memr_val))
+#define memr16_end_as (memr_val, type) ((type*) memr16_end (memr_val))
+#define memr16_at_as (memr_val, idx, type)\
+  ((type*) memr16_at ((memr_val), idx * sizeof (type)))
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
 /* memr32                                                                     */
@@ -289,10 +291,18 @@ static inline u32 memr32_copy_offset(
   memr32_copy (&dst_off, src);
 }
 /*----------------------------------------------------------------------------*/
-#define memr32_beg_as (memr_ptr, type) ((type*) memr32_beg (memr_ptr))
-#define memr32_end_as (memr_ptr, type) ((type*) memr32_end (memr_ptr))
-#define memr32_at_as (memr_ptr, idx, type)\
-  ((type*) memr32_at ((memr_ptr), idx * sizeof (type)))
+static inline memr32 memr32_rv (void* addr, u32 size)
+{
+  memr32 ret = memr_initializer (addr, size);
+  bl_assert (memr32_is_valid (ret));
+  return ret;
+}
+/*----------------------------------------------------------------------------*/
+#define memr32_rv_array(arr) memr32_rv (arr, sizeof arr)
+#define memr32_beg_as (memr_val, type) ((type*) memr32_beg (memr_val))
+#define memr32_end_as (memr_val, type) ((type*) memr32_end (memr_val))
+#define memr32_at_as (memr_val, idx, type)\
+  ((type*) memr32_at ((memr_val), idx * sizeof (type)))
 #endif /*#ifndef BL_NOINT32*/
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
@@ -387,48 +397,72 @@ static inline u64 memr64_copy_offset(
   memr64_copy (&dst_off, src);
 }
 /*----------------------------------------------------------------------------*/
-#define memr64_beg_as (memr_ptr, type) ((type*) memr64_beg (memr_ptr))
-#define memr64_end_as (memr_ptr, type) ((type*) memr64_end (memr_ptr))
-#define memr64_at_as (memr_ptr, idx, type)\
-  ((type*) memr64_at ((memr_ptr), idx * sizeof (type)))
+static inline memr64 memr64_rv (void* addr, u64 size)
+{
+  memr64 ret = memr_initializer (addr, size);
+  bl_assert (memr64_is_valid (ret));
+  return ret;
+}
+/*----------------------------------------------------------------------------*/
+#define memr64_rv_array(arr) memr64_rv (arr, sizeof arr)
+#define memr64_beg_as (memr_val, type) ((type*) memr64_beg (memr_val))
+#define memr64_end_as (memr_val, type) ((type*) memr64_end (memr_val))
+#define memr64_at_as (memr_val, idx, type)\
+  ((type*) memr64_at ((memr_val), idx * sizeof (type)))
 #endif /*#ifndef BL_NOINT64*/
 /*----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 #ifdef BL8
-  #define memr memr8   
+  typedef memr8 memr;
+  #define memr_concat(suffix) pp_tokconcat (memr8_, suffix)
 #endif
 /*----------------------------------------------------------------------------*/
 #ifdef BL16
-  #define memr memr16  
+  typedef memr16 memr;
+  #define memr_concat(suffix) pp_tokconcat (memr16_, suffix)
 #endif
 /*----------------------------------------------------------------------------*/
 #ifdef BL32
-  #define memr memr32
+  typedef memr32 memr;
+  #define memr_concat(suffix) pp_tokconcat (memr32_, suffix)
 #endif
 /*----------------------------------------------------------------------------*/
 #ifdef BL64
-  #define memr memr64
+  typedef memr64 memr;
+  #define memr_concat(suffix) pp_tokconcat (memr64_, suffix)
 #endif
 /*----------------------------------------------------------------------------*/
-#define memr_rv(a, s)             pp_tokconcat (memr, _rv) ((a), (s))
-#define memr_rv_array(arr)        pp_tokconcat (memr, _rv_array) (arr)
-#define memr_beg(m)               pp_tokconcat (memr, _beg) (m)
-#define memr_size(m)              pp_tokconcat (memr, _end) (m)
-#define memr_end(m)               pp_tokconcat (memr, _size) (m)
-#define memr_resize(m, s)         pp_tokconcat (memr, _resize) ((m), (s))
-#define memr_at(m, i)             pp_tokconcat (memr, _at) ((m), (i))
-#define memr_null()               pp_tokconcat (memr, _null)
-#define memr_is_null(m)           pp_tokconcat (memr, _is_null) (m)
-#define memr_is_valid(m)          pp_tokconcat (memr, _is_valid) (m)
-#define memr_subrange_beg(m, o)   pp_tokconcat (memr, _subrange_beg) ((m), (o))
-#define memr_set(m, v)            pp_tokconcat (memr, _set) ((m), (v))
-#define memr_copy(d, s)           pp_tokconcat (memr, _copy) ((d), (s))
-#define memr_copy_offset(d, s, o)\
-   pp_tokconcat (memr, _copy_offset) ((d), (s), (o))
-#define memr_beg_as(t, m)         pp_tokconcat (memr, _beg_as) ((t), (m))
-#define memr_end_as(t, m)         pp_tokconcat (memr, _beg_as) ((t), (m))
-#define memr_at_as(t, m, i)       pp_tokconcat (memr, _beg_as) ((t), (m), (i))
+#define memr_beg(m)               memr_concat (beg) (m)
+#define memr_size(m)              memr_concat (end) (m)
+#define memr_end(m)               memr_concat (size) (m)
+#define memr_resize(m, s)         memr_concat (resize) ((m), (s))
+#define memr_at(m, i)             memr_concat (at) ((m), (i))
+#define memr_null()               memr_concat (null)
+#define memr_is_null(m)           memr_concat (is_null) (m)
+#define memr_is_valid(m)          memr_concat (is_valid) (m)
+#define memr_subrange_beg(m, o)   memr_concat (subrange_beg) ((m), (o))
+#define memr_set(m, v)            memr_concat (set) ((m), (v))
+#define memr_copy(d, s)           memr_concat (copy) ((d), (s))
+#define memr_copy_offset(d, s, o) memr_concat (copy_offset) ((d), (s), (o))
+#define memr_rv(a, s)             memr_concat (rv) ((a), (s))
+#define memr_rv_array(arr)        memr_concat (rv_array) (arr)
+#define memr_beg_as(m, t)         memr_concat (beg_as) ((m), (t))
+#define memr_end_as(m, t)         memr_concat (end_as) ((m), (t))
+#define memr_at_as(m, i, t)       memr_concat (at_as) ((m), (i), (t))
 /*----------------------------------------------------------------------------*/
+#ifdef NDEBUG
+  #define memr_cast(memr_val)\
+    memr_rv ((memr_val).addr, (uword) (memr_val).size)
+#else
+  /*will make memr_rv assertion to trigger if the size is overflowed*/
+  #define memr_cast(memr_val)\
+    memr_rv(\
+      ((uword) (memr_val).size) == (memr_val).size ? (memr_val).addr : nullptr,\
+      (uword) (memr_val).size\
+      )
+#endif
+/*----------------------------------------------------------------------------*/
+
 
 #endif /* __BL_MEMORY_RANGE_H__ */
 
