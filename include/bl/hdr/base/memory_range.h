@@ -96,9 +96,9 @@ static inline u8 memr8_copy_offset (memr8 dst, memr8 src, u8 dst_offset_bytes)
   memr8_copy (&dst_off, src);
 }
 /*----------------------------------------------------------------------------*/
-#define memr8_beg_as (type, memr_ptr) ((type*) memr8_beg (memr_ptr))
-#define memr8_end_as (type, memr_ptr) ((type*) memr8_end (memr_ptr))
-#define memr8_at_as (type, memr_ptr, idx)\
+#define memr8_beg_as (memr_ptr, type) ((type*) memr8_beg (memr_ptr))
+#define memr8_end_as (memr_ptr, type) ((type*) memr8_end (memr_ptr))
+#define memr8_at_as (memr_ptr, idx, type)\
   ((type*) memr8_at ((memr_ptr), idx * sizeof (type)))
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
@@ -192,9 +192,9 @@ static inline u16 memr16_copy_offset(
   memr16_copy (&dst_off, src);
 }
 /*----------------------------------------------------------------------------*/
-#define memr16_beg_as (type, memr_ptr) ((type*) memr16_beg (memr_ptr))
-#define memr16_end_as (type, memr_ptr) ((type*) memr16_end (memr_ptr))
-#define memr16_at_as (type, memr_ptr, idx)\
+#define memr16_beg_as (memr_ptr, type) ((type*) memr16_beg (memr_ptr))
+#define memr16_end_as (memr_ptr, type) ((type*) memr16_end (memr_ptr))
+#define memr16_at_as (memr_ptr, idx, type)\
   ((type*) memr16_at ((memr_ptr), idx * sizeof (type)))
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
@@ -289,9 +289,9 @@ static inline u32 memr32_copy_offset(
   memr32_copy (&dst_off, src);
 }
 /*----------------------------------------------------------------------------*/
-#define memr32_beg_as (type, memr_ptr) ((type*) memr32_beg (memr_ptr))
-#define memr32_end_as (type, memr_ptr) ((type*) memr32_end (memr_ptr))
-#define memr32_at_as (type, memr_ptr, idx)\
+#define memr32_beg_as (memr_ptr, type) ((type*) memr32_beg (memr_ptr))
+#define memr32_end_as (memr_ptr, type) ((type*) memr32_end (memr_ptr))
+#define memr32_at_as (memr_ptr, idx, type)\
   ((type*) memr32_at ((memr_ptr), idx * sizeof (type)))
 #endif /*#ifndef BL_NOINT32*/
 /*----------------------------------------------------------------------------*/
@@ -387,9 +387,9 @@ static inline u64 memr64_copy_offset(
   memr64_copy (&dst_off, src);
 }
 /*----------------------------------------------------------------------------*/
-#define memr64_beg_as (type, memr_ptr) ((type*) memr64_beg (memr_ptr))
-#define memr64_end_as (type, memr_ptr) ((type*) memr64_end (memr_ptr))
-#define memr64_at_as (type, memr_ptr, idx)\
+#define memr64_beg_as (memr_ptr, type) ((type*) memr64_beg (memr_ptr))
+#define memr64_end_as (memr_ptr, type) ((type*) memr64_end (memr_ptr))
+#define memr64_at_as (memr_ptr, idx, type)\
   ((type*) memr64_at ((memr_ptr), idx * sizeof (type)))
 #endif /*#ifndef BL_NOINT64*/
 /*----------------------------------------------------------------------------*/
