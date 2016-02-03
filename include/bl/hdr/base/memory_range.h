@@ -454,12 +454,22 @@ static inline memr64 memr64_rv (void* addr, u64 size)
   #define memr_cast(memr_val)\
     memr_rv ((memr_val).addr, (uword) (memr_val).size)
 #else
+  #define memr_cast(memr_val)\
+    memr_rv(\
+      (memr_val).addr,\
+      (\
+        bl_assert (((uword) (memr_val).size) == (memr_val).size),\
+        (memr_val).size\
+      )\
+    )
+#if 0
   /*will make memr_rv assertion to trigger if the size is overflowed*/
   #define memr_cast(memr_val)\
     memr_rv(\
       ((uword) (memr_val).size) == (memr_val).size ? (memr_val).addr : nullptr,\
       (uword) (memr_val).size\
       )
+#endif
 #endif
 /*----------------------------------------------------------------------------*/
 
