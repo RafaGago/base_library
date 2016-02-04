@@ -24,6 +24,8 @@
   typedef u64 tstamp;
   typedef i64 ststamp;
 #endif
+  typedef i32 toffset; /* unit for time offsets, limited to i32 for the Windows
+                          implementation */
 /*---------------------------------------------------------------------------*/
 #define tstamp_safe_add_sub_max ((utype_max (tstamp) >> 1) - 1)
 /*---------------------------------------------------------------------------*/
@@ -97,10 +99,10 @@ static inline ststamp tstamp_compare (tstamp a, tstamp b)
 
     Same as above, but the values are rounded to the ceiling.
  ---------------------------------------------------------------
- "static inline tstamp bl_tstamp_offset_sec (i32 sec_min)"
- "static inline tstamp bl_tstamp_offset_msec (i32 msec_min)"
- "static inline tstamp bl_tstamp_offset_usec (i32 usec_min)"
- "static inline tstamp bl_tstamp_offset_nsec (i32 nsec_min)"
+ "static inline tstamp bl_tstamp_offset_sec (toffset sec_min)"
+ "static inline tstamp bl_tstamp_offset_msec (toffset msec_min)"
+ "static inline tstamp bl_tstamp_offset_usec (toffset usec_min)"
+ "static inline tstamp bl_tstamp_offset_nsec (toffset nsec_min)"
 
    Gets an offset that is AT LEAST the given amount which can be added or
    subtracted to a timestamp.

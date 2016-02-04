@@ -12,7 +12,7 @@
 #include <chrono>
 #include <thread>
 extern "C" {
-static inline void bl_thread_usleep (i32 us)
+static inline void bl_thread_usleep (toffset us)
 {
   if (us <= 0) { return; }
   std::this_thread::sleep_for (std::chrono::microseconds (us));
@@ -22,7 +22,7 @@ static inline void bl_thread_usleep (i32 us)
 #elif defined (BL_POSIX)
 #include <errno.h>
 /*TODO: proper detection, not all versions of POSIX support this*/
-static void bl_thread_usleep (i32 us)
+static void bl_thread_usleep (toffset us)
 {
   if (us <= 0) { return; }
   struct timespec t, remainder;
@@ -39,7 +39,7 @@ static void bl_thread_usleep (i32 us)
 /*
 elif defined (BL_WINDOWS)
 #include <bl/hdr/base/include_windows.h>
-static void bl_thread_usleep (i32 us)
+static void bl_thread_usleep (toffset us)
 {
   if (us < 0) { return; }
   bl_assert (us > 0);

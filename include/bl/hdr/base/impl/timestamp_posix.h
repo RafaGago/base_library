@@ -65,22 +65,22 @@ static inline uword bl_tstamp_nsec_ceil (tstamp ts)
   return (uword) (ts);
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_offset_sec (i32 sec)
+static inline tstamp bl_tstamp_offset_sec (toffset sec)
 {
   return ((tstamp) sec) * nsec_in_sec;
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_offset_msec (i32 msec)
+static inline tstamp bl_tstamp_offset_msec (toffset msec)
 {
   return ((tstamp) msec) * nsec_in_msec;
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_offset_usec (i32 usec)
+static inline tstamp bl_tstamp_offset_usec (toffset usec)
 {
   return ((tstamp) usec) * nsec_in_usec;
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_offset_nsec (i32 nsec)
+static inline tstamp bl_tstamp_offset_nsec (toffset nsec)
 {
   return (tstamp) nsec;
 }
@@ -135,22 +135,22 @@ static inline uword bl_tstamp_nsec_ceil (tstamp ts)
   return (uword) (ts * nsec_in_usec);
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_offset_sec (i32 sec)
+static inline tstamp bl_tstamp_offset_sec (toffset sec)
 {
   return ((tstamp) sec) * usec_in_sec;
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_offset_msec (i32 msec)
+static inline tstamp bl_tstamp_offset_msec (toffset msec)
 {
   return ((tstamp) msec) * usec_in_msec;
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_offset_usec (i32 usec)
+static inline tstamp bl_tstamp_offset_usec (toffset usec)
 {
   return ((tstamp) usec);
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_offset_nsec (i32 nsec)
+static inline tstamp bl_tstamp_offset_nsec (toffset nsec)
 {
   return div_ceil (((tstamp) nsec), nsec_in_usec);
 }

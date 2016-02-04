@@ -10,10 +10,10 @@ void nonblock_backoff_init(
   nonblock_backoff* nb, 
   uword             spin_max,
   uword             yield_max, 
-  i32               sleep_us_init,
-  i32               sleep_us_mul,
-  i32               sleep_us_div,
-  i32               sleep_us_max
+  toffset           sleep_us_init,
+  toffset           sleep_us_mul,
+  toffset           sleep_us_div,
+  toffset           sleep_us_max
   )
 {
   bl_assert (sleep_us_init > 0);
@@ -30,7 +30,7 @@ void nonblock_backoff_init(
   nb->sleep_us_max = sleep_us_max;
 }
 /*----------------------------------------------------------------------------*/
-void nonblock_backoff_init_default (nonblock_backoff* nb, i32 sleep_us_max)
+void nonblock_backoff_init_default (nonblock_backoff* nb, toffset sleep_us_max)
 {
    nonblock_backoff_init (nb, 40, 20, BL_SCHED_TMIN_US, 1, 3, sleep_us_max);
 }
@@ -49,14 +49,14 @@ void nonblock_backoff_run (nonblock_backoff* nb)
   }
   else {
     bl_thread_usleep (nb->sleep_us);
-    i32 usleep   = nb->sleep_us;
-    i64 add      = nb->sleep_us;
-    add         *= nb->sleep_us_mul;
-    add         /= nb->sleep_us_div;
-    usleep      += (i32) add;
-    usleep       = bl_max (nb->sleep_us, usleep);
-    usleep       = bl_min (nb->sleep_us_max, usleep);
-    nb->sleep_us = usleep;
+    toffset usleep = nb->sleep_us;
+    i64 add        = nb->sleep_us;
+    add           *= nb->sleep_us_mul;
+    add           /= nb->sleep_us_div;
+    usleep        += (toffset) add;
+    usleep         = bl_max (nb->sleep_us, usleep);
+    usleep         = bl_min (nb->sleep_us_max, usleep);
+    nb->sleep_us   = usleep;
   }
 }
 /*----------------------------------------------------------------------------*/
