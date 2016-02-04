@@ -14,7 +14,7 @@ static inline tstamp bl_tstamp_usec_ceil (tstamp t)
   return t;
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_offset_usec (i32 usec)
+static inline tstamp bl_tstamp_offset_usec (toffset usec)
 {
   return usec;
 }
