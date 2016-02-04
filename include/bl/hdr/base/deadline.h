@@ -13,9 +13,7 @@
 static inline bl_err deadline_init (tstamp* d, u32 usec)
 {
   bl_assert (d);
-  bl_assert (usec <= tstamp_safe_add_sub_max);
-  *d = bl_get_tstamp();
-  *d = bl_tstamp_add_usec (*d, usec);
+  *d = bl_get_tstamp() + bl_tstamp_offset_usec (usec);
   return (usec <= tstamp_safe_add_sub_max) ? bl_ok : bl_invalid;
 }
 /*---------------------------------------------------------------------------*/

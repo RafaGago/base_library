@@ -14,9 +14,9 @@ static inline tstamp bl_tstamp_usec_ceil (tstamp t)
   return t;
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_add_usec (tstamp ts, i32 usec)
+static inline tstamp bl_tstamp_offset_usec (i32 usec)
 {
-  return ts + usec;
+  return usec;
 }
 /*---------------------------------------------------------------------------*/
 #include <bl/hdr/base/default_allocator.h>

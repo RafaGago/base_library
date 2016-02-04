@@ -72,29 +72,29 @@ static inline uword bl_tstamp_nsec_ceil (tstamp ts)
   return (uword) div_ceil (((u64) ts * nsec_in_sec), qpc_get_freq());
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_add_sec (tstamp ts, i32 sec)
+static inline tstamp bl_tstamp_offset_sec (i32 sec)
 {
-  return ts + (sec * qpc_get_freq());
+  return ((tstamp) sec) * qpc_get_freq();
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_add_msec (tstamp ts, i32 msec)
+static inline tstamp bl_tstamp_offset_msec (i32 msec)
 {
   bl_assert (qpc_get_freq() <= utype_max (u32));
-  return ts + div_ceil ((i64) msec * qpc_get_freq(), msec_in_sec);
+  return (tstamp) div_ceil ((i64) msec * qpc_get_freq(), msec_in_sec);
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_add_usec (tstamp ts, i32 usec)
+static inline tstamp bl_tstamp_offset_usec (i32 usec)
 {
   bl_assert (qpc_get_freq() <= utype_max (u32));
-  return ts + div_ceil ((i64) usec * qpc_get_freq(), usec_in_sec);
+  return (tstamp) div_ceil ((i64) usec * qpc_get_freq(), usec_in_sec);
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_add_nsec (tstamp ts, i32 nsec)
+static inline tstamp bl_tstamp_offset_nsec (i32 nsec)
 {
   bl_assert (qpc_get_freq() <= utype_max (u32));
-  return ts + div_ceil ((i64) nsec * qpc_get_freq(), nsec_in_sec);
+  return (tstamp) div_ceil ((i64) nsec * qpc_get_freq(), nsec_in_sec);
 }
 /*---------------------------------------------------------------------------*/
 
-#endif /* __TIMESTAMP_POSIX_H__ */
+#endif /* __TIMESTAMP_WINDOWS_H__ */
 

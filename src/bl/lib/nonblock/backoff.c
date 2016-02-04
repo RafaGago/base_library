@@ -48,7 +48,7 @@ void nonblock_backoff_run (nonblock_backoff* nb)
     bl_thread_yield();
   }
   else {
-    bl_thread_sleep (nb->sleep_us);
+    bl_thread_usleep (nb->sleep_us);
     i32 usleep   = nb->sleep_us;
     i64 add      = nb->sleep_us;
     add         *= nb->sleep_us_mul;

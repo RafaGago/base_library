@@ -1,5 +1,5 @@
-#ifndef __TIMESTAMP_POSIX_H__
-#define __TIMESTAMP_POSIX_H__
+#ifndef __BL_TIMESTAMP_POSIX_H__
+#define __BL_TIMESTAMP_POSIX_H__
 
 /* this file is made to be included from <bl/hdr/base/time.h>, it is just
    to avoid clutter on that file, hence the lack of some includes to make it
@@ -65,27 +65,27 @@ static inline uword bl_tstamp_nsec_ceil (tstamp ts)
   return (uword) (ts);
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_add_sec (tstamp ts, i32 sec)
+static inline tstamp bl_tstamp_offset_sec (i32 sec)
 {
-  return ts + (sec * nsec_in_sec);
+  return ((tstamp) sec) * nsec_in_sec;
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_add_msec (tstamp ts, i32 msec)
+static inline tstamp bl_tstamp_offset_msec (i32 msec)
 {
-  return ts + (msec * nsec_in_msec);
+  return ((tstamp) msec) * nsec_in_msec;
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_add_usec (tstamp ts, i32 usec)
+static inline tstamp bl_tstamp_offset_usec (i32 usec)
 {
-  return ts + (usec * nsec_in_usec);
+  return ((tstamp) usec) * nsec_in_usec;
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_add_nsec (tstamp ts, i32 nsec)
+static inline tstamp bl_tstamp_offset_nsec (i32 nsec)
 {
-  return ts + nsec;
+  return (tstamp) nsec;
 }
 /*---------------------------------------------------------------------------*/
-#else
+#else /*#ifdef BL64BIT_TIMESTAMP*/
 /*---------------------------------------------------------------------------*/
 static inline tstamp bl_get_tstamp (void)
 {
@@ -135,27 +135,27 @@ static inline uword bl_tstamp_nsec_ceil (tstamp ts)
   return (uword) (ts * nsec_in_usec);
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_add_sec (tstamp ts, i32 sec)
+static inline tstamp bl_tstamp_offset_sec (i32 sec)
 {
-  return ts + (sec * usec_in_sec);
+  return ((tstamp) sec) * usec_in_sec;
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_add_msec (tstamp ts, i32 msec)
+static inline tstamp bl_tstamp_offset_msec (i32 msec)
 {
-  return ts + (msec * usec_in_msec);
+  return ((tstamp) msec) * usec_in_msec;
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_add_usec (tstamp ts, i32 usec)
+static inline tstamp bl_tstamp_offset_usec (i32 usec)
 {
-  return ts + usec;
+  return ((tstamp) usec);
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_add_nsec (tstamp ts, i32 nsec)
+static inline tstamp bl_tstamp_offset_nsec (i32 nsec)
 {
-  return ts + div_ceil (nsec, nsec_in_usec);
+  return div_ceil (((tstamp) nsec), nsec_in_usec);
 }
 /*---------------------------------------------------------------------------*/
-#endif
+#endif /*#ifdef BL64BIT_TIMESTAMP, #else*/
 
-#endif /* __TIMESTAMP_POSIX_H__ */
+#endif /* __BL_TIMESTAMP_POSIX_H__ */
 

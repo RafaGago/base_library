@@ -95,25 +95,25 @@ static inline ststamp tstamp_compare (tstamp a, tstamp b)
  "static inline uword bl_tstamp_usec_ceil (tstamp ts)"
  "static inline uword bl_tstamp_nsec_ceil (tstamp ts)"
 
-    Same as above, but the values are rounded to the floor.
+    Same as above, but the values are rounded to the ceiling.
  ---------------------------------------------------------------
- "static inline tstamp bl_tstamp_add_sec (tstamp ts, i32 sec)"
- "static inline tstamp bl_tstamp_add_msec (tstamp ts, i32 msec)"
- "static inline tstamp bl_tstamp_add_usec (tstamp ts, i32 usec)"
- "static inline tstamp bl_tstamp_add_nsec (tstamp ts, i32 nsec)"
+ "static inline tstamp bl_tstamp_offset_sec (i32 sec_min)"
+ "static inline tstamp bl_tstamp_offset_msec (i32 msec_min)"
+ "static inline tstamp bl_tstamp_offset_usec (i32 usec_min)"
+ "static inline tstamp bl_tstamp_offset_nsec (i32 nsec_min)"
 
-   Try to add/Subtract at minimum the amount of time specified at the time
-   parameter.
+   Gets an offset that is AT LEAST the given amount which can be added or
+   subtracted to a timestamp.
 
-   Be aware that values are rounded to the next resolution step (except 0).
+   Be aware that values are rounded up to the next clock resolution step
+   (except 0).
 
-   In other words, if on one hypothetical system tstamp has 1ms resolution 
-   trying to add 1ns through this function will effectively add 1ms.
+   In other words, if on one hypothetical system the timestamps have a 1ms 
+   resolution trying to get a 1ns offset will effectively yield a 1ms offset.
 
-   Trying to add 1ns through three function calls will result on a adding 3ms.
-
-   Obviously adding 3ns through one call will add 1ms and adding 1100us will 
-   add 2ms.
+   Be aware that this can have very high cummulative errors, e.g on the previous
+   system getting the offset of (what it seems to be) "1ns" and adding it up
+   three times will increment the timestamp 3ms instead of 3ns.
  ---------------------------------------------------------------
 */
 #if defined (BL_TIME_NO_TIMESTAMP)
