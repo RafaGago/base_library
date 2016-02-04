@@ -23,10 +23,6 @@ prefix;
 linkage_and_modif \
 bl_err prefix##_init (prefix* d, uword size, alloc_tbl const* alloc);\
 \
-linkage_and_modif \
-bl_err prefix##_resize (prefix* d, uword new_size, alloc_tbl const* alloc);\
-\
-\
 static inline \
 void prefix##_destroy (prefix* d, alloc_tbl const* alloc)\
 {\
@@ -50,7 +46,35 @@ content_type* prefix##_at (prefix const* d, uword idx)\
 {\
   bl_assert (idx < d->size);\
   return d->arr + idx;\
+}\
+\
+static inline \
+content_type* prefix##_beg (prefix const* d)\
+{\
+  return prefix##_at (d, 0);\
+}\
+\
+static inline \
+content_type* prefix##_last (prefix const* d)\
+{\
+  return prefix##_at (d, prefix##_size (d) - 1);\
+}\
+\
+static inline \
+content_type* prefix##_end (prefix const* d)\
+{\
+  return d->arr + prefix##_size (d);\
+}\
+\
+linkage_and_modif \
+bl_err prefix##_resize (prefix* d, uword new_size, alloc_tbl const* alloc);\
+\
+static inline \
+bl_err prefix##_grow (prefix* d, uword elem_count, alloc_tbl const* alloc)\
+{\
+  return prefix##_resize (d, prefix##_size (d) + elem_count, alloc);\
 }
+
 /*---------------------------------------------------------------------------*/
 #define define_dynarray_funcs(prefix, content_type, linkage_and_modif)\
 linkage_and_modif \
