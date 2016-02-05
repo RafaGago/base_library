@@ -24,7 +24,7 @@ static inline ststamp deadline_compare (tstamp a, tstamp b)
 /*---------------------------------------------------------------------------*/
 static inline bool deadline_expired_explicit (tstamp d, tstamp now)
 {
-  return deadline_compare (now, d) >= 0;
+  return deadline_compare (d, now) >= 0;
 }
 /*---------------------------------------------------------------------------*/
 static inline bool deadline_expired (tstamp d)

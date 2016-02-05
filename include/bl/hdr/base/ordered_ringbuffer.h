@@ -68,11 +68,11 @@ static inline bool prefix##_can_insert (const prefix* rb)\
   return prefix##_private_can_insert (rb);\
 }\
 \
-static inline uword prefix##_contiguous_elems_from(\
+static inline uword prefix##_adjacent_elems_from(\
   const prefix* rb, uword from_idx, uword element_count\
   )\
 {\
-  return prefix##_contiguous_elems_from (rb, from_idx, element_count);\
+  return prefix##_adjacent_elems_from (rb, from_idx, element_count);\
 }\
 \
 static inline content_type* prefix##_at (const prefix* rb, uword idx)\

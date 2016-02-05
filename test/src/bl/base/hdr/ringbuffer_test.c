@@ -152,7 +152,7 @@ static void ringbuffer_wrapped (void **state)
   }  
 }
 /*---------------------------------------------------------------------------*/
-static void ringbuffer_contiguous_elems_from (void **state)
+static void ringbuffer_adjacent_elems_from (void **state)
 {
   ringbuffer_context* c = (ringbuffer_context*) *state;
   const uword half      = arr_elems (c->buff) / 2;
@@ -163,7 +163,7 @@ static void ringbuffer_contiguous_elems_from (void **state)
   for (u32 i = half; i < arr_elems (c->buff); ++i) {
     ringb_insert_tail (&c->r, &i);
   }
-  uword res = ringb_contiguous_elems_from (&c->r, 0, half);
+  uword res = ringb_adjacent_elems_from (&c->r, 0, half);
   assert_true (res == half);
 }
 /*---------------------------------------------------------------------------*/
@@ -338,7 +338,7 @@ static const struct CMUnitTest tests[] = {
   cmocka_unit_test_setup (ringbuffer_at_test, ringbuffer_test_setup),
   cmocka_unit_test_setup (ringbuffer_wrapped, ringbuffer_test_setup),
   cmocka_unit_test_setup(
-    ringbuffer_contiguous_elems_from, ringbuffer_test_setup
+    ringbuffer_adjacent_elems_from, ringbuffer_test_setup
     ),
   cmocka_unit_test_setup (ringbuffer_insert_random_head, ringbuffer_test_setup),
   cmocka_unit_test_setup (ringbuffer_insert_random_tail, ringbuffer_test_setup),

@@ -336,7 +336,7 @@ bl_err TASKQ_EXPORT taskq_init(
   if (err) {
     goto taskq_free;
   }
-  /*NOTE the delay list could be easily placed contiguously with the
+  /*NOTE the delay list could be easily placed adjacently with the
     taskq struct using just one allocator call, oringb has the "init_extern"
     call in which the user externally provides the buffer */
   err = delayed_init (&tq->delayed_ls, alloc, delayed_capacity);

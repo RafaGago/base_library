@@ -62,12 +62,17 @@ static inline void prefix##_set_start_position (prefix* rb, uword idx)\
   rb->begin = idx;\
 }\
 \
-static inline bool prefix##_can_insert (const prefix* rb)\
+static inline bool prefix##_can_insert_n (const prefix* rb, uword n)\
 {\
-  return prefix##_capacity (rb) > prefix##_size (rb);\
+  return prefix##_capacity (rb) >= prefix##_size (rb) + n;\
 }\
 \
-static inline uword prefix##_contiguous_elems_from(\
+static inline bool prefix##_can_insert (const prefix* rb)\
+{\
+  return prefix##_can_insert_n (rb, 1);\
+}\
+\
+static inline uword prefix##_adjacent_elems_from(\
   const prefix* rb, uword from_idx, uword element_count\
   )\
 {\
@@ -95,14 +100,27 @@ static inline content_type* prefix##_at_tail (const prefix* rb)\
   return prefix##_at (rb, prefix##_size (rb) - 1);\
 }\
 \
+static inline void prefix##_expand_head_n (prefix* rb, uword n)\
+{\
+  bl_assert (rb);\
+  bl_assert (prefix##_can_insert_n (rb, n));\
+  rb->size  += n;\
+  rb->begin -= n;\
+  rb->begin &= rb->mask;\
+}\
+\
 static inline void prefix##_insert_head (prefix* rb, content_type const* v)\
 {\
   bl_assert (rb);\
-  bl_assert (prefix##_can_insert (rb));\
-  ++rb->size;\
-  --rb->begin;\
-  rb->begin &= rb->mask;\
+  prefix##_expand_head_n (rb, 1);\
   rb->stor[rb->begin] = *v;\
+}\
+\
+static inline void prefix##_expand_tail_n (prefix* rb, uword n)\
+{\
+  bl_assert (rb);\
+  bl_assert (prefix##_can_insert_n (rb, n));\
+  rb->size  += n;\
 }\
 \
 static inline void prefix##_insert_tail (prefix* rb, content_type const* v)\
