@@ -16,7 +16,9 @@ typedef enum bl_err_e {
   /* (ETIMEDOUT) */
   bl_timeout,
   /*resource is locked*/
-  bl_locked, 
+  bl_locked,
+  /*file related error (open, close or IO)*/
+  bl_file,
   /*the operation is not allowed given the current internal state*/
   bl_not_allowed,
   /*the function is unsupported or implemented*/
