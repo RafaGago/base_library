@@ -17,15 +17,20 @@
 
 #define nsec_in_usec (si_unit_factor)
 /*---------------------------------------------------------------------------*/
-#ifndef BL64BIT_TIMESTAMP
-  typedef u32 tstamp;
-  typedef i32 ststamp;
-#else
-  typedef u64 tstamp;
-  typedef i64 ststamp;
-#endif
-  typedef i32 toffset; /* unit for time offsets, limited to i32 for the Windows
-                          implementation */
+/* Tstamp, an integer representing time on unspecified units but 
+   guaranteed to wrap around on its integer type maximum (no discontinuities
+   on wrapping, defined behavior) and hence can be added and subtracted to mea-
+   sure time differences. It can be compared too.
+
+   As the units are unspecified and depend on the host operative system, consi-
+   der just using this for measuring short time durations or timeouts (<60s).
+
+   tstamp will be based on a monotonic clock source (if available).
+*/
+/*---------------------------------------------------------------------------*/
+typedef u32     tstamp;
+typedef i32     ststamp;
+typedef ststamp toffset;
 /*---------------------------------------------------------------------------*/
 #define tstamp_safe_add_sub_max ((utype_max (tstamp) >> 1) - 1)
 /*---------------------------------------------------------------------------*/
@@ -116,6 +121,10 @@ static inline ststamp tstamp_compare (tstamp a, tstamp b)
    Be aware that this can have very high cummulative errors, e.g on the previous
    system getting the offset of (what it seems to be) "1ns" and adding it up
    three times will increment the timestamp 3ms instead of 3ns.
+
+    If one wants to get the timer resolution this call can give it:
+
+    "bl_tstamp_nsec_ceil (bl_tstamp_offset_nsec (0))"
  ---------------------------------------------------------------
 */
 #if defined (BL_TIME_NO_TIMESTAMP)

@@ -21,8 +21,6 @@ typedef enum bl_err_e {
   bl_file,
   /*the operation is not allowed given the current internal state*/
   bl_not_allowed,
-  /*the function is unsupported or implemented*/
-  bl_not_supported,
   /*the preconditions to run an operation weren't met. typically returned when a
    function specifies that will backoff under certain conditions*/ 
   bl_preconditions,

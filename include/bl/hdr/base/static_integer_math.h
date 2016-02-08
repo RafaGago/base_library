@@ -16,6 +16,24 @@
 #define is_multiple(candidate, base)\
     ((candidate) && (base) && (is_multiple_unsafe ((candidate), (amount))))
 /*---------------------------------------------------------------------------*/
+/* The most simple cases of fixed-point arithmetic (both operands have the same
+   format, a bigger data type with the required precission is available and
+   truncation is used) */
+#define int_to_fixp(type, v, dec_bits)  (((type) (v)) << (dec_bits))
+#define fixp_to_int(v, dec_bits)        ((v) >> (dec_bits))
+#define fixp_mul(type, v1, v2, dec_bits)\
+  (((type) (v1) * (type) (v2)) >> (dec_bits))
+#define fixp_div(type, v1, v2, dec_bits)\
+  ((((type) (v1)) << (dec_bits) / (type) (v2))
+
+/*fixed-point reminder:
+  -just numbers of the same format can be added or subtracted.
+  -when multiplying a two numbers the format at each side format is the sum of
+   both e.g. X(A.B) * Y(C.D) = (X * Y) (A + C. B + D)
+  -when multiplying a two numbers the format at each side format is the diff of
+   both e.g. X(A.B) / Y(C.D) = (X / Y) (A - C. B - D)
+*/
+/*---------------------------------------------------------------------------*/
 #define static_msb_to_right_set_u8(x)\
   (((x) >> 0) | ((x) >> 1) | ((x) >> 2) | ((x) >> 3) |\
    ((x) >> 4) | ((x) >> 5) | ((x) >> 6) | ((x) >> 7)\
