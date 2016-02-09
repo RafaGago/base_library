@@ -24,7 +24,7 @@
 #define fixp_mul(type, v1, v2, dec_bits)\
   (((type) (v1) * (type) (v2)) >> (dec_bits))
 #define fixp_div(type, v1, v2, dec_bits)\
-  ((((type) (v1)) << (dec_bits) / (type) (v2))
+  ((((type) (v1)) << (dec_bits)) / (type) (v2))
 
 /*fixed-point reminder:
   -just numbers of the same format can be added or subtracted.
@@ -360,7 +360,7 @@
   -1\
   )
 /*---------------------------------------------------------------------------*/
-#ifdef BL8
+#if BL_WORDSIZE == 8
   #define static_msb_to_right_set_u static_msb_to_right_set_u8
   #define static_next_pow2_u        static_next_pow2_u8
   #define static_round_next_pow2_u  static_round_next_pow2_u8
@@ -368,7 +368,7 @@
   #define static_log2_ceil_u        static_log2_ceil_u8
 #endif
 /*---------------------------------------------------------------------------*/
-#ifdef BL16
+#if BL_WORDSIZE == 16
   #define static_msb_to_right_set_u static_msb_to_right_set_u16
   #define static_next_pow2_u        static_next_pow2_u16
   #define static_round_next_pow2_u  static_round_next_pow2_u16
@@ -376,7 +376,7 @@
   #define static_log2_ceil_u        static_log2_ceil_u16
 #endif
 /*---------------------------------------------------------------------------*/
-#ifdef BL32
+#if BL_WORDSIZE == 32
   #define static_msb_to_right_set_u static_msb_to_right_set_u32
   #define static_next_pow2_u        static_next_pow2_u32
   #define static_round_next_pow2_u  static_round_next_pow2_u32
@@ -384,7 +384,7 @@
   #define static_log2_ceil_u        static_log2_ceil_u32
 #endif
 /*---------------------------------------------------------------------------*/
-#ifdef BL64
+#if BL_WORDSIZE == 64
   #define static_msb_to_right_set_u static_msb_to_right_set_u64
   #define static_next_pow2_u        static_next_pow2_u64
   #define static_round_next_pow2_u  static_round_next_pow2_u64

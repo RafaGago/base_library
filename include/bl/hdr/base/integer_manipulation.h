@@ -263,6 +263,7 @@ static inline u8 u8_get_bit_idx (u8 non_zero_pow2)
   return bruijn_seq_cycle_inv[((u8)(non_zero_pow2 * bruijn_seq)) >> 5];
 }
 /*-----------------------------------------------------------------------------*/
+#if BL_WORDSIZE_MAX >= 16
 static inline u8 u16_get_bit_idx (u16 non_zero_pow2)
 {
   static const u16 bruijn_seq               = 0x0d2f;
@@ -272,7 +273,9 @@ static inline u8 u16_get_bit_idx (u16 non_zero_pow2)
   bl_assert (non_zero_pow2 && has_one_or_zero_bits_set (non_zero_pow2));
   return bruijn_seq_cycle_inv[((u16)(non_zero_pow2 * bruijn_seq)) >> 12];
 }
+#endif
 /*-----------------------------------------------------------------------------*/
+#if BL_WORDSIZE_MAX >= 32
 static inline u8 u32_get_bit_idx (u32 non_zero_pow2)
 {
   static const u32 bruijn_seq               = 0x0563937d;
@@ -283,7 +286,9 @@ static inline u8 u32_get_bit_idx (u32 non_zero_pow2)
   bl_assert (non_zero_pow2 && has_one_or_zero_bits_set (non_zero_pow2));
   return bruijn_seq_cycle_inv[((u32)(non_zero_pow2 * bruijn_seq)) >> 27];
 }
+#endif
 /*-----------------------------------------------------------------------------*/
+#if BL_WORDSIZE_MAX >= 64
 static inline u8 u64_get_bit_idx (u64 non_zero_pow2)
 {
   static const u64 bruijn_seq               = 0x30b37894769fab9;
@@ -296,17 +301,18 @@ static inline u8 u64_get_bit_idx (u64 non_zero_pow2)
   bl_assert (non_zero_pow2 && has_one_or_zero_bits_set (non_zero_pow2));
   return bruijn_seq_cycle_inv[((u64)(non_zero_pow2 * bruijn_seq)) >> 58];
 }
+#endif
 /*---------------------------------------------------------------------------*/
-#ifdef BL8
+#if BL_WORDSIZE == 8
   #define u_get_bit_idx(v) u8_get_bit_idx(v)
 #endif
-#ifdef BL16
+#if BL_WORDSIZE == 16
   #define u_get_bit_idx(v) u16_get_bit_idx(v)
 #endif
-#ifdef BL32
+#if BL_WORDSIZE == 32
   #define u_get_bit_idx(v) u32_get_bit_idx(v)
 #endif
-#ifdef BL64
+#if BL_WORDSIZE == 64
   #define u_get_bit_idx(v) u64_get_bit_idx(v)
 #endif
 /*---------------------------------------------------------------------------*/

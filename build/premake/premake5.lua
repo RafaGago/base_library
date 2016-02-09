@@ -1,6 +1,7 @@
 local base_name             = "base_library"
 local task_queue_name       = base_name .. "_task_queue"
 local nonblock_name         = base_name .. "_nonblock"
+local serial_name           = base_name .. "_serial"
 local version               = ".0.0.0"
 
 local repo                  = path.getabsolute ("../..")
@@ -24,6 +25,8 @@ local task_queue_stress_src = repo_test_src .. "/bl/task_queue_stress"
 
 local nonblock_src          = repo_src .. "/bl/lib/nonblock"
 local nonblock_test_src     = repo_test_src .. "/bl/nonblock"
+
+local serial_src            = repo_src .. "/bl/lib/serial"
 
 local function os_is_posix()
   return os.get() ~= "windows"
@@ -120,13 +123,6 @@ local function is_visual_studio()
   return os.get() == "windows"
 end
 
-filter {"language:C"}
-  if is_gcc() then
-    buildoptions {"-Wfatal-errors"}
-    buildoptions {"-std=c11"}
-    defines {"_XOPEN_SOURCE=700"}
-  end
-
 filter {"configurations:*", "kind:*Lib"}
   if is_gcc() then
     buildoptions {"-fvisibility=hidden"}
@@ -136,12 +132,17 @@ filter {"kind:ConsoleApp"}
   if is_gcc() then
     links {"pthread", "rt"}
   end
+    
+filter {"language:C"}
+  if is_gcc() then
+    buildoptions {"-Wfatal-errors"}
+    buildoptions {"-std=gnu11"}
+  end
   
 filter {"configurations:*"}
   if is_visual_studio() then
-    buildoptions {"/TP"}    
+    buildoptions {"/TP"}  
   end
-  
 -- WORKAROUND END --
 
 --LIBRARY PROJECTS
@@ -161,6 +162,12 @@ project (task_queue_name)
   language "C"
   includedirs {repo_src}
   files {task_queue_src  .. "/**"}
+  
+project (serial_name)
+  kind "StaticLib"
+  language "C"
+  includedirs {repo_src}
+  files {serial_src  .. "/**"}
 
 --TEST PROJECTS
 project (base_name .. "_test")

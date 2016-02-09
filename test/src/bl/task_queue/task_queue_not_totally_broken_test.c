@@ -223,7 +223,6 @@ static void taskq_test_delayed_expired_on_first_run (void **state)
 static void taskq_test_queue_overflow (void **state)
 {
   taskq_test_context* c = (taskq_test_context*) *state;
-  taskq_id id;
   taskq_task task = taskq_task_rv (taskq_callback, c);
   for (uword i = 0; i < queue_size; ++i) {
     bl_assert (taskq_post (c->tq, &id, task) == bl_ok);

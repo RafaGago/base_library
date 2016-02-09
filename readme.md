@@ -1,31 +1,14 @@
-Current status
-==============
-
-Under development.
-
--Linux: All the tests pass on Linux. 
-
--Windows: The "task_queue_test" cmocka tests seem to be broken after the port.
- I suspect that is a cmocka problem (mocking "bl_get_tstamp"), as the stress
- tests run with no problem. I have not looked yet into this issue (other 
- priorities now).
-
-Tested compilers
-=================
-
--Visual Studio 2013
--GCC 4.8.1
-
 Description
 ===========
+
 A project where I will place generic base utilities for C programming on an
-"as needed" basis.
+"as needed" basis. The idea is that everything should be very simple and 
+statically linkable.
 
 As of now everything is just programmed for Linux and should be compilable on 
 Windows.
 
-Now the library is divided in some independent very tiny sublibraries to avoid
-binary bloating.
+Now the library is divided in some very tiny sublibraries to avoid bloating.
 
 1. (base) Base library
 ----------------------
@@ -74,9 +57,40 @@ Depends on: base, noblock
 
 A queue for worker/event dispatcher threads.
 
+4. (serial) Serial port thin wrapper
+-------------------------------------
+
+Depends on: base
+
+Current status
+==============
+
+Under development.
+
+-Linux: 
+
+ All the tests pass on Linux. 
+ 
+ Serial is untested.
+
+-Windows: 
+
+ The "task_queue_test" cmocka tests seem to be broken after the port.
+ I suspect that is a cmocka problem (mocking "bl_get_tstamp"), as the stress
+ tests run with no problem. I have not looked yet into this issue (other 
+ priorities now).
+
+ Serial is untested.
+ 
+Tested compilers
+=================
+
+-Visual Studio 2013
+-GCC 4.8.1
    
 Folders
 =======
+
 * "include/bl/hdr":  Code usable as header-only.
 * "include/bl/lib":  May require compilation on some platforms.
 * eclipse: Eclipse projects, unneeded to build. I sometimes use Eclipse as a gdb
@@ -92,6 +106,7 @@ front end.
 
 Build on Linux (GCC)
 =================
+
 1. If you are planning to run the unit tests you need CMake, as cmocka uses it
 as its build system. It's mostly sure that every distro has a package for it.
 

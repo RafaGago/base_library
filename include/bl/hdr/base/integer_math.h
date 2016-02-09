@@ -17,7 +17,7 @@ static inline u8 msb_to_right_set_u8 (u8 x)
   x |= (x >> 4);
   return x;
 }
-
+#if BL_WORDSIZE_MAX >= 16
 static inline u16 msb_to_right_set_u16 (u16 x)
 {
   x |= (x >> 1);
@@ -26,7 +26,8 @@ static inline u16 msb_to_right_set_u16 (u16 x)
   x |= (x >> 8);
   return x;
 }
-
+#endif
+#if BL_WORDSIZE_MAX >= 32
 static inline u32 msb_to_right_set_u32 (u32 x)
 {
   x |= (x >> 1);
@@ -36,7 +37,8 @@ static inline u32 msb_to_right_set_u32 (u32 x)
   x |= (x >> 16);
   return x;
 }
-
+#endif
+#if BL_WORDSIZE_MAX >= 64
 static inline u64 msb_to_right_set_u64 (u64 x)
 {
   x |= (x >> 1);
@@ -47,6 +49,7 @@ static inline u64 msb_to_right_set_u64 (u64 x)
   x |= (x >> 32);
   return x;
 }
+#endif
 /*---------------------------------------------------------------------------*/
 #define next_pow2_u8(x)  ((u8)  msb_to_right_set_u8 (x)  + 1)
 #define next_pow2_u16(x) ((u16) msb_to_right_set_u16 (x) + 1)
@@ -61,29 +64,31 @@ static inline u64 msb_to_right_set_u64 (u64 x)
 /* for gcc see __builtin_popcount, __builtin_popcountl, __builtin_popcountull*/
 /*---------------------------------------------------------------------------*/
 #ifdef __GNUC__
-
+#if BL_WORDSIZE_MAX >= 64
 static inline int popcount_u64 (u64 x)
 {
   return __builtin_popcountll (x);
 }
-
+#endif
+#if BL_WORDSIZE_MAX >= 32
 static inline int popcount_u32 (u32 x)
 {
   return __builtin_popcountl (x);
 }
-
+#endif
+#if BL_WORDSIZE_MAX >= 16
 static inline int popcount_u16 (u16 x)
 {
   return __builtin_popcount(x);
 }
-
+#endif
 static inline int popcount_u8 (u8 x)
 {
   return __builtin_popcount (x);
 }
 
 #else /*__GNUC__*/
-
+#if BL_WORDSIZE_MAX >= 64
 static inline int popcount_u64 (u64 x)
 {
     const u64 m1  = 0x5555555555555555ULL;
@@ -98,7 +103,8 @@ static inline int popcount_u64 (u64 x)
     x += x >> 32;
     return (int) (x & 0x7f);
 }
-
+#endif
+#if BL_WORDSIZE_MAX >= 32
 static inline int popcount_u32 (u32 x)
 {
     const u32 m1  = 0x55555555ULL; //binary: 0101...
@@ -112,6 +118,8 @@ static inline int popcount_u32 (u32 x)
     x += x >> 16;
     return (int) (x & 0x3f);
 }
+#endif
+#if BL_WORDSIZE_MAX >= 16
 static inline int popcount_u16 (u16 x)
 {
     const u16 m1  = 0x5555ULL;
@@ -124,6 +132,7 @@ static inline int popcount_u16 (u16 x)
     x += x >>  8;
     return (int) (x & 0x1f);
 }
+#endif
 static inline int popcount_u8 (u8 x)
 {
     const u8 m1  = 0x55;
@@ -138,30 +147,34 @@ static inline int popcount_u8 (u8 x)
 
 #endif /*__GNUC__*/
 /*---------------------------------------------------------------------------*/
+#if BL_WORDSIZE_MAX >= 64
 static inline int log2_floor_u64 (u64 x) /* log_2 of 0 will return -1 */
 {
     x = msb_to_right_set_u64 (x);
     return popcount_u64 (x) - 1;
 }
-
+#endif
+#if BL_WORDSIZE_MAX >= 32
 static inline int log2_floor_u32 (u32 x) /* log_2 of 0 will return -1 */
 {
     x = msb_to_right_set_u32 (x);
     return popcount_u32 (x) - 1;
 }
-
+#endif
+#if BL_WORDSIZE_MAX >= 16
 static inline int log2_floor_u16 (u16 x) /* log_2 of 0 will return -1 */
 {
     x = msb_to_right_set_u16 (x);
     return popcount_u16 (x) - 1;
 }
-
+#endif
 static inline int log2_floor_u8 (u8 x)  /* log_2 of 0 will return -1 */
 {
     x = msb_to_right_set_u8 (x);
     return popcount_u8 (x) - 1;
 }
 /*---------------------------------------------------------------------------*/
+#if BL_WORDSIZE_MAX >= 64
 static inline int log2_ceil_64 (u64 x) /* log_2 of 0 will return -1 */
 {
     i64 y = x & (x - 1);
@@ -171,7 +184,8 @@ static inline int log2_ceil_64 (u64 x) /* log_2 of 0 will return -1 */
     x = msb_to_right_set_u64 (x);
     return popcount_u64 (x) - 1 - (int) y;
 }
-
+#endif
+#if BL_WORDSIZE_MAX >= 32
 static inline int log2_ceil_32 (u32 x) /* log_2 of 0 will return -1 */
 {
     i32 y = x & (x - 1);
@@ -181,7 +195,8 @@ static inline int log2_ceil_32 (u32 x) /* log_2 of 0 will return -1 */
     x = msb_to_right_set_u32 (x);
     return popcount_u32 (x) - 1 - (int) y;
 }
-
+#endif
+#if BL_WORDSIZE_MAX >= 16
 static inline int log2_ceil_16 (u16 x) /* log_2 of 0 will return -1 */
 {
     i16 y = x & (x - 1);
@@ -191,7 +206,7 @@ static inline int log2_ceil_16 (u16 x) /* log_2 of 0 will return -1 */
     x = msb_to_right_set_u16 (x);
     return popcount_u16 (x) - 1 - (int) y;
 }
-
+#endif
 static inline int log2_ceil_8 (u8 x) /* log_2 of 0 will return -1 */
 {
     i8 y = x & (x - 1);
@@ -212,7 +227,7 @@ static inline u8 reverse_bits (u8 val)
   return (u8) v;
 }
 /*---------------------------------------------------------------------------*/
-#ifdef BL8
+#if BL_WORDSIZE == 8
   #define msb_to_right_set_u msb_to_right_set_u8
   #define next_pow2_u        next_pow2_u8
   #define round_next_pow2_u  round_next_pow2_u8
@@ -221,7 +236,7 @@ static inline u8 reverse_bits (u8 val)
   #define log2_ceil_u        log2_ceil_u8
 #endif
 /*---------------------------------------------------------------------------*/
-#ifdef BL16
+#if BL_WORDSIZE == 16
   #define msb_to_right_set_u msb_to_right_set_u16
   #define next_pow2_u        next_pow2_u16
   #define round_next_pow2_u  round_next_pow2_u16
@@ -230,7 +245,7 @@ static inline u8 reverse_bits (u8 val)
   #define log2_ceil_u        log2_ceil_u16
 #endif
 /*---------------------------------------------------------------------------*/
-#ifdef BL32
+#if BL_WORDSIZE == 32
   #define msb_to_right_set_u msb_to_right_set_u32
   #define next_pow2_u        next_pow2_u32
   #define round_next_pow2_u  round_next_pow2_u32
@@ -239,7 +254,7 @@ static inline u8 reverse_bits (u8 val)
   #define log2_ceil_u        log2_ceil_u32
 #endif
 /*---------------------------------------------------------------------------*/
-#ifdef BL64
+#if BL_WORDSIZE == 64
   #define msb_to_right_set_u msb_to_right_set_u64
   #define next_pow2_u        next_pow2_u64
   #define round_next_pow2_u  round_next_pow2_u64

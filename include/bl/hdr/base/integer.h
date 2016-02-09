@@ -8,28 +8,30 @@
 #ifndef BL_EXTERNAL_INTEGER_HEADER
   typedef uint8_t  u8;
   typedef int8_t   i8;
+#if BL_WORDSIZE_MAX >= 16
   typedef uint16_t u16;
   typedef int16_t  i16;
-#ifndef BL_NOINT32
+#endif
+#if BL_WORDSIZE_MAX >= 32
   typedef uint32_t u32;
   typedef int32_t  i32;
 #endif
-#ifndef BL_NOINT64
+#if BL_WORDSIZE_MAX >= 64
   typedef uint64_t u64;
   typedef int64_t  i64;
 #endif
 /*---------------------------------------------------------------------------*/
-#if defined (BL8)
+#if BL_WORDSIZE == 8
   typedef u8 uword; 
   typedef i8 word;
 /*----------------------------------------------------------------------------*/
-#elif defined (BL16)
+#elif BL_WORDSIZE == 16
   typedef u16 uword; 
   typedef i16 word;
   typedef u8  half_uword; 
   typedef i8  half_word;
 /*----------------------------------------------------------------------------*/
-#elif defined (BL32)
+#elif BL_WORDSIZE == 32
   typedef u32 uword; 
   typedef i32 word;
   typedef u16 half_uword; 
@@ -37,7 +39,7 @@
   typedef u8  quarter_uword; 
   typedef i8  quarter_word;
 /*----------------------------------------------------------------------------*/
-#elif defined (BL64)
+#elif BL_WORDSIZE == 64
   typedef u64 uword; 
   typedef i64 word;
   typedef u32 half_uword; 
@@ -61,7 +63,4 @@
 #define itype_min(type) bl_has_two_comp_arithmetic ?\
   (-itype_max (type) - 1) : (-itype_max (type))
 /*---------------------------------------------------------------------------*/
-#endif 
-
-/* __INTEGER_H__ */
-
+#endif /* __INTEGER_H__ */

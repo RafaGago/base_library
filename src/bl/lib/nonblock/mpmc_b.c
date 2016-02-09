@@ -86,7 +86,7 @@ static inline void mpmc_b_read(
   -positive if the producer gate looks outdated (someone inserting)
   -zero if everything looks right
 */
-#if defined (BL32)
+#if BL_WORDSIZE == 32
 /*
   on 32 bit the transactions are 24 bit, so to calculate the status using the
   complement of two properties of the integer we must shift so the MSB of the
@@ -101,13 +101,15 @@ static inline i32 mpmc_b_transaction_status (u32 gate, mpmc_b_i now)
   return (i32) (gate_u - trans_u);
 }
 /*---------------------------------------------------------------------------*/
-#elif defined (BL64)
+#elif BL_WORDSIZE == 64
 static_assert_outside_func_ns (mpmc_b_info_transaction_bits == type_bits (i32));
 static inline i32 mpmc_b_transaction_status (u32 gate, mpmc_b_i now)
 {
   /*bl_assert ((gate_u - trans_u) <= compare_unsigned_as_signed_max_diff (u32));*/
   return (i32) (gate -((u32) now.inf.transaction));
 }
+#else
+#error "mpmc_b won't work on this platform"
 #endif
 /*---------------------------------------------------------------------------*/
 bl_err NONBLOCK_EXPORT mpmc_b_produce_sig_fallback(

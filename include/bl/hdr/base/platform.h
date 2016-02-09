@@ -3,6 +3,7 @@
 /*---------------------------------------------------------------------------*/
 /* Very useful: http://sourceforge.net/p/predef/wiki/Architectures/          */
 /*---------------------------------------------------------------------------*/
+
 #ifdef _MSC_VER
 /*  #define BL_X86_64 1*/
   #if defined (_WIN64) || defined (_WIN32) || defined (_WIN16)
@@ -12,11 +13,14 @@
   #endif
 
   #if defined(_WIN64) && !defined(_WIN16)
-    #define BL64 1
+    #define BL_WORDSIZE     64
+    #define BL_WORDSIZE_MAX 64
   #elif defined (_WIN16)
-    #define BL16 1
+    #define BL_WORDSIZE     16
+    #define BL_WORDSIZE_MAX 64
   #else
-    #define BL32 1
+    #define BL_WORDSIZE     32
+    #define BL_WORDSIZE_MAX 64
   #endif
 
   #if defined (_ARM)
@@ -58,23 +62,28 @@
   #if defined (__x86_64__)
     #define BL_INTEL_AMD_PC 1
     #if defined (__LP64__)
-      #define BL64 1
+      #define BL_WORDSIZE     64
+      #define BL_WORDSIZE_MAX 64
     #else
-      #define BL32 1
+      #define BL_WORDSIZE     32
+      #define BL_WORDSIZE_MAX 64
     #endif
   #endif
 
   #if defined (__i386__)
     #define BL_INTEL_AMD_PC 1
-    #define BL32 1
+    #define BL_WORDSIZE     32
+    #define BL_WORDSIZE_MAX 64
   #endif
 
   #if defined (__arm__)
     #define BL_ARM 1
     #if defined (__aarch64__)
-      #define BL64 1
+      #define BL_WORDSIZE     64
+      #define BL_WORDSIZE_MAX 64
     #else
-      #define BL32 1
+      #define BL_WORDSIZE     32
+      #define BL_WORDSIZE_MAX 64
     #endif
   #endif
 
@@ -120,6 +129,14 @@ static_assert_outside_func ((int) nullptr == 0, "nullptr check failed");
   #define BL_SCHED_TMIN_US 100
 #else
   #error "define this for your the os"
+#endif
+
+#if !defined (BL_WORDSIZE) || !defined (BL_WORDSIZE_MAX)
+  #error "define this for your platform"
+#endif
+
+#if BL_WORDSIZE > BL_WORDSIZE_MAX
+  #error "the word size can't be bigger than the maximum word size"
 #endif
 
 #endif /*EVK_PLATFORM_H_*/

@@ -19,6 +19,8 @@ typedef struct memr8 {
 }
 memr8;
 /*----------------------------------------------------------------------------*/
+static inline memr8 memr8_rv (void* addr, u8 size);
+/*----------------------------------------------------------------------------*/
 static inline void* memr8_beg (memr8 m)
 {
   return m.addr;
@@ -86,7 +88,7 @@ static inline u8 memr8_copy (memr8 dst, memr8 src)
 static inline u8 memr8_copy_offset (memr8 dst, memr8 src, u8 dst_offset_bytes)
 {
   memr8 dst_off = memr8_subrange_beg (dst, dst_offset_bytes);
-  memr8_copy (&dst_off, src);
+  memr8_copy (dst_off, src);
 }
 /*----------------------------------------------------------------------------*/
 static inline memr8 memr8_rv (void* addr, u8 size)
@@ -106,11 +108,14 @@ static inline memr8 memr8_rv (void* addr, u8 size)
 /* memr16                                                                     */
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
+#if BL_WORDSIZE >= 16
 typedef struct memr16 {
   void* addr;
   u16   size;
 }
 memr16;
+/*----------------------------------------------------------------------------*/
+static inline memr16 memr16_rv (void* addr, u16 size);
 /*----------------------------------------------------------------------------*/
 static inline void* memr16_beg (memr16 m)
 {
@@ -167,7 +172,8 @@ static inline memr16 memr16_subrange_beg (memr16 m, u16 offset_bytes)
 static inline void memr16_set (memr16 m, int v)
 {
   bl_assert (memr16_is_valid (m));
-  memset (memr16_beg (m), v, memr16_size (m));
+  bl_assert ((size_t) memr16_size (m) == memr16_size (m));
+  memset (memr16_beg (m), v, (size_t) memr16_size (m));
 }
 /*----------------------------------------------------------------------------*/
 static inline u16 memr16_copy (memr16 dst, memr16 src)
@@ -175,7 +181,8 @@ static inline u16 memr16_copy (memr16 dst, memr16 src)
   bl_assert (memr16_is_valid (src));
   bl_assert (memr16_is_valid (dst));
   bl_assert (memr16_size (dst) >= memr16_size (src));
-  memcpy (memr16_beg (dst), memr16_beg (src), memr16_size (src));
+  bl_assert ((size_t) memr16_size (src) == memr16_size (src));
+  memcpy (memr16_beg (dst), memr16_beg (src), (size_t) memr16_size (src));
 }
 /*----------------------------------------------------------------------------*/
 static inline u16 memr16_copy_offset(
@@ -183,7 +190,7 @@ static inline u16 memr16_copy_offset(
   )
 {
   memr16 dst_off = memr16_subrange_beg (dst, dst_offset_bytes);
-  memr16_copy (&dst_off, src);
+  memr16_copy (dst_off, src);
 }
 /*----------------------------------------------------------------------------*/
 static inline memr16 memr16_rv (void* addr, u16 size)
@@ -198,24 +205,20 @@ static inline memr16 memr16_rv (void* addr, u16 size)
 #define memr16_end_as (memr_val, type) ((type*) memr16_end (memr_val))
 #define memr16_at_as (memr_val, idx, type)\
   ((type*) memr16_at ((memr_val), idx * sizeof (type)))
+#endif /*#if BL_WORDSIZE >= 16*/
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
 /* memr32                                                                     */
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
-#ifndef BL_NOINT32
+#if BL_WORDSIZE >= 32
 typedef struct memr32 {
   void* addr;
   u32   size;
 }
 memr32;
 /*----------------------------------------------------------------------------*/
-static inline memr32 memr32_rv (void* addr, uword size)
-{
-  memr32 ret = memr_initializer (addr, size);
-  return ret;
-}
-#define memr32_rv_array(arr) memr32_rv (arr, sizeof arr)
+static inline memr32 memr32_rv (void* addr, u32 size);
 /*----------------------------------------------------------------------------*/
 static inline void* memr32_beg (memr32 m)
 {
@@ -272,6 +275,7 @@ static inline memr32 memr32_subrange_beg (memr32 m, u32 offset_bytes)
 static inline void memr32_set (memr32 m, int v)
 {
   bl_assert (memr32_is_valid (m));
+  bl_assert ((size_t) memr32_size (m) == memr32_size (m));
   memset (memr32_beg (m), v, memr32_size (m));
 }
 /*----------------------------------------------------------------------------*/
@@ -280,7 +284,8 @@ static inline u32 memr32_copy (memr32 dst, memr32 src)
   bl_assert (memr32_is_valid (src));
   bl_assert (memr32_is_valid (dst));
   bl_assert (memr32_size (dst) >= memr32_size (src));
-  memcpy (memr32_beg (dst), memr32_beg (src), memr32_size (src));
+  bl_assert ((size_t) memr32_size (src) == memr32_size (src));
+  memcpy (memr32_beg (dst), memr32_beg (src), (size_t) memr32_size (src));
 }
 /*----------------------------------------------------------------------------*/
 static inline u32 memr32_copy_offset(
@@ -288,7 +293,7 @@ static inline u32 memr32_copy_offset(
   )
 {
   memr32 dst_off = memr32_subrange_beg (dst, dst_offset_bytes);
-  memr32_copy (&dst_off, src);
+  memr32_copy (dst_off, src);
 }
 /*----------------------------------------------------------------------------*/
 static inline memr32 memr32_rv (void* addr, u32 size)
@@ -303,25 +308,20 @@ static inline memr32 memr32_rv (void* addr, u32 size)
 #define memr32_end_as (memr_val, type) ((type*) memr32_end (memr_val))
 #define memr32_at_as (memr_val, idx, type)\
   ((type*) memr32_at ((memr_val), idx * sizeof (type)))
-#endif /*#ifndef BL_NOINT32*/
+#endif /*#if BL_WORDSIZE >= 32*/
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
 /* memr64                                                                     */
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
-#ifndef BL_NOINT64
+#if BL_WORDSIZE >= 64
 typedef struct memr64 {
   void* addr;
   u64   size;
 }
 memr64;
 /*----------------------------------------------------------------------------*/
-static inline memr64 memr64_rv (void* addr, uword size)
-{
-  memr64 ret = memr_initializer (addr, size);
-  return ret;
-}
-#define memr64_rv_array(arr) memr64_rv (arr, sizeof arr)
+static inline memr64 memr64_rv (void* addr, u64 size);
 /*----------------------------------------------------------------------------*/
 static inline void* memr64_beg (memr64 m)
 {
@@ -378,7 +378,8 @@ static inline memr64 memr64_subrange_beg (memr64 m, u64 offset_bytes)
 static inline void memr64_set (memr64 m, int v)
 {
   bl_assert (memr64_is_valid (m));
-  memset (memr64_beg (m), v, memr64_size (m));
+  bl_assert ((size_t) memr64_size (m) == memr64_size (m));
+  memset (memr64_beg (m), v, (size_t) memr64_size (m));
 }
 /*----------------------------------------------------------------------------*/
 static inline u64 memr64_copy (memr64 dst, memr64 src)
@@ -386,6 +387,7 @@ static inline u64 memr64_copy (memr64 dst, memr64 src)
   bl_assert (memr64_is_valid (src));
   bl_assert (memr64_is_valid (dst));
   bl_assert (memr64_size (dst) >= memr64_size (src));
+  bl_assert ((size_t) memr64_size (src) == memr64_size (src));
   memcpy (memr64_beg (dst), memr64_beg (src), memr64_size (src));
 }
 /*----------------------------------------------------------------------------*/
@@ -394,7 +396,7 @@ static inline u64 memr64_copy_offset(
   )
 {
   memr64 dst_off = memr64_subrange_beg (dst, dst_offset_bytes);
-  memr64_copy (&dst_off, src);
+  memr64_copy (dst_off, src);
 }
 /*----------------------------------------------------------------------------*/
 static inline memr64 memr64_rv (void* addr, u64 size)
@@ -409,32 +411,32 @@ static inline memr64 memr64_rv (void* addr, u64 size)
 #define memr64_end_as (memr_val, type) ((type*) memr64_end (memr_val))
 #define memr64_at_as (memr_val, idx, type)\
   ((type*) memr64_at ((memr_val), idx * sizeof (type)))
-#endif /*#ifndef BL_NOINT64*/
+#endif /*#if BL_WORDSIZE >= 64*/
 /*----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
-#ifdef BL8
+#if BL_WORDSIZE == 8
   typedef memr8 memr;
   #define memr_concat(suffix) pp_tokconcat (memr8_, suffix)
 #endif
 /*----------------------------------------------------------------------------*/
-#ifdef BL16
+#if BL_WORDSIZE == 16
   typedef memr16 memr;
   #define memr_concat(suffix) pp_tokconcat (memr16_, suffix)
 #endif
 /*----------------------------------------------------------------------------*/
-#ifdef BL32
+#if BL_WORDSIZE == 32
   typedef memr32 memr;
   #define memr_concat(suffix) pp_tokconcat (memr32_, suffix)
 #endif
 /*----------------------------------------------------------------------------*/
-#ifdef BL64
+#if BL_WORDSIZE == 64
   typedef memr64 memr;
   #define memr_concat(suffix) pp_tokconcat (memr64_, suffix)
 #endif
 /*----------------------------------------------------------------------------*/
 #define memr_beg(m)               memr_concat (beg) (m)
-#define memr_size(m)              memr_concat (end) (m)
-#define memr_end(m)               memr_concat (size) (m)
+#define memr_size(m)              memr_concat (size) (m)
+#define memr_end(m)               memr_concat (end) (m)
 #define memr_resize(m, s)         memr_concat (resize) ((m), (s))
 #define memr_at(m, i)             memr_concat (at) ((m), (i))
 #define memr_null()               memr_concat (null)
@@ -472,7 +474,4 @@ static inline memr64 memr64_rv (void* addr, u64 size)
 #endif
 #endif
 /*----------------------------------------------------------------------------*/
-
-
 #endif /* __BL_MEMORY_RANGE_H__ */
-

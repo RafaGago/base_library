@@ -16,7 +16,7 @@
   #define BL_CLOCK_MONOTONIC CLOCK_MONOTONIC /*TODO this isn't posix now...*/
 #endif
 /*---------------------------------------------------------------------------*/
-#ifdef BL64BIT_TIMESTAMP
+#if 0
 /*---------------------------------------------------------------------------*/
 static inline tstamp bl_get_tstamp (void)
 {
@@ -85,7 +85,7 @@ static inline tstamp bl_tstamp_offset_nsec (toffset nsec)
   return (tstamp) nsec;
 }
 /*---------------------------------------------------------------------------*/
-#else /*#ifdef BL64BIT_TIMESTAMP*/
+#endif
 /*---------------------------------------------------------------------------*/
 static inline tstamp bl_get_tstamp (void)
 {
@@ -155,7 +155,6 @@ static inline tstamp bl_tstamp_offset_nsec (toffset nsec)
   return div_ceil (((tstamp) nsec), nsec_in_usec);
 }
 /*---------------------------------------------------------------------------*/
-#endif /*#ifdef BL64BIT_TIMESTAMP, #else*/
 
 #endif /* __BL_TIMESTAMP_POSIX_H__ */
 
