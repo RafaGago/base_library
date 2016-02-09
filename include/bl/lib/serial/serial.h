@@ -8,32 +8,11 @@
 #include <bl/hdr/base/memory_range.h>
 #include <bl/hdr/base/allocator.h>
 
+#include <bl/lib/serial/serial_cfg.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-/*----------------------------------------------------------------------------*/
-enum bl_serial_stop_bits_e {
-  bl_stop_bits_one,
-  bl_stop_bits_one_point_five,
-  bl_stop_bits_two,
-}; 
-typedef u8 bl_serial_stop_bits;
-/*----------------------------------------------------------------------------*/
-enum bl_serial_parity_e {
-  bl_parity_none,
-  bl_parity_odd,
-  bl_parity_even,
-  bl_parity_mark,
-  bl_parity_space,
-};
-typedef u8 bl_serial_parity;
-/*----------------------------------------------------------------------------*/
-enum bl_serial_flow_control_e{
-  bl_flow_control_none,
-  bl_flow_control_software,
-  bl_flow_control_hardware
-};
-typedef u8 bl_serial_flow_control;
 /*----------------------------------------------------------------------------*/
 enum bl_serial_ioctl_e{
   bl_cts,        /*R. bool level*/
@@ -46,16 +25,6 @@ enum bl_serial_ioctl_e{
   bl_set_break,  /*W. bool level*/
 };
 typedef uword bl_serial_ioctl;
-/*----------------------------------------------------------------------------*/
-typedef struct bl_serial_cfg {
-  char const*            device_name; /* "/dev/ttyS0", "COM1", etc... */
-  u32                    baudrate;
-  u8                     byte_size;
-  bl_serial_stop_bits    stop_bits;
-  bl_serial_flow_control flow_control;
-  bl_serial_parity       parity;
-}
-bl_serial_cfg;
 /*----------------------------------------------------------------------------*/
 typedef struct bl_serial bl_serial;
 /*----------------------------------------------------------------------------*/
@@ -97,4 +66,3 @@ extern uword bl_serial_get_byte_time_ns (bl_serial_cfg const* cfg);
 #endif
 
 #endif /* __BL_SERIAL_H__ */
-
