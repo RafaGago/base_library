@@ -17,7 +17,7 @@ static inline void bl_thread_usleep (toffset us)
   if (us <= 0) { return; }
   std::this_thread::sleep_for (std::chrono::microseconds (us));
 }
-} /* extern "C" { */
+} /*extern "C" { */
 /*----------------------------------------------------------------------------*/
 #elif defined (BL_POSIX)
 #include <errno.h>

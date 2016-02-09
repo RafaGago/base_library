@@ -62,7 +62,7 @@ static inline int bl_thread_join (bl_thread* t)
   }
 }
 /*---------------------------------------------------------------------------*/
-}  /* extern "C" {*/
+}  /*extern "C" {*/
 
 #endif /* __BL_CPP_THREAD_H__ */
 

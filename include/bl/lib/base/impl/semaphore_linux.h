@@ -14,6 +14,10 @@
 #include <bl/hdr/base/error.h>
 #include <bl/hdr/base/integer.h>
 #include <bl/hdr/base/time.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*----------------------------------------------------------------------------*/
 typedef sem_t bl_sem;
 /*----------------------------------------------------------------------------*/
@@ -55,5 +59,10 @@ extern bl_err BL_EXPORT bl_tm_sem_init (bl_tm_sem* s);
 /*----------------------------------------------------------------------------*/
 extern bl_err BL_EXPORT bl_tm_sem_destroy (bl_tm_sem* s);
 /*----------------------------------------------------------------------------*/
+
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif
+
 #endif /* __BL_SEMAPHORE_LINUX_H__ */
 

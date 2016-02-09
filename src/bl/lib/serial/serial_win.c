@@ -26,6 +26,21 @@
 #include <bl/hdr/base/static_integer_math.h>
 
 #include <bl/lib/serial/serial.h>
+
+/*----------------------------------------------------------------------------*/
+static inline std::string prefix_port (std::string const& in)
+{
+  static const char windows_com_port_prefix[] = "\\\\.\\";
+  if (in.compare (windows_com_port_prefix) != 0)
+  {
+    return std::string (windows_com_port_prefix) + in;
+  }
+  return in;
+}
+/*----------------------------------------------------------------------------*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*----------------------------------------------------------------------------*/
 define_ringb_types (u8_dq, u8)
 define_ringb_funcs (u8_dq, u8, static inline)
@@ -162,16 +177,6 @@ static bool try_get_standard_baudrate (uword baudrate, int* enum_val)
 #endif
   default: *enum_val = baudrate; return false;
   }  
-}
-/*----------------------------------------------------------------------------*/
-static inline std::string prefix_port (std::string const& in)
-{
-  static const char windows_com_port_prefix[] = "\\\\.\\";
-  if (in.compare (windows_com_port_prefix) != 0)
-  {
-    return std::string (windows_com_port_prefix) + in;
-  }
-  return in;
 }
 /*----------------------------------------------------------------------------*/
 bl_err bl_serial_start (bl_serial* s, bl_serial_cfg const* cfg)
@@ -496,4 +501,8 @@ uword bl_serial_get_byte_time_ns (bl_serial_cfg const* cfg)
     );
 }
 /*----------------------------------------------------------------------------*/
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif
+
 #endif /* #ifdef BL_WIN */

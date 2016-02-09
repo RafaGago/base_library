@@ -7,6 +7,9 @@
 #include <bl/hdr/base/ordered_ringbuffer.h>
 #include <bl/hdr/base/error.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*---------------------------------------------------------------------------*/
 typedef struct delayed_entry {
   tstamp     deadl;
@@ -52,5 +55,9 @@ extern delayed_entry const* delayed_get_head_if_expired (delayed* dl);
 /*---------------------------------------------------------------------------*/
 extern void delayed_drop_head (delayed* dl);
 /*---------------------------------------------------------------------------*/
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif
+
 #endif /* __TASKQ_DELAYED__H__ */
 

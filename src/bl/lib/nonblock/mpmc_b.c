@@ -38,6 +38,9 @@ either expressed or implied, of Dmitry Vyukov.
 #include <bl/hdr/base/integer_math.h>
 #include <bl/hdr/base/integer_manipulation.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*---------------------------------------------------------------------------*/
 static_assert_outside_func(
   bl_has_two_comp_arithmetic,
@@ -383,4 +386,6 @@ bl_err NONBLOCK_EXPORT mpmc_b_init_private(
   return bl_ok;
 }
 /*---------------------------------------------------------------------------*/
-
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif

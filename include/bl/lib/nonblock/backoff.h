@@ -3,6 +3,10 @@
 
 /*----------------------------------------------------------------------------*/
 #include <bl/hdr/base/integer.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*----------------------------------------------------------------------------*/
 typedef struct nonblock_backoff {
   uword   spin;
@@ -30,6 +34,9 @@ void nonblock_backoff_init_default (nonblock_backoff* nb, toffset sleep_us_max);
 /*----------------------------------------------------------------------------*/
 void nonblock_backoff_run (nonblock_backoff* nb);
 /*----------------------------------------------------------------------------*/
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif
 
 #endif /* __BL_NONBLOCK_BACKOFF_H__ */
 

@@ -8,6 +8,10 @@
 #include <bl/hdr/base/deadline.h>
 #include <bl/hdr/base/include_windows.h>
 #include <bl/lib/base/semaphore.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*----------------------------------------------------------------------------*/
 typedef HANDLE bl_sem;
 /*----------------------------------------------------------------------------*/
@@ -68,6 +72,10 @@ static inline bl_err bl_tm_sem_signal (bl_sem* s)
   return bl_sem_signal (s);
 }
 /*----------------------------------------------------------------------------*/
+
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif
 
 #endif /* __BL_SEMAPHORE_WIN_H__ */
 

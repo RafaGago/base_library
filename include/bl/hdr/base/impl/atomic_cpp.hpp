@@ -277,6 +277,6 @@ static inline u32 atomic_u32_fetch_and(
   return ((std::atomic<u32>*) a)->fetch_and(v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-} // extern "C" {
+} //extern "C" {
 
 #endif

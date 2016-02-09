@@ -63,6 +63,10 @@
 #include <bl/hdr/base/static_integer_math.h>
 
 #include <bl/lib/serial/serial.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*----------------------------------------------------------------------------*/
 define_ringb_types (u8_dq, u8)
 define_ringb_funcs (u8_dq, u8, static inline)
@@ -663,5 +667,8 @@ uword bl_serial_get_byte_time_ns (bl_serial_cfg const* cfg)
   return (uword) fixp_to_int (bit_ns * bits_byte, 32);
 }
 /*----------------------------------------------------------------------------*/
-#endif /* #ifdef BL_POSIX */
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif
 
+#endif /* #ifdef BL_POSIX */

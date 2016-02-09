@@ -11,6 +11,10 @@
 #include <bl/hdr/base/error.h>
 #include <bl/hdr/base/time.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*---------------------------------------------------------------------------*/
 /* Taskq: A Fixed-size (preallocated) task queue with support for delayed    */
 /* tasks                                                                     */
@@ -224,5 +228,10 @@ shut down procedure example2. Will cancel tasks when noticing the blocking:
   }
 --------------------------------------------------------------------------------
 */
+
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif
+
 #endif /*TASK_QUEUE_H*/
 

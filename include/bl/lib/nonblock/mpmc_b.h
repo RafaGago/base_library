@@ -10,6 +10,10 @@
 #include <bl/hdr/base/error.h>
 #include <bl/hdr/base/utility.h>
 #include <bl/hdr/base/atomic.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*---------------------------------------------------------------------------*/
 /*
   This is the Dimitry Dyukov bounded MPMC queue with some modifications:
@@ -248,5 +252,8 @@ extern bl_err NONBLOCK_EXPORT mpmc_b_init_private(
   u32              contained_offset
   );
 /*----------------------------------------------------------------------------*/
-#endif /* __BL_NONBLOCK_MPMC_H__ */
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif
 
+#endif /* __BL_NONBLOCK_MPMC_H__ */

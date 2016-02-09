@@ -6,6 +6,9 @@
 #include <bl/hdr/base/time.h>
 #include <bl/hdr/base/integer_math.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*---------------------------------------------------------------------------*/
 static inline word delayed_ordering_func(
   void const* a, void const* b, void* context
@@ -103,4 +106,6 @@ void delayed_destroy (delayed* dl, alloc_tbl const* alloc)
   delayed_ringb_destroy (&dl->list, alloc);
 }
 /*---------------------------------------------------------------------------*/
-
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif

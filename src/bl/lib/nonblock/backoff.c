@@ -5,6 +5,10 @@
 #include <bl/hdr/base/processor_pause.h>
 
 #include <bl/lib/nonblock/backoff.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*----------------------------------------------------------------------------*/
 void nonblock_backoff_init(
   nonblock_backoff* nb, 
@@ -60,4 +64,6 @@ void nonblock_backoff_run (nonblock_backoff* nb)
   }
 }
 /*----------------------------------------------------------------------------*/
-
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif

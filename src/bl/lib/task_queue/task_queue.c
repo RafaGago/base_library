@@ -10,6 +10,10 @@
 #include <bl/lib/base/semaphore.h>
 
 #include <bl/lib/nonblock/mpmc_b.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*---------------------------------------------------------------------------*/
 enum cmd_type_e {
   cmd_task,
@@ -364,4 +368,6 @@ taskq_free:
   return err;
 }
 /*---------------------------------------------------------------------------*/
-
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif

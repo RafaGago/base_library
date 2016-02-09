@@ -8,6 +8,9 @@
 #include <bl/hdr/base/memory_range.h>
 #include <bl/hdr/base/allocator.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*----------------------------------------------------------------------------*/
 enum bl_serial_stop_bits_e {
   bl_stop_bits_one,
@@ -88,6 +91,10 @@ extern uword bl_serial_get_bit_time_ns (bl_serial_cfg const* cfg);
 /*----------------------------------------------------------------------------*/
 extern uword bl_serial_get_byte_time_ns (bl_serial_cfg const* cfg);
 /*----------------------------------------------------------------------------*/
+
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif
 
 #endif /* __BL_SERIAL_H__ */
 

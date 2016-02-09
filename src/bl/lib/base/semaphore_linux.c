@@ -13,6 +13,10 @@
 #include <bl/hdr/base/atomic.h>
 #include <bl/lib/base/semaphore.h>
 /*----------------------------------------------------------------------------*/
+#ifdef __cplusplus
+extern "C" {
+#endif
+/*----------------------------------------------------------------------------*/
 static inline int futex_wait_masked_absolute_monotonic(
   atomic_u32*            f,
   u32                    expected_fval,
@@ -164,4 +168,7 @@ bl_err BL_EXPORT bl_tm_sem_destroy (bl_tm_sem* s)
   return (woken == 0) ? bl_ok : bl_error;                                   
 }
 /*----------------------------------------------------------------------------*/
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif
 #endif /* BL_LINUX */
