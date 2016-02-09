@@ -115,7 +115,6 @@ static void adlnls_test_middle_removal_no_head_no_tail (void **state)
     ) == c->its[removed_pos - 1]
    );
   assert_true (adlnls_test_size (&c->l) == arr_elems (c->its) - 1);
-  adlnls_it it;
   uword i = 0;
   adlnls_foreach (&c->l, it)
   {
@@ -138,7 +137,6 @@ static void adlnls_test_middle_removal_tail (void **state)
     adlnls_test_drop_explicit (&c->l, c->its[removed_pos], true
       ) == c->its[removed_pos - 1]
    );
-  adlnls_it it;
   uword i = 0;
   adlnls_foreach (&c->l, it)
   {
@@ -168,7 +166,6 @@ static void adlnls_test_iterate_removal (void **state)
     adlnls_test_insert_tail (&c->l, c->its[i]);
   }
   uword remove_pos = arr_elems (c->its) / 2;
-  adlnls_it it;
   uword i = 0;
   adlnls_foreach (&c->l, it)
   {
@@ -190,7 +187,6 @@ static void adlnls_test_iterate_removal_head (void **state)
     adlnls_test_insert_tail (&c->l, c->its[i]);
   }
   uword remove_pos = 0;
-  adlnls_it it;
   uword i = 0;
   adlnls_foreach (&c->l, it)
   {
@@ -212,7 +208,6 @@ static void adlnls_test_iterate_removal_tail (void **state)
     adlnls_test_insert_tail (&c->l, c->its[i]);
   }
   uword remove_pos = arr_elems (c->its) - 1;
-  adlnls_it it;
   uword i = 0;
   adlnls_foreach (&c->l, it)
   {
@@ -234,7 +229,6 @@ static void adlnls_test_iterate_removal_reverse (void **state)
     adlnls_test_insert_head (&c->l, c->its[i]);
   }
   uword remove_pos = arr_elems (c->its) / 2;
-  adlnls_it it;
   uword i = 0;
   adlnls_foreach_r (&c->l, it)
   {
@@ -256,7 +250,6 @@ static void adlnls_test_iterate_removal_reverse_head (void **state)
     adlnls_test_insert_head (&c->l, c->its[i]);
   }
   uword remove_pos = 0;
-  adlnls_it it;
   uword i = 0;
   adlnls_foreach_r (&c->l, it)
   {
@@ -278,7 +271,6 @@ static void adlnls_test_iterate_removal_reverse_tail (void **state)
     adlnls_test_insert_head (&c->l, c->its[i]);
   }
   uword remove_pos = arr_elems (c->its) - 1;
-  adlnls_it it;
   uword i = 0;
   adlnls_foreach_r (&c->l, it)
   {

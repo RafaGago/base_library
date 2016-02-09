@@ -182,7 +182,9 @@ bl_err prefix##_init (prefix* rb, alloc_tbl const* alloc, uword capacity)\
   if (err) {\
     return err;\
   }\
-  rb->stor  = bl_alloc (alloc, capacity * sizeof (content_type));\
+  rb->stor = (content_type*) bl_alloc(\
+    alloc, capacity * sizeof (content_type)\
+    );\
   return rb->stor ? bl_ok : bl_alloc;\
 }
 /*---------------------------------------------------------------------------*/

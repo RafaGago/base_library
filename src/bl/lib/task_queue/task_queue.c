@@ -277,7 +277,7 @@ bl_err TASKQ_EXPORT taskq_post_delayed(
   u32        delay_us
   )
 {
-  bl_assert (tq && id && h);
+  bl_assert (tq && id && scheduled_time_point);
   cmd_elem cmd;
   cmd.type        = cmd_delayed;
   cmd.data.d.task = task;
@@ -327,7 +327,7 @@ bl_err TASKQ_EXPORT taskq_init(
   if (regular_capacity < 2 || delayed_capacity < 2) {
     return bl_invalid;
   }
-  taskq* tq = bl_alloc (alloc, sizeof *tq);
+  taskq* tq = (taskq*) bl_alloc (alloc, sizeof *tq);
   if (!tq) {
     return bl_alloc;
   }

@@ -1,7 +1,8 @@
 #ifndef __BL_CACHE_H__
 #define __BL_CACHE_H__
 
-#include <bl/hdr/base/static_integer_math.h>
+/*to be deprecated in favor of "alignas (BL_CACHE_LINE_SIZE)" */
+
 #include <bl/hdr/base/preprocessor_basic.h>
 /*---------------------------------------------------------------------------*/
 #ifndef BL_CACHE_LINE_SIZE
@@ -9,13 +10,25 @@
 #endif
 /*---------------------------------------------------------------------------*/
 #define declare_cache_pad_member\
-  char pp_tokconcat (padding, __LINE__)[BL_CACHE_LINE_SIZE]
+  char pp_tokconcat (padding_, __LINE__)[BL_CACHE_LINE_SIZE]
+/*---------------------------------------------------------------------------*/
+#ifndef __cplusplus
+#define align_type_to_cache_line(type)\
+  char pp_tokconcat (padding_, __LINE__)[BL_CACHE_LINE_SIZE % sizeof (type)]
+#else
+/*---------------------------------------------------------------------------*/
+template <int N>
+struct align_type_to_cache_line_priv {
+  char arr[N];
+};
+template <>
+struct align_type_to_cache_line_priv<0> {};
 /*---------------------------------------------------------------------------*/
 #define align_type_to_cache_line(type)\
-  char pp_tokconcat (padding, __LINE__)[\
-    (div_ceil (sizeof (type), BL_CACHE_LINE_SIZE) * BL_CACHE_LINE_SIZE) -\
-    BL_CACHE_LINE_SIZE\
-    ]
+align_type_to_cache_line_priv<\
+  BL_CACHE_LINE_SIZE % sizeof (type)\
+  > pp_tokconcat (padding_, __LINE__)
+#endif
 /*---------------------------------------------------------------------------*/
-#endif /* __BL_CACHE_H__ */
 
+#endif /* __BL_CACHE_H__ */

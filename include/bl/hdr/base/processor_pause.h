@@ -2,10 +2,10 @@
 #define __BL_PROCESSOR_PAUSE_H__
 /*---------------------------------------------------------------------------*/
 #ifdef _MSC_VER
+  #include <bl/hdr/base/include_windows.h>
   #if WINVER < 0x0600
     #error "Update this code. YieldProcessor may not be available"
-  #endif
-  #include <bl/hdr/base/include_windows.h>
+  #endif  
   #define processor_pause() YieldProcessor()
 #endif
 /*---------------------------------------------------------------------------*/

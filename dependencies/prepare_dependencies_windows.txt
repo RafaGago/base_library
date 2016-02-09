@@ -1,0 +1,31 @@
+Premake
+--------
+
+1. Go to ".\code" and unzip "premake-5.0.0-alpha6", 
+2. Build the solution (under the "premake-5.0.0-alpha6\build" folder).
+3. Copy or link
+   "base_library\dependencies\code\premake-5.0.0-alpha6\bin\**debug or release**\premake5.exe" 
+   to
+   "base_library\build\premake\"
+4. You can erase the "code\premake-5.0.0-alpha6" folder if you want.
+   
+Cmocka
+-------
+ 
+This is just necessary if you are building the test projects (stress testing
+projects will still work, as they don't depend on cmocka).
+ 
+1. Unpack "cmocka-1.0.1"
+2. Install cmake (https://cmake.org)
+3. Go to "cmocka-1.0.1"
+4. open a terminal and run "md build && cd build"
+5. "cmake -DCMAKE_INSTALL_PREFIX=..\..\..\cmocka -DCMAKE_BUILD_TYPE=Debug -DWITH_STATIC_LIB=On .."
+6. Build the cmocka .sln file that "appeared cmocka-1.0.1\build" (current
+   folder). First the "cmocka_static" project and then the "INSTALL" project.
+7. Now the output is generated at "dependencies\cmocka", but the static library
+   in the "dependencies\cmocka\lib" folder constains the .lib library that
+   helps auto-linking with the DLL on "dependencies\cmocka\bin". As we want
+   to link statically we have to overwrite this lib with the one contained in
+   "\base_library\dependencies\code\cmocka-1.0.1\build\src\Debug\cmocka.lib"
+8. You can erase the "code\cmocka-1.0.1" folder if you want.
+ 

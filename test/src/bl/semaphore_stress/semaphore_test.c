@@ -1,8 +1,8 @@
 #include <bl/hdr/base/platform.h>
+#include <stdio.h>
 /*----------------------------------------------------------------------------*/
 #ifdef BL_LINUX
 
-#include <stdio.h>
 #include <string.h>
 #include <pthread.h>
 

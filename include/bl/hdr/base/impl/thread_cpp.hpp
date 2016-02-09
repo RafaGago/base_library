@@ -27,12 +27,9 @@ enum evk_thrd_err_e {
 /*---------------------------------------------------------------------------*/
 typedef int (*bl_thread_func) (void* context);
 /*---------------------------------------------------------------------------*/
-typedef uword bl_thread;
-/*---------------------------------------------------------------------------*/
-static_assert_outside_func_ns(
-  std::alignment_of<std::thread>::value == std::alignment_of<bl_thread>::value
-  );
-static_assert_outside_func_ns (sizeof (std::thread) == sizeof (bl_thread));
+typedef std::aligned_storage<
+  sizeof (std::thread), std::alignment_of<std::thread>::value
+  >::type bl_thread;
 /*---------------------------------------------------------------------------*/
 static inline int bl_thread_init(
   bl_thread* t, bl_thread_func f, void* context

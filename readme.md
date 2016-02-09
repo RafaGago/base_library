@@ -1,6 +1,16 @@
 Current status
 ==============
-Under development. Not tested on Windows.
+Under development.
+
+Linux: All the tests pass on Linux. 
+Windows: "task_queue" is broken after the port. No effort has been done yet to
+fix it.
+
+Tested compilers
+=================
+
+-Visual Studio 2013
+-GCC 4.8.1
 
 Description
 ===========
@@ -93,6 +103,16 @@ This generates the makefile.
 
 Build on Windows
 ===============
-TODO
 
+1. If you are planning to run the unit tests you need CMake, as cmocka uses it
+as its build system.
+
+2. Go to the "dependencies" folder and follow the instructions on the
+"prepare_dependencies_windows.txt" document.
+
+3. Go to the "build/premake" folder and execute "./premake5 vs2013".
+This generates the visual studio solution on "build/premake/windows".
+
+4. You can build either through the solution or through the
+"build/premake/build_vs2013.bat" script.
 

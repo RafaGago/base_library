@@ -204,16 +204,16 @@ static inline word atomic_word_fetch_and(
 /*---------------------------------------------------------------------------*/
 /* u32 */
 /*---------------------------------------------------------------------------*/
-static_assert_outside_func_ns (cpp_atomic_size_align_checker<u32>::ok);
+static_assert_outside_func_ns(cpp_atomic_size_align_checker<u32>::ok);
 /*---------------------------------------------------------------------------*/
-static inline void atomic_u32_store (volatile atomic_u32* a, u32 v, mem_order o)
+static inline void atomic_u32_store(volatile atomic_u32* a, u32 v, mem_order o)
 {
-  ((std::atomic<u32>*) a)->store (v, (std::memory_order) o);
+  ((std::atomic<u32>*) a)->store(v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline u32 atomic_u32_load (volatile atomic_u32* a, mem_order o)
+static inline u32 atomic_u32_load(volatile atomic_u32* a, mem_order o)
 {
-  return ((std::atomic<u32>*) a)->load ((std::memory_order) o);
+  return ((std::atomic<u32>*) a)->load((std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
 static inline bool atomic_u32_strong_cas(
@@ -246,57 +246,35 @@ static inline u32 atomic_u32_fetch_add(
   volatile atomic_u32* a, u32 v, mem_order o
   )
 {
-  return ((std::atomic<u32>*) a)->fetch_add (v, (std::memory_order) o);
+  return ((std::atomic<u32>*) a)->fetch_add(v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
 static inline u32 atomic_u32_fetch_sub(
   volatile atomic_u32* a, u32 v, mem_order o
   )
 {
-  return ((std::atomic<u32>*) a)->fetch_sub (v, (std::memory_order) o);
+  return ((std::atomic<u32>*) a)->fetch_sub(v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
 static inline u32 atomic_u32_fetch_or(
   volatile atomic_u32* a, u32 v, mem_order o
   )
 {
-  return ((std::atomic<u32>*) a)->fetch_or (v, (std::memory_order) o);
+  return ((std::atomic<u32>*) a)->fetch_or(v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
 static inline u32 atomic_u32_fetch_xor(
   volatile atomic_u32* a, u32 v, mem_order o
   )
 {
-  return ((std::atomic<u32>*) a)->fetch_xor (v, (std::memory_order) o);
+  return ((std::atomic<u32>*) a)->fetch_xor(v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
 static inline u32 atomic_u32_fetch_and(
   volatile atomic_u32* a, u32 v, mem_order o
   )
 {
-  return ((std::atomic<u32>*) a)->fetch_and (v, (std::memory_order) o);
-}
-/*---------------------------------------------------------------------------*/
-static inline void atomic_thread_fence (mem_order o)
-{
-  
-}
-/*---------------------------------------------------------------------------*/
-static inline u32 atomic_u32_fetch_and(
-  volatile atomic_u32* a, u32 v, mem_order o
-  )
-{
-  return ((std::atomic<u32>*) a)->fetch_and (v, (std::memory_order) o);
-}
-/*---------------------------------------------------------------------------*/
-static inline void atomic_fence (mem_order o)
-{
-  atomic_thread_fence (o);
-}
-/*---------------------------------------------------------------------------*/
-static inline void atomic_sigfence (mem_order o)
-{
-  atomic_signal_fence (o);
+  return ((std::atomic<u32>*) a)->fetch_and(v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
 } // extern "C" {

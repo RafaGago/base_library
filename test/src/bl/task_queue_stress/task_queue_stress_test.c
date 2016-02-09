@@ -245,6 +245,7 @@ int consumer_thread (void* context)
     err = taskq_try_cancel_one (cd->tq);
   }
   while (!err);
+  return 0;
 }
 /*----------------------------------------------------------------------------*/
 void join_threads (bl_thread* thr, uword thr_count)
@@ -266,7 +267,7 @@ int main (int argc, char* argv[])
   bl_thread                   producer_th[thread_count];
   bl_thread                   consumer_th;
   bl_sem                      sem;
-  int                         iterations;
+  uword                       iterations;
   bool                        infinite_iterations;
   taskq*                      tq;
   alloc_tbl                   alloc;
@@ -277,9 +278,9 @@ int main (int argc, char* argv[])
     printf ("usage: task_queue_stress_test [iterations]\n");
     return 1;
   }
-  sscanf (argv[1], "%d", &iterations);
+  sscanf (argv[1], "%u", &iterations);
   if (iterations < 0) {
-    printf ("wrong iteration count: %d\n", iterations);
+    printf ("wrong iteration count: %u\n", iterations);
     return 0;
   }
   infinite_iterations = (iterations == 0);

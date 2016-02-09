@@ -94,7 +94,9 @@ bl_err prefix##_resize (prefix* d, uword new_size, alloc_tbl const* alloc)\
 {\
   bl_assert (d);\
   bl_assert (new_size != 0);\
-  d->arr = bl_realloc (alloc, d->arr, new_size * sizeof (d->arr[0]));\
+  d->arr = (content_type*) bl_realloc(\
+    alloc, d->arr, new_size * sizeof (d->arr[0])\
+    );\
   if (d->arr) {\
     d->size = new_size;\
     return bl_ok;\

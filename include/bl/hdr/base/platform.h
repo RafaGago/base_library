@@ -26,6 +26,19 @@
   #if defined (_M_IX86) || defined (_M_AMD64) || defined (_M_IA64)
     #define BL_INTEL_AMD_PC 1
   #endif
+
+  #define BL_MS_COMPILER      _MSC_VER
+
+  #define BL_VSTUDIO_2015     1900
+  #define BL_VSTUDIO_2013     1800
+  #define BL_VSTUDIO_2012     1700
+  #define BL_VSTUDIO_2010     1600
+  #define BL_VSTUDIO_2008     1500
+  #define BL_VSTUDIO_2005     1400
+  #define BL_VSTUDIO_NET_2003 1310
+  #define BL_VSTUDIO_NET      1300
+  #define BL_VC_6             1200
+  #define BL_VC_5             1100
 #endif
 /*---------------------------------------------------------------------------*/
 #if defined (__GNUC__) || defined (GCC)
@@ -65,12 +78,6 @@
     #endif
   #endif
 
-  #ifndef __cplusplus
-    #include <stdbool.h>
-    #include <stddef.h>
-    #define nullptr NULL
-  #endif
-
   #if BL_GCC >= BL_GCC_VER (4, 9, 0)
     #define BL_HAS_C11_ATOMICS
   #endif
@@ -85,6 +92,8 @@
     #define BL_HAS_C11_STDALIGN
   #endif
 
+#else  
+  #define BL_GCC_VER(major, minor, patchlevel) 0
 #endif
 /*---------------------------------------------------------------------------*/
 #if !defined (BL_INTEL_AMD_PC) && !defined (BL_INTEL_AMD_PC)
@@ -94,6 +103,12 @@
 #define BL_ARCH_LITTLE_ENDIAN 1 /*good enough for now*/
 /*---------------------------------------------------------------------------*/
 #include <bl/hdr/base/static_assert.h>
+/*---------------------------------------------------------------------------*/
+#ifndef __cplusplus
+  #include <stdbool.h>
+  #include <stddef.h>
+  #define nullptr NULL
+#endif
 /*---------------------------------------------------------------------------*/
 static_assert_outside_func ((bool) 1 == true, "bool type check failed");
 static_assert_outside_func ((bool) 0 == false, "bool type check failed");

@@ -3,9 +3,19 @@
 
 #include <bl/hdr/base/integer.h>
 #include <stddef.h>
+
+#ifndef __cplusplus
 /*---------------------------------------------------------------------------*/
 #define align_anonymous_priv(type1, type2)\
   struct { type1 a; type2 b; }
+#else
+template <class A, class B>
+struct align_anonymous_priv_join {
+  A a; B b;
+};
+#define align_anonymous_priv(type1, type2)\
+  align_anonymous_priv_join<type1, type2>
+#endif
 /*---------------------------------------------------------------------------*/
 #define align_combined_size(type1, type2)\
   sizeof (align_anonymous_priv (type1, type2))
@@ -15,6 +25,7 @@
 /*---------------------------------------------------------------------------*/
 #include <bl/hdr/base/platform.h>
 #ifdef __cplusplus
+  /*TODO alignof might be available depending on the compiler version*/
   #include <type_traits>
   #define bl_alignof(type) std::alignment_of<std::atomic<type>>::value  
 #elif defined (BL_HAS_C11_STDALIGN)

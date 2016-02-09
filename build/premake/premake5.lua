@@ -116,6 +116,10 @@ local function is_gcc()
   return os.get() ~= "windows"
 end
 
+local function is_visual_studio()
+  return os.get() == "windows"
+end
+
 filter {"language:C"}
   if is_gcc() then
     buildoptions {"-Wfatal-errors"}
@@ -132,58 +136,63 @@ filter {"kind:ConsoleApp"}
   if is_gcc() then
     links {"pthread", "rt"}
   end
+  
+filter {"configurations:*"}
+  if is_visual_studio() then
+    buildoptions {"/TP"}    
+  end
+  
 -- WORKAROUND END --
 
 --LIBRARY PROJECTS
 project (base_name)
   kind "StaticLib"
-  language "C" --TODO: with visual studio might be C++
+  language "C"
   files {base_src  .. "/**"}
 
 project (nonblock_name)
   kind "StaticLib"
+  language "C"
   includedirs {repo_src}
-  language "C" --TODO: with visual studio might be C++
   files {nonblock_src  .. "/**"}
 
 project (task_queue_name)
   kind "StaticLib"
+  language "C"
   includedirs {repo_src}
-  language "C" --TODO: with visual studio might be C++
   files {task_queue_src  .. "/**"}
 
 --TEST PROJECTS
 project (base_name .. "_test")
   kind "ConsoleApp"
-  language "C" --TODO: with visual studio might be C++
+  language "C"
   includedirs {cmocka .. "/include", repo_src, repo_test_src}
   files { base_test_src .. "/**" }
   links {cmocka .. "/lib/cmocka"}
 
 project (nonblock_name .. "_test")
   kind "ConsoleApp"
-  language "C" --TODO: with visual studio might be C++
+  language "C"
   includedirs {cmocka .. "/include", repo_src, repo_test_src}
   files { nonblock_test_src .. "/**" }
   links {cmocka .. "/lib/cmocka"}
 
 project (task_queue_name .. "_test")
   kind "ConsoleApp"
-  language "C" --TODO: with visual studio might be C++
+  language "C"
   includedirs {cmocka .. "/include", repo_src, repo_test_src}
   files { task_queue_test_src .. "/**" }
   links {cmocka .. "/lib/cmocka", base_name, nonblock_name}
 
 project (base_name .. "_semaphore_stress")
   kind "ConsoleApp"
-  language "C" --TODO: with visual studio might be C++
+  language "C"
   includedirs {repo_src, repo_test_src}
   files {sem_stress_src .. "/**"}
 
 project (task_queue_name .. "_stress")
   kind "ConsoleApp"
-  language "C" --TODO: with visual studio might be C++
+  language "C"
   includedirs {repo_src, repo_test_src}
   files {task_queue_stress_src .. "/**"}
   links {base_name, nonblock_name}
-

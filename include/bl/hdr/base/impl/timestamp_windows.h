@@ -12,10 +12,10 @@
 #include <bl/hdr/base/static_integer_math.h>
 #include <bl/hdr/base/include_windows.h>
 /*---------------------------------------------------------------------------*/
-static inline u64 qpc_get_freq_priv (void)
+static inline LARGE_INTEGER qpc_get_freq_priv(void)
 {
   LARGE_INTEGER freq;
-  bl_side_effect_assert (QueryPerformanceFrequency (&freq) != 0);
+  bl_assert_side_effect (QueryPerformanceFrequency (&freq) != 0);
   return freq;
 }
 /*---------------------------------------------------------------------------*/
@@ -28,7 +28,7 @@ static u64 qpc_get_freq (void)
 static inline tstamp bl_get_tstamp (void)
 {
   LARGE_INTEGER t;
-  bl_side_effect_assert (QueryPerformanceCounter (&t) != 0);
+  bl_assert_side_effect (QueryPerformanceCounter (&t) != 0);
   return (tstamp) t.QuadPart;
 }
 /*---------------------------------------------------------------------------*/
@@ -74,7 +74,7 @@ static inline uword bl_tstamp_nsec_ceil (tstamp ts)
 /*---------------------------------------------------------------------------*/
 static inline tstamp bl_tstamp_offset_sec (toffset sec)
 {
-  return ((tstamp) sec) * qpc_get_freq();
+  return (tstamp) (((tstamp) sec) * qpc_get_freq());
 }
 /*---------------------------------------------------------------------------*/
 static inline tstamp bl_tstamp_offset_msec (toffset msec)

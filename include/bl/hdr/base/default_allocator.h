@@ -23,11 +23,10 @@ static void default_dealloc_func (void* mem, alloc_tbl const* invoker)
 /*---------------------------------------------------------------------------*/
 static inline alloc_tbl get_default_alloc()
 {
-  alloc_tbl default_alloc = {
-    .alloc   = default_alloc_func,
-    .realloc = default_realloc_func,
-    .dealloc = default_dealloc_func,    
-  };
+  alloc_tbl default_alloc;
+  default_alloc.alloc   = default_alloc_func;
+  default_alloc.realloc = default_realloc_func;
+  default_alloc.dealloc = default_dealloc_func;
   return default_alloc;
 }
 /*---------------------------------------------------------------------------*/

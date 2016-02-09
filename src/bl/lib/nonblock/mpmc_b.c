@@ -359,7 +359,7 @@ bl_err NONBLOCK_EXPORT mpmc_b_init_private(
   }
 
   u32 bytes = (join_size * buffer_size);
-  q->buffer   = bl_alloc (alloc, bytes);
+  q->buffer = (u8*) bl_alloc (alloc, bytes);
   if (!q->buffer) {
     return bl_alloc;
   }

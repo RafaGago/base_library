@@ -98,7 +98,6 @@ static void alnls_test_middle_removal_no_head_no_tail (void **state)
     alnls_test_drop (&c->l, c->its[removed_pos]) == c->its[removed_pos - 1]
    );
   assert_true (alnls_test_size (&c->l) == arr_elems (c->its) - 1);
-  alnls_it it;
   uword i = 0;
   alnls_foreach (&c->l, it)
   {
@@ -120,7 +119,6 @@ static void alnls_test_middle_removal_tail (void **state)
   assert_true(
     alnls_test_drop (&c->l, c->its[removed_pos]) == c->its[removed_pos - 1]
    );
-  alnls_it it;
   uword i = 0;
   alnls_foreach (&c->l, it)
   {
@@ -148,7 +146,6 @@ static void alnls_test_iterate_removal (void **state)
     alnls_test_insert_tail (&c->l, c->its[i]);
   }
   uword remove_pos = arr_elems (c->its) / 2;
-  alnls_it it;
   uword i = 0;
   alnls_foreach (&c->l, it)
   {
@@ -170,7 +167,6 @@ static void alnls_test_iterate_removal_head (void **state)
     alnls_test_insert_tail (&c->l, c->its[i]);
   }
   uword remove_pos = 0;
-  alnls_it it;
   uword i = 0;
   alnls_foreach (&c->l, it)
   {
@@ -192,7 +188,6 @@ static void alnls_test_iterate_removal_tail (void **state)
     alnls_test_insert_tail (&c->l, c->its[i]);
   }
   uword remove_pos = arr_elems (c->its) - 1;
-  alnls_it it;
   uword i = 0;
   alnls_foreach (&c->l, it)
   {

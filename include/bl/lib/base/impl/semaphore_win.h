@@ -14,29 +14,29 @@ typedef HANDLE bl_sem;
 static inline bl_err bl_sem_init (bl_sem* s)
 {
   *s = CreateSemaphore (nullptr, 0, MAXLONG, nullptr);
-  return *s ? bl_ok : bl_err;
+  return *s ? bl_ok : bl_error;
 }
 /*----------------------------------------------------------------------------*/
 static inline bl_err bl_sem_destroy (bl_sem* s)
 {
-  return CloseHandle (*s) ? bl_ok : bl_err;
+  return CloseHandle (*s) ? bl_ok : bl_error;
 }
 /*----------------------------------------------------------------------------*/
 static inline bl_err bl_sem_wait (bl_sem* s)
 {
-  return WaitForSingleObject (*s, INFINITE) ? bl_err : bl_ok;
+  return WaitForSingleObject (*s, INFINITE) ? bl_error : bl_ok;
 }
 /*----------------------------------------------------------------------------*/
 static inline bl_err bl_sem_signal (bl_sem* s)
 {
-  return ReleaseSemaphore (*s, 1, NULL) ? bl_ok : bl_err;
+  return ReleaseSemaphore (*s, 1, NULL) ? bl_ok : bl_error;
 }
 /*----------------------------------------------------------------------------*/
 typedef bl_sem bl_tm_sem;
 /*----------------------------------------------------------------------------*/
 static inline bl_err bl_tm_sem_init (bl_tm_sem* s)
 {
-  return bl_sem_create (s);
+  return bl_sem_init (s);
 }
 /*----------------------------------------------------------------------------*/
 static inline bl_err bl_tm_sem_destroy (bl_tm_sem* s)
@@ -59,8 +59,13 @@ static inline bl_err bl_tm_sem_wait (bl_sem* s, u32 usec)
   switch (WaitForSingleObject (*s, usec / 1000)) {
   case 0:            return bl_ok;
   case WAIT_TIMEOUT: return bl_timeout;
-  default:           return bl_err;    
+  default:           return bl_error;    
   }
+}
+/*----------------------------------------------------------------------------*/
+static inline bl_err bl_tm_sem_signal (bl_sem* s)
+{
+  return bl_sem_signal (s);
 }
 /*----------------------------------------------------------------------------*/
 
