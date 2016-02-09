@@ -1,10 +1,14 @@
 Current status
 ==============
+
 Under development.
 
-Linux: All the tests pass on Linux. 
-Windows: "task_queue" is broken after the port. No effort has been done yet to
-fix it.
+-Linux: All the tests pass on Linux. 
+
+-Windows: The "task_queue_test" cmocka tests seem to be broken after the port.
+ I suspect that is a cmocka problem (mocking "bl_get_tstamp"), as the stress
+ tests run with no problem. I have not looked yet into this issue (other 
+ priorities now).
 
 Tested compilers
 =================
@@ -115,4 +119,3 @@ This generates the visual studio solution on "build/premake/windows".
 
 4. You can build either through the solution or through the
 "build/premake/build_vs2013.bat" script.
-
