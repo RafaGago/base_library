@@ -29,9 +29,9 @@
 
 /*fixed-point reminder:
   -just numbers of the same format can be added or subtracted.
-  -when multiplying a two numbers the format at each side format is the sum of
+  -when multiplying two numbers the format at each side format is the sum of
    both e.g. X(A.B) * Y(C.D) = (X * Y) (A + C. B + D)
-  -when multiplying a two numbers the format at each side format is the diff of
+  -when multiplying two numbers the format at each side format is the diff of
    both e.g. X(A.B) / Y(C.D) = (X / Y) (A - C. B - D)
 */
 /*---------------------------------------------------------------------------*/
