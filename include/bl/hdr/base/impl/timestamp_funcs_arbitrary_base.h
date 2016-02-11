@@ -168,7 +168,6 @@ static inline tstamp bl_msec_to_tstamp (toffset msec)
   u64      f        = bl_tstamp_get_freq();
   toffset  sec      = msec / msec_in_sec;
   toffset  msec_rem = msec % msec_in_sec;
-  tstamp   r        = f * sec;  
   return (f * sec) + div_ceil (msec_rem * f, msec_in_sec);
 }
 
@@ -178,7 +177,6 @@ static inline tstamp bl_usec_to_tstamp (toffset usec)
   u64      f        = bl_tstamp_get_freq();
   toffset  sec      = usec / usec_in_sec;
   toffset  usec_rem = usec % usec_in_sec;
-  tstamp   r        = f * sec;  
   return (f * sec) + div_ceil (usec_rem * f, usec_in_sec);
 }
 
@@ -188,7 +186,6 @@ static inline tstamp bl_nsec_to_tstamp (toffset nsec)
   u64      f        = bl_tstamp_get_freq();
   toffset  sec      = nsec / nsec_in_sec;
   toffset  nsec_rem = nsec % nsec_in_sec;
-  tstamp   r        = f * sec;  
   return (f * sec) + div_ceil (nsec_rem * f, usec_in_sec);
 }
 /*---------------------------------------------------------------------------*/
