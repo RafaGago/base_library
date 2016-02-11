@@ -9,6 +9,7 @@
   (((num) + (div) - 1) / (div))
 #define is_pow2(x) (x != 0 && has_one_or_zero_bits_set(x))
 #define pow2_u(unsigned_type) (1 << (unsigned_type))
+#define pow2_ubig(unsigned_type) (((ubig) 1) << (unsigned_type))
 #define unsigned_average(x, y)\
   (((x) & (y)) + (((x) ^ (y)) >> 1))
 #define is_multiple_unsafe(candidate, base)\

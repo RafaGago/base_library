@@ -2,10 +2,8 @@
 #define __BL_SEMAPHORE_WIN_H__
 
 #include <bl/hdr/base/platform.h>
-#include <bl/hdr/base/utility.h>
 #include <bl/hdr/base/integer.h>
 #include <bl/hdr/base/error.h>
-#include <bl/hdr/base/deadline.h>
 #include <bl/hdr/base/include_windows.h>
 #include <bl/lib/base/semaphore.h>
 
@@ -48,24 +46,7 @@ static inline bl_err bl_tm_sem_destroy (bl_tm_sem* s)
   return bl_sem_destroy (s);
 }
 /*----------------------------------------------------------------------------*/
-static inline bl_err bl_tm_sem_wait (bl_sem* s, u32 usec)
-{
-  if (INFINITE != bl_tm_sem_infinity) {
-    /*this is true always, leaving it as documentation*/
-    if (unlikely (usec == bl_tm_sem_infinity)) {
-    	usec = INFINITE;
-    }
-    else if (unlikely (usec == INFINITE)) {
-      static_assert_ns (INFINITE - 1 != 0);
-      --usec;
-    }
-  }
-  switch (WaitForSingleObject (*s, usec / 1000)) {
-  case 0:            return bl_ok;
-  case WAIT_TIMEOUT: return bl_timeout;
-  default:           return bl_error;    
-  }
-}
+extern bl_err bl_tm_sem_wait (bl_sem* s, u32 usec);
 /*----------------------------------------------------------------------------*/
 static inline bl_err bl_tm_sem_signal (bl_sem* s)
 {

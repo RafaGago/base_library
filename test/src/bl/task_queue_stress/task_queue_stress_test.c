@@ -12,9 +12,11 @@
 #include <bl/lib/base/semaphore.h>
 
 /*the c files are included here to be able to printf data that would otherwise
-  be opaque*/
+  be opaque or to avoid triggering assertions on release*/
 #include <bl/lib/task_queue/task_queue.c>
 #include <bl/lib/task_queue/delayed.c>
+#include <bl/lib/base/semaphore_win.c>
+#include <bl/lib/base/semaphore_linux.c>
 /*----------------------------------------------------------------------------*/
 #define thread_count       8
 #define tq_list_size       pow2_u (16)

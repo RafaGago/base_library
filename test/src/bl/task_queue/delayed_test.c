@@ -1,20 +1,11 @@
 #include <bl/cmocka_pre.h>
 #include <bl/hdr/base/default_allocator.h>
 /*---------------------------------------------------------------------------*/
-#define BL_TIME_NO_TIMESTAMP 1
+#define BL_TSTAMP_MOCK_FOR_TESTS 1
 #include <bl/hdr/base/time.h>
 static inline tstamp bl_get_tstamp (void)
 {
   return (tstamp) mock();
-}
-static inline tstamp tstamp_usec_ceil (tstamp t)
-{
-  return t;
-}
-/*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_offset_usec (toffset usec)
-{
-  return usec;
 }
 /*---------------------------------------------------------------------------*/
 /* the conversion function ...*/
@@ -144,11 +135,11 @@ static void delayed_o1_regular_insertion_wrap (void **state)
   assert_true (v->task.context == (void*) 0);
   delayed_drop_head (&c->dl);
 
-  will_return (bl_get_tstamp, near_wrap + 1999);
+  will_return (bl_get_tstamp, near_wrap + 1999); /*deliberate overflow*/
   v = delayed_get_head_if_expired (&c->dl);
   assert_true (v == nullptr);
 
-  will_return (bl_get_tstamp, near_wrap + 2000);
+  will_return (bl_get_tstamp, near_wrap + 2000); /*deliberate overflow*/
   v = delayed_get_head_if_expired (&c->dl);
   assert_true (v != nullptr);
   assert_true (v->id == 1);

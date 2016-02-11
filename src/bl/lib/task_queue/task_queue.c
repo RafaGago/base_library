@@ -160,58 +160,87 @@ bl_err TASKQ_EXPORT taskq_try_run_one (taskq* tq)
 bl_err TASKQ_EXPORT taskq_run_one (taskq* tq, u32 timeout_us)
 {
   bl_err err = taskq_try_run_one (tq);
-  while (err == bl_nothing_to_do) {
+  if (!err || err != bl_nothing_to_do) {
+    return err;
+  }
+  /*slow path*/
+  bool   has_deadline = timeout_us != taskq_no_timeout;
+  tstamp deadline;
+  if (has_deadline) {
+    err = deadline_init (&deadline, timeout_us);
+    if (unlikely (err)) {
+      return err;
+    }
+  }  
+  while (true) {
     mpmc_b_info  expected = tq->last_consumed;
     bl_err       ierr     = bl_ok;
-   	u32          sem_time = 0;
 
     delayed_entry const* dhead;
     dhead = delayed_get_head (&tq->delayed_ls);
 
-    if (!dhead) {
-      static_assert_ns (taskq_no_timeout == bl_tm_sem_infinity);
-      sem_time = timeout_us;
-    }
-    else {
+    if (dhead) {            
+      if (has_deadline) {
+        deadline = deadline_min (deadline, dhead->deadl);
+      }
+      else {
+        has_deadline = true;
+        deadline     = dhead->deadl;
+      }      
+    }    
+    u32 sem_us;
+    if (has_deadline) {
       tstamp now = bl_get_tstamp();
-      if (deadline_expired_explicit (dhead->deadl, now)) {
+      if (!deadline_expired_explicit (deadline, now)) {
+        sem_us = bl_tstamp_to_usec_ceil (deadline - now);
+      }
+      else {
+        ierr = bl_timeout;
         goto try_again;
       }
-      sem_time = bl_tstamp_usec_ceil (dhead->deadl - now);
-      if (timeout_us != taskq_no_timeout) {
-        sem_time = bl_min (timeout_us, sem_time);
-      }
-    }  
-    if (sem_time > BL_SCHED_TMIN_US || sem_time == bl_tm_sem_infinity) {
+    }
+    else {
+      sem_us = bl_tm_sem_infinity;
+    }
+
+    if (sem_us > BL_SCHED_TMIN_US || sem_us == bl_tm_sem_infinity) {      
       ierr = mpmc_b_producer_signal_try_set_tmatch(
         &tq->queue, &expected, taskq_q_waiting_sem
         );
       if (ierr == bl_ok || expected.signal == taskq_q_waiting_sem) {
-        ierr = bl_tm_sem_wait (&tq->sem, sem_time);
+        ierr = bl_tm_sem_wait (&tq->sem, sem_us);
       }
     }
     else {
-      /* giving up a time slice can introduce latency -> busy waiting */
-      for (uword i = 0; i < 10; ++i) {
+      /* greedy usage of the timeslice */
+      for (uword i = 0; i < 8; ++i) {
+        processor_pause();
+        processor_pause();
+        processor_pause();
         processor_pause();
       }
       expected.signal = taskq_q_ok;
       ierr            = bl_ok;
     }
+
 try_again:
     err = taskq_try_run_one (tq);
 
-    if (err == bl_nothing_to_do) {
+    if (err != bl_nothing_to_do) {
+      break;
+    }
+    else {
       if (unlikely (expected.signal == taskq_q_blocked)) {
         /*no long blocking behavior on termination contexts*/
         return bl_nothing_to_do;
       }
       else if (unlikely (ierr == bl_timeout)) {
+        bl_assert (timeout_us != taskq_no_timeout);
         return bl_timeout;
       }
       /* else: keep going...*/
     }
-  }
+  } /*while (true)*/ 
   return err;
 }
 /*---------------------------------------------------------------------------*/

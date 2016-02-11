@@ -42,7 +42,7 @@ extern void bl_serial_stop (bl_serial* s);
 /*----------------------------------------------------------------------------*/
 /* This call is to be called from just one thread. 0 = nonblocking. No partial 
   reads are returned in case of a timeout */
-extern bl_err bl_serial_read (bl_serial* s, memr rbuff, toffset timeout_us); 
+extern bl_err bl_serial_read (bl_serial* s, memr rbuff, toffset timeout_us);
 /*----------------------------------------------------------------------------*/
 /* This call is to be called from just one thread.*/
 extern bl_err bl_serial_write(

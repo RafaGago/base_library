@@ -28,28 +28,53 @@
 #elif BL_WORDSIZE == 16
   typedef u16 uword; 
   typedef i16 word;
-  typedef u8  half_uword; 
-  typedef i8  half_word;
-/*----------------------------------------------------------------------------*/
+  typedef u8  uword_d2; 
+  typedef i8  word_d2;
+  /*----------------------------------------------------------------------------*/
 #elif BL_WORDSIZE == 32
   typedef u32 uword; 
   typedef i32 word;
-  typedef u16 half_uword; 
-  typedef i16 half_word;
-  typedef u8  quarter_uword; 
-  typedef i8  quarter_word;
+  typedef u16 uword_d2; 
+  typedef i16 word_d2;
+  typedef u8  uword_d4; 
+  typedef i8  word_d4;
 /*----------------------------------------------------------------------------*/
 #elif BL_WORDSIZE == 64
   typedef u64 uword; 
   typedef i64 word;
-  typedef u32 half_uword; 
-  typedef i32 half_word;
-  typedef u16 quarter_uword; 
-  typedef i16 quarter_word;
+  typedef u32 uword_d2; 
+  typedef i32 word_d2;
+  typedef u16 uword_d4; 
+  typedef i16 word_d4;
 /*----------------------------------------------------------------------------*/
 #else
   #error "unknown word size on this platform"
 #endif
+/*---------------------------------------------------------------------------*/
+#if BL_WORDSIZE_MAX >= 64
+  typedef u64 ubig;
+  typedef i64 ibig;
+  typedef u32 ubig_d2;
+  typedef i32 ibig_d2;
+  typedef u16 ubig_d4;
+  typedef i16 ibig_d4;
+#elif BL_WORDSIZE_MAX >= 32
+  typedef u32 ubig;
+  typedef i32 ibig;
+  typedef u16 ubig_d2;
+  typedef i16 ibig_d2;
+  typedef u8  ubig_d4;
+  typedef i8  ibig_d4;
+#elif BL_WORDSIZE_MAX >= 16
+  typedef u16 ubig;
+  typedef i16 ibig;
+  typedef u8  ubig_d2;
+  typedef i8  ibig_d2;
+#else
+  typedef u8 ubig;
+  typedef i8 ibig;
+#endif
+/*---------------------------------------------------------------------------*/
 #else
   #include BL_EXTERNAL_INTEGER_HEADER
 #endif

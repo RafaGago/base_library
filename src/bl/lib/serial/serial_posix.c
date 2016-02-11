@@ -499,14 +499,14 @@ bl_err bl_serial_read (bl_serial* s, memr rbuff, i32 timeout_us)
     if (rd != 0) {
       continue;
     }
-    ststamp diff = (timeout_us != 0) ?
+    tstampdiff diff = (timeout_us != 0) ?
       deadline_compare (deadline, bl_get_tstamp()) : -1;
       /*context switches from here to the pselect will be suboptimal*/
     if (diff <= 0) {
       err = bl_timeout;
       goto rollback;
     }
-    uword us_pending = bl_tstamp_usec_ceil ((tstamp) diff);
+    uword us_pending = bl_tstamp_to_usec_ceil ((tstamp) diff);
 
     fd_set fds;
     FD_ZERO (&fds);
@@ -563,12 +563,12 @@ bl_err bl_serial_write (bl_serial* s, memr wbuff, u32* written, i32 timeout_us)
     struct timespec t;
     struct timespec* t_ptr = nullptr;   
     if (timeout_us != 0) {
-      ststamp diff = deadline_compare (deadline, bl_get_tstamp());
+      tstampdiff diff = deadline_compare (deadline, bl_get_tstamp());
       if (diff <= 0) {
         err = bl_timeout;
         goto end;
       }
-      uword us_pending = bl_tstamp_usec_ceil ((tstamp) diff);
+      uword us_pending = bl_tstamp_to_usec_ceil ((tstamp) diff);
       t.tv_sec  = us_pending / usec_in_sec;
       t.tv_nsec = (us_pending - (t.tv_sec * usec_in_sec)) * nsec_in_usec;
       t_ptr     = &t;

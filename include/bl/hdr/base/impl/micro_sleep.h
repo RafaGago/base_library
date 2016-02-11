@@ -8,21 +8,75 @@
 #include <bl/hdr/base/deadline.h>
 
 /*----------------------------------------------------------------------------*/
+#if defined (BL_WINDOWS)
+
+#include <bl/hdr/base/static_integer_math.h>
+#include <bl/hdr/base/include_windows.h>
+#include <bl/hdr/base/processor_pause.h>
+#include <TimeAPI.h>
+
 #if defined (__cplusplus)
-#include <chrono>
-#include <thread>
 extern "C" {
-static inline void bl_thread_usleep (toffset us)
+#endif
+
+static inline uword bl_thread_min_sleep_us (void)
+{
+  TIMECAPS tc;
+  bl_assert_always (timeGetDevCaps (&tc, sizeof tc) == TIMERR_NOERROR);
+  return (uword) (tc.wPeriodMin * usec_in_msec);
+}
+
+static void bl_thread_usleep (u32 us)
 {
   if (us <= 0) { return; }
-  std::this_thread::sleep_for (std::chrono::microseconds (us));
+  uword minsleep_us = bl_thread_min_sleep_us();
+  uword steps       = div_ceil (us, minsleep_us);
+  
+  u64 ticks_sec = qpc_get_freq();
+  bl_assert_always (ticks_sec < pow2_ubig ((u64) 32));  
+  u64 ticks = (ticks_sec * us) / usec_in_sec;
+  
+  LARGE_INTEGER start;
+  bl_assert_side_effect (QueryPerformanceCounter (&start) != 0);
+      
+  Sleep ((minsleep_us * steps) / usec_in_msec);
+  
+  while (1) {
+    LARGE_INTEGER now;
+    bl_assert_side_effect (QueryPerformanceCounter (&now) != 0);
+      
+    u64 elapsed_ticks = now.QuadPart - start.QuadPart;      
+       
+    if (elapsed_ticks >= ticks) {
+      break;
+    }
+    u64 remaining_us = ticks - elapsed_ticks;
+    remaining_us     = div_ceil (remaining_us, ticks_sec);
+    if (remaining_us <= BL_SCHED_TMIN_US) {
+      for (uword i = 0; i < 16; ++i) {
+        processor_pause();
+      }
+    }
+    else {
+      Sleep (0);
+    }
+  }
 }
+
+#if defined (__cplusplus)
 } /*extern "C" { */
+#endif
 /*----------------------------------------------------------------------------*/
 #elif defined (BL_POSIX)
 #include <errno.h>
+
+static inline uword bl_thread_min_sleep_us (void)
+{
+  return BL_SCHED_TMIN_US;
+}
+
 /*TODO: proper detection, not all versions of POSIX support this*/
-static void bl_thread_usleep (toffset us)
+static void bl_thread_usleep (u32 us)
 {
   if (us <= 0) { return; }
   struct timespec t, remainder;
@@ -35,25 +89,6 @@ static void bl_thread_usleep (toffset us)
   }
   while (err == EINTR);
 }
-/*----------------------------------------------------------------------------*/
-/*
-elif defined (BL_WINDOWS)
-#include <bl/hdr/base/include_windows.h>
-static void bl_thread_usleep (toffset us)
-{
-  if (us < 0) { return; }
-  bl_assert (us > 0);
-  tstamp deadline;
-  side_effect_assert (deadline_init (&deadline, us) == bl_ok);
-  uword millis = us / usec_in_msec;
-  if (millis) {
-    Sleep (millis);
-  }
-  while (!deadline_expired (deadline)) {
-    Sleep (0);
-  }
-}
-*/
 /*----------------------------------------------------------------------------*/
 #else
  #error "bl_nano_sleep_impl unimplemented"

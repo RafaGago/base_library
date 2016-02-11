@@ -166,13 +166,13 @@ bool join_thread_and_print (thread_context* c, bl_thread* t)
   if (c->is_signaler) {
     printf(
       " sig thr finished: us=%u, overflows=%u " thcon_hdr "\n",
-      bl_tstamp_usec (c->elapsed), c->s.overflow, thcon_hdr_v (c)
+      bl_tstamp_to_usec (c->elapsed), c->s.overflow, thcon_hdr_v (c)
       );
   }
   else {
     printf(
       " wait thr finished: us=%u, timeouts=%u " thcon_hdr "\n",
-      bl_tstamp_usec (c->elapsed), c->w.timed_out, thcon_hdr_v (c)
+      bl_tstamp_to_usec (c->elapsed), c->w.timed_out, thcon_hdr_v (c)
       );
   }
   return true;

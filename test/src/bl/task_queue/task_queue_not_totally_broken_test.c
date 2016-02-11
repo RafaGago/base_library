@@ -3,20 +3,11 @@
 #include <bl/hdr/base/platform.h>
 #include <bl/cmocka_pre.h>
 /*---------------------------------------------------------------------------*/
-#define BL_TIME_NO_TIMESTAMP 1
+#define BL_TSTAMP_MOCK_FOR_TESTS 1
 #include <bl/hdr/base/time.h>
 static inline tstamp bl_get_tstamp (void)
 {
   return (tstamp) mock();
-}
-static inline tstamp bl_tstamp_usec_ceil (tstamp t)
-{
-  return t;
-}
-/*---------------------------------------------------------------------------*/
-static inline tstamp bl_tstamp_offset_usec (toffset usec)
-{
-  return usec;
 }
 /*---------------------------------------------------------------------------*/
 #include <bl/hdr/base/default_allocator.h>
@@ -224,6 +215,7 @@ static void taskq_test_queue_overflow (void **state)
 {
   taskq_test_context* c = (taskq_test_context*) *state;
   taskq_task task = taskq_task_rv (taskq_callback, c);
+  taskq_id id;
   for (uword i = 0; i < queue_size; ++i) {
     bl_assert (taskq_post (c->tq, &id, task) == bl_ok);
   }
@@ -288,7 +280,19 @@ static void taskq_test_post_try_cancel_delayed (void **state)
 static void taskq_run_one_timeout (void **state)
 {
   taskq_test_context* c = (taskq_test_context*) *state;
-  bl_err err = taskq_run_one (c->tq, 1000);
+  will_return (bl_get_tstamp, 0);
+  will_return (bl_get_tstamp, 0);
+  bl_err err = taskq_run_one (c->tq, BL_SCHED_TMIN_US + 1);
+  assert_true (err == bl_timeout);
+}
+/*---------------------------------------------------------------------------*/
+static void taskq_run_one_timeout_under_sched (void **state)
+{
+  taskq_test_context* c = (taskq_test_context*) *state;
+  will_return (bl_get_tstamp, 0);
+  will_return (bl_get_tstamp, BL_SCHED_TMIN_US - 1);
+  will_return (bl_get_tstamp, BL_SCHED_TMIN_US);
+  bl_err err = taskq_run_one (c->tq, BL_SCHED_TMIN_US);
   assert_true (err == bl_timeout);
 }
 /*---------------------------------------------------------------------------*/
@@ -303,14 +307,15 @@ static void taskq_run_one_pending_delayed (void **state)
   c   = (taskq_test_context*) *state;
   task = taskq_task_rv (taskq_callback, c);
 
-  will_return (bl_get_tstamp, 0);
-  will_return (bl_get_tstamp, 1);
-  will_return (bl_get_tstamp, 2);
-  will_return (bl_get_tstamp, 998);
+  will_return (bl_get_tstamp, 0); /*taskq_post_delayed*/
+  will_return (bl_get_tstamp, 0); /*taskq_try_run_one*/
+  will_return (bl_get_tstamp, 0); /*taskq_run_one, init expiration*/
+  will_return (bl_get_tstamp, 1); /*taskq_run_one, calc sem timeout*/
+  will_return (bl_get_tstamp, (BL_SCHED_TMIN_US * 2) - 1); /*taskq_try_run_one 
+                                                           after sem wake up*/
+  err = taskq_post_delayed (c->tq, &id, &tp_cancel, task, BL_SCHED_TMIN_US * 2);
 
-  err = taskq_post_delayed (c->tq, &id, &tp_cancel, task, 2000);
-
-  err = taskq_run_one (c->tq, 1000);
+  err = taskq_run_one (c->tq, BL_SCHED_TMIN_US + 2);
   assert_true (err == bl_timeout);
 }
 /*---------------------------------------------------------------------------*/
@@ -363,9 +368,14 @@ static const struct CMUnitTest tests[] = {
     ),
   cmocka_unit_test_setup_teardown(
     taskq_test_post_try_cancel_delayed, taskq_test_setup, taskq_test_teardown
-    ),
+    ),  
   cmocka_unit_test_setup_teardown(
     taskq_run_one_timeout, taskq_test_setup, taskq_test_teardown
+    ),
+  cmocka_unit_test_setup_teardown(
+      taskq_run_one_timeout_under_sched,
+      taskq_test_setup,
+      taskq_test_teardown
     ),
   cmocka_unit_test_setup_teardown(
     taskq_run_one_pending_delayed, taskq_test_setup, taskq_test_teardown

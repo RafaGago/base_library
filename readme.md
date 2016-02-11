@@ -5,9 +5,6 @@ A project where I will place generic base utilities for C programming on an
 "as needed" basis. The idea is that everything should be very simple and 
 statically linkable.
 
-As of now everything is just programmed for Linux and should be compilable on 
-Windows.
-
 Now the library is divided in some very tiny sublibraries to avoid bloating.
 
 1. (base) Base library
@@ -41,7 +38,7 @@ Depends on: -
 Depends on: base
 
 Some non blocking queues (in the sense that never aquire OS locks (mutexes,
-semaphores ...))
+semaphores ...)
 
 * The beautiful and famous Dmitry Djukov's MPMC lockfree queue with some addons:
   1. Can be used as MPSC and SPMC.
@@ -75,14 +72,11 @@ Under development.
 
 -Windows: 
 
- The "task_queue_test" cmocka tests seem to be broken after the port.
- I suspect that is a cmocka problem (mocking "bl_get_tstamp"), as the stress
- tests run with no problem. I have not looked yet into this issue (other 
- priorities now).
-
+ All the tests pass on Windows. 
+ 
  Serial is untested.
  
-Tested compilers
+Compilers
 =================
 
 -Visual Studio 2013
@@ -118,7 +112,7 @@ This generates the makefile.
 
 4. The makefile is now on the "build/linux" folder. If you specify
 "config=debug" yo will build debug binaries. Binaries are placed under
-"build/stage".
+"build/stage/linux".
 
 Build on Windows
 ===============
@@ -133,4 +127,5 @@ as its build system.
 This generates the visual studio solution on "build/premake/windows".
 
 4. You can build either through the solution or through the
-"build/premake/build_vs2013.bat" script.
+"build/premake/build_vs2013.bat" script. Binaries are placed under
+"build/stage/windows".

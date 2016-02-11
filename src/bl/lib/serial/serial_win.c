@@ -310,7 +310,7 @@ void bl_serial_stop (bl_serial* s)
   }
 }
 /*----------------------------------------------------------------------------*/
-bl_err bl_serial_read (bl_serial* s, memr rbuff, i32 timeout_us)
+bl_err bl_serial_read (bl_serial* s, memr rbuff, toffset timeout_us)
 {
   bl_assert (s);
   bl_assert (s->fd != INVALID_HANDLE_VALUE);

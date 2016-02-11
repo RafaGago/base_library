@@ -6,6 +6,7 @@
 #include <bl/base/hdr/dynarray_test.h>
 #include <bl/base/hdr/ordered_ringbuffer_test.h>
 #include <bl/base/lib/semaphore_not_totally_broken_test.h>
+#include <bl/base/hdr/time_test.h>
 
 int main (void)
 {
@@ -17,6 +18,7 @@ int main (void)
   if (dynarray_tests() != 0)                     { ++failed; }
   if (oringb_tests() != 0)                       { ++failed; }
   if (semaphore_not_totally_broken_tests() != 0) { ++failed; }
+  if (time_tests() != 0)                         { ++failed; }
   printf ("\n[SUITE ERR ] %d suite(s)\n", failed);
   return failed;
 }

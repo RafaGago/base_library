@@ -2,7 +2,9 @@
 #define __BL_ASSERT_H__
 
 /*WARNING: If you use this in a translation unit that compiles external code
-  their assertions will become active even when "NDEBUG" is defined */
+  their assertions will become active even when "NDEBUG" is defined. E.g
+  inline functions.
+*/
 
 #if defined (NDEBUG) && !defined (BL_ASSERT_DEFAULT_BEHAVIOR)
   #ifdef BL_ASSERT_RELEASE_BEHAVIOR_PRIVATE

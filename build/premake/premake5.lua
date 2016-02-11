@@ -41,10 +41,12 @@ filter {"configurations:*"}
     defines {"BL_USE_CLOCK_MONOTONIC_RAW"}
   end
 
-filter {"configurations:*release*"}
-  defines {"NDEBUG"}
+filter {"configurations:*release*"}  
   optimize "On"
 
+filter {"configurations:*release*", "kind:*Lib", }
+  defines {"NDEBUG"}
+  
 filter {"configurations:*debug*"}
   flags {"Symbols"}
   defines {"DEBUG"}
@@ -62,6 +64,13 @@ filter {"configurations:*"}
       "%{cfg.buildtarget.name:gsub ('.%d+.%d+.%d+', '')}"
     }
   end
+  
+filter {"kind:ConsoleApp", "system:windows"}
+  links {"winmm.lib"}
+  
+filter {"kind:ConsoleApp", "system:not windows"}
+  links {"pthread", "rt"} --good enough for now.
+    
 --[[
 filter {"kind:SharedLib", "configurations:*debug*"}
   if os_is_posix() then
@@ -127,11 +136,6 @@ filter {"configurations:*", "kind:*Lib"}
   if is_gcc() then
     buildoptions {"-fvisibility=hidden"}
   end
-
-filter {"kind:ConsoleApp"}
-  if is_gcc() then
-    links {"pthread", "rt"}
-  end
     
 filter {"language:C"}
   if is_gcc() then
@@ -148,15 +152,15 @@ filter {"configurations:*"}
 --LIBRARY PROJECTS
 project (base_name)
   kind "StaticLib"
-  language "C"
-  files {base_src  .. "/**"}
+  language "C"  
+  files {base_src  .. "/**"}  
 
 project (nonblock_name)
   kind "StaticLib"
   language "C"
   includedirs {repo_src}
   files {nonblock_src  .. "/**"}
-
+  
 project (task_queue_name)
   kind "StaticLib"
   language "C"
@@ -166,6 +170,7 @@ project (task_queue_name)
 project (serial_name)
   kind "StaticLib"
   language "C"
+  defines {"NDEBUG"}
   includedirs {repo_src}
   files {serial_src  .. "/**"}
 
@@ -202,4 +207,4 @@ project (task_queue_name .. "_stress")
   language "C"
   includedirs {repo_src, repo_test_src}
   files {task_queue_stress_src .. "/**"}
-  links {base_name, nonblock_name}
+  links {nonblock_name}
