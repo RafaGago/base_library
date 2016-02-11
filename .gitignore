@@ -3,6 +3,9 @@ build/linux
 build/windows
 build/stage
 build/premake/premake5
+build/premake/premake5.exe
 dependencies/cmocka
+dependencies/code/cmocka-1.0.1/
+dependencies/code/premake-5.0.0-alpha6-src/
 eclipse/.metadata/*
 eclipse/RemoteSystemsTempFiles/*
