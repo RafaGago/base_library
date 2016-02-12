@@ -53,7 +53,7 @@ struct bl_serial {
   uword  wtimeout_ms;
 };
 /*----------------------------------------------------------------------------*/
-bl_err bl_serial_create(
+bl_err BL_SERIAL_EXPORT bl_serial_create(
   bl_serial** s_out, uword read_buffer_min_size, alloc_tbl const* alloc
   )
 {
@@ -78,7 +78,7 @@ bl_err bl_serial_create(
   return bl_ok;
 }
 /*----------------------------------------------------------------------------*/
-void bl_serial_destroy (bl_serial* s, alloc_tbl const* alloc)
+void BL_SERIAL_EXPORT bl_serial_destroy (bl_serial* s, alloc_tbl const* alloc)
 {
   bl_assert (s);
   bl_serial_stop (s);
@@ -179,7 +179,9 @@ static bool try_get_standard_baudrate (uword baudrate, int* enum_val)
   }  
 }
 /*----------------------------------------------------------------------------*/
-bl_err bl_serial_start (bl_serial* s, bl_serial_cfg const* cfg)
+bl_err BL_SERIAL_EXPORT bl_serial_start(
+  bl_serial* s, bl_serial_cfg const* cfg
+  )
 {
   bl_assert (s && cfg);
   if (s->fd != INVALID_HANDLE_VALUE) {
@@ -302,7 +304,7 @@ close:
  
 }
 /*----------------------------------------------------------------------------*/
-void bl_serial_stop (bl_serial* s)
+void BL_SERIAL_EXPORT bl_serial_stop (bl_serial* s)
 {
   if (s->fd != INVALID_HANDLE_VALUE) {
     CloseHandle (s->fd);
@@ -310,7 +312,9 @@ void bl_serial_stop (bl_serial* s)
   }
 }
 /*----------------------------------------------------------------------------*/
-bl_err bl_serial_read (bl_serial* s, memr rbuff, toffset timeout_us)
+bl_err BL_SERIAL_EXPORT bl_serial_read(
+  bl_serial* s, memr rbuff, toffset timeout_us
+  )
 {
   bl_assert (s);
   bl_assert (s->fd != INVALID_HANDLE_VALUE);
@@ -375,7 +379,9 @@ roll_back:
   return err;
 }
 /*----------------------------------------------------------------------------*/
-bl_err bl_serial_write (bl_serial* s, memr wbuff, u32* written, i32 timeout_us)
+bl_err BL_SERIAL_EXPORT bl_serial_write(
+  bl_serial* s, memr wbuff, u32* written, i32 timeout_us
+  )
 {
   bl_assert (s);
   bl_assert (written);
@@ -415,7 +421,9 @@ bl_err bl_serial_write (bl_serial* s, memr wbuff, u32* written, i32 timeout_us)
   }
 }
 /*----------------------------------------------------------------------------*/
-bl_err bl_serial_ioctl_get (bl_serial* s, bl_serial_ioctl op, uword* val)
+bl_err BL_SERIAL_EXPORT bl_serial_ioctl_get(
+  bl_serial* s, bl_serial_ioctl op, uword* val
+  )
 {
   bl_assert (s);
   if (s->fd == INVALID_HANDLE_VALUE) {
@@ -441,7 +449,9 @@ bl_err bl_serial_ioctl_get (bl_serial* s, bl_serial_ioctl op, uword* val)
   return bl_error;
 }
 /*----------------------------------------------------------------------------*/
-bl_err bl_serial_ioctl_set (bl_serial* s, bl_serial_ioctl op, uword val)
+bl_err BL_SERIAL_EXPORT bl_serial_ioctl_set(
+  bl_serial* s, bl_serial_ioctl op, uword val
+  )
 {
   bl_assert (s);
   if (s->fd == INVALID_HANDLE_VALUE) {
@@ -462,7 +472,7 @@ bl_err bl_serial_ioctl_set (bl_serial* s, bl_serial_ioctl op, uword val)
   return EscapeCommFunction (s->fd, fn) ? bl_ok : bl_error;
 }
 /*----------------------------------------------------------------------------*/
-uword bl_serial_get_bit_time_ns (bl_serial_cfg const* cfg)
+uword BL_SERIAL_EXPORT bl_serial_get_bit_time_ns (bl_serial_cfg const* cfg)
 {
   bl_assert (cfg);
   return (uword) fixp_to_int(
@@ -470,7 +480,7 @@ uword bl_serial_get_bit_time_ns (bl_serial_cfg const* cfg)
       );
 }
 /*----------------------------------------------------------------------------*/
-uword bl_serial_get_byte_time_ns (bl_serial_cfg const* cfg)
+uword BL_SERIAL_EXPORT bl_serial_get_byte_time_ns (bl_serial_cfg const* cfg)
 {
   bl_assert (cfg);
   u64 bit_ns    = int_to_fixp (u64, nsec_in_sec, 32) / cfg->baudrate;

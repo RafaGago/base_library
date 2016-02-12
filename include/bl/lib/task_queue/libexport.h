@@ -3,10 +3,10 @@
 
 #include <bl/hdr/base/platform.h>
 
-#if defined (BL_GCC) && BL_GCC <= BL_GCC_VER (4, 0, 0)
+#if defined (BL_GCC) && BL_GCC >= BL_GCC_VER (4, 0, 0)
     #define TASKQ_EXPORT __attribute__ ((visibility ("default")))
 
-#elif defined (_MSC_VER)
+#elif defined (BL_MSC)
   #if (defined (TASKQ_SHAREDLIB_COMPILATION) &&\
       !defined (TASKQ_SHAREDLIB_USING_DEF)) ||\
       (defined (BL_ALL_LIBS_SHAREDLIB_COMPILATION) &&\

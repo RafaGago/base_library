@@ -21,7 +21,7 @@ extern "C" {
 } /*extern "C" {*/
 #endif
 
-#if defined (BL_MS_COMPILER) && \
+#if defined (BL_MSC) && \
     defined (__cplusplus) &&\
     defined (inline) && \
     defined (BL_DIDNT_HAVE_INLINE_MACRO)

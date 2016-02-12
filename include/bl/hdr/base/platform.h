@@ -31,7 +31,7 @@
     #define BL_INTEL_AMD_PC 1
   #endif
 
-  #define BL_MS_COMPILER      _MSC_VER
+  #define BL_MSC              _MSC_VER
 
   #define BL_VSTUDIO_2015     1900
   #define BL_VSTUDIO_2013     1800
