@@ -46,5 +46,32 @@ bl_err_e;
 /*---------------------------------------------------------------------------*/
 typedef uword bl_err;
 /*---------------------------------------------------------------------------*/
-
+#define declare_bl_err_to_str()\
+char const* bl_err_to_str (bl_err e)\
+/*---------------------------------------------------------------------------*/
+#define define_bl_err_to_str()\
+char const* bl_err_to_str (bl_err e)\
+{\
+  switch (e) {\
+    case bl_ok             : return "ok";\
+    case bl_error          : return "generic error";\
+    case bl_busy           : return "busy";\
+    case bl_empty          : return "empty";\
+    case bl_timeout        : return "timeout";\
+    case bl_locked         : return "locked";\
+    case bl_file           : return "file";\
+    case bl_not_allowed    : return "not_allowed";\
+    case bl_preconditions  : return "preconditions";\
+    case bl_invalid        : return "invalid";\
+    case bl_unsupported    : return "unsupported";\
+    case bl_would_overflow : return "would_overflow";\
+    case bl_nothing_to_do  : return "nothing_to_do";\
+    case bl_unexpected     : return "unexpected";\
+    case bl_cancelled      : return "cancelled";\
+    case bl_interrupted    : return "interrupted";\
+    case bl_alloc          : return "allocation";\
+    default                : return "unknown error";\
+  }\
+}
+/*---------------------------------------------------------------------------*/
 #endif /*BL_ERROR_H*/

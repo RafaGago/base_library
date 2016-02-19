@@ -53,7 +53,7 @@ extern bl_err BL_SERIAL_EXPORT bl_serial_read(
 /*----------------------------------------------------------------------------*/
 /* This call is to be called from just one thread.*/
 extern bl_err BL_SERIAL_EXPORT bl_serial_write(
-  bl_serial* s, memr wbuff, u32* written, i32 timeout_us
+  bl_serial* s, memr wbuff, u32* written, toffset timeout_us
   );
 /*----------------------------------------------------------------------------*/
 extern bl_err BL_SERIAL_EXPORT bl_serial_ioctl_get(

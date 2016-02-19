@@ -83,7 +83,7 @@ bl_err BL_SERIAL_EXPORT bl_serial_create(
 {
   bl_assert (s_out && alloc);
   read_buffer_min_size = round_next_pow2_u (read_buffer_min_size);
-  if (read_buffer_min_size == 0) {
+  if (read_buffer_min_size == 0 || !alloc || !s_out) {
     return bl_invalid;
   }
   bl_serial* s = bl_alloc (alloc, sizeof *s + read_buffer_min_size);
@@ -458,7 +458,7 @@ void BL_SERIAL_EXPORT bl_serial_stop (bl_serial* s)
 }
 /*----------------------------------------------------------------------------*/
 bl_err BL_SERIAL_EXPORT bl_serial_read(
-  bl_serial* s, memr rbuff, i32 timeout_us
+  bl_serial* s, memr rbuff, toffset timeout_us
   )
 {
   bl_assert (s);
@@ -538,19 +538,19 @@ rollback:
 }
 /*----------------------------------------------------------------------------*/
 bl_err BL_SERIAL_EXPORT bl_serial_write(
-  bl_serial* s, memr wbuff, u32* written, i32 timeout_us
+  bl_serial* s, memr wbuff, u32* written, toffset timeout_us
   )
 {
   bl_assert (s);
   bl_assert (written);
   bl_assert (s->fd >= 0);
   bl_assert (timeout_us >= 0);
-
-  *written = 0;
-  if (!memr_is_valid (wbuff)) {
+  
+  if (!memr_is_valid (wbuff) || !written) {
     return bl_invalid;
   }
 
+  *written        = 0;
   tstamp deadline = 0; 
   bl_err err      = bl_ok;
   if (timeout_us != 0) {
@@ -601,7 +601,7 @@ bl_err BL_SERIAL_EXPORT bl_serial_ioctl_get(
   )
 {
   bl_assert (s);
-  if (s->fd < 0) {
+  if (s->fd < 0 || !val) {
     return bl_invalid;
   }
   int mask;
@@ -661,6 +661,9 @@ bl_err BL_SERIAL_EXPORT bl_serial_ioctl_set(
 uword BL_SERIAL_EXPORT bl_serial_get_bit_time_ns (bl_serial_cfg const* cfg)
 {
   bl_assert (cfg);
+  if (!cfg) {
+    return 0;
+  }
   return (uword) fixp_to_int(
       int_to_fixp (u64, nsec_in_sec, 32) / cfg->baudrate, 32
       );
@@ -669,6 +672,9 @@ uword BL_SERIAL_EXPORT bl_serial_get_bit_time_ns (bl_serial_cfg const* cfg)
 uword BL_SERIAL_EXPORT bl_serial_get_byte_time_ns (bl_serial_cfg const* cfg)
 {
   bl_assert (cfg);
+  if (!cfg) {
+    return 0;
+  }
   u64 bit_ns    = int_to_fixp (u64, nsec_in_sec, 32) / cfg->baudrate;
   u64 bits_byte = 1 + 
     cfg->byte_size + 

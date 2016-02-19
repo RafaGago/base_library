@@ -1,6 +1,7 @@
 #ifndef __BL_DEFAULT_ALLOCATOR_H__
 #define __BL_DEFAULT_ALLOCATOR_H__
 
+#include <bl/hdr/base/platform.h>
 #include <bl/hdr/base/allocator.h>
 
 /*---------------------------------------------------------------------------*/

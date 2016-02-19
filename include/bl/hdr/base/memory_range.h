@@ -99,9 +99,9 @@ static inline memr8 memr8_rv (void* addr, u8 size)
 }
 /*----------------------------------------------------------------------------*/
 #define memr8_rv_array(arr) memr8_rv (arr, sizeof arr)
-#define memr8_beg_as (memr_val, type) ((type*) memr8_beg (memr_val))
-#define memr8_end_as (memr_val, type) ((type*) memr8_end (memr_val))
-#define memr8_at_as (memr_val, idx, type)\
+#define memr8_beg_as(memr_val, type) ((type*) memr8_beg (memr_val))
+#define memr8_end_as(memr_val, type) ((type*) memr8_end (memr_val))
+#define memr8_at_as(memr_val, idx, type)\
   ((type*) memr8_at ((memr_val), idx * sizeof (type)))
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
@@ -201,9 +201,9 @@ static inline memr16 memr16_rv (void* addr, u16 size)
 }
 /*----------------------------------------------------------------------------*/
 #define memr16_rv_array(arr) memr16_rv (arr, sizeof arr)
-#define memr16_beg_as (memr_val, type) ((type*) memr16_beg (memr_val))
-#define memr16_end_as (memr_val, type) ((type*) memr16_end (memr_val))
-#define memr16_at_as (memr_val, idx, type)\
+#define memr16_beg_as(memr_val, type) ((type*) memr16_beg (memr_val))
+#define memr16_end_as(memr_val, type) ((type*) memr16_end (memr_val))
+#define memr16_at_as(memr_val, idx, type)\
   ((type*) memr16_at ((memr_val), idx * sizeof (type)))
 #endif /*#if BL_WORDSIZE >= 16*/
 /*----------------------------------------------------------------------------*/
@@ -304,9 +304,9 @@ static inline memr32 memr32_rv (void* addr, u32 size)
 }
 /*----------------------------------------------------------------------------*/
 #define memr32_rv_array(arr) memr32_rv (arr, sizeof arr)
-#define memr32_beg_as (memr_val, type) ((type*) memr32_beg (memr_val))
-#define memr32_end_as (memr_val, type) ((type*) memr32_end (memr_val))
-#define memr32_at_as (memr_val, idx, type)\
+#define memr32_beg_as(memr_val, type) ((type*) memr32_beg (memr_val))
+#define memr32_end_as(memr_val, type) ((type*) memr32_end (memr_val))
+#define memr32_at_as(memr_val, idx, type)\
   ((type*) memr32_at ((memr_val), idx * sizeof (type)))
 #endif /*#if BL_WORDSIZE >= 32*/
 /*----------------------------------------------------------------------------*/
@@ -407,9 +407,9 @@ static inline memr64 memr64_rv (void* addr, u64 size)
 }
 /*----------------------------------------------------------------------------*/
 #define memr64_rv_array(arr) memr64_rv (arr, sizeof arr)
-#define memr64_beg_as (memr_val, type) ((type*) memr64_beg (memr_val))
-#define memr64_end_as (memr_val, type) ((type*) memr64_end (memr_val))
-#define memr64_at_as (memr_val, idx, type)\
+#define memr64_beg_as(memr_val, type) ((type*) memr64_beg (memr_val))
+#define memr64_end_as(memr_val, type) ((type*) memr64_end (memr_val))
+#define memr64_at_as(memr_val, idx, type)\
   ((type*) memr64_at ((memr_val), idx * sizeof (type)))
 #endif /*#if BL_WORDSIZE >= 64*/
 /*----------------------------------------------------------------------------*/
@@ -448,9 +448,9 @@ static inline memr64 memr64_rv (void* addr, u64 size)
 #define memr_copy_offset(d, s, o) memr_concat (copy_offset) ((d), (s), (o))
 #define memr_rv(a, s)             memr_concat (rv) ((a), (s))
 #define memr_rv_array(arr)        memr_concat (rv_array) (arr)
-#define memr_beg_as(m, t)         memr_concat (beg_as) ((m), (t))
-#define memr_end_as(m, t)         memr_concat (end_as) ((m), (t))
-#define memr_at_as(m, i, t)       memr_concat (at_as) ((m), (i), (t))
+#define memr_beg_as(m, t)         memr_concat (beg_as) ((m), t)
+#define memr_end_as(m, t)         memr_concat (end_as) ((m), t)
+#define memr_at_as(m, i, t)       memr_concat (at_as) ((m), (i), t)
 /*----------------------------------------------------------------------------*/
 #ifdef NDEBUG
   #define memr_cast(memr_val)\

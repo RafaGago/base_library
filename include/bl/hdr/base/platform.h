@@ -43,6 +43,7 @@
   #define BL_VSTUDIO_NET      1300
   #define BL_VC_6             1200
   #define BL_VC_5             1100
+  
 #endif
 /*---------------------------------------------------------------------------*/
 #if defined (__GNUC__) || defined (GCC)

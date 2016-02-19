@@ -59,7 +59,7 @@ bl_err BL_SERIAL_EXPORT bl_serial_create(
 {
   bl_assert (s_out && alloc);
   read_buffer_min_size = round_next_pow2_u (read_buffer_min_size);
-  if (read_buffer_min_size == 0) {
+  if (read_buffer_min_size == 0 || !alloc || !s_out) {
     return bl_invalid;
   }
   bl_serial* s;
@@ -80,9 +80,9 @@ bl_err BL_SERIAL_EXPORT bl_serial_create(
 /*----------------------------------------------------------------------------*/
 void BL_SERIAL_EXPORT bl_serial_destroy (bl_serial* s, alloc_tbl const* alloc)
 {
-  bl_assert (s);
+  bl_assert (s);  
   bl_serial_stop (s);
-  bl_dealloc (alloc, s);
+  bl_dealloc (alloc, s);  
 }
 /*----------------------------------------------------------------------------*/
 static bool try_get_standard_baudrate (uword baudrate, int* enum_val)
@@ -187,7 +187,7 @@ bl_err BL_SERIAL_EXPORT bl_serial_start(
   if (s->fd != INVALID_HANDLE_VALUE) {
     return bl_not_allowed;
   }
-  if (!cfg->device_name) {
+  if (!s || !cfg || !cfg->device_name) {
     return bl_invalid;
   }
   s->fd = CreateFile(
@@ -239,9 +239,9 @@ bl_err BL_SERIAL_EXPORT bl_serial_start(
   case bl_parity_none:
     options.Parity = NOPARITY; break;
   case bl_parity_odd:
-    options.Parity = EVENPARITY; break;
-  case bl_parity_even:
     options.Parity = ODDPARITY; break;
+  case bl_parity_even:
+    options.Parity = EVENPARITY; break;
   case bl_parity_mark:
     options.Parity = MARKPARITY; break;
   case bl_parity_space:
@@ -306,7 +306,7 @@ close:
 /*----------------------------------------------------------------------------*/
 void BL_SERIAL_EXPORT bl_serial_stop (bl_serial* s)
 {
-  if (s->fd != INVALID_HANDLE_VALUE) {
+  if (s && s->fd != INVALID_HANDLE_VALUE) {
     CloseHandle (s->fd);
     s->fd = nullptr;
   }
@@ -380,7 +380,7 @@ roll_back:
 }
 /*----------------------------------------------------------------------------*/
 bl_err BL_SERIAL_EXPORT bl_serial_write(
-  bl_serial* s, memr wbuff, u32* written, i32 timeout_us
+  bl_serial* s, memr wbuff, u32* written, toffset timeout_us
   )
 {
   bl_assert (s);
@@ -389,7 +389,7 @@ bl_err BL_SERIAL_EXPORT bl_serial_write(
   bl_assert (timeout_us >= 0);
 
   *written = 0;
-  if (!memr_is_valid (wbuff)) {
+  if (!memr_is_valid (wbuff) || !written) {
     return bl_invalid;
   }
   uword t_ms = (timeout_us != 0) ? div_ceil (timeout_us, usec_in_msec) : 1;
@@ -426,7 +426,7 @@ bl_err BL_SERIAL_EXPORT bl_serial_ioctl_get(
   )
 {
   bl_assert (s);
-  if (s->fd == INVALID_HANDLE_VALUE) {
+  if (s->fd == INVALID_HANDLE_VALUE || !val) {
     return bl_invalid;
   }
   DWORD mask;
@@ -475,6 +475,9 @@ bl_err BL_SERIAL_EXPORT bl_serial_ioctl_set(
 uword BL_SERIAL_EXPORT bl_serial_get_bit_time_ns (bl_serial_cfg const* cfg)
 {
   bl_assert (cfg);
+  if (!cfg) {
+    return 0;
+  }
   return (uword) fixp_to_int(
       int_to_fixp (u64, nsec_in_sec, 32) / cfg->baudrate, 32
       );
@@ -483,6 +486,9 @@ uword BL_SERIAL_EXPORT bl_serial_get_bit_time_ns (bl_serial_cfg const* cfg)
 uword BL_SERIAL_EXPORT bl_serial_get_byte_time_ns (bl_serial_cfg const* cfg)
 {
   bl_assert (cfg);
+  if (!cfg) {
+    return 0;
+  }
   u64 bit_ns    = int_to_fixp (u64, nsec_in_sec, 32) / cfg->baudrate;
   u64 bits_byte = 1 + cfg->byte_size + (cfg->parity != bl_parity_none);
   bits_byte     = int_to_fixp (u64, bits_byte, 32);

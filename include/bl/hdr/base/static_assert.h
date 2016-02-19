@@ -16,5 +16,5 @@
 #define static_assert_outside_func(cond, str) static_assert (cond, str)
 #define static_assert_outside_func_ns(cond) static_assert_ns (cond)
 
-#endif /* __EVK_STATIC_ASSERT_H__ */
+#endif /* __BL_STATIC_ASSERT_H__ */
 
