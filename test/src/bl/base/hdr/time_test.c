@@ -15,9 +15,10 @@
 /*---------------------------------------------------------------------------*/
 static void timestamp_not_very_broken (void **state)
 {
-  static const uword sleep_us = BL_SCHED_TMIN_US * 20;
-  static const uword ubound   = 2 * sleep_us; /* 200% */
- 
+  enum {
+    sleep_us = (uword) BL_SCHED_TMIN_US * 20,
+    ubound   = (uword) sleep_us * 2,
+  }; 
   tstamp start    = bl_get_tstamp();
   bl_thread_usleep (sleep_us);
   tstamp finish   = bl_get_tstamp();

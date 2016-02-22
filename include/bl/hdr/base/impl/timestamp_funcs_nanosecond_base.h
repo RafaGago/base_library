@@ -37,7 +37,7 @@ static inline toffset bl_tstamp_to_msec (tstamp ts)
 {
   return bl_tstamp2msec_priv (ts);
 }
-*/
+
 static inline toffset bl_tstamp_to_usec (tstamp ts)
 {
   return bl_tstamp2usec_priv (ts);
