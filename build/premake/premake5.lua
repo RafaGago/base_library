@@ -164,3 +164,4 @@ project (task_queue_name .. "_stress")
   includedirs {repo_src, repo_test_src}
   files {task_queue_stress_src .. "/**"}
   links {nonblock_name}
+
