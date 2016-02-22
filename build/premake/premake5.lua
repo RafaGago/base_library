@@ -36,10 +36,8 @@ solution "build"
   configurations { "release", "debug" }
   location (build)
 
-filter {"configurations:*"}
-  if os.get() == "linux" then
-    defines {"BL_USE_CLOCK_MONOTONIC_RAW"}
-  end
+filter {"system:linux"}
+  defines {"BL_USE_CLOCK_MONOTONIC_RAW"}
 
 filter {"configurations:*release*"}  
   optimize "On"
@@ -56,98 +54,56 @@ filter {"configurations:*"}
   flags {"MultiProcessorCompile"}
   includedirs { repo_include }
 
-filter {"configurations:*"}
-  if os_is_posix() then
-    postbuildcommands {
-      "cd %{cfg.buildtarget.directory} && "..
-      "ln -sf %{cfg.buildtarget.name} " ..
-      "%{cfg.buildtarget.name:gsub ('.%d+.%d+.%d+', '')}"
+filter {"system:not windows"}
+  postbuildcommands {
+    "cd %{cfg.buildtarget.directory} && "..
+    "ln -sf %{cfg.buildtarget.name} " ..
+    "%{cfg.buildtarget.name:gsub ('.%d+.%d+.%d+', '')}"
     }
-  end
   
 filter {"kind:ConsoleApp", "system:windows"}
   links {"winmm.lib"}
   
 filter {"kind:ConsoleApp", "system:not windows"}
-  links {"pthread", "rt"} --good enough for now.
+  links {"pthread", "rt"}
     
---[[
-filter {"kind:SharedLib", "configurations:*debug*"}
-  if os_is_posix() then
-    targetextension (".d" .. ".so" .. version)
-  end
-  --this method of setting the output dir won't be practical if there are
-  --a lot of platforms...
-  targetdir (stage .. "/debug/lib")
-
-filter {"kind:SharedLib", "configurations:*release*"}
-  if os_is_posix() then
-    targetextension (".so" .. version)
-  end
-  --this method of setting the output dir won't be practical if there are
-  --a lot of platforms...
-  targetdir (stage .. "/release/lib")
-]]--
-filter {"kind:StaticLib", "configurations:*debug*"}
-  if os_is_posix() then
-    targetextension (".d" .. ".a" .. version )
-  end
-  --this method of setting the output dir will be impractical if there are
-  --a lot of platforms...
-  targetdir (stage .. "/debug/lib")
-
-filter {"kind:StaticLib", "configurations:*release*"}
-  if os_is_posix() then
-    targetextension (".a" .. version)
-  end
-  --this method of setting the output dir won't be practical if there are
-  --a lot of platforms...
-  targetdir (stage .. "/release/lib")
-
-filter {"kind:ConsoleApp", "configurations:*debug*"}
-  if os_is_posix() then
-    targetextension ("_d" .. version)
-  end
-  --this method of setting the output dir won't be practical if there are
-  --a lot of platforms...
-  targetdir (stage .. "/debug/bin")
-
-filter {"kind:ConsoleApp", "configurations:*release*"}
-  if os_is_posix() then
-    targetextension (version)
-  end
-  --this method of setting the output dir won't be practical if there are
-  --a lot of platforms...
-  targetdir (stage .. "/release/bin")
-
---toolset filters and file filters broken in alpha
---dirty workaround (specifying compiler for each os) follows ...
-
--- WORKAROUND --
-local function is_gcc()
-  return os.get() ~= "windows"
-end
-
-local function is_visual_studio()
-  return os.get() == "windows"
-end
-
-filter {"configurations:*", "kind:*Lib"}
-  if is_gcc() then
-    buildoptions {"-fvisibility=hidden"}
-  end
-    
-filter {"language:C"}
-  if is_gcc() then
-    buildoptions {"-Wfatal-errors"}
-    buildoptions {"-std=gnu11"}
-  end
+filter {"kind:SharedLib", "configurations:debug", "system:not windows"}
+  targetextension (".so" .. ".d" .. version)
   
-filter {"configurations:*"}
-  if is_visual_studio() then
-    buildoptions {"/TP"}  
-  end
--- WORKAROUND END --
+filter {"kind:SharedLib", "configurations:release", "system:not windows"}
+    targetextension (".so" .. version)
+
+filter {"kind:StaticLib", "configurations:debug", "system:not windows"}
+  targetextension (".a" .. ".d" .. version )
+
+filter {"kind:StaticLib", "configurations:debug"}
+  targetdir (stage .. "/debug/lib")
+  
+filter {"kind:StaticLib", "configurations:release", "system:not windows"}
+  targetextension (".a" .. version )
+
+filter {"kind:StaticLib", "configurations:release"}
+  targetdir (stage .. "/release/lib")
+
+filter {"kind:ConsoleApp", "configurations:debug", "system:not windows"}
+  targetextension ("_d" .. version)
+
+filter {"kind:ConsoleApp", "configurations:debug"}
+  targetdir (stage .. "/debug/bin")
+  
+filter {"kind:ConsoleApp", "configurations:release", "system:not windows"}
+  targetextension (version )
+
+filter {"kind:ConsoleApp", "configurations:release"}
+  targetdir (stage .. "/release/bin")  
+   
+filter {"action:gmake"}
+  buildoptions {"-fvisibility=hidden"}
+  buildoptions {"-Wfatal-errors"}
+  buildoptions {"-std=gnu11"}
+  
+filter {"action:vs*"}
+  buildoptions {"/TP"}
 
 --LIBRARY PROJECTS
 project (base_name)
