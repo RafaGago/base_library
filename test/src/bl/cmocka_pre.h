@@ -1,7 +1,7 @@
 #ifndef BL_CMOCKA_PRE_H
 #define BL_CMOCKA_PRE_H
 
-#include <bl/hdr/base/platform.h>
+#include <bl/base/platform.h>
 
 #include <stdarg.h>
 #include <stddef.h>

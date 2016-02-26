@@ -1,12 +1,12 @@
 #include <bl/cmocka_pre.h>
 #include <bl/nonblock/mpmc_b_test.h>
 
-#include <bl/hdr/base/integer.h>
-#include <bl/lib/nonblock/mpmc_b.h>
-#include <bl/lib/nonblock/mpmc_b.c>
-#include <bl/hdr/base/utility.h>
-#include <bl/hdr/base/integer_math.h>
-#include <bl/hdr/base/to_type_containing.h>
+#include <bl/base/integer.h>
+#include <bl/nonblock/mpmc_b.h>
+#include <bl/nonblock/mpmc_b.c>
+#include <bl/base/utility.h>
+#include <bl/base/integer_math.h>
+#include <bl/base/to_type_containing.h>
 
 /*---------------------------------------------------------------------------*/
 typedef u16 mpmc_b_type;

@@ -12,6 +12,8 @@ Now the library is divided in some very tiny sublibraries to avoid bloating.
 
 Depends on: -
 
+This is the basic utilities libraries, it contains:
+
 * Platform detection (very primitive, will get bigger).
 
 * Static integer math.
@@ -27,10 +29,21 @@ Depends on: -
 * The famous BSD data structures (lists and trees).
 
 * A futex + atomics semaphore based on the Monotonic clock for Linux (POSIX
- doesn't provide this).
+  doesn't provide this).
 
-* Wrappers for atomics and threads (adding as needed).
+* Wrappers for atomics.
 
+* Wrappers for thread manipulation (adding as needed). As of now mutexes and
+  condition variables aren't wrapped (I personally try to code multithreaded 
+  applications either by message passing (through lock-free queues) or by 
+  using cooperative scheduling).
+
+Everything tries to be very lightweight and comprised of "static inline" func-
+tions and generating macros, but unfortunately on some instances this isn't
+possible.
+
+It depends on the platform which functions aren't "static inline". It is 
+recommended to use this library as a static library.
 
 2. (noblock) Non (OS) blocking queues 
 -------------------------------------
@@ -85,8 +98,6 @@ Compilers
 Folders
 =======
 
-* "include/bl/hdr":  Code usable as header-only.
-* "include/bl/lib":  May require compilation on some platforms.
 * eclipse: Eclipse projects, unneeded to build. I sometimes use Eclipse as a gdb
 front end.
 * dependencies: External dependencies, as of now cmocka for the unit tests and
@@ -95,6 +106,7 @@ front end.
 * build/state: Place where the generated binaries are located after compilation.
 * build/*platform*: Folder where premake generates the makefiles, VS solutions
 , etc.
+* "include": -
 * "test": -
 * "src": -
 

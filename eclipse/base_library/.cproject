@@ -186,6 +186,8 @@
 		<configuration configurationName="Default">
 			<resource resourceType="PROJECT" workspacePath="/event_worker_test"/>
 		</configuration>
+		<configuration configurationName="task_queue_test"/>
+		<configuration configurationName="task_queue_stress"/>
 		<configuration configurationName="nonblock_test">
 			<resource resourceType="PROJECT" workspacePath="/base_library"/>
 		</configuration>
@@ -195,6 +197,7 @@
 		</configuration>
 		<configuration configurationName="base_library_task_queue_stress"/>
 		<configuration configurationName="base_library_task_queue_test"/>
+		<configuration configurationName="base_library_semaphore_stress"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>

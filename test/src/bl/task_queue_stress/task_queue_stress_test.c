@@ -1,22 +1,22 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <bl/lib/task_queue/task_queue.h>
+#include <bl/task_queue/task_queue.h>
 
-#include <bl/hdr/base/utility.h>
-#include <bl/hdr/base/integer_math.h>
-#include <bl/hdr/base/processor_pause.h>
-#include <bl/hdr/base/cache.h>
-#include <bl/hdr/base/default_allocator.h>
-#include <bl/hdr/base/thread.h>
-#include <bl/lib/base/semaphore.h>
+#include <bl/base/utility.h>
+#include <bl/base/integer_math.h>
+#include <bl/base/processor_pause.h>
+#include <bl/base/cache.h>
+#include <bl/base/default_allocator.h>
+#include <bl/base/thread.h>
+#include <bl/base/semaphore.h>
 
 /*the c files are included here to be able to printf data that would otherwise
   be opaque or to avoid triggering assertions on release*/
-#include <bl/lib/task_queue/task_queue.c>
-#include <bl/lib/task_queue/delayed.c>
-#include <bl/lib/base/semaphore_win.c>
-#include <bl/lib/base/semaphore_linux.c>
+#include <bl/task_queue/task_queue.c>
+#include <bl/task_queue/delayed.c>
+#include <bl/base/semaphore_win.c>
+#include <bl/base/semaphore_linux.c>
 /*----------------------------------------------------------------------------*/
 #define thread_count       8
 #define tq_list_size       pow2_u (16)

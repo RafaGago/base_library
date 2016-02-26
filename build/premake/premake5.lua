@@ -15,18 +15,18 @@ local repo_include          = repo .. "/include"
 local repo_src              = repo .. "/src"
 local repo_test_src         = repo .. "/test/src"
 
-local base_src              = repo_src .. "/bl/lib/base"
+local base_src              = repo_src .. "/bl/base"
 local base_test_src         = repo_test_src .. "/bl/base"
 local sem_stress_src        = repo_test_src .. "/bl/semaphore_stress"
 
-local task_queue_src        = repo_src .. "/bl/lib/task_queue"
+local task_queue_src        = repo_src .. "/bl/task_queue"
 local task_queue_test_src   = repo_test_src .. "/bl/task_queue"
 local task_queue_stress_src = repo_test_src .. "/bl/task_queue_stress"
 
-local nonblock_src          = repo_src .. "/bl/lib/nonblock"
+local nonblock_src          = repo_src .. "/bl/nonblock"
 local nonblock_test_src     = repo_test_src .. "/bl/nonblock"
 
-local serial_src            = repo_src .. "/bl/lib/serial"
+local serial_src            = repo_src .. "/bl/serial"
 
 local function os_is_posix()
   return os.get() ~= "windows"
@@ -71,7 +71,7 @@ filter {"kind:SharedLib", "configurations:debug", "system:not windows"}
   targetextension (".so" .. ".d" .. version)
   
 filter {"kind:SharedLib", "configurations:release", "system:not windows"}
-    targetextension (".so" .. version)
+  targetextension (".so" .. version)
 
 filter {"kind:StaticLib", "configurations:debug", "system:not windows"}
   targetextension (".a" .. ".d" .. version )
@@ -135,7 +135,7 @@ project (base_name .. "_test")
   kind "ConsoleApp"
   language "C"
   includedirs {cmocka .. "/include", repo_src, repo_test_src}
-  files { base_test_src .. "/**" }
+  files { base_test_src .. "/**"}
   links {cmocka .. "/lib/cmocka"}
 
 project (nonblock_name .. "_test")

@@ -1,8 +1,8 @@
 #include <bl/cmocka_pre.h>
-#include <bl/hdr/base/default_allocator.h>
+#include <bl/base/default_allocator.h>
 /*---------------------------------------------------------------------------*/
 #define BL_TSTAMP_MOCK_FOR_TESTS 1
-#include <bl/hdr/base/time.h>
+#include <bl/base/time.h>
 static inline tstamp bl_get_tstamp (void)
 {
   return (tstamp) mock();
@@ -12,9 +12,9 @@ static inline tstamp bl_get_tstamp (void)
 
 /*---------------------------------------------------------------------------*/
 #include <bl/task_queue/delayed_test.h>
-#include <bl/lib/task_queue/delayed.h>
-#include <bl/lib/task_queue/delayed.c>
-#include <bl/hdr/base/utility.h>
+#include <bl/task_queue/delayed.h>
+#include <bl/task_queue/delayed.c>
+#include <bl/base/utility.h>
 /*---------------------------------------------------------------------------*/
 typedef struct delayed_context {
   alloc_tbl alloc;

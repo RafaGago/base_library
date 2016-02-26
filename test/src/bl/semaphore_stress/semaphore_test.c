@@ -1,4 +1,4 @@
-#include <bl/hdr/base/platform.h>
+#include <bl/base/platform.h>
 #include <stdio.h>
 /*----------------------------------------------------------------------------*/
 #ifdef BL_LINUX
@@ -6,17 +6,17 @@
 #include <string.h>
 #include <pthread.h>
 
-#include <bl/hdr/base/assert.h>
-#include <bl/hdr/base/platform.h>
-#include <bl/hdr/base/integer.h>
-#include <bl/hdr/base/utility.h>
-#include <bl/hdr/base/time.h>
-#include <bl/hdr/base/deadline.h>
-#include <bl/hdr/base/cache.h>
-#include <bl/hdr/base/atomic.h>
+#include <bl/base/assert.h>
+#include <bl/base/platform.h>
+#include <bl/base/integer.h>
+#include <bl/base/utility.h>
+#include <bl/base/time.h>
+#include <bl/base/deadline.h>
+#include <bl/base/cache.h>
+#include <bl/base/atomic.h>
 
-#include <bl/hdr/base/thread.h>
-#include <bl/lib/base/semaphore_linux.c>
+#include <bl/base/thread.h>
+#include <bl/base/semaphore_linux.c>
 
 #define thread_count 16
 /*----------------------------------------------------------------------------*/

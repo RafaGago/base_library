@@ -1,18 +1,18 @@
 #define BL_ASSERT_DEFAULT_BEHAVIOR 1 /*to avoid interfearing with cmocka */
-#include <bl/hdr/base/assert.h>
-#include <bl/hdr/base/platform.h>
+#include <bl/base/assert.h>
+#include <bl/base/platform.h>
 #include <bl/cmocka_pre.h>
 /*---------------------------------------------------------------------------*/
 #define BL_TSTAMP_MOCK_FOR_TESTS 1
-#include <bl/hdr/base/time.h>
+#include <bl/base/time.h>
 static inline tstamp bl_get_tstamp (void)
 {
   return (tstamp) mock();
 }
 /*---------------------------------------------------------------------------*/
-#include <bl/hdr/base/default_allocator.h>
-#include <bl/lib/task_queue/task_queue.h>
-#include <bl/lib/task_queue/task_queue.c>
+#include <bl/base/default_allocator.h>
+#include <bl/task_queue/task_queue.h>
+#include <bl/task_queue/task_queue.c>
 /*---------------------------------------------------------------------------*/
 /* 
   A file to test that queue hasn't too many issues unrelated to
