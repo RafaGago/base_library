@@ -27,6 +27,16 @@ static inline tstampdiff tstamp_get_diff (tstamp a, tstamp b)
   return (tstampdiff) (a - b);
 }
 /*---------------------------------------------------------------------------*/
+static inline tstamp tstamp_max (tstamp a, tstamp b)
+{
+  return tstamp_get_diff (a, b) >= 0 ? a : b;
+}
+/*---------------------------------------------------------------------------*/
+static inline tstamp tstamp_min (tstamp a, tstamp b)
+{
+  return tstamp_get_diff (a, b) <= 0 ? a : b;
+}
+/*---------------------------------------------------------------------------*/
 #if defined (BL_TSTAMP_CUSTOM_INCLUDE)
   #include BL_TSTAMP_CUSTOM_INCLUDE
 #elif defined (BL_TSTAMP_MOCK_FOR_TESTS)

@@ -30,12 +30,12 @@ static inline void bl_sharedlib_clear_past_errors()
     dlerror();
 }
 /*----------------------------------------------------------------------------*/
-static inline char const* bl_sharedlib_last_load_error (bl_sharedlib)
+static inline char const* bl_sharedlib_last_load_error (bl_sharedlib s)
 {
     return dlerror();
 }
 /*----------------------------------------------------------------------------*/
-static inline char const* bl_sharedlib_last_sym_error (bl_sharedlib)
+static inline char const* bl_sharedlib_last_sym_error (bl_sharedlib s)
 {
     return dlerror();
 }
