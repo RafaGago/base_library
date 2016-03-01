@@ -115,7 +115,7 @@ static inline i32 mpmc_b_transaction_status (u32 gate, mpmc_b_i now)
 #error "mpmc_b won't work on this platform"
 #endif
 /*---------------------------------------------------------------------------*/
-bl_err NONBLOCK_EXPORT mpmc_b_produce_sig_fallback(
+BL_NONBLOCK_EXPORT bl_err mpmc_b_produce_sig_fallback(
   mpmc_b*      q,
   mpmc_b_info* inf,
   void const*  value,
@@ -162,7 +162,7 @@ bl_err NONBLOCK_EXPORT mpmc_b_produce_sig_fallback(
   return bl_ok;
 }
 /*---------------------------------------------------------------------------*/
-bl_err NONBLOCK_EXPORT mpmc_b_produce_single_p(
+BL_NONBLOCK_EXPORT bl_err mpmc_b_produce_single_p(
   mpmc_b* q, mpmc_b_info* inf, void const* value
   )
 {
@@ -188,7 +188,7 @@ bl_err NONBLOCK_EXPORT mpmc_b_produce_single_p(
   return bl_would_overflow;
 }
 /*---------------------------------------------------------------------------*/
-bl_err NONBLOCK_EXPORT mpmc_b_consume_sig_fallback(
+BL_NONBLOCK_EXPORT bl_err mpmc_b_consume_sig_fallback(
   mpmc_b*      q,
   mpmc_b_info* inf,
   void*        value,
@@ -236,7 +236,7 @@ bl_err NONBLOCK_EXPORT mpmc_b_consume_sig_fallback(
   return bl_ok;
 }
 /*---------------------------------------------------------------------------*/
-bl_err NONBLOCK_EXPORT mpmc_b_consume_single_c(
+BL_NONBLOCK_EXPORT bl_err mpmc_b_consume_single_c(
   mpmc_b* q, mpmc_b_info* inf, void* value
   )
 {
@@ -263,7 +263,7 @@ bl_err NONBLOCK_EXPORT mpmc_b_consume_single_c(
   return bl_empty;
 }
 /*---------------------------------------------------------------------------*/
-void NONBLOCK_EXPORT mpmc_b_destroy (mpmc_b* q, alloc_tbl const* alloc)
+BL_NONBLOCK_EXPORT void mpmc_b_destroy (mpmc_b* q, alloc_tbl const* alloc)
 {
   if (q->buffer) {
     bl_dealloc (alloc, q->buffer);
@@ -317,35 +317,35 @@ save_expected:
   return err;
 }
 /*---------------------------------------------------------------------------*/
-bl_err NONBLOCK_EXPORT mpmc_b_producer_signal_try_set(
+BL_NONBLOCK_EXPORT bl_err mpmc_b_producer_signal_try_set(
   mpmc_b* q, mpmc_b_sig* expected, mpmc_b_sig desired
   )
 {
   return mpmc_b_signal (&q->i_producer, expected, desired);
 }
 /*---------------------------------------------------------------------------*/
-bl_err NONBLOCK_EXPORT mpmc_b_consumer_signal_try_set(
+BL_NONBLOCK_EXPORT bl_err mpmc_b_consumer_signal_try_set(
   mpmc_b* q, mpmc_b_sig* expected, mpmc_b_sig desired
   )
 {
   return mpmc_b_signal (&q->i_consumer, expected, desired);
 
 /*---------------------------------------------------------------------------*/}
-bl_err NONBLOCK_EXPORT mpmc_b_producer_signal_try_set_tmatch(
+BL_NONBLOCK_EXPORT bl_err mpmc_b_producer_signal_try_set_tmatch(
   mpmc_b* q, mpmc_b_info* expected, mpmc_b_sig desired
   )
 {
   return mpmc_b_signal_trans (&q->i_producer, expected, desired);
 }
 /*---------------------------------------------------------------------------*/
-bl_err NONBLOCK_EXPORT mpmc_b_consumer_signal_try_set_tmatch(
+BL_NONBLOCK_EXPORT bl_err mpmc_b_consumer_signal_try_set_tmatch(
   mpmc_b* q, mpmc_b_info* expected, mpmc_b_sig desired
   )
 {
   return mpmc_b_signal_trans (&q->i_consumer, expected, desired);
 }
 /*---------------------------------------------------------------------------*/
-bl_err NONBLOCK_EXPORT mpmc_b_init_private(
+BL_NONBLOCK_EXPORT bl_err mpmc_b_init_private(
   mpmc_b*          q,
   alloc_tbl const* alloc,
   u32              buffer_size,

@@ -60,12 +60,13 @@ typedef struct taskq taskq;
   type allows.
 */
 /*---------------------------------------------------------------------------*/
-extern bl_err TASKQ_EXPORT taskq_init(
-  taskq**          tq,
-  alloc_tbl const* alloc,
-  uword            task_queue_capacity,
-  uword            delayed_task_capacity
-  );
+extern BL_TASKQ_EXPORT 
+  bl_err taskq_init(
+    taskq**          tq,
+    alloc_tbl const* alloc,
+    uword            task_queue_capacity,
+    uword            delayed_task_capacity
+    );
 /*---------------------------------------------------------------------------*/
 /*
   Single-threaded call (to be run from the worker thread). Tries to run an 
@@ -73,7 +74,7 @@ extern bl_err TASKQ_EXPORT taskq_init(
   "taskq_nothing_to_do".
 */
 /*---------------------------------------------------------------------------*/
-extern bl_err TASKQ_EXPORT taskq_try_run_one (taskq* tq);
+extern BL_TASKQ_EXPORT bl_err taskq_try_run_one (taskq* tq);
 /*---------------------------------------------------------------------------*/
 /*
   Single-threaded call (to be run from the worker thread). Tries to run an
@@ -82,7 +83,8 @@ extern bl_err TASKQ_EXPORT taskq_try_run_one (taskq* tq);
 */
 /*---------------------------------------------------------------------------*/
 #define taskq_no_timeout ((taskq_usec) 0)
-extern bl_err TASKQ_EXPORT taskq_run_one (taskq* tq, taskq_usec timeout);
+extern BL_TASKQ_EXPORT 
+  bl_err taskq_run_one (taskq* tq, taskq_usec timeout);
 /*---------------------------------------------------------------------------*/
 static inline bl_err taskq_run_one_no_timeout (taskq* tq)
 {
@@ -96,7 +98,8 @@ static inline bl_err taskq_run_one_no_timeout (taskq* tq)
   "task_queue_capacity" parameter.
 */
 /*---------------------------------------------------------------------------*/
-extern bl_err TASKQ_EXPORT taskq_post (taskq* tq, taskq_id* id, taskq_task task);
+extern BL_TASKQ_EXPORT 
+  bl_err taskq_post (taskq* tq, taskq_id* id, taskq_task task);
 /*---------------------------------------------------------------------------*/
 /* 
   Multi-threaded call. Posts an delayed/timed event to the worker queue. 
@@ -109,18 +112,19 @@ extern bl_err TASKQ_EXPORT taskq_post (taskq* tq, taskq_id* id, taskq_task task)
   If this call returns "taskq_would_overflow" you need to increment the
   "task_queue_capacity" parameter.
 
-  "scheduled_time_point" returns the absolute time that the task will be ready to run
-   at. Note that this absolute time is necessary if you want to cancel the task
-   through the "taskq_post_try_cancel_delayed" function.
+  "scheduled_time_point" returns the absolute time that the task will be ready 
+   to run at. Note that this absolute time is necessary if you want to cancel
+   the task through the "taskq_post_try_cancel_delayed" function.
 */
 /*---------------------------------------------------------------------------*/
-extern bl_err TASKQ_EXPORT taskq_post_delayed(
-  taskq*     tq, 
-  taskq_id*  id, 
-  tstamp*    scheduled_time_point, 
-  taskq_task task, 
-  u32        delay_us
-  );
+extern BL_TASKQ_EXPORT 
+  bl_err taskq_post_delayed(
+    taskq*     tq, 
+    taskq_id*  id, 
+    tstamp*    scheduled_time_point, 
+    taskq_task task, 
+    u32        delay_us
+    );
 /*---------------------------------------------------------------------------*/
 /*
   Multi-threaded call. Tries to cancel the given delayed event id. If succeeding
@@ -141,9 +145,10 @@ extern bl_err TASKQ_EXPORT taskq_post_delayed(
   function call.
 */
 /*---------------------------------------------------------------------------*/
-extern bl_err TASKQ_EXPORT taskq_post_try_cancel_delayed(
-  taskq* tq, taskq_id id, tstamp scheduled_time_point
-  );
+extern BL_TASKQ_EXPORT
+   bl_err taskq_post_try_cancel_delayed(
+    taskq* tq, taskq_id id, tstamp scheduled_time_point
+    );
 /*---------------------------------------------------------------------------*/
 /*
   Multi-threaded call. This function is to be used on shutdown.
@@ -157,7 +162,8 @@ extern bl_err TASKQ_EXPORT taskq_post_try_cancel_delayed(
   return the "taskq_nothing_to_do" error code when empty.
 */
 /*---------------------------------------------------------------------------*/
-extern bl_err TASKQ_EXPORT taskq_block (taskq* tq);
+extern BL_TASKQ_EXPORT
+  bl_err taskq_block (taskq* tq);
 /*---------------------------------------------------------------------------*/
 /*
   Single-threaded call (to be runned from the worker thread). This function is
@@ -168,16 +174,16 @@ extern bl_err TASKQ_EXPORT taskq_block (taskq* tq);
   code on its first parameter.
 */
 /*---------------------------------------------------------------------------*/
-extern bl_err TASKQ_EXPORT taskq_try_cancel_one (taskq* tq);
+extern BL_TASKQ_EXPORT
+  bl_err taskq_try_cancel_one (taskq* tq);
 /*---------------------------------------------------------------------------*/
 /*
   Single-threaded call. Destructs (deallocates) a correctly shat down 
   object (see below for a shut down procedure example).
 */
 /*---------------------------------------------------------------------------*/
-extern bl_err TASKQ_EXPORT taskq_destroy(
-  taskq* taskq, alloc_tbl const* alloc
-  );
+extern BL_TASKQ_EXPORT
+  bl_err taskq_destroy (taskq* taskq, alloc_tbl const* alloc);
 /*---------------------------------------------------------------------------*/
 /*
 shut down procedure example1. Will run every planned task (and wait for all 

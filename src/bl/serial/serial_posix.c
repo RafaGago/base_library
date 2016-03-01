@@ -77,7 +77,7 @@ struct bl_serial {
   u8_dq rq;
 };
 /*----------------------------------------------------------------------------*/
-bl_err BL_SERIAL_EXPORT bl_serial_create(
+BL_SERIAL_EXPORT bl_err bl_serial_create(
   bl_serial** s_out, uword read_buffer_min_size, alloc_tbl const* alloc
   )
 {
@@ -101,7 +101,7 @@ bl_err BL_SERIAL_EXPORT bl_serial_create(
   return bl_ok;
 }
 /*----------------------------------------------------------------------------*/
-void BL_SERIAL_EXPORT bl_serial_destroy (bl_serial* s, alloc_tbl const* alloc)
+BL_SERIAL_EXPORT void bl_serial_destroy (bl_serial* s, alloc_tbl const* alloc)
 {
   bl_assert (s);
   bl_serial_stop (s);
@@ -311,7 +311,7 @@ static inline void set_rts_cts (struct termios* options, bool on)
   }
 }
 /*----------------------------------------------------------------------------*/
-bl_err BL_SERIAL_EXPORT bl_serial_start(
+BL_SERIAL_EXPORT bl_err bl_serial_start(
   bl_serial* s, bl_serial_cfg const* cfg
   )
 {
@@ -449,7 +449,7 @@ close:
  
 }
 /*----------------------------------------------------------------------------*/
-void BL_SERIAL_EXPORT bl_serial_stop (bl_serial* s)
+BL_SERIAL_EXPORT void bl_serial_stop (bl_serial* s)
 {
   if (s->fd >= 0) {
     close (s->fd);
@@ -457,7 +457,7 @@ void BL_SERIAL_EXPORT bl_serial_stop (bl_serial* s)
   }
 }
 /*----------------------------------------------------------------------------*/
-bl_err BL_SERIAL_EXPORT bl_serial_read(
+BL_SERIAL_EXPORT bl_err bl_serial_read(
   bl_serial* s, memr rbuff, toffset timeout_us
   )
 {
@@ -537,7 +537,7 @@ rollback:
   return err;
 }
 /*----------------------------------------------------------------------------*/
-bl_err BL_SERIAL_EXPORT bl_serial_write(
+BL_SERIAL_EXPORT bl_err bl_serial_write(
   bl_serial* s, memr wbuff, u32* written, toffset timeout_us
   )
 {
@@ -596,7 +596,7 @@ end:
   return err;
 }
 /*----------------------------------------------------------------------------*/
-bl_err BL_SERIAL_EXPORT bl_serial_ioctl_get(
+BL_SERIAL_EXPORT bl_err bl_serial_ioctl_get(
   bl_serial* s, bl_serial_ioctl op, uword* val
   )
 {
@@ -624,7 +624,7 @@ bl_err BL_SERIAL_EXPORT bl_serial_ioctl_get(
   return bl_error;
 }
 /*----------------------------------------------------------------------------*/
-bl_err BL_SERIAL_EXPORT bl_serial_ioctl_set(
+BL_SERIAL_EXPORT bl_err bl_serial_ioctl_set(
   bl_serial* s, bl_serial_ioctl op, uword val
   )
 {
@@ -658,7 +658,7 @@ bl_err BL_SERIAL_EXPORT bl_serial_ioctl_set(
   return ioctl (s->fd, ioctlv, &cmd) >= 0 ? bl_ok : bl_error;
 }
 /*----------------------------------------------------------------------------*/
-uword BL_SERIAL_EXPORT bl_serial_get_bit_time_ns (bl_serial_cfg const* cfg)
+BL_SERIAL_EXPORT uword bl_serial_get_bit_time_ns (bl_serial_cfg const* cfg)
 {
   bl_assert (cfg);
   if (!cfg) {
@@ -669,7 +669,7 @@ uword BL_SERIAL_EXPORT bl_serial_get_bit_time_ns (bl_serial_cfg const* cfg)
       );
 }
 /*----------------------------------------------------------------------------*/
-uword BL_SERIAL_EXPORT bl_serial_get_byte_time_ns (bl_serial_cfg const* cfg)
+BL_SERIAL_EXPORT uword bl_serial_get_byte_time_ns (bl_serial_cfg const* cfg)
 {
   bl_assert (cfg);
   if (!cfg) {

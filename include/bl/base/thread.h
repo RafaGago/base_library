@@ -32,8 +32,8 @@
 extern "C" {
 #endif
 
-extern uword BL_EXPORT bl_thread_min_sleep_us (void);
-extern void BL_EXPORT bl_thread_usleep (u32 us);
+extern BL_EXPORT uword bl_thread_min_sleep_us (void);
+extern BL_EXPORT void bl_thread_usleep (u32 us);
 
 #if defined (__cplusplus)
 } /* extern "C" { */

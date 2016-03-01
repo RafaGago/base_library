@@ -10,6 +10,7 @@
 extern "C" {
 #endif
 /*----------------------------------------------------------------------------*/
+BL_NONBLOCK_EXPORT
 void nonblock_backoff_init(
   nonblock_backoff* nb, 
   uword             spin_max,
@@ -34,11 +35,13 @@ void nonblock_backoff_init(
   nb->sleep_us_max = sleep_us_max;
 }
 /*----------------------------------------------------------------------------*/
+BL_NONBLOCK_EXPORT 
 void nonblock_backoff_init_default (nonblock_backoff* nb, toffset sleep_us_max)
 {
    nonblock_backoff_init (nb, 40, 20, BL_SCHED_TMIN_US, 1, 3, sleep_us_max);
 }
 /*----------------------------------------------------------------------------*/
+BL_NONBLOCK_EXPORT 
 void nonblock_backoff_run (nonblock_backoff* nb)
 {
   if (nb->spin < nb->spin_max) {

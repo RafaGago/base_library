@@ -43,6 +43,11 @@
   #define BL_VSTUDIO_NET      1300
   #define BL_VC_6             1200
   #define BL_VC_5             1100
+
+  #define BL_COMPILER         BL_MSC
+
+  #define BL_HAS_C11_STDALIGN(bl_compiler) 0
+  #define BL_HAS_C11_ATOMICS(bl_compiler) 0
   
 #endif
 /*---------------------------------------------------------------------------*/
@@ -55,6 +60,7 @@
   #if defined (_WIN64) || defined (_WIN32) || defined (_WIN32)
     #define BL_WINDOWS 1
   #endif
+
   #if defined (__linux__)
     #define BL_LINUX 1
     #define BL_POSIX 1
@@ -88,25 +94,20 @@
     #endif
   #endif
 
-  #if BL_GCC >= BL_GCC_VER (4, 9, 0)
-    #define BL_HAS_C11_ATOMICS
-  #endif
-
 #if 0 /*not sure about how to test on gcc (depends on glib)*/
   #if BL_GCC >= BL_GCC_VER (4, 9, 0)
     #define BL_HAS_C11_THREAD
   #endif
 #endif
 
-  #if BL_GCC >= BL_GCC_VER (4, 7, 0)
-    #define BL_HAS_C11_STDALIGN
-  #endif
+  #define BL_COMPILER BL_GCC
 
-#else  
-  #define BL_GCC_VER(major, minor, patchlevel) 0
+  #define BL_HAS_C11_STDALIGN(bl_compiler) bl_compiler >= BL_GCC_VER (4, 7, 0)
+  #define BL_HAS_C11_ATOMICS(bl_compiler) bl_compiler >= BL_GCC_VER (4, 9, 0)
+
 #endif
 /*---------------------------------------------------------------------------*/
-#if !defined (BL_INTEL_AMD_PC) && !defined (BL_INTEL_AMD_PC)
+#if !defined (BL_COMPILER)
   #error "unknown compiler or platform (you may just need to update this file)"
 #endif
 /*---------------------------------------------------------------------------*/

@@ -5,6 +5,8 @@
 #include <bl/base/integer.h>
 #include <bl/base/time.h>
 
+#include <bl/nonblock/libexport.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -21,19 +23,24 @@ typedef struct nonblock_backoff {
 }
 nonblock_backoff;
 /*----------------------------------------------------------------------------*/
-void nonblock_backoff_init(
-  nonblock_backoff* nb, 
-  uword             spin_max,
-  uword             yield_max, 
-  toffset           sleep_us_init,
-  toffset           sleep_us_mul,
-  toffset           sleep_us_div,
-  toffset           sleep_us_max
-  );
+extern BL_NONBLOCK_EXPORT 
+  void nonblock_backoff_init(
+    nonblock_backoff* nb, 
+    uword             spin_max,
+    uword             yield_max, 
+    toffset           sleep_us_init,
+    toffset           sleep_us_mul,
+    toffset           sleep_us_div,
+    toffset           sleep_us_max
+    );
 /*----------------------------------------------------------------------------*/
-void nonblock_backoff_init_default (nonblock_backoff* nb, toffset sleep_us_max);  
+extern BL_NONBLOCK_EXPORT 
+  void nonblock_backoff_init_default(
+    nonblock_backoff* nb, toffset sleep_us_max
+    );  
 /*----------------------------------------------------------------------------*/
-void nonblock_backoff_run (nonblock_backoff* nb);
+extern BL_NONBLOCK_EXPORT 
+  void nonblock_backoff_run (nonblock_backoff* nb);
 /*----------------------------------------------------------------------------*/
 #ifdef __cplusplus
 } /*extern "C" {*/

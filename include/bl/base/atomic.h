@@ -3,10 +3,10 @@
 
 #include <bl/base/platform.h>
 /*---------------------------------------------------------------------------*/
-#ifdef __cplusplus
-  #include <bl/base/impl/atomic_cpp.hpp>
-#elif defined (BL_HAS_C11_ATOMICS)
+#if BL_HAS_C11_ATOMICS (BL_COMPILER)
   #include <bl/base/impl/atomic_c11.h>
+#elif defined (__cplusplus)
+  #include <bl/base/impl/atomic_cpp.hpp>
 #elif defined (BL_GCC) && BL_GCC >= BL_GCC_VER (4, 7, 0) 
   #include <bl/base/impl/atomic_gcc.h>
 #else /*older "_sync" atomic builtins with full fences might be used on gcc*/

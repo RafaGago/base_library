@@ -47,7 +47,7 @@ static inline bl_err bl_tm_sem_destroy (bl_tm_sem* s)
   return bl_sem_destroy (s);
 }
 /*----------------------------------------------------------------------------*/
-extern bl_err BL_EXPORT bl_tm_sem_wait (bl_sem* s, u32 usec);
+extern BL_EXPORT bl_err bl_tm_sem_wait (bl_sem* s, u32 usec);
 /*----------------------------------------------------------------------------*/
 static inline bl_err bl_tm_sem_signal (bl_sem* s)
 {

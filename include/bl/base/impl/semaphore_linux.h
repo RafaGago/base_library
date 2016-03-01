@@ -51,13 +51,13 @@ typedef struct bl_tm_sem {
 }
 bl_tm_sem;
 /*----------------------------------------------------------------------------*/
-extern bl_err BL_EXPORT bl_tm_sem_signal (bl_tm_sem* s);
+extern BL_EXPORT bl_err bl_tm_sem_signal (bl_tm_sem* s);
 /*----------------------------------------------------------------------------*/
-extern bl_err BL_EXPORT bl_tm_sem_wait (bl_tm_sem* s, u32 usec);
+extern BL_EXPORT bl_err bl_tm_sem_wait (bl_tm_sem* s, u32 usec);
 /*----------------------------------------------------------------------------*/
-extern bl_err BL_EXPORT bl_tm_sem_init (bl_tm_sem* s);
+extern BL_EXPORT bl_err bl_tm_sem_init (bl_tm_sem* s);
 /*----------------------------------------------------------------------------*/
-extern bl_err BL_EXPORT bl_tm_sem_destroy (bl_tm_sem* s);
+extern BL_EXPORT bl_err bl_tm_sem_destroy (bl_tm_sem* s);
 /*----------------------------------------------------------------------------*/
 
 #ifdef __cplusplus

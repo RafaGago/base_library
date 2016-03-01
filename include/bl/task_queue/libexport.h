@@ -1,30 +1,30 @@
-#ifndef __TASKQ_LIBEXPORT_H__
-#define __TASKQ_LIBEXPORT_H__
+#ifndef __BL_TASKQ_LIBEXPORT_H__
+#define __BL_TASKQ_LIBEXPORT_H__
 
 #include <bl/base/platform.h>
 
 #if defined (BL_GCC) && BL_GCC >= BL_GCC_VER (4, 0, 0)
-    #define TASKQ_EXPORT __attribute__ ((visibility ("default")))
+    #define BL_TASKQ_EXPORT __attribute__ ((visibility ("default")))
 
 #elif defined (BL_MSC)
-  #if (defined (TASKQ_SHAREDLIB_COMPILATION) &&\
-      !defined (TASKQ_SHAREDLIB_USING_DEF)) ||\
+  #if (defined (BL_TASKQ_SHAREDLIB_COMPILATION) &&\
+      !defined (BL_TASKQ_SHAREDLIB_USING_DEF)) ||\
       (defined (BL_ALL_LIBS_SHAREDLIB_COMPILATION) &&\
       !defined (BL_ALL_LIBS_SHAREDLIB_USING_DEF))
-    #define TASKQ_EXPORT __declspec (dllexport)
+    #define BL_TASKQ_EXPORT __declspec (dllexport)
 
-  #elif (defined (TASKQ_SHAREDLIB) &&\
-      !defined (TASKQ_SHAREDLIB_USING_DEF)) ||\
+  #elif (defined (BL_TASKQ_SHAREDLIB) &&\
+      !defined (BL_TASKQ_SHAREDLIB_USING_DEF)) ||\
       (defined (BL_ALL_LIBS_SHAREDLIB) &&\
       !defined (BL_ALL_LIBS_SHAREDLIB_USING_DEF))
-    #define TASKQ_EXPORT __declspec (dllimport)
+    #define BL_TASKQ_EXPORT __declspec (dllimport)
 
   #else
-    #define TASKQ_EXPORT
+    #define BL_TASKQ_EXPORT
   #endif
 
 #else
-  #define TASKQ_EXPORT
+  #define BL_TASKQ_EXPORT
 #endif
 
 #endif /* __BL_LIBEXPORT_H__ */

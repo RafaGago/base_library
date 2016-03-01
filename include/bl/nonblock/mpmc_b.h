@@ -67,7 +67,8 @@ static_assert_outside_func_ns (sizeof (atomic_uword) == sizeof (mpmc_b_info));
     align_combined_type2_offset (type_contained, u32)\
     )
 /*---------------------------------------------------------------------------*/
-extern void NONBLOCK_EXPORT mpmc_b_destroy (mpmc_b* q, alloc_tbl const* alloc);
+extern BL_NONBLOCK_EXPORT
+  void mpmc_b_destroy (mpmc_b* q, alloc_tbl const* alloc);
 /*------------------------------------------------------------------------------
  Inserts to the queue on multiple producer (MP) mode.
  
@@ -90,15 +91,16 @@ extern void NONBLOCK_EXPORT mpmc_b_destroy (mpmc_b* q, alloc_tbl const* alloc);
  that represents "on termination" and with an according mask + match the 
  producers will be blocked.
 ------------------------------------------------------------------------------*/
-extern bl_err NONBLOCK_EXPORT mpmc_b_produce_sig_fallback(
-  mpmc_b*      q,
-  mpmc_b_info* info_out,
-  void const*  value,
-  bool         replace_sig,
-  mpmc_b_sig   sig_replacement,
-  mpmc_b_sig   sig_fallback_mask,
-  mpmc_b_sig   sig_fallback_match
-  );
+extern BL_NONBLOCK_EXPORT
+  bl_err mpmc_b_produce_sig_fallback(
+   mpmc_b*      q,
+   mpmc_b_info* info_out,
+   void const*  value,
+   bool         replace_sig,
+   mpmc_b_sig   sig_replacement,
+   mpmc_b_sig   sig_fallback_mask,
+   mpmc_b_sig   sig_fallback_match
+   );
 /*----------------------------------------------------------------------------*/
 static inline bl_err mpmc_b_produce_sig(
   mpmc_b*      q,
@@ -137,9 +139,10 @@ static inline bl_err mpmc_b_produce(
  Single producer (SP) mode insert. Remember that you can't mix single and 
  multiple producer modes on the same queue.
 -----------------------------------------------------------------------------*/
-extern bl_err NONBLOCK_EXPORT mpmc_b_produce_single_p(
-  mpmc_b* q, mpmc_b_info* info_out, void const* value
-  );
+extern BL_NONBLOCK_EXPORT
+  bl_err mpmc_b_produce_single_p(
+    mpmc_b* q, mpmc_b_info* info_out, void const* value
+    );
 /*------------------------------------------------------------------------------
  Comsumes from the queue on multiple consumer (MC) mode.
  
@@ -164,15 +167,16 @@ extern bl_err NONBLOCK_EXPORT mpmc_b_produce_single_p(
 
  The "bl_empty" error code will be returned when no data is available.
 ------------------------------------------------------------------------------*/
-extern bl_err NONBLOCK_EXPORT mpmc_b_consume_sig_fallback(
-  mpmc_b*      q,
-  mpmc_b_info* info_out,
-  void*        value,
-  bool         replace_sig,
-  mpmc_b_sig   sig_replacement,
-  mpmc_b_sig   sig_fallback_mask,
-  mpmc_b_sig   sig_fallback_match
-  );
+extern BL_NONBLOCK_EXPORT
+  bl_err mpmc_b_consume_sig_fallback(
+    mpmc_b*      q,
+    mpmc_b_info* info_out,
+    void*        value,
+    bool         replace_sig,
+    mpmc_b_sig   sig_replacement,
+    mpmc_b_sig   sig_fallback_mask,
+    mpmc_b_sig   sig_fallback_match
+    );
 /*----------------------------------------------------------------------------*/
 static inline bl_err mpmc_b_consume_fallback(
   mpmc_b*      q,
@@ -211,9 +215,10 @@ static inline bl_err mpmc_b_consume(
  Single consumer (SC) mode insert. Remember that you can't mix single and 
  multiple consumer modes on the same queue.
 -----------------------------------------------------------------------------*/
-extern bl_err NONBLOCK_EXPORT mpmc_b_consume_single_c(
-  mpmc_b* q, mpmc_b_info* info_out, void* value
-  );
+extern BL_NONBLOCK_EXPORT
+  bl_err mpmc_b_consume_single_c(
+    mpmc_b* q, mpmc_b_info* info_out, void* value
+    );
 /*-----------------------------------------------------------------------------
   Can only be used on multiple producer mode. The interface is similar to the
   CAS interface on the C11 atomic library. The value is only changed if expected
@@ -223,34 +228,39 @@ extern bl_err NONBLOCK_EXPORT mpmc_b_consume_single_c(
   The error "bl_preconditions" will be returned in case that "expected" didn't
   match. It is up to the user to retry or not.
 -----------------------------------------------------------------------------*/
-extern bl_err NONBLOCK_EXPORT mpmc_b_producer_signal_try_set(
-  mpmc_b* q, mpmc_b_sig* expected, mpmc_b_sig desired
-  );
+extern BL_NONBLOCK_EXPORT
+  bl_err mpmc_b_producer_signal_try_set(
+    mpmc_b* q, mpmc_b_sig* expected, mpmc_b_sig desired
+    );
 /*-----------------------------------------------------------------------------
  Same as the above but the transaction has to match too
 -----------------------------------------------------------------------------*/
-extern bl_err NONBLOCK_EXPORT mpmc_b_producer_signal_try_set_tmatch(
-  mpmc_b* q, mpmc_b_info* expected, mpmc_b_sig desired
-  );
+extern BL_NONBLOCK_EXPORT
+  bl_err mpmc_b_producer_signal_try_set_tmatch(
+    mpmc_b* q, mpmc_b_info* expected, mpmc_b_sig desired
+    );
 /*-----------------------------------------------------------------------------
   Same as above but for consumers
 -----------------------------------------------------------------------------*/
-extern bl_err NONBLOCK_EXPORT mpmc_b_consumer_signal_try_set(
-  mpmc_b* q, mpmc_b_sig* expected, mpmc_b_sig desired
-  );
+extern BL_NONBLOCK_EXPORT
+  bl_err mpmc_b_consumer_signal_try_set(
+    mpmc_b* q, mpmc_b_sig* expected, mpmc_b_sig desired
+    );
 /*--------------------------- ------------------------------------------------*/
-extern bl_err NONBLOCK_EXPORT mpmc_b_consumer_signal_try_set_tmatch(
-  mpmc_b* q, mpmc_b_info* expected, mpmc_b_sig desired
-  );
+extern BL_NONBLOCK_EXPORT
+  bl_err mpmc_b_consumer_signal_try_set_tmatch(
+    mpmc_b* q, mpmc_b_info* expected, mpmc_b_sig desired
+    );
 /*--------------------------- ------------------------------------------------*/
-extern bl_err NONBLOCK_EXPORT mpmc_b_init_private(
-  mpmc_b*          q,
-  alloc_tbl const* alloc,
-  u32              buffer_size,
-  u32              join_size,
-  u32              contained_size,
-  u32              contained_offset
-  );
+extern BL_NONBLOCK_EXPORT
+  bl_err mpmc_b_init_private(
+    mpmc_b*          q,
+    alloc_tbl const* alloc,
+    u32              buffer_size,
+    u32              join_size,
+    u32              contained_size,
+    u32              contained_offset
+    );
 /*----------------------------------------------------------------------------*/
 #ifdef __cplusplus
 } /*extern "C" {*/

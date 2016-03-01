@@ -131,7 +131,7 @@ static inline bl_err taskq_post_impl(
   return err;
 }
 /*---------------------------------------------------------------------------*/
-bl_err TASKQ_EXPORT taskq_try_run_one (taskq* tq)
+BL_TASKQ_EXPORT bl_err taskq_try_run_one (taskq* tq)
 {
   delayed_entry const* expired;
   cmd_elem             cmd;
@@ -157,7 +157,7 @@ bl_err TASKQ_EXPORT taskq_try_run_one (taskq* tq)
   return err;
 }
 /*---------------------------------------------------------------------------*/
-bl_err TASKQ_EXPORT taskq_run_one (taskq* tq, u32 timeout_us)
+BL_TASKQ_EXPORT bl_err taskq_run_one (taskq* tq, u32 timeout_us)
 {
   bl_err err = taskq_try_run_one (tq);
   if (!err || err != bl_nothing_to_do) {
@@ -244,7 +244,7 @@ try_again:
   return err;
 }
 /*---------------------------------------------------------------------------*/
-bl_err TASKQ_EXPORT taskq_block (taskq* tq)
+BL_TASKQ_EXPORT bl_err taskq_block (taskq* tq)
 {
   mpmc_b_info expected;
   expected        = tq->last_consumed;
@@ -258,7 +258,7 @@ bl_err TASKQ_EXPORT taskq_block (taskq* tq)
   return bl_ok;
 }
 /*---------------------------------------------------------------------------*/
-bl_err TASKQ_EXPORT taskq_try_cancel_one (taskq* tq)
+BL_TASKQ_EXPORT bl_err taskq_try_cancel_one (taskq* tq)
 {
   cmd_elem cmd;
 retry:
@@ -293,7 +293,7 @@ retry:
   return bl_ok;
 }
 /*---------------------------------------------------------------------------*/
-bl_err TASKQ_EXPORT taskq_post (taskq* tq, taskq_id* id, taskq_task task)
+BL_TASKQ_EXPORT bl_err taskq_post (taskq* tq, taskq_id* id, taskq_task task)
 {
   bl_assert (tq && id);
   cmd_elem cmd;
@@ -302,7 +302,7 @@ bl_err TASKQ_EXPORT taskq_post (taskq* tq, taskq_id* id, taskq_task task)
   return taskq_post_impl (tq, &cmd, id);
 }
 /*---------------------------------------------------------------------------*/
-bl_err TASKQ_EXPORT taskq_post_delayed(
+BL_TASKQ_EXPORT bl_err taskq_post_delayed(
   taskq*     tq, 
   taskq_id*  id, 
   tstamp*    scheduled_time_point, 
@@ -322,7 +322,7 @@ bl_err TASKQ_EXPORT taskq_post_delayed(
   return taskq_post_impl (tq, &cmd, id);
 }
 /*---------------------------------------------------------------------------*/
-bl_err TASKQ_EXPORT taskq_post_try_cancel_delayed(
+BL_TASKQ_EXPORT bl_err taskq_post_try_cancel_delayed(
   taskq* tq, taskq_id id, tstamp scheduled_time_point
   )
 {
@@ -335,7 +335,7 @@ bl_err TASKQ_EXPORT taskq_post_try_cancel_delayed(
   return taskq_post_impl (tq, &cmd, &dummy);
 }
 /*---------------------------------------------------------------------------*/
-bl_err TASKQ_EXPORT taskq_destroy (taskq* tq, alloc_tbl const* alloc)
+BL_TASKQ_EXPORT bl_err taskq_destroy (taskq* tq, alloc_tbl const* alloc)
 {
   bl_assert (tq && alloc);
   mpmc_b_destroy (&tq->queue, alloc);
@@ -346,7 +346,7 @@ bl_err TASKQ_EXPORT taskq_destroy (taskq* tq, alloc_tbl const* alloc)
   return err;
 }
 /*---------------------------------------------------------------------------*/
-bl_err TASKQ_EXPORT taskq_init(
+BL_TASKQ_EXPORT bl_err taskq_init(
   taskq**          tqueue,
   alloc_tbl const* alloc,
   uword            regular_capacity,

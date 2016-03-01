@@ -17,14 +17,14 @@
 extern "C" {
 #endif
 
-uword BL_EXPORT bl_thread_min_sleep_us (void)
+BL_EXPORT uword bl_thread_min_sleep_us (void)
 {
   TIMECAPS tc;
   bl_assert_always (timeGetDevCaps (&tc, sizeof tc) == TIMERR_NOERROR);
   return (uword) (tc.wPeriodMin * usec_in_msec);
 }
 
-void EXPORT bl_thread_usleep (u32 us)
+BL_EXPORT void bl_thread_usleep (u32 us)
 {
   if (us <= 0) { return; }
   uword minsleep_us = bl_thread_min_sleep_us();
@@ -72,13 +72,13 @@ void EXPORT bl_thread_usleep (u32 us)
 extern "C" {
 #endif
 
-uword BL_EXPORT bl_thread_min_sleep_us (void)
+BL_EXPORT uword bl_thread_min_sleep_us (void)
 {
   return BL_SCHED_TMIN_US;
 }
 
 /*TODO: proper detection, not all versions of POSIX support this*/
-void BL_EXPORT bl_thread_usleep (u32 us)
+BL_EXPORT void bl_thread_usleep (u32 us)
 {
   if (us <= 0) { return; }
   struct timespec t, remainder;

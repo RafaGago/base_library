@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 /*----------------------------------------------------------------------------*/
-bl_err BL_EXPORT bl_tm_sem_wait (bl_sem* s, u32 usec)
+BL_EXPORT bl_err bl_tm_sem_wait (bl_sem* s, u32 usec)
 {
   DWORD         ms;
   u64           f;
