@@ -27,7 +27,6 @@ extern "C" {
      a rudimentary external synchronization mechanism.
 */
 /*---------------------------------------------------------------------------*/ 
-
 #define mpmc_b_info_signal_bits 8
 typedef u8 mpmc_b_sig;
 #define mpmc_b_info_transaction_bits\
