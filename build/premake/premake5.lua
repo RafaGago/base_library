@@ -126,7 +126,6 @@ project (task_queue_name)
 project (serial_name)
   kind "StaticLib"
   language "C"
-  defines {"NDEBUG"}
   includedirs {repo_src}
   files {serial_src  .. "/**"}
 
@@ -163,5 +162,5 @@ project (task_queue_name .. "_stress")
   language "C"
   includedirs {repo_src, repo_test_src}
   files {task_queue_stress_src .. "/**"}
-  links {nonblock_name}
+  links {base_name, nonblock_name}
 

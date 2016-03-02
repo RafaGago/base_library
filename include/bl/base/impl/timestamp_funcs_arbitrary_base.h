@@ -10,7 +10,7 @@ extern BL_EXPORT toffset bl_tstamp_to_private (tstamp ts, u32 factor);
 /*---------------------------------------------------------------------------*/
 extern BL_EXPORT toffset bl_tstamp_to_ceil_private (tstamp ts, u32 factor);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT tstamp bl_to_tstamp_private (toffset amt, u32 factor)
+extern BL_EXPORT tstamp bl_to_tstamp_private (toffset amt, u32 factor);
 /*---------------------------------------------------------------------------*/
 static inline toffset bl_tstamp_to_sec (tstamp ts)
 {

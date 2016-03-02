@@ -3,10 +3,7 @@
 
 #include <bl/base/platform.h>
 
-#if defined (BL_GCC) && BL_GCC >= BL_GCC_VER (4, 0, 0)
-    #define BL_TASKQ_EXPORT __attribute__ ((visibility ("default")))
-
-#elif defined (BL_MSC)
+#if defined (BL_MSC)
   #if (defined (BL_TASKQ_SHAREDLIB_COMPILATION) &&\
       !defined (BL_TASKQ_SHAREDLIB_USING_DEF)) ||\
       (defined (BL_ALL_LIBS_SHAREDLIB_COMPILATION) &&\
@@ -22,6 +19,9 @@
   #else
     #define BL_TASKQ_EXPORT
   #endif
+
+#elif defined (BL_GCC) && BL_GCC >= BL_GCC_VER (4, 0, 0)
+  #define BL_TASKQ_EXPORT __attribute__ ((visibility ("default")))
 
 #else
   #define BL_TASKQ_EXPORT
