@@ -358,8 +358,8 @@ BL_TASKQ_EXPORT bl_err taskq_init(
   regular_capacity = round_next_pow2_u (regular_capacity);
   delayed_capacity = round_next_pow2_u (delayed_capacity);
 
-  regular_capacity = bl_max (regular_capacity, 16);
-  delayed_capacity = bl_max (delayed_capacity, 16);
+  regular_capacity = bl_max (regular_capacity, 2);
+  delayed_capacity = bl_max (delayed_capacity, 2);
 
   taskq* tq = (taskq*) bl_alloc (alloc, sizeof *tq);
   if (!tq) {
