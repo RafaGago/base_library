@@ -4,8 +4,8 @@
 #include <bl/base/platform.h>
 #include <bl/base/static_integer_math.h>
 /*---------------------------------------------------------------------------*/
-#define bl_min(v1, v2) ((v1) <= (v2) ? (v1) : (v2))
-#define bl_max(v1, v2) ((v1) >= (v2) ? (v2) : (v1))
+#define bl_min(v1, v2) (((v1) <= (v2)) ? (v1) : (v2))
+#define bl_max(v1, v2) (((v1) <= (v2)) ? (v2) : (v1))
 /*---------------------------------------------------------------------------*/
 #define sizeof_member(struct_type, member_name)\
   (sizeof ((struct_type*) 0)->member_name)
