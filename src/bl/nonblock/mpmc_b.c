@@ -245,10 +245,10 @@ BL_NONBLOCK_EXPORT bl_err mpmc_b_consume_single_c(
   mpmc_b_i now;
   u32      gate;
 
-  now.raw   = atomic_u32_load_rlx (&q->i_consumer);
-  join_data = mpmc_b_join_data_ptr (q, now.inf.transaction);
-  gate      = atomic_u32_load (mpmc_b_gate_ptr (q, join_data), mo_acquire);
-  *inf      = now.inf;
+  now.raw    = atomic_u32_load_rlx (&q->i_consumer);
+  join_data  = mpmc_b_join_data_ptr (q, now.inf.transaction);
+  gate       = atomic_u32_load (mpmc_b_gate_ptr (q, join_data), mo_acquire);
+  *inf       = now.inf;
   ++now.inf.transaction;
   i32 status = mpmc_b_transaction_status (gate, now);
 
@@ -302,7 +302,6 @@ static inline bl_err mpmc_b_signal_trans(
 
   err     = bl_preconditions;
   exp.inf = *expected;
-  ++exp.inf.transaction;
   r.raw   = atomic_u32_load_rlx (dst);
 
   if (r.raw != exp.raw) {
@@ -315,7 +314,6 @@ static inline bl_err mpmc_b_signal_trans(
   }
 save_expected:
   *expected = r.inf;
-  --expected->transaction;
   return err;
 }
 /*---------------------------------------------------------------------------*/

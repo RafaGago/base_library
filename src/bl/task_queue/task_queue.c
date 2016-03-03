@@ -204,7 +204,7 @@ BL_TASKQ_EXPORT bl_err taskq_run_one (taskq* tq, u32 timeout_us)
       sem_us = bl_tm_sem_infinity;
     }
 
-    if (sem_us > BL_SCHED_TMIN_US || sem_us == bl_tm_sem_infinity) {
+    if (sem_us > BL_SCHED_TMIN_US || sem_us == bl_tm_sem_infinity) {      
       ierr = mpmc_b_producer_signal_try_set_tmatch(
         &tq->queue, &expected, taskq_q_waiting_sem
         );
