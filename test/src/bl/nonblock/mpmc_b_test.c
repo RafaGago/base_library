@@ -266,34 +266,38 @@ static void mpmc_b_consumer_signals_set (void **state)
 static void mpmc_b_producer_signals_set_tmatch (void **state)
 {
   mpmc_b_context* c = (mpmc_b_context*) *state;
-  mpmc_b_info     inf, exp;
+  mpmc_b_info     inf, exp, initial;
   mpmc_b_type     v = 0;
   bl_err          err;
 
-  exp.transaction = 0;
-  exp.signal      = 0;
+  initial.transaction = 0;
+  initial.signal      = 0;
+  --initial.transaction; /*there wasn't an insertion yet, so the indexes are off*/
+
+  exp.transaction  = initial.transaction;
+  exp.signal       = initial.signal;
   err = mpmc_b_producer_signal_try_set_tmatch (&c->q, &exp, 1);
   assert_true (err == bl_ok);
-  assert_true (exp.transaction == 0);
+  assert_true (exp.transaction == initial.transaction);
   assert_true (exp.signal == 0);
 
-  exp.transaction = 0; /*correct transaction*/
+  exp.transaction = initial.transaction; /*correct transaction*/
   exp.signal      = 0; /*incorrect signal*/
   err = mpmc_b_producer_signal_try_set_tmatch (&c->q, &exp, 2);
   assert_true (err == bl_preconditions);
-  assert_true (exp.transaction == 0);
+  assert_true (exp.transaction == initial.transaction);
   assert_true (exp.signal == 1);
 
-  exp.transaction = 1; /*incorrect transaction*/
+  exp.transaction = initial.transaction + 1; /*incorrect transaction*/
   exp.signal      = 1; /*correct signal*/
   err = mpmc_b_producer_signal_try_set_tmatch (&c->q, &exp, 2);
   assert_true (err == bl_preconditions);
-  assert_true (exp.transaction == 0);
+  assert_true (exp.transaction == initial.transaction);
   assert_true (exp.signal == 1);
 
   err = mpmc_b_producer_signal_try_set_tmatch (&c->q, &exp, 2);
   assert_true (err == bl_ok);
-  assert_true (exp.transaction == 0);
+  assert_true (exp.transaction == initial.transaction);
   assert_true (exp.signal == 1);
 
   assert_true (mpmc_b_produce (&c->q, &inf, &v) == bl_ok);
@@ -303,43 +307,55 @@ static void mpmc_b_producer_signals_set_tmatch (void **state)
   assert_true (mpmc_b_produce (&c->q, &inf, &v) == bl_ok);
   assert_true (inf.signal == 2);
   assert_true (inf.transaction == 1);
+
+  err = mpmc_b_producer_signal_try_set_tmatch (&c->q, &inf, 3);
+  assert_true (inf.signal == 2);
+  assert_true (inf.transaction == 1);
+
+  err = mpmc_b_producer_signal_try_set_tmatch (&c->q, &inf, 4);
+  assert_true (inf.signal == 3);
+  assert_true (inf.transaction == 1);
 }
 /*---------------------------------------------------------------------------*/
 static void mpmc_b_consumer_signals_set_tmatch (void **state)
 {
   mpmc_b_context* c = (mpmc_b_context*) *state;
-  mpmc_b_info     inf, exp;
+  mpmc_b_info     inf, exp, initial;
   mpmc_b_type     v = 0;
   bl_err          err;
 
-  assert_true (mpmc_b_produce (&c->q, &inf, &v) == bl_ok);
-  assert_true (mpmc_b_produce (&c->q, &inf, &v) == bl_ok);
+  initial.transaction = 0;
+  initial.signal      = 0;
+  --initial.transaction; /*there wasn't an insertion yet, so the indexes are off*/
 
-  exp.transaction = 0;
-  exp.signal      = 0;
+  exp.transaction  = initial.transaction;
+  exp.signal       = initial.signal;
   err = mpmc_b_consumer_signal_try_set_tmatch (&c->q, &exp, 1);
   assert_true (err == bl_ok);
-  assert_true (exp.transaction == 0);
+  assert_true (exp.transaction == initial.transaction);
   assert_true (exp.signal == 0);
 
-  exp.transaction = 0; /*correct transaction*/
+  exp.transaction = initial.transaction; /*correct transaction*/
   exp.signal      = 0; /*incorrect signal*/
   err = mpmc_b_consumer_signal_try_set_tmatch (&c->q, &exp, 2);
   assert_true (err == bl_preconditions);
-  assert_true (exp.transaction == 0);
+  assert_true (exp.transaction == initial.transaction);
   assert_true (exp.signal == 1);
 
-  exp.transaction = 1; /*incorrect transaction*/
+  exp.transaction = initial.transaction + 1; /*incorrect transaction*/
   exp.signal      = 1; /*correct signal*/
   err = mpmc_b_consumer_signal_try_set_tmatch (&c->q, &exp, 2);
   assert_true (err == bl_preconditions);
-  assert_true (exp.transaction == 0);
+  assert_true (exp.transaction == initial.transaction);
   assert_true (exp.signal == 1);
 
   err = mpmc_b_consumer_signal_try_set_tmatch (&c->q, &exp, 2);
   assert_true (err == bl_ok);
-  assert_true (exp.transaction == 0);
+  assert_true (exp.transaction == initial.transaction);
   assert_true (exp.signal == 1);
+
+  assert_true (mpmc_b_produce (&c->q, &inf, &v) == bl_ok);
+  assert_true (mpmc_b_produce (&c->q, &inf, &v) == bl_ok);
 
   assert_true (mpmc_b_consume (&c->q, &inf, &v) == bl_ok);
   assert_true (inf.signal == 2);
@@ -347,6 +363,14 @@ static void mpmc_b_consumer_signals_set_tmatch (void **state)
 
   assert_true (mpmc_b_consume (&c->q, &inf, &v) == bl_ok);
   assert_true (inf.signal == 2);
+  assert_true (inf.transaction == 1);
+
+  err = mpmc_b_consumer_signal_try_set_tmatch (&c->q, &inf, 3);
+  assert_true (inf.signal == 2);
+  assert_true (inf.transaction == 1);
+
+  err = mpmc_b_consumer_signal_try_set_tmatch (&c->q, &inf, 4);
+  assert_true (inf.signal == 3);
   assert_true (inf.transaction == 1);
 }
 /*---------------------------------------------------------------------------*/
