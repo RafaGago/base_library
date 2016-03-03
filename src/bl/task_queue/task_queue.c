@@ -204,7 +204,7 @@ BL_TASKQ_EXPORT bl_err taskq_run_one (taskq* tq, u32 timeout_us)
       sem_us = bl_tm_sem_infinity;
     }
 
-    if (sem_us > BL_SCHED_TMIN_US || sem_us == bl_tm_sem_infinity) {      
+    if (sem_us > BL_SCHED_TMIN_US || sem_us == bl_tm_sem_infinity) {
       ierr = mpmc_b_producer_signal_try_set_tmatch(
         &tq->queue, &expected, taskq_q_waiting_sem
         );
@@ -382,7 +382,7 @@ BL_TASKQ_EXPORT bl_err taskq_init(
     goto taskq_delayed_destroy;
   }
   *tqueue = tq;
-  tq->last_consumed.transaction = 0;
+  tq->last_consumed.transaction = mpmc_b_unset_transaction;
   tq->last_consumed.signal      = 0;
   return bl_ok;
 

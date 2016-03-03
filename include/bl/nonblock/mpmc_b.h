@@ -8,6 +8,7 @@
 #include <bl/base/alignment.h>
 #include <bl/base/allocator.h>
 #include <bl/base/error.h>
+#include <bl/base/integer_manipulation.h>
 #include <bl/base/utility.h>
 #include <bl/base/atomic.h>
 
@@ -37,6 +38,8 @@ typedef struct mpmc_b_info {
   u32 signal      : mpmc_b_info_signal_bits;
 }
 mpmc_b_info;
+/*---------------------------------------------------------------------------*/
+#define mpmc_b_unset_transaction u32_lsb_set (mpmc_b_info_transaction_bits)
 /*---------------------------------------------------------------------------*/
 /*mpmc_b = mpmc bounded*/
 typedef struct mpmc_b {
@@ -71,10 +74,12 @@ extern BL_NONBLOCK_EXPORT
 /*------------------------------------------------------------------------------
  Inserts to the queue on multiple producer (MP) mode.
  
- info_out: will contain the current transaction id and the signal that was 
-  present on the producer's "channel". On return of the "bl_preconditions"
-  error code the signal will be the signal that was present on the channel but
-  the transaction will be invalid.
+info_out: when there is no error will contain the current transaction id
+  and the signal that was present on the producer's "channel". On return of
+  the "bl_preconditions" error code the signal will be the signal that was
+  present on the channel but the transaction will be the transaction of the
+  next insertion (which should be ignored). On return of another error code
+  the value will be left untouched.
 
  replace_sigl + sig_replacement: If "replace_signal" is "true" the signal
   value will be replaced on success with "signal_replacement". If 
@@ -145,10 +150,12 @@ extern BL_NONBLOCK_EXPORT
 /*------------------------------------------------------------------------------
  Comsumes from the queue on multiple consumer (MC) mode.
  
- info_out: will contain the current transaction id and the signal that was 
-  present on the consumer's "channel". On return of the "bl_preconditions"
-  error code the signal will be the signal that was present on the channel but
-  the transaction will be invalid.
+ info_out: when there is no error will contain the current transaction id
+  and the signal that was present on the producer's "channel". On return of
+  the "bl_preconditions" error code the signal will be the signal that was
+  present on the channel but the transaction will be the transaction of the
+  next insertion (which should be ignored). On return of another error code
+  the value will be left untouched.
 
  replace_sig + sig_replacement: If "replace_signal" is "true" the signal
   value will be replaced on success with "signal_replacement". If 
@@ -232,7 +239,8 @@ extern BL_NONBLOCK_EXPORT
     mpmc_b* q, mpmc_b_sig* expected, mpmc_b_sig desired
     );
 /*-----------------------------------------------------------------------------
- Same as the above but the transaction has to match too
+ Same as the above but the last successful transaction has to match too. If
+ the queue is unitialized the last successful transaction is uint_max;
 -----------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
   bl_err mpmc_b_producer_signal_try_set_tmatch(

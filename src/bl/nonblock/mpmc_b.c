@@ -136,8 +136,8 @@ BL_NONBLOCK_EXPORT bl_err mpmc_b_produce_sig_fallback(
     i32 status;
     u32 gate;
 
-    *inf = now.inf;
     if ((now.inf.signal & sig_fallback_mask) == sig_fallback_match) {
+      *inf = now.inf;
       return bl_preconditions;
     }
     join_data  = mpmc_b_join_data_ptr (q, now.inf.transaction);
@@ -159,6 +159,7 @@ BL_NONBLOCK_EXPORT bl_err mpmc_b_produce_sig_fallback(
     }
   }
   mpmc_b_write (q, (u32) next.inf.transaction, join_data, value);
+  *inf = now.inf;
   return bl_ok;
 }
 /*---------------------------------------------------------------------------*/
@@ -208,8 +209,8 @@ BL_NONBLOCK_EXPORT bl_err mpmc_b_consume_sig_fallback(
   while (1) {
     u32 gate;
 
-    *inf = now.inf;
     if ((now.inf.signal & sig_fallback_mask) == sig_fallback_match) {
+      *inf = now.inf;
       return bl_preconditions;
     }
     join_data              = mpmc_b_join_data_ptr (q, now.inf.transaction);
@@ -233,6 +234,7 @@ BL_NONBLOCK_EXPORT bl_err mpmc_b_consume_sig_fallback(
   }
   next.inf.transaction += q->buffer_mask;
   mpmc_b_read (q, (u32) next.inf.transaction, join_data, value);
+  *inf = now.inf;
   return bl_ok;
 }
 /*---------------------------------------------------------------------------*/
@@ -242,21 +244,22 @@ BL_NONBLOCK_EXPORT bl_err mpmc_b_consume_single_c(
 {
   bl_assert (q->buffer && inf && value);
   u8*      join_data;
-  mpmc_b_i now;
+  mpmc_b_i now, prev;
   u32      gate;
 
-  now.raw    = atomic_u32_load_rlx (&q->i_consumer);
-  join_data  = mpmc_b_join_data_ptr (q, now.inf.transaction);
+  prev.raw   = atomic_u32_load_rlx (&q->i_consumer);
+  join_data  = mpmc_b_join_data_ptr (q, prev.inf.transaction);
   gate       = atomic_u32_load (mpmc_b_gate_ptr (q, join_data), mo_acquire);
-  *inf       = now.inf;
+  now.raw    = prev.raw;
   ++now.inf.transaction;
   i32 status = mpmc_b_transaction_status (gate, now);
 
   if (status == 0) {
-    now.inf.signal       = 0;
+    now.inf.signal = 0;
     atomic_u32_store_rlx (&q->i_consumer, now.raw);
     now.inf.transaction += q->buffer_mask;
     mpmc_b_read (q, now.inf.transaction, join_data, value);
+    *inf = prev.inf;
     return bl_ok;
   }
   bl_assert (status < 0);
@@ -302,6 +305,7 @@ static inline bl_err mpmc_b_signal_trans(
 
   err     = bl_preconditions;
   exp.inf = *expected;
+  ++exp.inf.transaction;
   r.raw   = atomic_u32_load_rlx (dst);
 
   if (r.raw != exp.raw) {
@@ -313,6 +317,7 @@ static inline bl_err mpmc_b_signal_trans(
     err = bl_ok;
   }
 save_expected:
+  --r.inf.transaction;
   *expected = r.inf;
   return err;
 }
