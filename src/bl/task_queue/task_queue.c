@@ -5,6 +5,7 @@
 #include <bl/base/assert.h>
 #include <bl/base/integer_math.h>
 #include <bl/base/deadline.h>
+#include <bl/base/utility.h>
 #include <bl/base/processor_pause.h>
 #include <bl/base/atomic.h>
 #include <bl/base/semaphore.h>
