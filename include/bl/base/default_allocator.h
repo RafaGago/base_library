@@ -17,9 +17,9 @@ static void* default_realloc_func(
   return realloc (mem, new_size);
 }
 /*---------------------------------------------------------------------------*/
-static void default_dealloc_func (void* mem, alloc_tbl const* invoker)
+static void default_dealloc_func (void const* mem, alloc_tbl const* invoker)
 {
-  free (mem);
+  free ((void*) mem);
 }
 /*---------------------------------------------------------------------------*/
 static inline alloc_tbl get_default_alloc()

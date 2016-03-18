@@ -38,7 +38,7 @@ typedef void* (*alloc_signature) (size_t bytes, alloc_tbl const* invoker);
 typedef void* (*realloc_signature)(
   void* mem, size_t new_size, alloc_tbl const* invoker
   );
-typedef void (*dealloc_signature) (void* mem, alloc_tbl const* invoker);
+typedef void (*dealloc_signature) (void const* mem, alloc_tbl const* invoker);
 /*---------------------------------------------------------------------------*/
 typedef struct alloc_tbl {
   alloc_signature   alloc;

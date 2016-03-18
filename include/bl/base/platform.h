@@ -48,6 +48,9 @@
 
   #define BL_HAS_C11_STDALIGN(bl_compiler) 0
   #define BL_HAS_C11_ATOMICS(bl_compiler) 0
+
+  #define BL_VISIBILITY_DEFAULT
+  #define BL_VISIBILITY_HIDDEN
   
 #endif
 /*---------------------------------------------------------------------------*/
@@ -105,6 +108,13 @@
   #define BL_HAS_C11_STDALIGN(bl_compiler) bl_compiler >= BL_GCC_VER (4, 7, 0)
   #define BL_HAS_C11_ATOMICS(bl_compiler) bl_compiler >= BL_GCC_VER (4, 9, 0)
 
+  #if BL_GCC >= BL_GCC_VER (4, 0, 0)
+    #define BL_VISIBILITY_DEFAULT __attribute__ ((visibility ("default")))
+    #define BL_VISIBILITY_HIDDEN __attribute__ ((visibility ("hidden")))
+  #else
+    #define BL_VISIBILITY_DEFAULT
+    #define BL_VISIBILITY_HIDDEN
+  #endif
 #endif
 /*---------------------------------------------------------------------------*/
 #if !defined (BL_COMPILER)

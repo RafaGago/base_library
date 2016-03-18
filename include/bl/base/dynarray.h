@@ -8,6 +8,13 @@
 #include <bl/base/allocator.h>
 
 /*---------------------------------------------------------------------------*/
+#define dynarray_foreach(prefix, content_type, instance_ptr, varname)\
+  for(\
+    content_type* varname = prefix##_beg (instance_ptr);\
+    varname < prefix##_end (instance_ptr);\
+    ++varname\
+    )
+/*---------------------------------------------------------------------------*/
 /* dynamic array (storing the size + realloc) syntax "sugar"                 */
 /*---------------------------------------------------------------------------*/
 #define define_dynarray_types(prefix, content_type)\
@@ -51,7 +58,7 @@ content_type* prefix##_at (prefix const* d, uword idx)\
 static inline \
 content_type* prefix##_beg (prefix const* d)\
 {\
-  return prefix##_at (d, 0);\
+  return d->arr;\
 }\
 \
 static inline \
