@@ -390,7 +390,7 @@ int main (int argc, char* argv[])
           printf ("current timestamp %d\n", curr);
           for (uword j = 0; j < delayed_ringb_size (&tq->delayed_ls.list); ++j) {
             delayed_entry* f = delayed_ringb_at (&tq->delayed_ls.list, j);
-            printf ("delayed list element %d timestamp: %d\n", j, f->deadl);
+            printf ("delayed list element %d timestamp: %d\n", j, f->key);
           }
         }
         err = 4;

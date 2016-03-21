@@ -13,6 +13,7 @@ static inline tstamp bl_get_tstamp (void)
 #include <bl/base/default_allocator.h>
 #include <bl/task_queue/task_queue.h>
 #include <bl/task_queue/task_queue.c>
+#include <bl/task_queue/delayed.c>
 /*---------------------------------------------------------------------------*/
 /* 
   A file to test that queue hasn't too many issues unrelated to

@@ -10,16 +10,23 @@
 
 /* some convenience functions for tstamp */
 /*---------------------------------------------------------------------------*/
-static inline bl_err deadline_init (tstamp* d, toffset usec)
+static inline bl_err deadline_init_explicit(
+  tstamp* d, tstamp now, toffset usec
+  )
 {
   bl_assert (d);
   if (usec <= bl_usec_to_tstamp_max ()) {
-    *d = bl_get_tstamp() + bl_usec_to_tstamp (usec);
+    *d = now + bl_usec_to_tstamp (usec);
     return bl_ok;
   }
   else {
     return bl_invalid;
   }
+}
+/*---------------------------------------------------------------------------*/
+static inline bl_err deadline_init (tstamp* d, toffset usec)
+{
+  return deadline_init_explicit (d, bl_get_tstamp(), usec);
 }
 /*---------------------------------------------------------------------------*/
 static inline tstampdiff deadline_compare (tstamp a, tstamp b)

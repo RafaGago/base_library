@@ -83,9 +83,9 @@ static inline bool taskq_handle_cmd (taskq* tq, cmd_elem* cmd, taskq_id tid)
     /*no check for expiration here, as we might have expired events on the queue
       and we want to guarantee that they are called on expiration order*/
     delayed_entry d;
-    d.task     = cmd->data.d.task;
-    d.deadl    = cmd->data.d.tp;
-    d.id       = tid;
+    d.key        = cmd->data.d.tp;
+    d.value.task = cmd->data.d.task;
+    d.value.id   = tid;
     bl_err err = delayed_insert (&tq->delayed_ls, &d);
     if (unlikely (err)) {
       taskq_task_run (cmd->data.d.task, err, tid);
@@ -94,14 +94,13 @@ static inline bool taskq_handle_cmd (taskq* tq, cmd_elem* cmd, taskq_id tid)
     return false;
   }
   case cmd_delayed_cancel: {
-    taskq_task task;
-    if (delayed_try_get_task_and_drop(
-        &tq->delayed_ls,
-        &task,
-        cmd->data.dcancel.tp,
-        cmd->data.dcancel.id
+    delayed_data task;
+    delayed_data match;
+    match.id = cmd->data.dcancel.id;
+    if (delayed_try_get_and_drop(
+        &tq->delayed_ls, &task, cmd->data.dcancel.tp, &match
         )) {
-      taskq_task_run (task, bl_cancelled, cmd->data.dcancel.id);
+      taskq_task_run (task.task, bl_cancelled, cmd->data.dcancel.id);
       return true;
     }
     return false;
@@ -142,7 +141,7 @@ BL_TASKQ_EXPORT bl_err taskq_try_run_one (taskq* tq)
     retry   = false;
     expired = delayed_get_head_if_expired (&tq->delayed_ls);
     if (expired) {
-      taskq_task_run (expired->task, bl_ok, expired->id);
+      taskq_task_run (expired->value.task, bl_ok, expired->value.id);
       delayed_drop_head (&tq->delayed_ls);
       return bl_ok;
     }
@@ -182,11 +181,11 @@ BL_TASKQ_EXPORT bl_err taskq_run_one (taskq* tq, u32 timeout_us)
 
     if (dhead) {            
       if (has_deadline) {
-        deadline = deadline_min (deadline, dhead->deadl);
+        deadline = deadline_min (deadline, dhead->key);
       }
       else {
         has_deadline = true;
-        deadline     = dhead->deadl;
+        deadline     = dhead->key;
       }      
     }    
     u32 sem_us;
@@ -289,7 +288,7 @@ retry:
   if (!dhead) {
     return bl_nothing_to_do;
   }
-  taskq_task_run (dhead->task, bl_cancelled, dhead->id);
+  taskq_task_run (dhead->value.task, bl_cancelled, dhead->value.id);
   delayed_drop_head (&tq->delayed_ls);
   return bl_ok;
 }
