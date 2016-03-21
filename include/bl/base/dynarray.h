@@ -15,6 +15,13 @@
     ++varname\
     )
 /*---------------------------------------------------------------------------*/
+#define dynarray_foreach_const(prefix, content_type, instance_ptr, varname)\
+  for(\
+    content_type const* varname = prefix##_beg (instance_ptr);\
+    varname < prefix##_end (instance_ptr);\
+    ++varname\
+    )
+/*---------------------------------------------------------------------------*/
 /* dynamic array (storing the size + realloc) syntax "sugar"                 */
 /*---------------------------------------------------------------------------*/
 #define define_dynarray_types(prefix, content_type)\
