@@ -302,35 +302,30 @@ BL_TASKQ_EXPORT bl_err taskq_post (taskq* tq, taskq_id* id, taskq_task task)
   return taskq_post_impl (tq, &cmd, id);
 }
 /*---------------------------------------------------------------------------*/
-BL_TASKQ_EXPORT bl_err taskq_post_delayed(
+BL_TASKQ_EXPORT bl_err taskq_post_delayed_abs(
   taskq*     tq, 
   taskq_id*  id, 
-  tstamp*    scheduled_time_point, 
-  taskq_task task, 
-  u32        delay_us
+  tstamp     abs_time_point, 
+  taskq_task task
   )
 {
-  bl_assert (tq && id && scheduled_time_point);
+  bl_assert (tq && id);
   cmd_elem cmd;
   cmd.type        = cmd_delayed;
   cmd.data.d.task = task;
-  bl_err err      = deadline_init (&cmd.data.d.tp, delay_us);
-  if (unlikely (err)) {
-    return err;
-  }
-  *scheduled_time_point = cmd.data.d.tp;
+  cmd.data.d.tp   = abs_time_point;
   return taskq_post_impl (tq, &cmd, id);
 }
 /*---------------------------------------------------------------------------*/
 BL_TASKQ_EXPORT bl_err taskq_post_try_cancel_delayed(
-  taskq* tq, taskq_id id, tstamp scheduled_time_point
+  taskq* tq, taskq_id id, tstamp abs_time_point
   )
 {
   bl_assert (tq);
   cmd_elem cmd;
   cmd.type            = cmd_delayed_cancel;
   cmd.data.dcancel.id = id;
-  cmd.data.dcancel.tp = scheduled_time_point;
+  cmd.data.dcancel.tp = abs_time_point;
   taskq_id dummy;
   return taskq_post_impl (tq, &cmd, &dummy);
 }

@@ -57,9 +57,25 @@ linkage_and_modif \
 prefix##_entry const* prefix##_get_head (prefix* dl);\
 /*--------------------------------------------------------------------------*/\
 linkage_and_modif \
+prefix##_entry const* prefix##_get_head_if_expired_impl_priv(\
+  prefix* dl, bool explicit, tstamp now\
+  );\
+/*--------------------------------------------------------------------------*/\
+static inline \
 prefix##_entry const* prefix##_get_head_if_expired_explicit(\
   prefix* dl, tstamp now\
-  );\
+  )\
+{\
+  return prefix##_get_head_if_expired_impl_priv (dl, true, now);\
+}\
+/*--------------------------------------------------------------------------*/\
+static inline \
+prefix##_entry const* prefix##_get_head_if_expired(\
+  prefix* dl\
+  )\
+{\
+  return prefix##_get_head_if_expired_impl_priv (dl, false, 0);\
+}\
 /*--------------------------------------------------------------------------*/\
 linkage_and_modif \
 void prefix##_drop_head (prefix* dl);\
@@ -75,13 +91,6 @@ static inline bl_err prefix##_init(\
 {\
   return prefix##_init_explicit (dl, bl_get_tstamp(), alloc, capacity);\
 }\
-/*--------------------------------------------------------------------------*/\
-static inline prefix##_entry const* prefix##_get_head_if_expired(\
-  prefix* dl\
-  )\
-{\
-  return prefix##_get_head_if_expired_explicit (dl, bl_get_tstamp());\
-}
 /*---------------------------------------------------------------------------*/
 /* Function definitions */
 /*---------------------------------------------------------------------------*/
@@ -116,8 +125,8 @@ prefix##_entry const* prefix##_get_head (prefix* dl)\
 }\
 /*--------------------------------------------------------------------------*/\
 linkage_and_modif \
-prefix##_entry const* prefix##_get_head_if_expired_explicit(\
-  prefix* dl, tstamp now\
+prefix##_entry const* prefix##_get_head_if_expired_impl_priv(\
+  prefix* dl, bool explicit, tstamp now\
   )\
 {\
   prefix##_entry const* d = prefix##_get_head (dl);\
@@ -130,7 +139,7 @@ prefix##_entry const* prefix##_get_head_if_expired_explicit(\
   /* as the list ordering rotates to allow timestamp wrap around (and O(1) */\
   /* lookup for the next expired candidate) it is wrong to move the rotation */\
   /*   offset while still having outdated items on the list */\
-  dl->time_offset = now;\
+  dl->time_offset = (explicit) ? now : bl_get_tstamp();\
   return deadline_expired_explicit (d->key, dl->time_offset) ? d : nullptr;\
 }\
 /*--------------------------------------------------------------------------*/\
