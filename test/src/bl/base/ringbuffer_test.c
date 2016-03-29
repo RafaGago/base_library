@@ -324,6 +324,23 @@ static void ringbuffer_drop_range_hi (void **state)
   }
 }
 /*---------------------------------------------------------------------------*/
+static void ringbuffer_size_1 (void **state)
+{
+  ringbuffer_context* c = (ringbuffer_context*) *state;
+  ringb_init_extern (&c->r, c->buff, 1);
+  assert_true (ringb_can_insert (&c->r));
+  assert_true (ringb_size (&c->r) == 0);
+  assert_true (ringb_capacity (&c->r) == 1);
+  u32 val = 3;
+  ringb_insert_tail (&c->r, &val);
+  assert_true (*ringb_at (&c->r ,0) == val);
+  ringb_drop_head (&c->r);
+  val = 33;
+  ringb_insert_tail (&c->r, &val);
+  assert_true (*ringb_at (&c->r ,0) == val);
+  ringb_drop_head (&c->r);
+}
+/*---------------------------------------------------------------------------*/
 static const struct CMUnitTest tests[] = {
   cmocka_unit_test_setup(
     ringbuffer_init_size_and_capacity, ringbuffer_test_setup
@@ -350,6 +367,7 @@ static const struct CMUnitTest tests[] = {
   cmocka_unit_test_setup (ringbuffer_drop_random_hi, ringbuffer_test_setup),
   cmocka_unit_test_setup (ringbuffer_drop_range_lo, ringbuffer_test_setup),
   cmocka_unit_test_setup (ringbuffer_drop_range_hi, ringbuffer_test_setup),
+  cmocka_unit_test_setup (ringbuffer_size_1, ringbuffer_test_setup),
 };
 /*---------------------------------------------------------------------------*/
 int ringb_tests ()

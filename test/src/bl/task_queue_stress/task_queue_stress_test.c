@@ -381,15 +381,15 @@ int main (int argc, char* argv[])
         if (ntd != bl_nothing_to_do) {
           printf ("taskq_try_run_one unexpected error code: %d\n", ntd);
         }
-        if (delayed_ringb_size (&tq->delayed_ls.list) != 0) {
+        if (taskq_delayed_size (&tq->delayed) != 0) {
           printf(
             "remaining elements on delayed list detected: %d\n",
-            delayed_ringb_size (&tq->delayed_ls.list)
+            taskq_delayed_size (&tq->delayed)
             );
           tstamp curr = bl_get_tstamp();
           printf ("current timestamp %d\n", curr);
-          for (uword j = 0; j < delayed_ringb_size (&tq->delayed_ls.list); ++j) {
-            delayed_entry* f = delayed_ringb_at (&tq->delayed_ls.list, j);
+          for (uword j = 0; j < taskq_delayed_size (&tq->delayed); ++j) {
+            taskq_delayed_entry const* f = taskq_delayed_at (&tq->delayed, j);
             printf ("delayed list element %d timestamp: %d\n", j, f->key);
           }
         }

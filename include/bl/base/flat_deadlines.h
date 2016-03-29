@@ -39,12 +39,14 @@ prefix;
 /*---------------------------------------------------------------------------*/
 #define declare_flat_deadlines_funcs(prefix, value_type, linkage_and_modif)\
 /*--------------------------------------------------------------------------*/\
+declare_oringb_funcs (prefix##_ringb, prefix##_entry, linkage_and_modif)\
+/*--------------------------------------------------------------------------*/\
 linkage_and_modif \
 prefix##_entry const* prefix##_get_head (prefix* dl);\
 /*--------------------------------------------------------------------------*/\
 linkage_and_modif \
 bl_err prefix##_init_explicit(\
-  prefix* dl, tstamp now, alloc_tbl const* alloc, uword capacity\
+  prefix* dl, tstamp now, uword capacity, alloc_tbl const* alloc\
   );\
 /*--------------------------------------------------------------------------*/\
 linkage_and_modif \
@@ -86,11 +88,31 @@ bool prefix##_try_get_and_drop(\
   );\
 /*--------------------------------------------------------------------------*/\
 static inline bl_err prefix##_init(\
-  prefix* dl, alloc_tbl const* alloc, uword capacity\
+  prefix* dl, uword capacity, alloc_tbl const* alloc\
   )\
 {\
-  return prefix##_init_explicit (dl, bl_get_tstamp(), alloc, capacity);\
+  return prefix##_init_explicit (dl, bl_get_tstamp(), capacity, alloc);\
 }\
+/*--------------------------------------------------------------------------*/\
+static inline uword prefix##_size (const prefix const* dl)\
+{\
+  return prefix##_ringb_size (&dl->list);\
+}\
+/*--------------------------------------------------------------------------*/\
+static inline uword prefix##_capacity (const prefix const* dl)\
+{\
+  return prefix##_ringb_capacity (&dl->list);\
+}\
+/*--------------------------------------------------------------------------*/\
+static inline bool prefix##_can_insert (const prefix const* dl)\
+{\
+  return prefix##_ringb_can_insert (&dl->list);\
+}\
+/*--------------------------------------------------------------------------*/\
+static inline prefix##_entry const* prefix##_at (prefix const* dl, uword idx)\
+{\
+  return prefix##_ringb_at (&dl->list, idx);\
+}
 /*---------------------------------------------------------------------------*/
 /* Function definitions */
 /*---------------------------------------------------------------------------*/
@@ -109,12 +131,11 @@ static inline word prefix##_flat_deadlines_ordering_func(\
     );\
 }\
 /*--------------------------------------------------------------------------*/\
-declare_oringb_funcs (prefix##_ringb, prefix##_entry, static inline)\
 define_oringb_funcs(\
   prefix##_ringb,\
   prefix##_entry,\
   prefix##_flat_deadlines_ordering_func,\
-  static inline\
+  linkage_and_modif\
   )\
 /*--------------------------------------------------------------------------*/\
 linkage_and_modif \
@@ -190,13 +211,13 @@ bool prefix##_try_get_and_drop(\
 /*--------------------------------------------------------------------------*/\
 linkage_and_modif \
 bl_err prefix##_init_explicit(\
-  prefix* dl, tstamp now, alloc_tbl const* alloc, uword capacity\
+  prefix* dl, tstamp now, uword capacity, alloc_tbl const* alloc\
   )\
 {\
   bl_assert (dl);\
   dl->time_offset = now;\
   capacity        = round_next_pow2_u (capacity);\
-  return prefix##_ringb_init (&dl->list, alloc, capacity);\
+  return prefix##_ringb_init (&dl->list, capacity, alloc);\
 }\
 /*--------------------------------------------------------------------------*/\
 linkage_and_modif \

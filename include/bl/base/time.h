@@ -65,6 +65,14 @@
   every timestamp wraps at some point (64 bit timestamps can take several
   hundred years to wrap with nanosecond resolution. This is designed mostly
   to be able to use tighter data types e.g. on microcontrollers).
+
+
+ ---------------------------------------------------------------
+  static inline tstamp tstamp_max (tstamp a, tstamp b);
+  static inline tstamp tstamp_min (tstamp a, tstamp b);
+
+  Select one of the input values.
+
  ---------------------------------------------------------------
  "static inline tstamp bl_get_tstamp (void)"
 

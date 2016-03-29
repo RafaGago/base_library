@@ -40,7 +40,7 @@ static int flat_deadlines_test_setup (void **state)
   static flat_deadlines_context c;
   *state = (void*) &c;
   c.alloc    = get_default_alloc();
-  bl_err err = flat_deadlines_init_explicit (&c.dl, 0, &c.alloc, 2);
+  bl_err err = flat_deadlines_init_explicit (&c.dl, 0, 2, &c.alloc);
   assert_true (!err);
   return 0;
 }

@@ -16,45 +16,48 @@ typedef struct oringb_insert_result {
 }
 oringb_insert_result;
 /*---------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------*/
 #define define_oringb_types(prefix, content_type)\
   define_ringb_types(prefix, content_type)\
   typedef prefix prefix##_private;\
 /*---------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------*/
 #define declare_oringb_funcs(prefix, content_type, linkage_and_modif)\
 declare_ringb_funcs(prefix##_private, content_type, linkage_and_modif)\
 declare_ringb_extended_funcs(prefix##_private, content_type, linkage_and_modif)\
-\
+/*--------------------------------------------------------------------------*/\
 static inline \
 bl_err prefix##_init_extern (prefix* rb, content_type* mem, uword capacity)\
 {\
   return prefix##_private_init_extern (rb, mem, capacity);\
 }\
-\
+/*--------------------------------------------------------------------------*/\
 static inline void prefix##_destroy_extern (prefix* rb)\
 {\
   prefix##_private_destroy_extern (rb);\
 }\
-\
+/*--------------------------------------------------------------------------*/\
 static inline \
-bl_err prefix##_init (prefix* rb, alloc_tbl const* alloc, uword capacity)\
+bl_err prefix##_init (prefix* rb, uword capacity, alloc_tbl const* alloc)\
 {\
-  return prefix##_private_init (rb, alloc, capacity);\
+  return prefix##_private_init (rb, capacity, alloc);\
 }\
-\
+/*--------------------------------------------------------------------------*/\
 static inline void prefix##_destroy (prefix* rb, alloc_tbl const* alloc)\
 {\
   prefix##_private_destroy (rb, alloc);\
 }\
-\
+/*--------------------------------------------------------------------------*/\
 static inline uword prefix##_capacity (const prefix* rb)\
 {\
   return prefix##_private_capacity (rb);\
 }\
-\
+/*--------------------------------------------------------------------------*/\
 static inline uword prefix##_size (const prefix* rb)\
 {\
   return prefix##_private_size (rb);\
 }\
+/*--------------------------------------------------------------------------*/\
 /* in some cases and usage patterns you may avoid jumps from tail to head  */\
 /* of the buffer by setting a start position different than 0. just to be* */\
 /* called on empty ringbuffers                                             */\
@@ -62,66 +65,66 @@ static inline void prefix##_set_start_position (prefix* rb, uword idx)\
 {\
   prefix##_private_set_start_position (rb, idx);\
 }\
-\
+/*--------------------------------------------------------------------------*/\
 static inline bool prefix##_can_insert (const prefix* rb)\
 {\
   return prefix##_private_can_insert (rb);\
 }\
-\
+/*--------------------------------------------------------------------------*/\
 static inline uword prefix##_adjacent_elems_from(\
   const prefix* rb, uword from_idx, uword element_count\
   )\
 {\
   return prefix##_adjacent_elems_from (rb, from_idx, element_count);\
 }\
-\
+/*--------------------------------------------------------------------------*/\
 static inline content_type* prefix##_at (const prefix* rb, uword idx)\
 {\
   return prefix##_private_at (rb, idx);\
 }\
-\
+/*--------------------------------------------------------------------------*/\
 static inline content_type* prefix##_at_head (const prefix* rb)\
 {\
   return prefix##_private_at_head (rb);\
 }\
-\
+/*--------------------------------------------------------------------------*/\
 static inline content_type* prefix##_at_tail (const prefix* rb)\
 {\
   return prefix##_private_at_tail (rb);\
 }\
-\
+/*--------------------------------------------------------------------------*/\
 static inline void prefix##_drop_head_n (prefix* rb, uword n)\
 {\
   prefix##_private_drop_head_n (rb, n);\
 }\
-\
+/*--------------------------------------------------------------------------*/\
 static inline void prefix##_drop_tail_n (prefix* rb, uword n)\
 {\
   prefix##_private_drop_tail_n (rb, n);\
 }\
-\
+/*--------------------------------------------------------------------------*/\
 static inline void prefix##_drop_head (prefix* rb)\
 {\
   prefix##_private_drop_head (rb);\
 }\
-\
+/*--------------------------------------------------------------------------*/\
 static inline void prefix##_drop_tail (prefix* rb)\
 {\
   prefix##_private_drop_tail (rb);\
 }\
-\
+/*--------------------------------------------------------------------------*/\
 static inline void prefix##_drop (prefix* rb, uword idx)\
 {\
   prefix##_private_drop (rb, idx);\
 }\
-\
+/*--------------------------------------------------------------------------*/\
 static inline void prefix##_drop_range(\
   prefix* rb, uword from_idx, uword element_count\
   )\
 {\
   prefix##_private_drop_range (rb, from_idx, element_count);\
 }\
-\
+/*--------------------------------------------------------------------------*/\
 /* will return true if the element was inserted or false if a duplicate was */\
 /* present. idx will always have the index of the element with the key "v" */\
 /* wether is a new insertion or not*/\
@@ -129,20 +132,20 @@ linkage_and_modif \
 oringb_insert_result prefix##_insert(\
   prefix* rb, content_type const* v, void* cmp_context\
   );\
-\
+/*--------------------------------------------------------------------------*/\
 linkage_and_modif \
 uword prefix##_insert_lifo_duplicates(\
   prefix* rb, content_type const* v, void* cmp_context\
   );\
-\
+/*--------------------------------------------------------------------------*/\
 linkage_and_modif \
 uword prefix##_insert_fifo_duplicates(\
   prefix* rb, content_type const* v, void* cmp_context\
   );\
-\
+/*--------------------------------------------------------------------------*/\
 linkage_and_modif \
 uword prefix##_find (prefix* rb, content_type const* f, void* cmp_context);\
-\
+/*--------------------------------------------------------------------------*/\
 linkage_and_modif \
 uword prefix##_find_eq_or_gt(\
   prefix* rb, content_type const* f, void* cmp_context\
@@ -159,12 +162,13 @@ uword prefix##_find_eq_or_gt(\
   -N: "a" is bigger. 
 */
 /*---------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------*/
 #define define_oringb_funcs(\
   prefix, content_type, cmp_func, linkage_and_modif \
   )\
 define_ringb_funcs (prefix##_private, content_type, linkage_and_modif)\
 define_ringb_extended_funcs (prefix##_private, content_type, linkage_and_modif)\
-\
+/*--------------------------------------------------------------------------*/\
 linkage_and_modif \
 uword prefix##_find_eq_or_gt (prefix* rb, content_type const* v, void* context)\
 {\
@@ -211,7 +215,7 @@ uword prefix##_find_eq_or_gt (prefix* rb, content_type const* v, void* context)\
     head : /*match. if duplicate will have the lowest duplicate idx (LIFO)*/\
     tail;  /*no match: tail is the first value greater than "v" */\
 }\
-\
+/*--------------------------------------------------------------------------*/\
 linkage_and_modif \
 oringb_insert_result prefix##_insert(\
   prefix* rb, content_type const* v, void* cmp_context\
@@ -240,7 +244,7 @@ uword prefix##_insert_lifo_duplicates(\
   prefix##_private_insert (rb, v, idx);\
   return idx;\
 }\
-\
+/*--------------------------------------------------------------------------*/\
 linkage_and_modif \
 uword prefix##_insert_fifo_duplicates(\
   prefix* rb, content_type const* v, void* cmp_context\
@@ -259,7 +263,7 @@ uword prefix##_insert_fifo_duplicates(\
   prefix##_private_insert (rb, v, idx);\
   return idx;\
 }\
-\
+/*--------------------------------------------------------------------------*/\
 linkage_and_modif \
 uword prefix##_find (prefix* rb, content_type const* f, void* cmp_context)\
 {\
