@@ -83,12 +83,13 @@ static inline u8 memr8_copy (memr8 dst, memr8 src)
   bl_assert (memr8_is_valid (dst));
   bl_assert (memr8_size (dst) >= memr8_size (src));
   memcpy (memr8_beg (dst), memr8_beg (src), memr8_size (src));
+  return memr8_size (src);
 }
 /*----------------------------------------------------------------------------*/
 static inline u8 memr8_copy_offset (memr8 dst, memr8 src, u8 dst_offset_bytes)
 {
   memr8 dst_off = memr8_subrange_beg (dst, dst_offset_bytes);
-  memr8_copy (dst_off, src);
+  return memr8_copy (dst_off, src);
 }
 /*----------------------------------------------------------------------------*/
 static inline memr8 memr8_rv (void* addr, u8 size)
@@ -183,6 +184,7 @@ static inline u16 memr16_copy (memr16 dst, memr16 src)
   bl_assert (memr16_size (dst) >= memr16_size (src));
   bl_assert ((size_t) memr16_size (src) == memr16_size (src));
   memcpy (memr16_beg (dst), memr16_beg (src), (size_t) memr16_size (src));
+  return memr16_size (src);
 }
 /*----------------------------------------------------------------------------*/
 static inline u16 memr16_copy_offset(
@@ -190,7 +192,7 @@ static inline u16 memr16_copy_offset(
   )
 {
   memr16 dst_off = memr16_subrange_beg (dst, dst_offset_bytes);
-  memr16_copy (dst_off, src);
+  return memr16_copy (dst_off, src);
 }
 /*----------------------------------------------------------------------------*/
 static inline memr16 memr16_rv (void* addr, u16 size)
@@ -286,6 +288,7 @@ static inline u32 memr32_copy (memr32 dst, memr32 src)
   bl_assert (memr32_size (dst) >= memr32_size (src));
   bl_assert ((size_t) memr32_size (src) == memr32_size (src));
   memcpy (memr32_beg (dst), memr32_beg (src), (size_t) memr32_size (src));
+  return memr32_size (src);
 }
 /*----------------------------------------------------------------------------*/
 static inline u32 memr32_copy_offset(
@@ -293,7 +296,7 @@ static inline u32 memr32_copy_offset(
   )
 {
   memr32 dst_off = memr32_subrange_beg (dst, dst_offset_bytes);
-  memr32_copy (dst_off, src);
+  return memr32_copy (dst_off, src);
 }
 /*----------------------------------------------------------------------------*/
 static inline memr32 memr32_rv (void* addr, u32 size)
@@ -389,6 +392,7 @@ static inline u64 memr64_copy (memr64 dst, memr64 src)
   bl_assert (memr64_size (dst) >= memr64_size (src));
   bl_assert ((size_t) memr64_size (src) == memr64_size (src));
   memcpy (memr64_beg (dst), memr64_beg (src), memr64_size (src));
+  return memr64_size (src);
 }
 /*----------------------------------------------------------------------------*/
 static inline u64 memr64_copy_offset(
@@ -396,7 +400,7 @@ static inline u64 memr64_copy_offset(
   )
 {
   memr64 dst_off = memr64_subrange_beg (dst, dst_offset_bytes);
-  memr64_copy (dst_off, src);
+  return memr64_copy (dst_off, src);
 }
 /*----------------------------------------------------------------------------*/
 static inline memr64 memr64_rv (void* addr, u64 size)
