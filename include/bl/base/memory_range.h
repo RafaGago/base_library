@@ -104,6 +104,9 @@ static inline memr8 memr8_rv (void* addr, u8 size)
 #define memr8_end_as(memr_val, type) ((type*) memr8_end (memr_val))
 #define memr8_at_as(memr_val, idx, type)\
   ((type*) memr8_at ((memr_val), idx * sizeof (type)))
+#define memr8_cast(memrx_val)\
+/*I'd need to embedd an assert here to detect harmful truncations*/\
+  memr8_rv ((memrx_val).addr, (u8) (memrx_val).size)
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
 /* memr16                                                                     */
@@ -207,6 +210,9 @@ static inline memr16 memr16_rv (void* addr, u16 size)
 #define memr16_end_as(memr_val, type) ((type*) memr16_end (memr_val))
 #define memr16_at_as(memr_val, idx, type)\
   ((type*) memr16_at ((memr_val), idx * sizeof (type)))
+#define memr16_cast(memrx_val)\
+/*I'd need to embedd an assert here to detect harmful truncations*/\
+  memr16_rv ((memrx_val).addr, (u16) (memrx_val).size)
 #endif /*#if BL_WORDSIZE >= 16*/
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
@@ -311,6 +317,9 @@ static inline memr32 memr32_rv (void* addr, u32 size)
 #define memr32_end_as(memr_val, type) ((type*) memr32_end (memr_val))
 #define memr32_at_as(memr_val, idx, type)\
   ((type*) memr32_at ((memr_val), idx * sizeof (type)))
+#define memr32_cast(memrx_val)\
+/*I'd need to embedd an assert here to detect harmful truncations*/\
+  memr32_rv ((memrx_val).addr, (u32) (memrx_val).size)
 #endif /*#if BL_WORDSIZE >= 32*/
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
@@ -415,6 +424,8 @@ static inline memr64 memr64_rv (void* addr, u64 size)
 #define memr64_end_as(memr_val, type) ((type*) memr64_end (memr_val))
 #define memr64_at_as(memr_val, idx, type)\
   ((type*) memr64_at ((memr_val), idx * sizeof (type)))
+#define memr64_cast(memrx_val)\
+  memr64_rv ((memrx_val).addr, (u64) (memrx_val).size)
 #endif /*#if BL_WORDSIZE >= 64*/
 /*----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
@@ -455,6 +466,7 @@ static inline memr64 memr64_rv (void* addr, u64 size)
 #define memr_beg_as(m, t)         memr_concat (beg_as) ((m), t)
 #define memr_end_as(m, t)         memr_concat (end_as) ((m), t)
 #define memr_at_as(m, i, t)       memr_concat (at_as) ((m), (i), t)
+#define memr_cast(m)              memr_concat (cast) (m)
 /*----------------------------------------------------------------------------*/
 #ifdef NDEBUG
   #define memr_cast(memr_val)\
