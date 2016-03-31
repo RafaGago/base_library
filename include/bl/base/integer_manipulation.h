@@ -179,6 +179,8 @@
     (((u16) (byte_ptr)[1]) <<  0)\
   )
 /*---------------------------------------------------------------------------*/
+#define read_u8(byte_ptr) ((byte_ptr)[0])
+/*---------------------------------------------------------------------------*/
 #define write_u32_low_mem_to_lsb(byte_ptr, val32)\
   do {\
     (byte_ptr)[0] = (u8) ((val32) >>  0);\
@@ -248,6 +250,10 @@
   
 #define init_u16_low_mem_to_msb(val32)\
   (u8) ((val32) >> 8), (u8) ((val32) >> 0)
+/*---------------------------------------------------------------------------*/
+#define write_u8(byte_ptr, val8) (byte_ptr)[0] = val8;
+
+#define init_u8(val8) (u8) (val8)
 /*-----------------------------------------------------------------------------
 I used this de Bruijn sequence generator: www.hakank.org/comb/debruijn_arb.cgi
 /*-----------------------------------------------------------------------------*/
@@ -366,5 +372,14 @@ static inline u8 u64_get_bit_idx (u64 non_zero_pow2)
   #define init_u16_be  init_u16_low_mem_to_msb
   #define init_u16_le  init_u16_low_mem_to_lsb
 #endif
+
+  /*these are just to keep the syntax when refactoring someting from or to u8*/
+  #define read_u8_be  read_u8
+  #define read_u8_le  read_u8
+  #define write_u8_be write_u8
+  #define write_u8_le write_u8
+  #define init_u8_be  init_u8
+  #define init_u8_le  init_u8
+
 /*---------------------------------------------------------------------------*/
 #endif /*LGC_INTEGER_MANIPULATION_H*/
