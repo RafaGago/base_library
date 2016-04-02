@@ -21,9 +21,9 @@ end
   
  -Always uses slashes ("/") as the folder separator.
 
- -Separates words on the file name through the underscore ("_") key.
+ -Separates words on the file name by the underscore ("_") character.
 ]]--
-
+-------------------------------------------------------------------------------
 function get_header_dependencies (hdr_dir, include_dirs)  
   local scan        = {}
   local new_results = {}
@@ -77,7 +77,7 @@ end
  Scans all the C headers (.h files) on "scan_dir" for files found on
  "include_dirs" and copies those that are found to "dst_base".
 ]]--
-
+-------------------------------------------------------------------------------
 function copy_header_dependencies (scan_dir, include_dirs, dst_base)
   dst_base = path.getabsolute (dst_base)
   deps     = get_header_dependencies (scan_dir, include_dirs)
