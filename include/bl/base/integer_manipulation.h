@@ -99,7 +99,7 @@
 #define u32_bit(lsb_offset)\
           utype_bit ((lsb_offset), u32)
 #define u32_bitv(val, lsb_offset)\
-          utype_bitv ((val), (lsb_offset) u32)
+          utype_bitv ((val), (lsb_offset), u32)
 #define u32_lsb_set(bit_count)\
           utype_lsb_set ((bit_count), u32)
 #define u32_msb_set(bit_count)\
