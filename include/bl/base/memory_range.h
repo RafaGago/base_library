@@ -67,7 +67,7 @@ static inline memr8 memr8_subrange_beg (memr8 m, u8 offset_bytes)
 {
   bl_assert (!memr8_is_null (m));
   /*equal allowed, will return a zero sized memr8 in such case*/
-  bl_assert (memr8_size (m) <= offset_bytes);
+  bl_assert (memr8_size (m) >= offset_bytes);
   return memr8_rv (memr8_at (m, offset_bytes), memr8_size (m) - offset_bytes);
 }
 /*----------------------------------------------------------------------------*/
@@ -177,7 +177,7 @@ static inline memr16 memr16_subrange_beg (memr16 m, u16 offset_bytes)
 {
   bl_assert (!memr16_is_null (m));
   /*equal allowed, will return a zero sized memr16 in such case*/
-  bl_assert (memr16_size (m) <= offset_bytes);
+  bl_assert (memr16_size (m) >= offset_bytes);
   return memr16_rv(
     memr16_at (m, offset_bytes), memr16_size (m) - offset_bytes
     );
@@ -294,7 +294,7 @@ static inline memr32 memr32_subrange_beg (memr32 m, u32 offset_bytes)
 {
   bl_assert (!memr32_is_null (m));
   /*equal allowed, will return a zero sized memr32 in such case*/
-  bl_assert (memr32_size (m) <= offset_bytes);
+  bl_assert (memr32_size (m) >= offset_bytes);
   return memr32_rv(
     memr32_at (m, offset_bytes), memr32_size (m) - offset_bytes
     );
@@ -411,7 +411,7 @@ static inline memr64 memr64_subrange_beg (memr64 m, u64 offset_bytes)
 {
   bl_assert (!memr64_is_null (m));
   /*equal allowed, will return a zero sized memr64 in such case*/
-  bl_assert (memr64_size (m) <= offset_bytes);
+  bl_assert (memr64_size (m) >= offset_bytes);
   return memr64_rv(
     memr64_at (m, offset_bytes), memr64_size (m) - offset_bytes
     );
