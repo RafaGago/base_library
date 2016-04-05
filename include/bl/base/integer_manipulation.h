@@ -138,118 +138,230 @@
 #define u64_first_set_lsb_mask(var)\
            utype_first_set_lsb_mask ((var), u64)
 /*---------------------------------------------------------------------------*/
+#define read_u64_low_mem_to_lsb(byte_ptr)\
+  (\
+    (((u64) (byte_ptr)[0]) << (0 * 8)) |\
+    (((u64) (byte_ptr)[1]) << (1 * 8)) |\
+    (((u64) (byte_ptr)[2]) << (2 * 8)) |\
+    (((u64) (byte_ptr)[3]) << (3 * 8)) |\
+    (((u64) (byte_ptr)[4]) << (4 * 8)) |\
+    (((u64) (byte_ptr)[5]) << (5 * 8)) |\
+    (((u64) (byte_ptr)[6]) << (6 * 8)) |\
+    (((u64) (byte_ptr)[7]) << (7 * 8))\
+  )           
+#define read_u64_low_mem_to_msb(byte_ptr)\
+  (\
+    (((u64) (byte_ptr)[0]) << (7 * 8)) |\
+    (((u64) (byte_ptr)[1]) << (6 * 8)) |\
+    (((u64) (byte_ptr)[2]) << (5 * 8)) |\
+    (((u64) (byte_ptr)[3]) << (4 * 8)) |\
+    (((u64) (byte_ptr)[4]) << (3 * 8)) |\
+    (((u64) (byte_ptr)[5]) << (2 * 8)) |\
+    (((u64) (byte_ptr)[6]) << (1 * 8)) |\
+    (((u64) (byte_ptr)[7]) << (0 * 8))\
+  )
+/*---------------------------------------------------------------------------*/
+#define read_u48_low_mem_to_lsb(byte_ptr)\
+  (\
+    (((u64) (byte_ptr)[0]) << (0 * 8)) |\
+    (((u64) (byte_ptr)[1]) << (1 * 8)) |\
+    (((u64) (byte_ptr)[2]) << (2 * 8)) |\
+    (((u64) (byte_ptr)[3]) << (3 * 8)) |\
+    (((u64) (byte_ptr)[4]) << (4 * 8)) |\
+    (((u64) (byte_ptr)[5]) << (5 * 8))\
+  )           
+#define read_u48_low_mem_to_msb(byte_ptr)\
+  (\
+    (((u64) (byte_ptr)[0]) << (5 * 8)) |\
+    (((u64) (byte_ptr)[1]) << (4 * 8)) |\
+    (((u64) (byte_ptr)[2]) << (3 * 8)) |\
+    (((u64) (byte_ptr)[3]) << (2 * 8)) |\
+    (((u64) (byte_ptr)[4]) << (1 * 8)) |\
+    (((u64) (byte_ptr)[5]) << (0 * 8))\
+  )
+/*---------------------------------------------------------------------------*/
 #define read_u32_low_mem_to_lsb(byte_ptr)\
   (\
-    (((u32) (byte_ptr)[0]) <<  0) |\
-    (((u32) (byte_ptr)[1]) <<  8) |\
-    (((u32) (byte_ptr)[2]) << 16) |\
-    (((u32) (byte_ptr)[3]) << 24)\
+    (((u32) (byte_ptr)[0]) << (0 * 8) |\
+    (((u32) (byte_ptr)[1]) << (1 * 8) |\
+    (((u32) (byte_ptr)[2]) << (2 * 8)) |\
+    (((u32) (byte_ptr)[3]) << (3 * 8))\
   )           
 #define read_u32_low_mem_to_msb(byte_ptr)\
   (\
-    (((u32) (byte_ptr)[0]) << 24)|\
-    (((u32) (byte_ptr)[1]) << 16) |\
-    (((u32) (byte_ptr)[2]) <<  8) |\
-    (((u32) (byte_ptr)[3]) <<  0)\
+    (((u32) (byte_ptr)[0]) << (3 * 8))|\
+    (((u32) (byte_ptr)[1]) << (2 * 8)) |\
+    (((u32) (byte_ptr)[2]) << (1 * 8) |\
+    (((u32) (byte_ptr)[3]) << (0 * 8)\
   )
 /*---------------------------------------------------------------------------*/
 #define read_u24_low_mem_to_lsb(byte_ptr)\
   (\
-    (((u32) (byte_ptr)[0]) <<  0) |\
-    (((u32) (byte_ptr)[1]) <<  8) |\
-    (((u32) (byte_ptr)[2]) << 16) \
+    (((u32) (byte_ptr)[0]) << (0 * 8) |\
+    (((u32) (byte_ptr)[1]) << (1 * 8) |\
+    (((u32) (byte_ptr)[2]) << (2 * 8)) \
   ) 
   
 #define read_u24_low_mem_to_msb(byte_ptr)\
   (\
-    (((u32) (byte_ptr)[0]) << 16) |\
-    (((u32) (byte_ptr)[1]) <<  8) |\
-    (((u32) (byte_ptr)[2]) <<  0)\
+    (((u32) (byte_ptr)[0]) << (2 * 8)) |\
+    (((u32) (byte_ptr)[1]) << (1 * 8) |\
+    (((u32) (byte_ptr)[2]) << (0 * 8)\
   )
 /*---------------------------------------------------------------------------*/
 #define read_u16_low_mem_to_lsb(byte_ptr)\
   (\
-    (((u16) (byte_ptr)[0]) <<  0) |\
-    (((u16) (byte_ptr)[1]) <<  8) \
+    (((u16) (byte_ptr)[0]) << (0 * 8) |\
+    (((u16) (byte_ptr)[1]) << (1 * 8) \
   )
   
 #define read_u16_low_mem_to_msb(byte_ptr)\
   (\
-    (((u16) (byte_ptr)[0]) <<  8) |\
-    (((u16) (byte_ptr)[1]) <<  0)\
+    (((u16) (byte_ptr)[0]) << (1 * 8) |\
+    (((u16) (byte_ptr)[1]) << (0 * 8)\
   )
 /*---------------------------------------------------------------------------*/
 #define read_u8(byte_ptr) ((byte_ptr)[0])
 /*---------------------------------------------------------------------------*/
+#define write_u64_low_mem_to_lsb(byte_ptr, val64)\
+  do {\
+    (byte_ptr)[0] = (u8) ((val64) >> (0 * 8));\
+    (byte_ptr)[1] = (u8) ((val64) >> (1 * 8));\
+    (byte_ptr)[2] = (u8) ((val64) >> (2 * 8));\
+    (byte_ptr)[3] = (u8) ((val64) >> (3 * 8));\
+    (byte_ptr)[4] = (u8) ((val64) >> (4 * 8));\
+    (byte_ptr)[5] = (u8) ((val64) >> (5 * 8));\
+    (byte_ptr)[6] = (u8) ((val64) >> (6 * 8));\
+    (byte_ptr)[7] = (u8) ((val64) >> (7 * 8));\
+  }\
+  while (0)
+
+#define init_u64_low_mem_to_lsb(val64)\
+  (u8) ((val64) >> (0 * 8)), (u8) ((val64) >> (1 * 8)),\
+  (u8) ((val64) >> (2 * 8)), (u8) ((val64) >> (3 * 8)),\
+  (u8) ((val64) >> (4 * 8)), (u8) ((val64) >> (5 * 8)),\
+  (u8) ((val64) >> (6 * 8)), (u8) ((val64) >> (7 * 8))\
+  
+#define write_u64_low_mem_to_msb(byte_ptr, val64)\
+  do {\
+    (byte_ptr)[0] = (u8) ((val64) >> (7 * 8));\
+    (byte_ptr)[1] = (u8) ((val64) >> (6 * 8));\
+    (byte_ptr)[2] = (u8) ((val64) >> (5 * 8));\
+    (byte_ptr)[3] = (u8) ((val64) >> (4 * 8));\
+    (byte_ptr)[4] = (u8) ((val64) >> (3 * 8));\
+    (byte_ptr)[5] = (u8) ((val64) >> (2 * 8));\
+    (byte_ptr)[6] = (u8) ((val64) >> (1 * 8));\
+    (byte_ptr)[7] = (u8) ((val64) >> (0 * 8));\
+  }\
+  while (0)
+  
+#define init_u64_low_mem_to_msb(val64)\
+  (u8) ((val64) >> (7 * 8)), (u8) ((val64) >> (6 * 8)),\
+  (u8) ((val64) >> (5 * 8)), (u8) ((val64) >> (4 * 8)),\
+  (u8) ((val64) >> (3 * 8)), (u8) ((val64) >> (2 * 8)),\
+  (u8) ((val64) >> (1 * 8)), (u8) ((val64) >> (0 * 8))\
+/*---------------------------------------------------------------------------*/
+#define write_u48_low_mem_to_lsb(byte_ptr, val48)\
+  do {\
+    (byte_ptr)[0] = (u8) ((val48) >> (0 * 8));\
+    (byte_ptr)[1] = (u8) ((val48) >> (1 * 8));\
+    (byte_ptr)[2] = (u8) ((val48) >> (2 * 8));\
+    (byte_ptr)[3] = (u8) ((val48) >> (3 * 8));\
+    (byte_ptr)[4] = (u8) ((val48) >> (4 * 8));\
+    (byte_ptr)[5] = (u8) ((val48) >> (5 * 8));\
+  }\
+  while (0)
+
+#define init_u48_low_mem_to_lsb(val48)\
+  (u8) ((val48) >> (0 * 8)), (u8) ((val48) >> (1 * 8)),\
+  (u8) ((val48) >> (2 * 8)), (u8) ((val48) >> (3 * 8)), \
+  (u8) ((val48) >> (4 * 8)), (u8) ((val48) >> (5 * 8))\
+  
+#define write_u48_low_mem_to_msb(byte_ptr, val48)\
+  do {\
+    (byte_ptr)[0] = (u8) ((val48) >> (5 * 8));\
+    (byte_ptr)[1] = (u8) ((val48) >> (4 * 8));\
+    (byte_ptr)[2] = (u8) ((val48) >> (3 * 8));\
+    (byte_ptr)[3] = (u8) ((val48) >> (2 * 8));\
+    (byte_ptr)[4] = (u8) ((val48) >> (1 * 8));\
+    (byte_ptr)[5] = (u8) ((val48) >> (0 * 8));\
+  }\
+  while (0)
+  
+#define init_u48_low_mem_to_msb(val48)\
+  (u8) ((val48) >> (5 * 8)), (u8) ((val48) >> (4 * 8)),\
+  (u8) ((val48) >> (3 * 8)), (u8) ((val48) >> (2 * 8)),\
+  (u8) ((val48) >> (1 * 8)), (u8) ((val48) >> (0 * 8))\
+/*---------------------------------------------------------------------------*/
 #define write_u32_low_mem_to_lsb(byte_ptr, val32)\
   do {\
-    (byte_ptr)[0] = (u8) ((val32) >>  0);\
-    (byte_ptr)[1] = (u8) ((val32) >>  8);\
-    (byte_ptr)[2] = (u8) ((val32) >> 16);\
-    (byte_ptr)[3] = (u8) ((val32) >> 24);\
+    (byte_ptr)[0] = (u8) ((val32) >> (0 * 8));\
+    (byte_ptr)[1] = (u8) ((val32) >> (1 * 8));\
+    (byte_ptr)[2] = (u8) ((val32) >> (2 * 8));\
+    (byte_ptr)[3] = (u8) ((val32) >> (3 * 8));\
   }\
   while (0)
 
 #define init_u32_low_mem_to_lsb(val32)\
-  (u8) ((val32) >>  0), (u8) ((val32) >>  8),\
-  (u8) ((val32) >> 16), (u8) ((val32) >> 24)\
+  (u8) ((val32) >> (0 * 8)), (u8) ((val32) >> (1 * 8)),\
+  (u8) ((val32) >> (2 * 8)), (u8) ((val32) >> (3 * 8))\
   
 #define write_u32_low_mem_to_msb(byte_ptr, val32)\
   do {\
-    (byte_ptr)[0] = (u8) ((val32) >> 24);\
-    (byte_ptr)[1] = (u8) ((val32) >> 16);\
-    (byte_ptr)[2] = (u8) ((val32) >>  8);\
-    (byte_ptr)[3] = (u8) ((val32) >>  0);\
+    (byte_ptr)[0] = (u8) ((val32) >> (3 * 8));\
+    (byte_ptr)[1] = (u8) ((val32) >> (2 * 8));\
+    (byte_ptr)[2] = (u8) ((val32) >> (1 * 8));\
+    (byte_ptr)[3] = (u8) ((val32) >> (0 * 8));\
   }\
   while (0)
   
 #define init_u32_low_mem_to_msb(val32)\
-  (u8) ((val32) >> 24), (u8) ((val32) >> 16),\
-  (u8) ((val32) >> 8), (u8) ((val32) >> 0)\
+  (u8) ((val32) >> (3 * 8)), (u8) ((val32) >> (2 * 8)),\
+  (u8) ((val32) >> (1 * 8)), (u8) ((val32) >> (0 * 8))\
   
 /*---------------------------------------------------------------------------*/
 #define write_u24_low_mem_to_lsb(byte_ptr, val32)\
   do {\
-    (byte_ptr)[0] = (u8) ((val32) >>  0);\
-    (byte_ptr)[1] = (u8) ((val32) >>  8);\
-    (byte_ptr)[2] = (u8) ((val32) >> 16);\
+    (byte_ptr)[0] = (u8) ((val32) >> (0 * 8));\
+    (byte_ptr)[1] = (u8) ((val32) >> (1 * 8));\
+    (byte_ptr)[2] = (u8) ((val32) >> (2 * 8));\
   }\
   while (0)
   
 #define init_u24_low_mem_to_lsb(val32)\
-  (u8) ((val32) >>  0), (u8) ((val32) >>  8), (u8) ((val32) >> 16)
+  (u8) ((val32) >> (0 * 8)), (u8) ((val32) >> (1 * 8)), (u8) ((val32) >> (2 * 8))
   
 #define write_u24_low_mem_to_msb(byte_ptr, val32)\
   do {\
-    (byte_ptr)[0] = (u8) ((val32) >> 16);\
-    (byte_ptr)[1] = (u8) ((val32) >>  8);\
-    (byte_ptr)[2] = (u8) ((val32) >>  0);\
+    (byte_ptr)[0] = (u8) ((val32) >> (2 * 8));\
+    (byte_ptr)[1] = (u8) ((val32) >> (1 * 8));\
+    (byte_ptr)[2] = (u8) ((val32) >> (0 * 8));\
   }\
   while (0)
   
 #define init_u24_low_mem_to_msb(val32)\
-  (u8) ((val32) >> 16), (u8) ((val32) >> 8), (u8) ((val32) >> 0)
+  (u8) ((val32) >> (2 * 8)), (u8) ((val32) >> 8), (u8) ((val32) >> 0)
   
 /*---------------------------------------------------------------------------*/
 #define write_u16_low_mem_to_lsb(byte_ptr, val16)\
   do {\
-    (byte_ptr)[0] = (u8) ((val16) >>  0);\
-    (byte_ptr)[1] = (u8) ((val16) >>  8);\
+    (byte_ptr)[0] = (u8) ((val16) >> (0 * 8));\
+    (byte_ptr)[1] = (u8) ((val16) >> (1 * 8));\
   }\
   while (0)
   
 #define init_u16_low_mem_to_lsb(val32)\
-  (u8) ((val32) >>  0), (u8) ((val32) >>  8)
+  (u8) ((val32) >> (0 * 8)), (u8) ((val32) >> (1 * 8))
   
 #define write_u16_low_mem_to_msb(byte_ptr, val16)\
   do {\
-    (byte_ptr)[0] = (u8) ((val16) >>  8);\
-    (byte_ptr)[1] = (u8) ((val16) >>  0);\
+    (byte_ptr)[0] = (u8) ((val16) >> (1 * 8));\
+    (byte_ptr)[1] = (u8) ((val16) >> (0 * 8));\
   }\
   while (0)
   
 #define init_u16_low_mem_to_msb(val32)\
-  (u8) ((val32) >> 8), (u8) ((val32) >> 0)
+  (u8) ((val32) >> (1 * 8)), (u8) ((val32) >> (0 * 8))
 /*---------------------------------------------------------------------------*/
 #define write_u8(byte_ptr, val8) (byte_ptr)[0] = val8;
 
@@ -328,6 +440,20 @@ static inline u8 u64_get_bit_idx (u64 non_zero_pow2)
 /*on gcc for non static calculations see __builtin_bswap16 32, ...*/
 
 #ifdef BL_ARCH_BIG_ENDIAN
+  #define read_u64_be  read_u64_low_mem_to_lsb
+  #define read_u64_le  read_u64_low_mem_to_msb
+  #define write_u64_be write_u64_low_mem_to_lsb
+  #define write_u64_le write_u64_low_mem_to_msb
+  #define init_u64_be  init_u64_low_mem_to_lsb
+  #define init_u64_le  init_u64_low_mem_to_msb
+
+  #define read_u48_be  read_u48_low_mem_to_lsb
+  #define read_u48_le  read_u48_low_mem_to_msb
+  #define write_u48_be write_u48_low_mem_to_lsb
+  #define write_u48_le write_u48_low_mem_to_msb
+  #define init_u48_be  init_u48_low_mem_to_lsb
+  #define init_u48_le  init_u48_low_mem_to_msb
+
   #define read_u32_be  read_u32_low_mem_to_lsb
   #define read_u32_le  read_u32_low_mem_to_msb
   #define write_u32_be write_u32_low_mem_to_lsb
@@ -351,6 +477,20 @@ static inline u8 u64_get_bit_idx (u64 non_zero_pow2)
 #endif
 
 #ifdef BL_ARCH_LITTLE_ENDIAN
+  #define read_u64_be  read_u64_low_mem_to_msb
+  #define read_u64_le  read_u64_low_mem_to_lsb
+  #define write_u64_be write_u64_low_mem_to_msb
+  #define write_u64_le write_u64_low_mem_to_lsb
+  #define init_u64_be  init_u64_low_mem_to_msb
+  #define init_u64_le  init_u64_low_mem_to_lsb
+
+  #define read_u48_be  read_u48_low_mem_to_msb
+  #define read_u48_le  read_u48_low_mem_to_lsb
+  #define write_u48_be write_u48_low_mem_to_msb
+  #define write_u48_le write_u48_low_mem_to_lsb
+  #define init_u48_be  init_u48_low_mem_to_msb
+  #define init_u48_le  init_u48_low_mem_to_lsb
+
   #define read_u32_be  read_u32_low_mem_to_msb
   #define read_u32_le  read_u32_low_mem_to_lsb
   #define write_u32_be write_u32_low_mem_to_msb
