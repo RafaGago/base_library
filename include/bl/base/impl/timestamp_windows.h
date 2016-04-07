@@ -8,8 +8,6 @@
 #include <bl/base/assert.h>
 #include <bl/base/platform.h>
 #include <bl/base/integer.h>
-#include <bl/base/utility.h>
-#include <bl/base/static_integer_math.h>
 #include <bl/base/include_windows.h>
 
 /*---------------------------------------------------------------------------*/
