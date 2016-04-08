@@ -7,8 +7,10 @@
 
 #if defined (BL_GCC)
   #if BL_GCC >= BL_GCC_VER (4, 0, 0)
-    #undef BL_NONBLOCK_EXPORT
-    #define BL_NONBLOCK_EXPORT  __attribute__ ((visibility ("default")))
+    #if !defined (BL_NONBLOCK_PRIVATE_SYMS)
+      #undef BL_NONBLOCK_EXPORT
+      #define BL_NONBLOCK_EXPORT  __attribute__ ((visibility ("default")))
+    #endif
   #endif
 
 #elif defined (BL_MSC)

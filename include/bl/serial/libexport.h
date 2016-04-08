@@ -7,8 +7,10 @@
 
 #if defined (BL_GCC)
   #if BL_GCC >= BL_GCC_VER (4, 0, 0)
-    #undef BL_SERIAL_EXPORT
-    #define BL_SERIAL_EXPORT  __attribute__ ((visibility ("default")))
+    #if !defined (BL_SERIAL_PRIVATE_SYMS)
+      #undef BL_SERIAL_EXPORT
+      #define BL_SERIAL_EXPORT  __attribute__ ((visibility ("default")))
+    #endif
   #endif
 
 #elif defined (BL_MSC)

@@ -7,8 +7,10 @@
 
 #if defined (BL_GCC)
   #if BL_GCC >= BL_GCC_VER (4, 0, 0)
-    #undef BL_TASKQ_EXPORT
-    #define BL_TASKQ_EXPORT  __attribute__ ((visibility ("default")))
+    #if !defined (BL_TASKQ_PRIVATE_SYMS)
+      #undef BL_TASKQ_EXPORT
+      #define BL_TASKQ_EXPORT  __attribute__ ((visibility ("default")))
+    #endif
   #endif
 
 #elif defined (BL_MSC)

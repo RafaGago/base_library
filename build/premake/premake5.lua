@@ -108,23 +108,27 @@ filter {"action:vs*"}
 --LIBRARY PROJECTS
 project (base_name)
   kind "StaticLib"
+  defines {"BL_PRIVATE_SYMS"}
   language "C"  
   files {base_src  .. "/**"}  
 
 project (nonblock_name)
   kind "StaticLib"
+  defines {"BL_NONBLOCK_PRIVATE_SYMS"}
   language "C"
   includedirs {repo_src}
   files {nonblock_src  .. "/**"}
   
 project (task_queue_name)
   kind "StaticLib"
+  defines {"BL_TASKQ_PRIVATE_SYMS"}
   language "C"
   includedirs {repo_src}
   files {task_queue_src  .. "/**"}
   
 project (serial_name)
   kind "StaticLib"
+  defines {"BL_SERIAL_PRIVATE_SYMS"}
   language "C"
   includedirs {repo_src}
   files {serial_src  .. "/**"}
