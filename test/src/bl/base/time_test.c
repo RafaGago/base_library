@@ -3,8 +3,6 @@
 #include <string.h>
 
 #include <bl/cmocka_pre.h>
-#include <bl/base/time_test.h>
-
 #include <bl/base/platform.h>
 #include <bl/base/time.h>
 #include <bl/base/thread.h>

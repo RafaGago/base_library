@@ -1,13 +1,15 @@
 #include <stdio.h>
-#include <bl/base/ringbuffer_test.h>
-#include <bl/base/integer_manipulation_test.h>
-#include <bl/base/array_linked_list_test.h>
-#include <bl/base/array_doubly_linked_list_test.h>
-#include <bl/base/dynarray_test.h>
-#include <bl/base/ordered_ringbuffer_test.h>
-#include <bl/base/semaphore_not_totally_broken_test.h>
-#include <bl/base/flat_deadlines_test.h>
-#include <bl/base/time_test.h>
+
+extern int ringb_tests (void);
+extern int integer_manipulation_tests (void);
+extern int alnls_tests (void);
+extern int adlnls_tests (void);
+extern int dynarray_tests (void);
+extern int autoarray_tests (void);
+extern int oringb_tests (void);
+extern int semaphore_not_totally_broken_tests (void);
+extern int time_tests (void);
+extern int flat_deadlines_tests (void);
 
 int main (void)
 {

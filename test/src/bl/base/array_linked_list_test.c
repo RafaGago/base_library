@@ -1,5 +1,4 @@
 #include <bl/cmocka_pre.h>
-#include <bl/base/array_linked_list_test.h>
 
 #include <bl/base/array_linked_list.h>
 #include <bl/base/utility.h>

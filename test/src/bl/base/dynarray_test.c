@@ -1,7 +1,6 @@
 #include <string.h>
 
 #include <bl/cmocka_pre.h>
-#include <bl/base/dynarray_test.h>
 
 #include <bl/base/default_allocator.h>
 #include <bl/base/integer.h>

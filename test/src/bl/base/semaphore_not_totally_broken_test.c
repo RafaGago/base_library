@@ -3,7 +3,6 @@
 #ifdef BL_LINUX
 
 #include <bl/cmocka_pre.h>
-#include <bl/base/semaphore_not_totally_broken_test.h>
 
 #include <bl/base/thread.h>
 #include <bl/base/semaphore.h>

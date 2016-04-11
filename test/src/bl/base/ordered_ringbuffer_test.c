@@ -1,7 +1,6 @@
 #include <string.h>
 
 #include <bl/cmocka_pre.h>
-#include <bl/base/ordered_ringbuffer_test.h>
 
 #include <bl/base/integer.h>
 #include <bl/base/ordered_ringbuffer.h>
