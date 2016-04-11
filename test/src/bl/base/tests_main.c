@@ -19,6 +19,7 @@ int main (void)
   if (alnls_tests() != 0)                        { ++failed; }
   if (adlnls_tests() != 0)                       { ++failed; }
   if (dynarray_tests() != 0)                     { ++failed; }
+  if (autoarray_tests() != 0)                    { ++failed; }
   if (oringb_tests() != 0)                       { ++failed; }
   if (semaphore_not_totally_broken_tests() != 0) { ++failed; }
   if (time_tests() != 0)                         { ++failed; }

@@ -70,6 +70,7 @@ content_type* prefix##_at (prefix const* d, uword idx)\
 static inline \
 content_type* prefix##_beg (prefix const* d)\
 {\
+  bl_assert (d);\
   return d->arr;\
 }\
 /*--------------------------------------------------------------------------*/\
@@ -82,6 +83,7 @@ content_type* prefix##_last (prefix const* d)\
 static inline \
 content_type* prefix##_end (prefix const* d)\
 {\
+  bl_assert (d);\
   return d->arr + prefix##_size (d);\
 }\
 /*--------------------------------------------------------------------------*/\
