@@ -6,6 +6,7 @@
 #include <bl/base/integer.h>
 #include <bl/base/error.h>
 #include <bl/base/allocator.h>
+#include <bl/base/libexport.h>
 
 /* a resizeable and very raw memory chunk */
 /*---------------------------------------------------------------------------*/
@@ -25,6 +26,19 @@
 /*---------------------------------------------------------------------------*/
 /* dynamic array (storing the size + realloc) syntax "sugar"                 */
 /*---------------------------------------------------------------------------*/
+typedef struct dynarray_stub {
+  void* arr;
+  uword size;
+}
+dynarray_stub;
+/*---------------------------------------------------------------------------*/
+extern BL_EXPORT bl_err dynarray_resize(
+  dynarray_stub*   d,
+  uword            new_size,
+  uword            elem_size,
+  alloc_tbl const* alloc
+  );
+/*---------------------------------------------------------------------------*/
 #define define_dynarray_types(prefix, content_type)\
 \
 typedef struct prefix {\
@@ -33,12 +47,16 @@ typedef struct prefix {\
 }\
 prefix;
 /*---------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
-#define declare_dynarray_funcs(prefix, content_type, linkage_and_modif)\
+#define declare_dynarray_funcs(prefix, content_type)\
 /*--------------------------------------------------------------------------*/\
-linkage_and_modif \
-bl_err prefix##_resize (prefix* d, uword new_size, alloc_tbl const* alloc);\
-\
+static inline \
+bl_err prefix##_resize (prefix* d, uword new_size, alloc_tbl const* alloc)\
+{\
+  return dynarray_resize(\
+    (dynarray_stub*) d, new_size, sizeof *d->arr, alloc\
+    );\
+}\
+/*--------------------------------------------------------------------------*/\
 static inline \
 bl_err prefix##_init (prefix* d, uword size, alloc_tbl const* alloc)\
 {\
@@ -92,37 +110,7 @@ bl_err prefix##_grow (prefix* d, uword elem_count, alloc_tbl const* alloc)\
 {\
   return prefix##_resize (d, prefix##_size (d) + elem_count, alloc);\
 }
-/*---------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
-#define define_dynarray_funcs(prefix, content_type, linkage_and_modif)\
-/*--------------------------------------------------------------------------*/\
-linkage_and_modif \
-bl_err prefix##_resize (prefix* d, uword new_size, alloc_tbl const* alloc)\
-{\
-  bl_assert (d && alloc);\
-  bl_err err = bl_ok;\
-  content_type* new_ptr;\
-\
-  if (new_size != 0) {\
-    new_ptr = (content_type*) bl_realloc(\
-      alloc, d->arr, new_size * sizeof (d->arr[0])\
-      );\
-    if (unlikely (!new_ptr)) {\
-      new_size = d->size;\
-      new_ptr  = d->arr;\
-      err = bl_alloc;\
-    }\
-  }\
-  else {\
-    /*realloc with size 0 has implementation defined behavior on C11*/\
-    bl_dealloc (alloc, d->arr);\
-    new_ptr = nullptr;\
-  }\
-  d->size = new_size;\
-  d->arr  = new_ptr;\
-  return err;\
-}
-/*---------------------------------------------------------------------------*/
+/*--------------------------------------------------------------------------*/
 
 #endif /* __BL_DYN_ARRAY_H__ */
 

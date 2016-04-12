@@ -6,11 +6,11 @@
 #include <bl/base/to_type_containing.h>
 #include <bl/base/integer.h>
 #include <bl/base/autoarray.h>
+#include <bl/base/autoarray.c>
 #include <bl/base/utility.h>
 
 define_autoarray_types (u32_darr, u32)
-declare_autoarray_funcs (u32_darr, u32, static inline)
-define_autoarray_funcs (u32_darr, u32, static inline)
+declare_autoarray_funcs (u32_darr, u32)
 /*---------------------------------------------------------------------------*/
 typedef struct alloc_data {
   u32       buff[64];

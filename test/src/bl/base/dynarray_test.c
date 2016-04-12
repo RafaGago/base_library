@@ -5,11 +5,11 @@
 #include <bl/base/default_allocator.h>
 #include <bl/base/integer.h>
 #include <bl/base/dynarray.h>
+#include <bl/base/dynarray.c>
 #include <bl/base/utility.h>
 
 define_dynarray_types (u32_darr, u32)
-declare_dynarray_funcs (u32_darr, u32, static inline)
-define_dynarray_funcs (u32_darr, u32, static inline)
+declare_dynarray_funcs (u32_darr, u32)
 /*---------------------------------------------------------------------------*/
 static void dynarray_init (void **state)
 { 
@@ -29,7 +29,7 @@ static void dynarray_init_non_0 (void **state)
   u32_darr_destroy (&d, &t);
 }
 /*---------------------------------------------------------------------------*/
-static void dynarray_resize (void **state)
+static void dynarray_resize_test (void **state)
 { 
   const uword sz = 4;
   u32_darr    d;
@@ -51,7 +51,7 @@ static void dynarray_resize (void **state)
 static const struct CMUnitTest tests[] = {
   cmocka_unit_test (dynarray_init),
   cmocka_unit_test (dynarray_init_non_0),
-  cmocka_unit_test (dynarray_resize),
+  cmocka_unit_test (dynarray_resize_test),
 };
 /*---------------------------------------------------------------------------*/
 int dynarray_tests (void)
