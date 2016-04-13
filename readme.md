@@ -98,8 +98,6 @@ Compilers
 Folders
 =======
 
-* eclipse: Eclipse projects, unneeded to build. I sometimes use Eclipse as a gdb
-front end.
 * dependencies: External dependencies, as of now cmocka for the unit tests and
  premake5-alpha for building.
 * build/premake: The build script.
