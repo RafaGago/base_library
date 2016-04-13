@@ -72,6 +72,15 @@ void prefix##_destroy (prefix* d, alloc_tbl const* alloc)\
 }\
 /*--------------------------------------------------------------------------*/\
 static inline \
+content_type* prefix##_get_array_ownership (prefix* d)\
+{\
+  content_type* c = d->arr;\
+  d->arr          = nullptr;\
+  d->size         = 0;\
+  return c;\
+}\
+/*--------------------------------------------------------------------------*/\
+static inline \
 uword prefix##_size (prefix const* d)\
 {\
   bl_assert (d);\
