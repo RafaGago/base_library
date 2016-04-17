@@ -25,6 +25,12 @@ local keywords = {
   fixed   = "fixed",
 }
 -------------------------------------------------------------------------------
+local msg_layout = {
+  fixed    = "fixed",
+  variable = "variable",
+  multi    = "multi"
+}
+-------------------------------------------------------------------------------
 local function valid_name (name, msg_name)
   if type_sizes[name] or keywords[name] then
     print ("on "..msg_name..". name is a type or keyword: "..name)
@@ -91,25 +97,35 @@ local function do_align (size, alig)
   return math.ceil (size / alig) * alig
 end
 -------------------------------------------------------------------------------
-local function msg_postprocess(msg)
-  msg.csize          = 0
-  msg.fix_wire_size  = 0
-  msg.repeated_count = 0
-  msg.dynamic_count  = 0
-  msg.align          = 1 --recursive
+local function msg_before_insert_reorder_and_classify (msg, msgs)
+  msg.csize                 = 0
+  msg.fix_wire_size         = 0
+  msg.variable_count        = 0
+  msg.dynamic_count         = 0
+  msg.nested_count          = 0
+  msg.nested_variable_count = 0
+  msg.align                 = 1 --recursive
 
   for _, v in ipairs (msg.fields) do
     msg.csize = msg.csize + v.csize
+    if v.is_msg then
+      msg.nested_count          = msg.nested_count + 1
+      local nested              = msgs[v.type]
+      msg.nested_variable_count = 
+        msg.nested_variable_count + nested.nested_variable_count
+      msg.nested_variable_count = 
+        msg.nested_variable_count + nested.variable_count
+    end
     if v.array_max == nil and v.is_msg == false then
       --message wsizes just contain the higher level, not the whole nesting
       msg.fix_wire_size = msg.fix_wire_size + v.csize;
     end
-    if v.is_dynamic then
+    if v.itype == keywords.dynamic then
       assert (v.array_max ~= nil, "bug")
       msg.dynamic_count = msg.dynamic_count + 1
     end
-    if v.array_max ~= nil then
-      msg.repeated_count = msg.repeated_count + 1
+    if v.array_max ~= nil and v.itype ~= keywords.fixed then
+      msg.variable_count = msg.variable_count + 1
     end
     msg.align = math.max (msg.align, v.align)
   end
@@ -173,15 +189,16 @@ local msg_parser = coroutine.wrap (function (tk, msgs, order)
             keywords.static.."specifiers: "..field.name
             )
         end
-        if tj[1] ~= keywords.fixed then
+        if tk[1] ~= keywords.fixed then
           --adding the count field to the struct
           local cfield = {} 
-          cfield.type       = get_array_index_type (field.array_max)
-          cfield.is_msg     = false
-          cfield.name       = field.name.."_count"
-          cfield.csize      = type_sizes[cfield.type]
-          cfield.align      = cfield.csize
-          cfield.is_count   = true
+          cfield.type      = get_array_index_type (field.array_max)
+          cfield.is_msg    = false
+          cfield.name      = field.name.."_count"
+          cfield.csize     = type_sizes[cfield.type]
+          cfield.align     = cfield.csize
+          cfield.is_count  = true
+          cfield.itype     = keywords.fixed
           table.insert (msg.fields, cfield)
         end
         coroutine.yield (0)     
@@ -211,7 +228,7 @@ local msg_parser = coroutine.wrap (function (tk, msgs, order)
       yieldval = 1
     end
     if (msg_name ~= nil) then
-      msg_postprocess (msg)
+      msg_before_insert_reorder_and_classify (msg, msgs)
       msgs[msg_name] = msg;
       table.insert (order, msg_name)
     end
@@ -234,7 +251,7 @@ function indent (out, n)
   return out..string.rep (indent_str, n)
 end
 -------------------------------------------------------------------------------
-function generate_struct (out, msg, name)
+function generate_structs (out, msg, name)
   local o = line_separator (out)
   o = o.."typedef struct "..name.." {\n"
   for k, v in ipairs (msg.fields) do
@@ -247,7 +264,38 @@ function generate_struct (out, msg, name)
       o = o..v.type.." "..v.name.."["..v.array_max.."];\n"
     end
   end
-  o = o.."}\n"..name..";\n"
+  return o
+end
+-------------------------------------------------------------------------------
+function generate_constants (out, msg, name)
+  local o = line_separator (out)
+  o = o.."enum "..name.."_constants {\n"
+  o = o..indent (o, 1)..name.."_fix_wsize = \n"
+  count=0
+  for k, v in ipairs (msg.fields) do
+    if count ~= 0 then
+      o = o.." +\n"
+    end
+    --wsizes don't contain the whole nesting
+    if v.itype == keywords.fixed and v.is_msg == false then 
+      count = count + 1
+      o = indent (o, 2)
+      o = o.."sizeof (("..name.."*) 0)->"..v.name..")"
+    end
+  end
+  if count == 0 then
+    o = indent (o, 2).."0,\n"    
+  else
+    o = o..",\n"
+  end
+
+  for k, v in ipairs (msg.fields) do
+    if v.itype ~= keywords.fixed then
+      print ("n:"..v.name)
+      o = indent (o, 1)..name.."_"..v.name.."_max = "..v.array_max..",\n"
+    end
+  end
+  o = o.."};\n"
   return o
 end
 -------------------------------------------------------------------------------
@@ -255,8 +303,12 @@ function generate_wsize(out, msg, name)
   assert (out ~= nil, "wtf")
   local o = line_separator (out)
   o = o.."static inline u64 "..name..
-        "_get_wire_size (const "..name.."* v)\n{\n"
+        "_get_wire_size ("..name.." const* v)\n{\n"
   o = indent (o, 1).."bl_assert (v);\n"
+  o = indent (o, 1).."static_assert(\n"
+  o = indent (o, 2)..name.."_fix_wsize == "..msg.fix_wire_size..",\n"
+  o = indent (o, 2).."\"bug on the code generator\"\n"
+  o = indent (o, 2)..");\n"
   o = indent (o, 1).."u64 wsize = "..msg.fix_wire_size..";\n"
   for k, v in ipairs (msg.fields) do
     if v.is_msg then
@@ -268,7 +320,8 @@ function generate_wsize(out, msg, name)
           o = o.."bl_assert (v->"..v.name..");\n"
           o = indent (o, 1)
         end
-        o = o.."bl_assert (v->"..v.name.."_count <= "..v.array_max..");\n"
+        o = o.."bl_assert (v->"..v.name.."_count <= "..name.."_"..v.name
+            .."_max);\n"
         o = indent (o, 1)
         o = o.."for (uword i = 0; i < v->"..v.name.."_count; ++i) {\n"
         o = indent (o, 2)
@@ -285,21 +338,64 @@ function generate_wsize(out, msg, name)
   return o
 end
 -------------------------------------------------------------------------------
+function reorder_for_wire_transfer (msg, msgs)
+  local total_var = msg.nested_variable_count + msg.variable_count
+  if total_var == 0 then
+    msg.layout = msg_layout.fixed
+    return 0
+  elseif total_var == 1 then
+    msg.layout = msg_layout.variable
+  else
+    msg.layout = msg_layout.multi
+  end
+
+  local fixed    = {}
+  local variable = {}
+
+  for _, v in ipairs (msg.fields) do
+    if v.is_msg then
+      if v.array_max ~= nil and v.itype ~= keywords.fixed then
+        table.insert (variable, v)
+      elseif msgs[v.type].variable_count > 0 or 
+             msgs[v.type].nested_variable_count > 0 then
+        table.insert (variable, v)
+      else
+        table.insert (fixed, v)
+      end
+    else
+      if v.array_max ~= nil and v.itype ~= keywords.fixed then
+        table.insert (variable, v)
+      else
+        table.insert (fixed, v)
+      end
+    end
+  end
+  
+  msg.fields = {}
+  for _, v in ipairs (fixed) do
+    table.insert (msg.fields, v)
+  end
+  for _, v in ipairs (variable) do
+    table.insert (msg.fields, v)
+  end
+end
+-------------------------------------------------------------------------------
 function generate_header(out, filename)
-  def = "__"..filename:gsub ("%.","_").."_H__"
-  def = def:upper()
-  o   = "#ifndef "..def.."\n"
-  o   = "#define "..def.."\n\n"
-  o   = o.."#include <string.h>\n"
-  o   = o.."#include <bl/base/platform.h>\n"
-  o   = o.."#include <bl/base/assert.h>\n"
-  o   = o.."#include <bl/base/integer_manipulation.h>\n"
-  return def
+  local def = "__"..filename:gsub ("%.","_").."_H__"
+  def       = def:upper()
+  local o   = out.."#ifndef "..def.."\n"
+  o         = o.."#define "..def.."\n\n"
+  o         = o.."#include <string.h>\n"
+  o         = o.."#include <bl/base/platform.h>\n"
+  o         = o.."#include <bl/base/assert.h>\n"
+  o         = o.."#include <bl/base/integer_manipulation.h>\n"
+  return def, o
 end
 -------------------------------------------------------------------------------
 function generate_footer(out, def)
   local o = line_separator (out)
   o = o.."#endif /*"..def.."*/\n"
+  return o
 end
 -------------------------------------------------------------------------------
 -- MAIN
@@ -335,6 +431,7 @@ if (file == nil) then
 end
 f = file:read ("*all")
 f = f:gsub ("\n", " ")
+f = f:gsub ("\t", " ")
 f = f:gsub ("(%S)%[", "%1 [")
 f = f:gsub ("%s+", " ")
 
@@ -355,21 +452,16 @@ if msg_parser (tok_tbl, msgs, order) ~= 1 then
 end
 
 local out=""
---[[
-for _, msgname in ipairs (order) do
-  local m = msgs[msgname]  
-  print ("message:"..msgname.." csz:"..m.csize.." wsz:"..m.fix_wire_size)
-  for _, v in ipairs (m.fields) do
-    print("  "..v.type.." "..v.name.." csz:"..v.csize.." al:"..v.align)
-  end
-end
-]]--
-
-local def = generate_header (out, filename)
+local def, out = generate_header (out, filename)
 
 for _, msgname in ipairs (order) do
   local m = msgs[msgname]
-  out     = generate_struct (out, m, msgname)
+  out     = generate_structs (out, m, msgname)
+end
+
+for _, msgname in ipairs (order) do
+  local m = msgs[msgname]
+  out     = generate_constants (out, m, msgname)
 end
 
 for _, msgname in ipairs (order) do
@@ -377,9 +469,21 @@ for _, msgname in ipairs (order) do
   out     = generate_wsize (out, m, msgname)
 end
 
-generate_footer (out, def)
+for _, msgname in ipairs (order) do
+  local m = msgs[msgname]
+  reorder_for_wire_transfer (m, msgs)
+end
 
+out = generate_footer (out, def)
 print (out)
+
+for _, msgname in ipairs (order) do
+  local m = msgs[msgname]  
+  print ("message:"..msgname.." csz:"..m.csize.." wsz:"..m.fix_wire_size)
+  for _, v in ipairs (m.fields) do
+    print("  "..v.type.." "..v.name.." csz:"..v.csize.." al:"..v.align)
+  end
+end
 
 return 0
 -------------------------------------------------------------------------------
