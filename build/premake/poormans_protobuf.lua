@@ -22,6 +22,7 @@ local keywords = {
   endfile = "endfile",
   static  = "static",
   dynamic = "dynamic",
+  fixed   = "fixed",
 }
 -------------------------------------------------------------------------------
 local function valid_name (name, msg_name)
@@ -132,9 +133,9 @@ local msg_parser = coroutine.wrap (function (tk, msgs, order)
     while tk[1] ~= "message" and tk[1] ~= "endfile" and msg_name ~= nil do
       local field = {}
       --type
-      field.is_dynamic = false
-      field.is_count   = false
-      field.is_msg     = type_is_msg (tk[1], msg_name, msgs, msg_name)
+      field.itype    = keywords.fixed
+      field.is_count = false
+      field.is_msg   = type_is_msg (tk[1], msg_name, msgs, msg_name)
       if field.is_msg == nil then
         coroutine.yield (-1)
       end
@@ -160,32 +161,33 @@ local msg_parser = coroutine.wrap (function (tk, msgs, order)
           coroutine.yield (-1)
         end
         coroutine.yield (0)
-        if tk[1] == keywords.static then          
+        field.itype = tk[1]
+        if tk[1] == keywords.static or tk[1] == keywords.fixed then          
           field.csize = field.csize * field.array_max
         elseif tk[1] == keywords.dynamic then
-          field.csize      = ptr_bytes
-          field.align      = ptr_bytes
-          field.is_dynamic = true
+          field.csize = ptr_bytes
+          field.align = ptr_bytes
         else
           print(
             "on: "..msg_name..". array with no "..keywords.dynamic.."/"..
             keywords.static.."specifiers: "..field.name
             )
         end
-        --adding the count field to the struct
-        local cfield = {} 
-        cfield.type       = get_array_index_type (field.array_max)
-        cfield.is_msg     = false
-        cfield.name       = field.name.."_count"
-        cfield.csize      = type_sizes[cfield.type]
-        cfield.align      = cfield.csize
-        cfield.is_dynamic = false
-        cfield.is_count   = true
-        table.insert (msg.fields, cfield)
+        if tj[1] ~= keywords.fixed then
+          --adding the count field to the struct
+          local cfield = {} 
+          cfield.type       = get_array_index_type (field.array_max)
+          cfield.is_msg     = false
+          cfield.name       = field.name.."_count"
+          cfield.csize      = type_sizes[cfield.type]
+          cfield.align      = cfield.csize
+          cfield.is_count   = true
+          table.insert (msg.fields, cfield)
+        end
         coroutine.yield (0)     
       end
       --validation and insertion
-      if field.type == msg_name and field.is_dynamic == false then
+      if field.type == msg_name and field.itype ~= keywords.dynamic then
         print ("invalid reference to itself:"..msg_name)
         coroutine.yield (-1)
       end
@@ -239,7 +241,7 @@ function generate_struct (out, msg, name)
     o = indent (o, 1)
     if v.array_max == nil then
       o = o..v.type.." "..v.name..";\n"
-    elseif v.is_dynamic then
+    elseif v.itype == keywords.dynamic then
       o = o..v.type.."* "..v.name..";\n"
     else
       o = o..v.type.." "..v.name.."["..v.array_max.."];\n"
@@ -262,7 +264,7 @@ function generate_wsize(out, msg, name)
       if v.array_max == nil then
         o = o.."wsize += "..v.type.."_get_wire_size (&v->"..v.name..");\n"
       else
-        if (v.is_dynamic) then
+        if (v.itype == keywords.dynamic) then
           o = o.."bl_assert (v->"..v.name..");\n"
           o = indent (o, 1)
         end
@@ -281,6 +283,23 @@ function generate_wsize(out, msg, name)
   o = indent (o, 1).."return wsize;\n"
   o = o.."}\n"
   return o
+end
+-------------------------------------------------------------------------------
+function generate_header(out, filename)
+  def = "__"..filename:gsub ("%.","_").."_H__"
+  def = def:upper()
+  o   = "#ifndef "..def.."\n"
+  o   = "#define "..def.."\n\n"
+  o   = o.."#include <string.h>\n"
+  o   = o.."#include <bl/base/platform.h>\n"
+  o   = o.."#include <bl/base/assert.h>\n"
+  o   = o.."#include <bl/base/integer_manipulation.h>\n"
+  return def
+end
+-------------------------------------------------------------------------------
+function generate_footer(out, def)
+  local o = line_separator (out)
+  o = o.."#endif /*"..def.."*/\n"
 end
 -------------------------------------------------------------------------------
 -- MAIN
@@ -345,6 +364,9 @@ for _, msgname in ipairs (order) do
   end
 end
 ]]--
+
+local def = generate_header (out, filename)
+
 for _, msgname in ipairs (order) do
   local m = msgs[msgname]
   out     = generate_struct (out, m, msgname)
@@ -355,8 +377,8 @@ for _, msgname in ipairs (order) do
   out     = generate_wsize (out, m, msgname)
 end
 
+generate_footer (out, def)
 
-out = line_separator (out)
 print (out)
 
 return 0
