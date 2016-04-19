@@ -42,7 +42,7 @@ filter {"system:linux"}
 filter {"configurations:*release*"}  
   optimize "On"
 
-filter {"configurations:*release*", "kind:*Lib", }
+filter {"configurations:*release*", "kind:*Lib", } --cmocka
   defines {"NDEBUG"}
   
 filter {"configurations:*debug*"}

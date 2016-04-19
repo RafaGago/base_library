@@ -133,17 +133,17 @@ local function validate_parse_array_count (t, msg_name)
   local count = t:match ("^%[(%d*)%]$")
   if count == "" then
     print ("on "..msg_name..". array needs to specify it's maximum size: "..t)
-    return -1
+    return 0
   elseif count ~= nil then
     count = tonumber (count)
     if count == "0" then
       print ("on "..msg_name..". array can't have a 0 maximum size: "..t)
-      return -1
+      return 0
     end
     return count
   else 
     print ("on "..msg_name..". invalid array syntax: "..t)
-    return -1    
+    return 0    
   end
 end
 -------------------------------------------------------------------------------
@@ -163,40 +163,67 @@ local function do_align (size, alig)
   return math.ceil (size / alig) * alig
 end
 -------------------------------------------------------------------------------
-local function msg_before_insert_reorder_and_classify (msg, msgs)
-  msg.csize                 = 0
-  msg.fix_wire_size         = 0 --contains builtins and fixed builtin arrays
-  msg.variable_count        = 0
-  msg.dynamic_count         = 0
-  msg.nested_count          = 0
-  msg.nested_variable_count = 0
-  msg.align                 = 1 --recursive
+local function msg_reorder_and_classify (msg, msgs)
+  --reorders the message for the struct generation phase (those with bigger
+  --alignment and sizes first) and generates information about the message
+  msg.csize                      = 0
+  msg.fix_wire_size              = 0 --builtins and fixed builtin arrays only
+  msg.variable_count             = 0
+  msg.dynamic_count              = 0
+  msg.dynamic_byte_arrays        = 0  
+  msg.nested_count               = 0
+  msg.nested_dynamic_count       = 0 
+  msg.nested_variable_count      = 0
+  msg.nested_dynamic_byte_arrays = 0
+  msg.align                      = 1 
+
+-- simple message: variable_count + nested_variable_count == 0
+-- generate direct accessors to serialized chunk to skip data copy on arrays:
+--   (dynamic_count + nested_dynamic_count) == 
+--     (dynamic_byte_arrays + nested_dynamic_byte_arrays)
+-- unpack functions need an allocator and generate dealloc helper function:
+--  (dynamic_count + nested_dynamic_count) ~= 0
+-- unpack function needs to pass an allocator to a nested struct pack function:
+--  nested_msg.dynamic_count + nested_msg.nested_dynamic_count ~= 0
+-- unpack functions need to generate gotos for allocation or message out of
+--  boundaries fallbacks: dynamic_count + nested_count > 1
 
   for _, v in ipairs (msg.fields) do
     msg.csize = msg.csize + v.csize
     if v.is_msg then
-      msg.nested_count          = msg.nested_count + 1
-      local nested              = msgs[v.type]
+      msg.nested_count = msg.nested_count + 1
+      local nested = msgs[v.type]
       msg.nested_variable_count = 
         msg.nested_variable_count + nested.nested_variable_count
       msg.nested_variable_count = 
         msg.nested_variable_count + nested.variable_count
+      msg.nested_dynamic_count = 
+        msg.nested_dynamic_count + nested.nested_dynamic_count
+      msg.nested_dynamic_count = 
+        msg.nested_dynamic_count + nested.dynamic_count
+      msg.nested_dynamic_byte_arrays = 
+        msg.nested_dynamic_byte_arrays + nested.dynamic_byte_arrays
+      msg.nested_dynamic_byte_arrays = 
+        msg.nested_dynamic_byte_arrays + nested.nested_dynamic_byte_arrays        
     end
-    if v.array_max == nil and v.is_msg == false then
+    if v.array_max == 0 and v.is_msg == false then
       --message wsizes just contain the higher level, not the whole nesting
       msg.fix_wire_size = msg.fix_wire_size + v.csize;
     end
-    if v.array_max ~= nil and 
+    if v.array_max ~= 0 and 
        v.is_msg == false and 
        v.itype == keywords.fixed then
       --message wsizes just contain the higher level, not the whole nesting
       msg.fix_wire_size = msg.fix_wire_size + v.csize;
     end
     if v.itype == keywords.dynamic then
-      assert (v.array_max ~= nil, "bug")
+      assert (v.array_max ~= 0, "bug")
       msg.dynamic_count = msg.dynamic_count + 1
+      if v.type == "u8" or v.type == "i8" then
+        msg.dynamic_byte_arrays = msg.dynamic_byte_arrays + 1
+      end
     end
-    if v.array_max ~= nil and v.itype ~= keywords.fixed then
+    if v.array_max ~= 0 and v.itype ~= keywords.fixed then
       msg.variable_count = msg.variable_count + 1
     end
     msg.align = math.max (msg.align, v.align)
@@ -221,13 +248,18 @@ local msg_parser = coroutine.wrap (function (tk, msgs, order)
     while tk[1] ~= "message" and tk[1] ~= "endfile" and msg_name ~= nil do
       local field = {}
       --type
-      field.itype   = keywords.fixed
-      field.is_size = false
-      field.is_msg  = type_is_msg (tk[1], msg_name, msgs, msg_name)
+      field.itype     = keywords.fixed
+      field.is_size   = false
+      field.array_max = 0
+      field.is_msg    = type_is_msg (tk[1], msg_name, msgs, msg_name)
       if field.is_msg == nil then
         coroutine.yield (-1)
       end
-      field.type = tk[1]
+      field.type = tk[1]      
+      if field.type == msg_name then
+        print ("message "..msg_name.." is nesting itself (cycle)")
+        coroutine.yield (-1)
+      end
       if field.is_msg then
         field.csize = msgs[tk[1]].csize
         field.align = msgs[tk[1]].align
@@ -264,23 +296,19 @@ local msg_parser = coroutine.wrap (function (tk, msgs, order)
         if tk[1] ~= keywords.fixed then
           --adding the count field to the struct
           local cfield = {} 
-          cfield.type    = get_array_index_type (field.array_max)
-          cfield.is_msg  = false
-          cfield.name    = field.name.."_size"
-          cfield.csize   = type_sizes[cfield.type]
-          cfield.align   = cfield.csize
-          cfield.is_size = true
-          cfield.itype   = keywords.fixed
+          cfield.type      = get_array_index_type (field.array_max)
+          cfield.is_msg    = false
+          cfield.name      = field.name.."_size"
+          cfield.csize     = type_sizes[cfield.type]
+          cfield.align     = cfield.csize
+          cfield.is_size   = true
+          cfield.array_max = 0
+          cfield.itype     = keywords.fixed
           table.insert (msg.fields, cfield)
         end
         coroutine.yield (0)     
       end
       --validation and insertion
-      if field.type == msg_name and field.itype ~= keywords.dynamic then
-        print ("invalid reference to itself:"..msg_name)
-        coroutine.yield (-1)
-      end
-
       for _ , v in ipairs (msg) do
         if (field.name == v) then
           print ("on: "..msg_name..". duplicate field name: "..v)
@@ -300,7 +328,7 @@ local msg_parser = coroutine.wrap (function (tk, msgs, order)
       yieldval = 1
     end
     if (msg_name ~= nil) then
-      msg_before_insert_reorder_and_classify (msg, msgs)
+      msg_reorder_and_classify (msg, msgs)
       msgs[msg_name] = msg;
       table.insert (order, msg_name)
     end
@@ -315,6 +343,46 @@ local msg_parser = coroutine.wrap (function (tk, msgs, order)
   end
 end)
 -------------------------------------------------------------------------------
+function wire_reorder (msg, msgs)
+  --places variable fields at the bottommost portion
+  local fixed    = {}
+  local variable = {}
+
+  for _, v in ipairs (msg.fields) do
+    if v.is_msg then
+      if v.array_max ~= 0 and v.itype ~= keywords.fixed then
+        table.insert (variable, v)
+      elseif msgs[v.type].variable_count > 0 or 
+             msgs[v.type].nested_variable_count > 0 then
+        table.insert (variable, v)
+      else
+        table.insert (fixed, v)
+      end
+    else
+      if v.array_max ~= 0 and v.itype ~= keywords.fixed then
+        table.insert (variable, v)
+      else
+        table.insert (fixed, v)
+      end
+    end
+  end
+  
+  msg.fields = {}
+  for _, v in ipairs (fixed) do
+    table.insert (msg.fields, v)
+  end
+  for _, v in ipairs (variable) do
+    table.insert (msg.fields, v)
+  end
+end
+-- TODO redo code generator with an intermediate representation of the 
+--      generated code. e.g: 
+--      {SER_U32  v}
+--      {SER_NESTED, GOTO/return}
+--      {SER_NESTED, GOTO/return}
+--      {GOTO tag dealloc}
+--      {RETURN
+-------------------------------------------------------------------------------
 function line_separator (out)
   return out.."/*"..string.rep ("-", 76).."*/\n"
 end
@@ -328,7 +396,7 @@ function generate_structs (out, msg, name)
   o = o.."typedef struct "..name.." {\n"
   for k, v in ipairs (msg.fields) do
     o = indent (o, 1)
-    if v.array_max == nil then
+    if v.array_max == 0 then
       o = o..v.type.." "..v.name..";\n"
     elseif v.itype == keywords.dynamic then
       o = o..v.type.."* "..v.name..";\n"
@@ -386,7 +454,7 @@ function generate_wsize(out, msg, name)
   for k, v in ipairs (msg.fields) do
     if v.is_msg then
       o = indent (o, 1)
-      if v.array_max == nil then
+      if v.array_max == 0 then
         o = o.."wsize += "..v.type.."_get_wire_size (&v->"..v.name..");\n"
       else
         if (v.itype == keywords.dynamic) then
@@ -403,7 +471,7 @@ function generate_wsize(out, msg, name)
           o = indent (o, 1).."}\n"
         end
       end
-    elseif v.array_max ~= nil and v.itype ~= keywords.fixed then
+    elseif v.array_max ~= 0 and v.itype ~= keywords.fixed then
       --dynamic array
       o = indent (o, 1)
       o = o.."wsize += ((u64) "..v.name.."_size) * sizeof v->"
@@ -413,48 +481,6 @@ function generate_wsize(out, msg, name)
   o = indent (o, 1).."return wsize;\n"
   o = o.."}\n"
   return o
-end
--------------------------------------------------------------------------------
-function reorder_for_wire_transfer (msg, msgs)
-  local total_var = msg.nested_variable_count + msg.variable_count
-  if total_var == 0 then
-    msg.layout = msg_layout.fixed
-    return 0
-  elseif total_var == 1 then
-    msg.layout = msg_layout.variable
-  else
-    msg.layout = msg_layout.multi
-  end
-
-  local fixed    = {}
-  local variable = {}
-
-  for _, v in ipairs (msg.fields) do
-    if v.is_msg then
-      if v.array_max ~= nil and v.itype ~= keywords.fixed then
-        table.insert (variable, v)
-      elseif msgs[v.type].variable_count > 0 or 
-             msgs[v.type].nested_variable_count > 0 then
-        table.insert (variable, v)
-      else
-        table.insert (fixed, v)
-      end
-    else
-      if v.array_max ~= nil and v.itype ~= keywords.fixed then
-        table.insert (variable, v)
-      else
-        table.insert (fixed, v)
-      end
-    end
-  end
-  
-  msg.fields = {}
-  for _, v in ipairs (fixed) do
-    table.insert (msg.fields, v)
-  end
-  for _, v in ipairs (variable) do
-    table.insert (msg.fields, v)
-  end
 end
 -------------------------------------------------------------------------------
 function generate_builtin_pack (o, field, dst_var, msg_ptr, indentlvl, idx)
@@ -487,100 +513,8 @@ function generate_builtin_pack (o, field, dst_var, msg_ptr, indentlvl, idx)
   return o
 end
 -------------------------------------------------------------------------------
-function generate_builtin_unpack (o, field, src_var, msg_ptr, indentlvl, idx)
-  if idx == nil then
-    idx = ""
-  end
-  o = indent (o, indentlvl)
-  if     field.type == "u8"  or field.type == "i8" then
-    o = o..string.format(
-      "%s->%s%s = (u8) *%s;\n", msg_ptr, field.name, idx, src_var
-      )
-  elseif field.type == "u16" or field.type == "i16" then
-    o = o..string.format(
-      "%s->%s%s = read_u16_le (%s);\n", msg_ptr, field.name, idx, src_var
-      )
-  elseif field.type == "u32" or field.type == "i32" then
-    o = o..string.format(
-      "%s->%s%s = read_u32_le (%s);\n", msg_ptr, field.name, idx, src_var
-            )
-  elseif field.type == "u64" or field.type == "i64" then
-    o = o..string.format(
-      "%s->%s%s = read_u64_le \%s);\n", msg_ptr, field.name, idx, src_var
-      )
-  else
-    assert (false, "bug:")
-  end
-  o = indent (o, indentlvl)..string.format(
-    "%s += sizeof %s->%s%s;\n", src_var, msg_ptr, field.name, idx
-    )
-  return o
-end
--------------------------------------------------------------------------------
-function generate_nested_pack(
-  o, field, dst_var, msg_ptr, indentlvl, idx, alloc, goto_err_tag, err_val
-  )
-  if idx == nil then
-    idx = ""
-  end
-  o = indent (o, indentlvl)..string.format(
-      "i64 %s_res = %s_pack (%s, %s_size, &%s->%s%s",
-      field.name, field.type, dst_var, dst_var, msg_ptr, field.name, idx
-      )
-  if alloc == nil then
-    o = o..");\n"
-  else
-    o = o..", "..alloc..");\n"
-  end
-  o = indent (o, indentlvl)..string.format(
-    "if (unlikely (%s_res < 0)) {\n", field.name
-    )
-  if goto_err_tag == nil then
-    o = indent (o, indentlvl + 1).."return "..field.name.."_res;\n"
-  else
-    o = indent (o, indentlvl + 1)..err_val.." = "..field.name.."_res;\n"
-    o = indent (o, indentlvl + 1).."goto "..goto_err_tag..";\n"
-  end
-  o = indent (o, indentlvl).."}\n"
-  o = indent (o, indentlvl)..string.format(
-    "%s += %s_res;\n", dst_var, field.name
-    )
-  return o
-end
--------------------------------------------------------------------------------
-function generate_nested_unpack(
-  o, field, src_var, msg_ptr, indentlvl, alloc, goto_err_tag, err_val
-  )
-  if idx == nil then
-    idx = ""
-  end
-  o = indent (o, indentlvl)..string.format(
-      "i64 %s_res = %s_unpack (&%s->%s%s, %s, %s_size",
-      field.name, field.type, msg_ptr, field.name, idx, src_var, src_var
-      )
-  if alloc == nil then
-    o = o..");\n"
-  else
-    o = o..", "..alloc..");\n"
-  end
-  o = indent (o, indentlvl)..string.format(
-    "if (unlikely (%s_res < 0)) {\n", field.name
-    )
-  if goto_err_tag == nil then
-    o = indent (o, indentlvl + 1).."return "..field.name.."_res;\n"
-  else
-    o = indent (o, indentlvl + 1)..err_val.." = "..field.name.."_res;\n"
-    o = indent (o, indentlvl + 1).."goto "..goto_err_tag..";\n"
-  end
-  o = indent (o, indentlvl).."}\n"
-  o = indent (o, indentlvl)..string.format(
-    "%s += %s_res;\n", src_var, field.name
-    )
-  return o
-end
--------------------------------------------------------------------------------
 function generate_builtin_array_pack (o, field, dst_var, msg_ptr, indentlvl)
-  assert (field.array_max ~= nil, "BUG")
+  assert (field.array_max ~= 0, "BUG")
 
   if field.type ~= "u8" and field.type ~= "i8" then
     o = o.."#ifdef BL_LITTLE_ENDIAN\n"
@@ -623,6 +557,36 @@ function generate_builtin_array_pack (o, field, dst_var, msg_ptr, indentlvl)
   o = generate_builtin_pack (o, field, dst_var, msg_ptr, indentlvl + 1, "[i]")
   o = indent (o, indentlvl).."}\n"
   o = o.."#endif\n"
+  return o
+end
+-------------------------------------------------------------------------------
+function generate_builtin_unpack (o, field, src_var, msg_ptr, indentlvl, idx)
+  if idx == nil then
+    idx = ""
+  end
+  o = indent (o, indentlvl)
+  if     field.type == "u8"  or field.type == "i8" then
+    o = o..string.format(
+      "%s->%s%s = (u8) *%s;\n", msg_ptr, field.name, idx, src_var
+      )
+  elseif field.type == "u16" or field.type == "i16" then
+    o = o..string.format(
+      "%s->%s%s = read_u16_le (%s);\n", msg_ptr, field.name, idx, src_var
+      )
+  elseif field.type == "u32" or field.type == "i32" then
+    o = o..string.format(
+      "%s->%s%s = read_u32_le (%s);\n", msg_ptr, field.name, idx, src_var
+            )
+  elseif field.type == "u64" or field.type == "i64" then
+    o = o..string.format(
+      "%s->%s%s = read_u64_le \%s);\n", msg_ptr, field.name, idx, src_var
+      )
+  else
+    assert (false, "bug:")
+  end
+  o = indent (o, indentlvl)..string.format(
+    "%s += sizeof %s->%s%s;\n", src_var, msg_ptr, field.name, idx
+    )
   return o
 end
 -------------------------------------------------------------------------------
@@ -695,8 +659,127 @@ function generate_builtin_array_unpack(
   return o
 end
 -------------------------------------------------------------------------------
+function generate_nested_pack (o, field, dst_var, msg_ptr, indentlvl, idx)
+  if idx == nil then
+    idx = ""
+  end
+  o = indent (o, indentlvl)..string.format(
+      "i64 %s_res = %s_pack (%s, %s_size, &%s->%s%s);\n",
+      field.name, field.type, dst_var, dst_var, msg_ptr, field.name, idx
+      )
+  o = indent (o, indentlvl)..string.format(
+    "if (unlikely (%s_res < 0)) {\n", field.name
+    )
+  if goto_err_tag == nil then
+    o = indent (o, indentlvl + 1).."return "..field.name.."_res;\n"
+  else
+    o = indent (o, indentlvl + 1)..err_val.." = "..field.name.."_res;\n"
+    o = indent (o, indentlvl + 1).."goto "..goto_err_tag..";\n"
+  end
+  o = indent (o, indentlvl).."}\n"
+  o = indent (o, indentlvl)..string.format(
+    "%s += %s_res;\n", dst_var, field.name
+    )
+  return o
+end
+-------------------------------------------------------------------------------
+function generate_nested_array_pack (o, field, dst_var, msg_ptr, indentlvl)
+  if field.itype == keywords.fixed then
+    o = indent (o, indentlvl)..string.format(
+      "for (u64 i = 0; i < arr_elems (%s->%s); ++i) {\n", msg_ptr, field.name
+      )
+  else
+    o = indent (o, indentlvl)..string.format(
+      "for (u64 i = 0; i < %s->%s_size; ++i) {\n", msg_ptr, field.name
+      )
+  end
+  o = generate_nested_pack (o, field, dst_var, msg_ptr, indentlvl + 1, "[i]")
+  o = indent (o, indentlvl).."}\n"
+  return o
+end
+-------------------------------------------------------------------------------
+function generate_nested_unpack(
+  o, msgs, field, src_var, msg_ptr, indentlvl, alloc, goto_err_tag, err_val
+  )
+  if idx == nil then
+    idx = ""
+  end
+  o = indent (o, indentlvl)..string.format(
+      "i64 %s_res = %s_unpack (&%s->%s%s, %s, %s_size",
+      field.name, field.type, msg_ptr, field.name, idx, src_var, src_var
+      )
+  if msgs[field.type] == nil then
+    o = o..");\n"
+  else
+    o = o..", "..alloc..");\n"
+  end
+  o = indent (o, indentlvl)..string.format(
+    "if (unlikely (%s_res < 0)) {\n", field.name
+    )
+  if goto_err_tag == nil then
+    o = indent (o, indentlvl + 1).."return "..field.name.."_res;\n"
+  else
+    o = indent (o, indentlvl + 1)..err_val.." = "..field.name.."_res;\n"
+    o = indent (o, indentlvl + 1).."goto "..goto_err_tag..";\n"
+  end
+  o = indent (o, indentlvl).."}\n"
+  o = indent (o, indentlvl)..string.format(
+    "%s += %s_res;\n", src_var, field.name
+    )
+  return o
+end
+-------------------------------------------------------------------------------
+function generate_nested_array_unpack(
+  o, msgs, field, src_var, msg_ptr, indentlvl, alloc, goto_err_tag, err_val
+  )
+  assert (field.array_max, "BUG")
+  if alloc ~= nil then
+    assert (field.itype == keywords.dynamic, "BUG")
+    o = indent (o, indentlvl)..string.format(
+      "%s->%s = (%s*) bl_alloc (&%s, %s->%s_size * sizeof %s->%s[0]);\n",
+      msg_ptr, field.name, field.type, alloc, msg_ptr, field.name, msg_ptr, 
+      field.name
+      )
+    o = indent (o, indentlvl)..string.format(
+      "if (!%s->%s) {\n", msg_ptr, field.name
+      )
+    if goto_err_tag ~= nil then
+      o = indent (o, indentlvl + 1)..string.format ("%s = -bl_alloc;\n", err_val)
+      o = indent (o, indentlvl + 1)..string.format ("goto %s;\n", goto_err_tag)
+    else
+      o = indent (o, indentlvl + 1).."return -bl_alloc;\n"
+    end
+    o = indent (o, indentlvl).."}\n"
+  end
+
+  if field.itype == keywords.fixed then
+    o = indent (o, indentlvl)..string.format(
+      "for (u64 i = 0; i < arr_elems (%s->%s); ++i) {\n", msg_ptr, field.name
+      )
+  else
+    o = indent (o, indentlvl)..string.format(
+      "for (u64 i = 0; i < %s->%s_size; ++i) {\n", msg_ptr, field.name
+      )
+  end
+  o = generate_nested_unpack(
+    o,
+    field,
+    src_var,
+    msg_ptr,
+    indentlvl + 1,
+    "[i]",
+    alloc,
+    goto_err_tag,
+    err_val
+    )
+  o = indent (o, indentlvl).."}\n"
+  o = o.."#endif\n"
+  return o
+end
+
+-------------------------------------------------------------------------------
 --data structures containing just built-in types and simple nested
-function generate_basic (out, msg, name)
+function generate_basic (out, msgs, msg, name)
   local o = line_separator (out)
   o = o.."i64 "..name.."_pack (u8* dst, u64 dst_size, "..name.." const* m)\n{\n"
   o = indent (o, 1).."if (unlikely (dst_size < "..name.."_fix_wsize)) {\n"
@@ -704,7 +787,7 @@ function generate_basic (out, msg, name)
   o = indent (o, 1).."}\n"
   o = indent (o, 1).."u8* d = dst;\n"
   for _, v in ipairs (msg.fields) do
-    if v.array_max ~= nil then 
+    if v.array_max ~= 0 then 
       if v.is_msg == false then
         o = generate_builtin_array_pack (o, v, "d", "m", 1)
       else
@@ -726,9 +809,9 @@ function generate_basic (out, msg, name)
   o = indent (o, 1).."}\n"
   o = indent (o, 1).."u8* s = src;\n"
   for _, v in ipairs (msg.fields) do
-    if v.array_max ~= nil then 
+    if v.array_max ~= 0 then 
       if v.is_msg == false then
-        --o = generate_builtin_array_unpack (o, v, "s", "m", 1)
+        o = generate_builtin_array_unpack (o, v, "s", "m", 1)
       else
         o = o.."TODO\n"
       end
@@ -744,13 +827,9 @@ function generate_basic (out, msg, name)
   return o
 end
 -------------------------------------------------------------------------------
-function generate_pack_unpack (out, msg, msg_name)
---  msg.variable_count        = 0
---  msg.dynamic_count         = 0
---  msg.nested_count          = 0
---  msg.nested_variable_count = 0
+function generate_pack_unpack (out, msgs, msg, msg_name)
   if msg.variable_count == 0 and msg.nested_variable_count == 0 then
-    out = generate_basic (out, msg, msg_name)
+    out = generate_basic (out, msgs, msg, msg_name)
   end
   return out
 end
@@ -830,7 +909,7 @@ end
 
 local out=""
 local def, out = generate_header (out, filename)
-
+--[[
 for _, msgname in ipairs (order) do
   local m = msgs[msgname]
   out     = generate_structs (out, m, msgname)
@@ -841,12 +920,58 @@ for _, msgname in ipairs (order) do
   local m = msgs[msgname]
   out     = generate_wsize (out, m, msgname)
 end
-
+]]--
 for _, msgname in ipairs (order) do
   local m = msgs[msgname]
-  reorder_for_wire_transfer (m, msgs)
+  wire_reorder (m, msgs)
 end
 
+for _, msgname in ipairs (order) do
+  function msg_hdr_str (name, m)
+    local s = string.format(
+      "name=%s, csz=%d, alig=%d wsz=%d, var=%d, dyn=%d, dba= %d, nes=%d, "..
+      "nvar=%d, ndyn=%d, ndba=%d",
+      name,
+      m.csize,
+      m.align,
+      m.fix_wire_size,
+      m.variable_count,
+      m.dynamic_count,
+      m.dynamic_byte_arrays,
+      m.nested_count,
+      m.nested_variable_count,
+      m.nested_dynamic_count,
+      m.nested_dynamic_byte_arrays
+      )
+    return s
+  end
+  function msg_field_str (f)
+    local s = string.format(
+      "%s, %s, arr=%d, %s, csz=%d, align=%d, is_msg=%s, is_size=%s", 
+      f.type,
+      f.name,
+      f.array_max,
+      f.itype,
+      f.csize,
+      f.align,
+      tostring (f.is_msg),
+      tostring (f.is_size)
+      )
+    return s   
+  end
+
+  local m = msgs[msgname]
+  print (msg_hdr_str (msgname, m))
+  for _, v in ipairs (m.fields) do
+    print("  "..msg_field_str (v))
+    if v.is_msg then
+      print("    "..msg_hdr_str (v.type, msgs[v.type]))
+    end
+  end
+  print()
+end
+
+--[[
 for _, msgname in ipairs (order) do
   local m = msgs[msgname]
   out     = generate_pack_unpack (out, m, msgname)
@@ -854,14 +979,6 @@ end
 
 out = generate_footer (out, def)
 print (out)
---[[
-for _, msgname in ipairs (order) do
-  local m = msgs[msgname]  
-  print ("message:"..msgname.." csz:"..m.csize.." wsz:"..m.fix_wire_size)
-  for _, v in ipairs (m.fields) do
-    print("  "..v.type.." "..v.name.." csz:"..v.csize.." al:"..v.align)
-  end
-end
 ]]--
 return 0
 -------------------------------------------------------------------------------
