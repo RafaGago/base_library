@@ -1,9 +1,9 @@
 #ifndef __BL_FLAT_DEADLINES_H__
 #define __BL_FLAT_DEADLINES_H__
 
-/*represents a fixed-size array based associative structure with wrapping
- timestamps as the key and some struct as the value. to use with small
- datasets and structures.
+/*represents a fixed-size array-based associative structure with 
+ wrapping/overflowing timestamps as the key and some struct as the value. to
+ use with small datasets and structures.
 
  As this is a structure to manage deadlines it should be updated frequently
  (through "get_head_if_expired") to avoid letting the underlying tstamp
