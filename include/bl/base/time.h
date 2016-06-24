@@ -19,7 +19,7 @@
  
  --------------------------------------------------------------- 
  tstamp: 
-  An unsigned type representing some units time and intended to measure short
+  An unsigned type representing some time units and intended to measure short
   time periods (<60s). It can wrap and is compared using signed conversion.
  
  tstampdiff:
@@ -42,7 +42,7 @@
   stamp range (1 bit is taken for the sign) minus one. This is to avoid
   storing the offset just to avoid losing 1 bit.
   
-  Ilustrations of the algorithm for those that aren't well versed with integer
+  Ilustrations of the algorithm for those that aren't well versed on integer
   arithmetic, using u8 (byte) types:
 
   a     b
@@ -61,11 +61,11 @@
 
   As can be observed, the expiration wraps around for each given value at
   half the data type resolution (7 bits in this case) minus one, so the result
-  of this comparision is absolutely time dependant and wraps. Nothing new,
+  of this comparison is absolutely time dependant and wraps. Nothing new;
   every timestamp wraps at some point (64 bit timestamps can take several
   hundred years to wrap with nanosecond resolution. This is designed mostly
-  to be able to use tighter data types e.g. on microcontrollers).
-
+  to be able to use small data types for short periods of time e.g.
+  on microcontrollers).
 
  ---------------------------------------------------------------
   static inline tstamp tstamp_max (tstamp a, tstamp b);
