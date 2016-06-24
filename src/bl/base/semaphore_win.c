@@ -42,11 +42,11 @@ BL_EXPORT bl_err bl_tm_sem_wait (bl_sem* s, u32 usec)
       }
       /*an assert (false) has triggered here on release builds. It did it very
       infrequently but it unveiled  that "WaitForSingleObject" might have the 
-      same behavior than "Sleep"; might return earlier than expected:
+      same behavior of "Sleep"; it might return earlier (!!!) than expected:
       
       https://msdn.microsoft.com/en-us/library/windows/desktop/ms686298(v=vs.85).aspx
       
-      It well documented that the ms passed to "Sleep" is rounded to the floor
+      It's well documented that the ms passed to "Sleep" is rounded to the floor
       of some internal resolution. I didn't think that this was the case with
       WaitForSingleObject, as MSDN doesn't document it:
       
