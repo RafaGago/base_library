@@ -1,6 +1,8 @@
 #ifndef __BL_PROCESSOR_PAUSE_H__
 #define __BL_PROCESSOR_PAUSE_H__
 /*---------------------------------------------------------------------------*/
+#include <bl/base/platform.h>
+/*---------------------------------------------------------------------------*/
 #ifdef _MSC_VER
   #include <bl/base/include_windows.h>
   #if WINVER < 0x0600
