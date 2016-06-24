@@ -6,8 +6,8 @@
    At:
    https://github.com/wjwwood/serial
 
-   A lot of code has been adapted from there. The heavy-duty work was done
-   there.
+   A lot of code has been adapted from there. The heavy-duty work was already
+   done by them.
 */
 /*----------------------------------------------------------------------------*/
 #include <bl/base/platform.h>
