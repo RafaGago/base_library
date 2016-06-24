@@ -18,7 +18,9 @@ extern "C" {
 
 /*---------------------------------------------------------------------------*/
 /* Taskq: A Fixed-size (preallocated) task queue with support for delayed    */
-/* tasks                                                                     */
+/* tasks. Useful as building block for e.g. event loops or cooperative       */
+/* task schedulers (FIFO). Can be used in places where one could use         */
+/* libevent, libuv, etc without their IO (sockets, files) facilities.        */
 /*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 /* Types and helpers                                                         */
