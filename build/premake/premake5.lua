@@ -85,6 +85,9 @@ filter {"kind:StaticLib", "configurations:release", "system:not windows"}
 filter {"kind:StaticLib", "configurations:release"}
   targetdir (stage .. "/release/lib")
 
+filter {"kind:StaticLib", "system:not windows"}
+  buildoptions {"-fPIC"}
+
 filter {"kind:ConsoleApp", "configurations:debug", "system:not windows"}
   targetextension ("_d" .. version)
 
