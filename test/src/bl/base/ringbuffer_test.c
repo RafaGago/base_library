@@ -28,7 +28,7 @@ static int ringbuffer_test_setup (void **state)
 }
 /*---------------------------------------------------------------------------*/
 static void ringbuffer_init_extern_size_and_capacity (void **state)
-{ 
+{
   ringbuffer_context* c = (ringbuffer_context*) *state;
   ringb_init_extern (&c->r, c->buff, arr_elems (c->buff));
   assert_true (ringb_capacity (&c->r) == arr_elems (c->buff));
@@ -36,7 +36,7 @@ static void ringbuffer_init_extern_size_and_capacity (void **state)
 }
 /*---------------------------------------------------------------------------*/
 static void ringbuffer_init_size_and_capacity (void **state)
-{  
+{
   ringbuffer_context* c = (ringbuffer_context*) *state;
   assert_true (ringb_capacity (&c->r) == arr_elems (c->buff));
   assert_true (ringb_size (&c->r) == 0);
@@ -65,24 +65,24 @@ static void ringbuffer_fill_with_consecutive_inv (ringbuffer_context* c)
 }
 /*---------------------------------------------------------------------------*/
 static void ringbuffer_insert_tail_test (void **state)
-{  
+{
   ringbuffer_context* c = (ringbuffer_context*) *state;
   ringbuffer_fill_with_consecutive (c);
 }
 /*---------------------------------------------------------------------------*/
 static void ringbuffer_insert_head_test (void **state)
-{  
+{
   ringbuffer_context* c = (ringbuffer_context*) *state;
   ringbuffer_fill_with_consecutive_inv (c);
 }
 /*---------------------------------------------------------------------------*/
 static void ringbuffer_drop_head_test (void **state)
-{ 
+{
   ringbuffer_context* c = (ringbuffer_context*) *state;
   ringbuffer_fill_with_consecutive (c);
-  
+
   uword sz = arr_elems (c->buff);
-  uword i  = 0;
+  u32 i  = 0;
   while (ringb_size (&c->r)) {
     ++i;
     u32 v = *ringb_at_head (&c->r);
@@ -101,12 +101,12 @@ static void ringbuffer_drop_head_test (void **state)
 }
 /*---------------------------------------------------------------------------*/
 static void ringbuffer_drop_tail_test (void **state)
-{ 
+{
   ringbuffer_context* c = (ringbuffer_context*) *state;
   ringbuffer_fill_with_consecutive_inv (c);
 
   uword sz = arr_elems (c->buff);
-  uword i  = 0;
+  u32 i  = 0;
   while (ringb_size (&c->r)) {
     ++i;
     u32 v = *ringb_at_tail (&c->r);
@@ -124,7 +124,7 @@ static void ringbuffer_drop_tail_test (void **state)
 }
 /*---------------------------------------------------------------------------*/
 static void ringbuffer_at_test (void **state)
-{ 
+{
   ringbuffer_context* c = (ringbuffer_context*) *state;
   ringbuffer_fill_with_consecutive (c);
   for (uword i = 0; i < ringb_size (&c->r); ++i) {
@@ -133,7 +133,7 @@ static void ringbuffer_at_test (void **state)
 }
 /*---------------------------------------------------------------------------*/
 static void ringbuffer_wrapped (void **state)
-{ 
+{
   ringbuffer_context* c = (ringbuffer_context*) *state;
   ringbuffer_fill_with_consecutive (c);
   u32 v , i = 1;
@@ -148,7 +148,7 @@ static void ringbuffer_wrapped (void **state)
     v = *ringb_at_head (&c->r);
     ringb_drop_head (&c->r);
     assert_true (v == i);
-  }  
+  }
 }
 /*---------------------------------------------------------------------------*/
 static void ringbuffer_adjacent_elems_from (void **state)
@@ -169,7 +169,7 @@ static void ringbuffer_adjacent_elems_from (void **state)
 static void ringbuffer_insert_random_head (void **state)
 {
   ringbuffer_context* c = (ringbuffer_context*) *state;
-  uword i;
+  u32 i;
   for (i = 1; i < ringb_capacity (&c->r); ++i) {
       ringb_insert_tail (&c->r, &i);
   }
@@ -184,7 +184,7 @@ static void ringbuffer_insert_random_head (void **state)
 static void ringbuffer_insert_random_tail (void **state)
 {
   ringbuffer_context* c = (ringbuffer_context*) *state;
-  uword i;
+  u32 i;
   for (i = 0; i < ringb_capacity (&c->r) - 1; ++i) {
       ringb_insert_tail (&c->r, &i);
   }
@@ -200,9 +200,9 @@ static void ringbuffer_insert_random_lo (void **state)
   ringbuffer_context* c = (ringbuffer_context*) *state;
   ringbuffer_fill_with_consecutive (c);
   ringb_drop_tail (&c->r);
-  uword ins = 2;
+  u32 ins = 2;
   ringb_insert (&c->r, &ins, ins);
-  uword j = 1;
+  u32 j = 1;
   assert_true (!ringb_can_insert (&c->r));
   for (uword i = 0; i < ringb_capacity (&c->r); ++i) {
     assert_true (*ringb_at (&c->r, i) == i + j);
@@ -217,9 +217,9 @@ static void ringbuffer_insert_random_hi (void **state)
   ringbuffer_context* c = (ringbuffer_context*) *state;
   ringbuffer_fill_with_consecutive (c);
   ringb_drop_tail (&c->r);
-  uword ins = 5;
+  u32 ins = 5;
   ringb_insert (&c->r, &ins, ins);
-  uword j = 1;
+  u32 j = 1;
   assert_true (!ringb_can_insert (&c->r));
   for (uword i = 0; i < ringb_capacity (&c->r); ++i) {
     assert_true (*ringb_at (&c->r, i) == i + j);
