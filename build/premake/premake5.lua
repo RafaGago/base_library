@@ -39,12 +39,12 @@ solution "build"
 filter {"system:linux"}
   defines {"BL_USE_CLOCK_MONOTONIC_RAW"}
 
-filter {"configurations:*release*"}  
+filter {"configurations:*release*"}
   optimize "On"
 
 filter {"configurations:*release*", "kind:*Lib", } --cmocka
   defines {"NDEBUG"}
-  
+
 filter {"configurations:*debug*"}
   flags {"Symbols"}
   defines {"DEBUG"}
@@ -60,16 +60,16 @@ filter {"system:not windows"}
     "ln -sf %{cfg.buildtarget.name} " ..
     "%{cfg.buildtarget.name:gsub ('.%d+.%d+.%d+', '')}"
     }
-  
+
 filter {"kind:ConsoleApp", "system:windows"}
   links {"winmm.lib"}
-  
+
 filter {"kind:ConsoleApp", "system:not windows"}
   links {"pthread", "rt"}
-    
+
 filter {"kind:SharedLib", "configurations:debug", "system:not windows"}
   targetextension (".so" .. ".d" .. version)
-  
+
 filter {"kind:SharedLib", "configurations:release", "system:not windows"}
   targetextension (".so" .. version)
 
@@ -78,7 +78,7 @@ filter {"kind:StaticLib", "configurations:debug", "system:not windows"}
 
 filter {"kind:StaticLib", "configurations:debug"}
   targetdir (stage .. "/debug/lib")
-  
+
 filter {"kind:StaticLib", "configurations:release", "system:not windows"}
   targetextension (".a" .. version )
 
@@ -90,18 +90,19 @@ filter {"kind:ConsoleApp", "configurations:debug", "system:not windows"}
 
 filter {"kind:ConsoleApp", "configurations:debug"}
   targetdir (stage .. "/debug/bin")
-  
+
 filter {"kind:ConsoleApp", "configurations:release", "system:not windows"}
   targetextension (version )
 
 filter {"kind:ConsoleApp", "configurations:release"}
-  targetdir (stage .. "/release/bin")  
-   
+  targetdir (stage .. "/release/bin")
+
 filter {"action:gmake"}
   buildoptions {"-fvisibility=hidden"}
   buildoptions {"-Wfatal-errors"}
   buildoptions {"-std=gnu11"}
-  
+  buildoptions {"-fno-stack-protector"}
+
 filter {"action:vs*"}
   buildoptions {"/TP"}
 
@@ -109,8 +110,8 @@ filter {"action:vs*"}
 project (base_name)
   kind "StaticLib"
   defines {"BL_PRIVATE_SYMS"}
-  language "C"  
-  files {base_src  .. "/**"}  
+  language "C"
+  files {base_src  .. "/**"}
 
 project (nonblock_name)
   kind "StaticLib"
@@ -118,14 +119,14 @@ project (nonblock_name)
   language "C"
   includedirs {repo_src}
   files {nonblock_src  .. "/**"}
-  
+
 project (task_queue_name)
   kind "StaticLib"
   defines {"BL_TASKQ_PRIVATE_SYMS"}
   language "C"
   includedirs {repo_src}
   files {task_queue_src  .. "/**"}
-  
+
 project (serial_name)
   kind "StaticLib"
   defines {"BL_SERIAL_PRIVATE_SYMS"}
