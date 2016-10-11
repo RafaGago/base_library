@@ -12,7 +12,7 @@ typedef enum bl_err_e {
   bl_error,
   /*it might be done in the future but not now (EBUSY)*/
   bl_busy,
-  bl_empty,  
+  bl_empty,
   /* (ETIMEDOUT) */
   bl_timeout,
   /*resource is locked*/
@@ -22,29 +22,32 @@ typedef enum bl_err_e {
   /*the operation is not allowed given the current internal state*/
   bl_not_allowed,
   /*the preconditions to run an operation weren't met. typically returned when a
-   function specifies that will backoff under certain conditions*/ 
+   function specifies that will backoff under certain conditions*/
   bl_preconditions,
   /*invalid input parameters (EINVAL)*/
-  bl_invalid,    
-  /*the operation is unsupported or to be implemented*/                                                            
+  bl_invalid,
+  /*the operation is unsupported or to be implemented*/
   bl_unsupported,
   /*full. some data structure or data type is at its maximum capacity. */
   bl_would_overflow,
   /*called function couldn't make forward progress*/
   bl_nothing_to_do,
   /*unexpected input from a source that isn't controlled by the caller (
-    socket, protocol, IPC to another process, etc...*/ 
-  bl_unexpected,                                                             
+    socket, protocol, IPC to another process, etc...*/
+  bl_unexpected,
   /*operation cancelled externally or by shutdown (ECANCEL)*/
   bl_cancelled,
   /*operation interrupted e.g. by a signal (spuriosly woken up) (EINTR)*/
-  bl_interrupted, 
+  bl_interrupted,
   bl_alloc,
   bl_err_for_free_use_first = 256
 }
 bl_err_e;
 /*---------------------------------------------------------------------------*/
 typedef uword bl_err;
+/*the FMT_ERR printf format macro requires including "integer_printf_format.h"
+  for it to be correctly expanded*/
+#define FMT_ERR FMT_UWORD
 /*---------------------------------------------------------------------------*/
 #define declare_bl_err_to_str()\
 char const* bl_err_to_str (bl_err e)\

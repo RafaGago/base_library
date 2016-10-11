@@ -9,6 +9,7 @@
 #include <bl/base/assert.h>
 #include <bl/base/platform.h>
 #include <bl/base/integer.h>
+#include <bl/base/integer_printf_format.h>
 #include <bl/base/utility.h>
 #include <bl/base/time.h>
 #include <bl/base/deadline.h>
@@ -52,7 +53,8 @@ typedef struct thread_context_padded {
 thread_context_padded;
 /*----------------------------------------------------------------------------*/
 #define thcon_hdr\
-  "thread id=%u, is_signaler=%u, remaining_ops=%u, wait_us=%u"
+  "thread id=%"FMT_UWORD" ,is_signaler=%d, remaining_ops=%"FMT_UWORD\
+  ", wait_us=%"FMT_U32
 
 #define thcon_hdr_v(thcon)\
   thcon->id, thcon->is_signaler, thcon->remaining, thcon->wait_us
@@ -71,7 +73,7 @@ static inline void signaler_wait (thread_context* c)
       }
     }
     bl_thread_yield();
-  } 
+  }
 }
 /*----------------------------------------------------------------------------*/
 static inline void run_signaler (thread_context* c)
@@ -94,7 +96,10 @@ retry:
         }
       }
       else {
-        printf ("on " thcon_hdr ": semaphore error %d", thcon_hdr_v (c), err);
+        uword a = 0;
+        printf(
+          "on " thcon_hdr ": semaphore error %" FMT_ERR, thcon_hdr_v (c), err
+           );
         break;
       }
     }
@@ -110,7 +115,9 @@ static inline void run_waiter (thread_context* c)
   do {
     err = bl_tm_sem_wait (c->sem, c->wait_us);
     if (err && err != bl_timeout) {
-      printf ("on " thcon_hdr ": semaphore error %d", thcon_hdr_v (c), err);
+      printf(
+        "on " thcon_hdr ": semaphore error %" FMT_ERR, thcon_hdr_v (c), err
+        );
       break;
     }
     c->w.timed_out += (uword)(err == bl_timeout);
@@ -126,7 +133,9 @@ int thread (void* context)
 
   if (barrier_err && barrier_err != PTHREAD_BARRIER_SERIAL_THREAD) {
     c->last_error = barrier_err;
-    printf ("on " thcon_hdr ": barrier error %d", thcon_hdr_v (c), barrier_err);
+    printf(
+      "on " thcon_hdr ": barrier error %d", thcon_hdr_v (c), barrier_err
+      );
   }
   tstamp start = bl_get_tstamp();
   if (c->is_signaler) {
@@ -148,9 +157,9 @@ bool launch_threads(
   for (i = 0; i < arr_elems (*thr); ++i) {
     int err = bl_thread_init (&(*thr_id)[i], thread, &(*thr)[i]);
     (*thr)[i].c.id = (*thr_id)[i];
-    if (err) { 
+    if (err) {
       printf ("error %d on thread initialization, shutting down process", err);
-      return false; 
+      return false;
     }
   }
   return true;
@@ -165,19 +174,20 @@ bool join_thread_and_print (thread_context* c, bl_thread* t)
   }
   if (c->is_signaler) {
     printf(
-      " sig thr finished: us=%u, overflows=%u " thcon_hdr "\n",
+      " sig thr finished: us=%"FMT_TSTAMP", overflows=%"FMT_UWORD" " thcon_hdr
+      "\n",
       bl_tstamp_to_usec (c->elapsed), c->s.overflow, thcon_hdr_v (c)
       );
   }
   else {
     printf(
-      " wait thr finished: us=%u, timeouts=%u " thcon_hdr "\n",
+      " wait thr finished: us=%"FMT_TSTAMP", timeouts=%"FMT_UWORD" " thcon_hdr
+      "\n",
       bl_tstamp_to_usec (c->elapsed), c->w.timed_out, thcon_hdr_v (c)
       );
   }
   return true;
 }
-
 /*----------------------------------------------------------------------------*/
 bool join_threads_and_show_results(
   thread_context_padded (*thr)[thread_count],
@@ -202,7 +212,7 @@ bool join_threads_and_show_results(
 bool check_print_sem_status (bl_tm_sem* sem, bool sem_val_zero)
 {
   printf(
-    "sem status: sig_count:%lu, no_waiters=%d\n",
+    "sem status: sig_count:%"FMT_U32", no_waiters=%"FMT_U32,
   	tm_sem_futex_get_sig (sem->sem),
 	  tm_sem_futex_get_wait (sem->sem) == 0
     );
@@ -220,8 +230,8 @@ void setup_signal_overflow_test(
   )
 {
   printf (
-    "\nmostly non contended test (many signals) with %u threads acting %u times"
-    "each\n",
+    "\nmostly non contended test (many signals) with %u threads acting %"
+    FMT_UWORD" times each\n",
     thread_count,
     remaining
     );
@@ -246,7 +256,7 @@ void setup_waiter_timeout_test(
 {
   printf (
     "\nmixed test with little successes and many timeouts with %u threads "
-    "acting %u times each\n",
+    "acting %"FMT_UWORD" times each\n",
     thread_count,
     remaining
     );
@@ -270,7 +280,7 @@ void setup_timeout_only_test(
   )
 {
   printf (
-    "\ntimeout only test with %u threads acting %u times each\n", 
+    "\ntimeout only test with %u threads acting %"FMT_UWORD" times each\n",
     thread_count / 2,
     remaining
     );
@@ -290,7 +300,7 @@ void setup_timeout_only_test(
 }
 /*----------------------------------------------------------------------------*/
 void thread_context_set_common(
-  thread_context_padded (*thr)[thread_count], 
+  thread_context_padded (*thr)[thread_count],
   pthread_barrier_t*      barrier,
   bl_tm_sem*   sem,
   atomic_uword*           force_abort
