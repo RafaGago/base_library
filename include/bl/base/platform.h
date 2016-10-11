@@ -51,7 +51,7 @@
 
   #define BL_VISIBILITY_DEFAULT
   #define BL_VISIBILITY_HIDDEN
-  
+
 #endif
 /*---------------------------------------------------------------------------*/
 #if defined (__GNUC__) || defined (GCC)
@@ -133,7 +133,12 @@
 /*---------------------------------------------------------------------------*/
 static_assert_outside_func ((bool) 1 == true, "bool type check failed");
 static_assert_outside_func ((bool) 0 == false, "bool type check failed");
-static_assert_outside_func ((int) nullptr == 0, "nullptr check failed");
+
+#if BL_WORDSIZE <= 32
+  static_assert_outside_func ((int) nullptr == 0, "nullptr check failed");
+#else
+  static_assert_outside_func ((long) nullptr == 0, "nullptr check failed");
+#endif
 /*---------------------------------------------------------------------------*/
 #if defined (BL_WINDOWS)
   #define BL_SCHED_TMIN_US 1000

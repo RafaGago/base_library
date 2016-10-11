@@ -21,13 +21,13 @@ extern "C" {
 
     -Can be broken to MPMC SPMC MPSC SPSC. If you now that there just is one
      reader/writer there is no need for CAS. This makes it a swiss army knife
-     type of queue. 
+     type of queue.
 
     -Returns a transaction id (that was already available for free).
     -Takes 8 bytes from the enqueue/dequeue counter to use the CAS operation as
      a rudimentary external synchronization mechanism.
 */
-/*---------------------------------------------------------------------------*/ 
+/*---------------------------------------------------------------------------*/
 #define mpmc_b_info_signal_bits 8
 typedef u8 mpmc_b_sig;
 #define mpmc_b_info_transaction_bits\
@@ -57,23 +57,23 @@ typedef struct mpmc_b {
 }
 mpmc_b;
 /*---------------------------------------------------------------------------*/
-static_assert_outside_func_ns (sizeof (atomic_uword) == sizeof (mpmc_b_info));
+static_assert_outside_func_ns (sizeof (atomic_u32) == sizeof (mpmc_b_info));
 /*---------------------------------------------------------------------------*/
 #define mpmc_b_init(mpmc_b_ptr, alloc_tbl_ptr, buffer_size, type_contained)\
   mpmc_b_init_private(\
     (mpmc_b_ptr),\
     (alloc_tbl_ptr),\
     (buffer_size),\
-    align_combined_size (atomic_uword, type_contained),\
+    align_combined_size (atomic_u32, type_contained),\
     sizeof (type_contained),\
-    align_combined_type2_offset (type_contained, u32)\
+    align_combined_type2_offset (type_contained, atomic_u32)\
     )
 /*---------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
   void mpmc_b_destroy (mpmc_b* q, alloc_tbl const* alloc);
 /*------------------------------------------------------------------------------
  Inserts to the queue on multiple producer (MP) mode.
- 
+
 info_out: when there is no error will contain the current transaction id
   and the signal that was present on the producer's "channel". On return of
   the "bl_preconditions" error code the signal will be the signal that was
@@ -82,7 +82,7 @@ info_out: when there is no error will contain the current transaction id
   the value will be left untouched.
 
  replace_sigl + sig_replacement: If "replace_signal" is "true" the signal
-  value will be replaced on success with "signal_replacement". If 
+  value will be replaced on success with "signal_replacement". If
   "replace_signal" is false "signal_replacement" is ignored.
 
  sig_fallback_mask + sig_fallback_match: The call will early fail with
@@ -92,7 +92,7 @@ info_out: when there is no error will contain the current transaction id
  ("signal_on_channel_now" & sig_fallback_mask) == sig_fallback_match
 
  This can be used e.g. on termination contexts, the signal is set to a value
- that represents "on termination" and with an according mask + match the 
+ that represents "on termination" and with an according mask + match the
  producers will be blocked.
 ------------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
@@ -140,7 +140,7 @@ static inline bl_err mpmc_b_produce(
   return mpmc_b_produce_sig_fallback (q, info_out, value, false, 0, 0, 1);
 }
 /*-----------------------------------------------------------------------------
- Single producer (SP) mode insert. Remember that you can't mix single and 
+ Single producer (SP) mode insert. Remember that you can't mix single and
  multiple producer modes on the same queue.
 -----------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
@@ -149,7 +149,7 @@ extern BL_NONBLOCK_EXPORT
     );
 /*------------------------------------------------------------------------------
  Comsumes from the queue on multiple consumer (MC) mode.
- 
+
  info_out: when there is no error will contain the current transaction id
   and the signal that was present on the producer's "channel". On return of
   the "bl_preconditions" error code the signal will be the signal that was
@@ -158,7 +158,7 @@ extern BL_NONBLOCK_EXPORT
   the value will be left untouched.
 
  replace_sig + sig_replacement: If "replace_signal" is "true" the signal
-  value will be replaced on success with "signal_replacement". If 
+  value will be replaced on success with "signal_replacement". If
   "replace_signal" is false "signal_replacement" is ignored.
 
  sig_fallback_mask + sig_fallback_match: The call will early fail with
@@ -168,7 +168,7 @@ extern BL_NONBLOCK_EXPORT
  ("signal_on_channel_now" & sig_fallback_mask) == sig_fallback_match
 
  This can be used e.g. on termination contexts, the signal is set to a value
- that represents "on termination" and with an according mask + match the 
+ that represents "on termination" and with an according mask + match the
  consumers will be blocked.
 
  The "bl_empty" error code will be returned when no data is available.
@@ -218,7 +218,7 @@ static inline bl_err mpmc_b_consume(
   return mpmc_b_consume_sig_fallback (q, info_out, value, false, 0, 0, 1);
 }
 /*-----------------------------------------------------------------------------
- Single consumer (SC) mode insert. Remember that you can't mix single and 
+ Single consumer (SC) mode insert. Remember that you can't mix single and
  multiple consumer modes on the same queue.
 -----------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT

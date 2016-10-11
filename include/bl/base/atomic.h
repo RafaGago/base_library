@@ -7,7 +7,7 @@
   #include <bl/base/impl/atomic_c11.h>
 #elif defined (__cplusplus)
   #include <bl/base/impl/atomic_cpp.hpp>
-#elif defined (BL_GCC) && BL_GCC >= BL_GCC_VER (4, 7, 0) 
+#elif defined (BL_GCC) && BL_GCC >= BL_GCC_VER (4, 7, 0)
   #include <bl/base/impl/atomic_gcc.h>
 #else /*older "_sync" atomic builtins with full fences might be used on gcc*/
   #error "atomics unimplemented on this platform"
