@@ -2,6 +2,7 @@ local base_name             = "base_library"
 local task_queue_name       = base_name .. "_task_queue"
 local nonblock_name         = base_name .. "_nonblock"
 local serial_name           = base_name .. "_serial"
+local getopt_name           = base_name .. "_getopt"
 local version               = ".0.0.0"
 
 local repo                  = path.getabsolute ("../..")
@@ -25,6 +26,9 @@ local task_queue_stress_src = repo_test_src .. "/bl/task_queue_stress"
 
 local nonblock_src          = repo_src .. "/bl/nonblock"
 local nonblock_test_src     = repo_test_src .. "/bl/nonblock"
+
+local getopt_src            = repo_src .. "/bl/getopt"
+local getopt_test_src       = repo_test_src .. "/bl/getopt"
 
 local serial_src            = repo_src .. "/bl/serial"
 
@@ -114,28 +118,35 @@ project (base_name)
   kind "StaticLib"
   defines {"BL_PRIVATE_SYMS"}
   language "C"
-  files {base_src  .. "/**"}
+  files {base_src .. "/**"}
 
 project (nonblock_name)
   kind "StaticLib"
   defines {"BL_NONBLOCK_PRIVATE_SYMS"}
   language "C"
   includedirs {repo_src}
-  files {nonblock_src  .. "/**"}
+  files {nonblock_src .. "/**"}
 
 project (task_queue_name)
   kind "StaticLib"
   defines {"BL_TASKQ_PRIVATE_SYMS"}
   language "C"
   includedirs {repo_src}
-  files {task_queue_src  .. "/**"}
+  files {task_queue_src .. "/**"}
 
 project (serial_name)
   kind "StaticLib"
   defines {"BL_SERIAL_PRIVATE_SYMS"}
   language "C"
   includedirs {repo_src}
-  files {serial_src  .. "/**"}
+  files {serial_src .. "/**"}
+
+project (getopt_name)
+  kind "StaticLib"
+  defines {"BL_GETOPT_PRIVATE_SYMS"}
+  language "C"
+  includedirs {repo_src}
+  files {getopt_src .. "/**"}
 
 --TEST PROJECTS
 project (base_name .. "_test")
@@ -159,6 +170,14 @@ project (task_queue_name .. "_test")
   files { task_queue_test_src .. "/**" }
   links {cmocka .. "/lib/cmocka", base_name, nonblock_name}
 
+project (getopt_name .. "_test")
+  kind "ConsoleApp"
+  language "C"
+  includedirs {cmocka .. "/include", repo_src, repo_test_src}
+  files { getopt_test_src .. "/**" }
+  links {cmocka .. "/lib/cmocka" }
+
+--STRESS TEST PROJECTS
 project (base_name .. "_semaphore_stress")
   kind "ConsoleApp"
   language "C"
@@ -171,4 +190,3 @@ project (task_queue_name .. "_stress")
   includedirs {repo_src, repo_test_src}
   files {task_queue_stress_src .. "/**"}
   links {base_name, nonblock_name}
-
