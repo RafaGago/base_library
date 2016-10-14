@@ -2,17 +2,22 @@ Description
 ===========
 
 A project where I will place generic base utilities for C programming on an
-"as needed" basis. The idea is that everything should be very simple and
-statically linkable.
+"as needed" basis. The idea is that everything should be very pretty simple, 
+statically linkable by modules and compilable with GCC and Visual Studio.
 
-Now the library is divided in some very tiny sublibraries to avoid bloating.
+As of today is a C++ compiler with no C99-C11 support, so sometimes I may fall
+back to C++ to emulate some C99-C11 features.
+
+Now the library is divided in some very tiny sublibraries to avoid bloating. The
+intention is to don't make a big monolithic library for these basic things.
 
 1. (base) Base library
 ----------------------
 
 Depends on: -
 
-This is the basic utilities libraries, it contains:
+This is the basic utilities library, mostly header-based and heavily relying on
+"static inline" and macros. It contains:
 
 * Platform detection (very primitive, will get bigger).
 
@@ -38,12 +43,10 @@ This is the basic utilities libraries, it contains:
   applications either by message passing (through lock-free queues) or by
   using cooperative scheduling).
 
-Everything tries to be very lightweight and comprised of "static inline" func-
-tions and generating macros, but unfortunately on some instances this isn't
-possible.
-
-It depends on the platform which functions aren't "static inline". It is
-recommended to use this library as a static library.
+It depends on the platform which functions are or aren't "static inline", so it
+might happen that in some platform some things compile as header only and in
+another one it does need some definitions on .c files. It's recommended to use
+this library as a static library on all platforms.
 
 2. (noblock) Non (OS) blocking queues
 -------------------------------------
@@ -59,18 +62,29 @@ semaphores ...)
     that can communicate with producers (on MP mode) or consumers (on MC mode)
     almost for free.
 
+...More to come as needed...
 
 3. (task_queue) MPSC task queue with delayed/scheduled tasks
 ------------------------------------------------------------
 
 Depends on: base, noblock
 
-A queue for worker/event dispatcher threads.
+A queue for worker/event dispatcher threads. Based on wrapping timestamps orde-
+red in an array based associative container, some lockfree queues and a
+semaphore.
 
 4. (serial) Serial port thin wrapper
 -------------------------------------
 
 Depends on: base
+
+5. (getopt)
+-----------
+
+Depends on: base headers.
+
+A non-standard implementation of "getopt" that removes the global variables and
+avoids some segfaults found in some (major) POSIX implementations.
 
 Current status
 ==============
@@ -89,8 +103,10 @@ Under development.
 
  Serial is untested.
 
-Credits
-=================
+ Getopt is untested (but it contanins no platform specific code...)
+
+Credits and Used resources
+==========================
 
 * Dmitry Djukov for making its queue algorithms public.
   [http://www.1024cores.net/]
@@ -99,6 +115,8 @@ Credits
 * Thomas Nixon, Jonathan Heathcote for the macro hackery at
   [https://github.com/18sg/uSHET]
 * Kim Gräsman for his getopt port. [https://github.com/kimgr/getopt_port]
+* My former employer Diadrom AB. Some parts of this library were written while
+  working there. 
 
 Compilers
 =================
