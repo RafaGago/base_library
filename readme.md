@@ -2,7 +2,7 @@ Description
 ===========
 
 A project where I will place generic base utilities for C programming on an
-"as needed" basis. The idea is that everything should be very simple and 
+"as needed" basis. The idea is that everything should be very simple and
 statically linkable.
 
 Now the library is divided in some very tiny sublibraries to avoid bloating.
@@ -22,7 +22,7 @@ This is the basic utilities libraries, it contains:
 
 * Timestamp wrappers.
 
-* Humble fixed-size basic data structures (mostly for microcontrollers) as a 
+* Humble fixed-size basic data structures (mostly for microcontrollers) as a
  ringbuffer, ordered ringbuffer and array based linked lists
  (to save size on pointers)
 
@@ -34,18 +34,18 @@ This is the basic utilities libraries, it contains:
 * Wrappers for atomics.
 
 * Wrappers for thread manipulation (adding as needed). As of now mutexes and
-  condition variables aren't wrapped (I personally try to code multithreaded 
-  applications either by message passing (through lock-free queues) or by 
+  condition variables aren't wrapped (I personally try to code multithreaded
+  applications either by message passing (through lock-free queues) or by
   using cooperative scheduling).
 
 Everything tries to be very lightweight and comprised of "static inline" func-
 tions and generating macros, but unfortunately on some instances this isn't
 possible.
 
-It depends on the platform which functions aren't "static inline". It is 
+It depends on the platform which functions aren't "static inline". It is
 recommended to use this library as a static library.
 
-2. (noblock) Non (OS) blocking queues 
+2. (noblock) Non (OS) blocking queues
 -------------------------------------
 
 Depends on: base
@@ -77,24 +77,35 @@ Current status
 
 Under development.
 
--Linux: 
+-Linux:
 
- All the tests pass on Linux. 
- 
+ All the tests pass on Linux.
+
  Serial is untested.
 
--Windows: 
+-Windows:
 
- All the tests pass on Windows. 
- 
+ All the tests pass on Windows.
+
  Serial is untested.
- 
+
+Credits
+=================
+
+* Dmitry Djukov for making its queue algorithms public.
+  [http://www.1024cores.net/]
+* William Woodall and John Harrison for their serial code at
+  [https://github.com/wjwwood/serial]
+* Thomas Nixon, Jonathan Heathcote for the macro hackery at
+  [https://github.com/18sg/uSHET]
+* Kim Gräsman for his getopt port. [https://github.com/kimgr/getopt_port]
+
 Compilers
 =================
 
 -Visual Studio 2013
 -GCC 4.8.1
-   
+
 Folders
 =======
 
