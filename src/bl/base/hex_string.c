@@ -13,7 +13,7 @@ BL_EXPORT word bl_hex_string_to_bytes(
   while (*str != '\0') {    
     char c = *str;
     u8 nibble;
-    if (str >= '0' && c <= '9') {
+    if (c >= '0' && c <= '9') {
       nibble = c - '0';
     }
     else if (c >= 'a' && c <= 'f') {
