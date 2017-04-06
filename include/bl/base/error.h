@@ -39,6 +39,7 @@ typedef enum bl_err_e {
   bl_cancelled,
   /*operation interrupted e.g. by a signal (spuriosly woken up) (EINTR)*/
   bl_interrupted,
+  /*ENOMEM*/
   bl_alloc,
   bl_err_for_free_use_first = 256
 }

@@ -11,9 +11,9 @@
 
   -Objects that only allocate at initialization time ("init" function) don't
    store the "alloc_tbl" pointer. Consequence of this is that they require
-   the "alloc_tbl" pointer on the "destroy" function.
+   the "alloc_tbl" pointer on the "destroy" function. 
 
-  -Objects that allocate at initialization time and may allocate at runtime
+  -Objects that allocate at initialization time and may allocate at runtime 
    store the "alloc_tbl" pointer. They don't require it on the "destroy"
    function.
 
@@ -22,9 +22,9 @@
   which of the three memory allocation strategies an object follows .
 
   An "alloc_tbl" must ALWAYS be stored by reference (pointer). This is delive-
-  rate for two reasons:
+  rate for two reasons: 
 
-  -It forces the higher-order object to keep the "alloc_tbl" object alive
+  -It forces the higher-order object to keep the "alloc_tbl" object alive 
   for the whole lifetime of the lower-order objects.
 
   -It is strictly necessary to store by reference; an allocator implementation
