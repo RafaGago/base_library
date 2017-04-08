@@ -57,10 +57,19 @@ Some non blocking queues (in the sense that never aquire OS locks (mutexes,
 semaphores ...)
 
 * The beautiful and famous Dmitry Djukov's MPMC lockfree queue with some addons:
-  1. Can be used as MPSC and SPMC.
-  2. Uses the high part of the CAS'ed counter as a broadcast signaling mechanism
-    that can communicate with producers (on MP mode) or consumers (on MC mode)
-    almost for free.
+  1. It's broken in prepare and commit actions, so you can get direct access to
+     the internal array memory to avoid memory copying.
+  2. Can be used as MPMC, MPSC, SPMC and SPSC.
+  3. Uses some bits of the CAS counters as a broadcast signaling/tagging
+     mechanism that can communicate with producers (on MP mode) or consumers
+     (on MC mode).
+  3. Allows a fetch-and-add based produce (instead of CAS) that can be used when
+     it's known that a producer will block on the queue when it's full. This has
+     the desirable side-effect of having fair FIFO order when many producers are
+     contending.
+  4. Allows blocking the producer access to the queue. Useful for termination
+     scenarios.
+  5. Provides a wrapper with a simpler interface.
 
 ...More to come as needed...
 

@@ -1,383 +1,310 @@
-/*
-This file is a slight modification of the queue on the link below.
-http://www.1024cores.net/home/lock-free-algorithms/queues/bounded-mpmc-queue
-
-Covered by the license below.
-*/
-/*------------------------------------------------------------------------------
-is licensed by Dmitry Vyukov under the terms below:
-BSD 2-clause license
-Copyright (c) 2010-2011 Dmitry Vyukov. All rights reserved.
-Redistribution and use in source and binary forms, with or without modification,
- are permitted provided that the following conditions are met:
-   1. Redistributions of source code must retain the above copyright notice,
-      this list of conditions and the following disclaimer.
-   2. Redistributions in binary form must reproduce the above copyright notice,
-      this list of conditions and the following disclaimer in the documentation
-      and/or other materials provided with the distribution.
-THIS SOFTWARE IS PROVIDED BY DMITRY VYUKOV "AS IS" AND ANY EXPRESS OR IMPLIED
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
-SHALL DMITRY VYUKOV OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
-OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-The views and conclusions contained in the software and documentation are those
-of the authors and should not be interpreted as representing official policies,
-either expressed or implied, of Dmitry Vyukov.
 /*---------------------------------------------------------------------------*/
-#include <string.h>
-
-#include <bl/nonblock/mpmc_b.h>
-
-#include <bl/base/assert.h>
+#ifndef __BL_NONBLOCKMC_B_H__
+#define __BL_NONBLOCKMC_B_H__
+/*---------------------------------------------------------------------------*/
+#include <bl/nonblock/libexport.h>
 #include <bl/base/platform.h>
-#include <bl/base/integer_math.h>
+#include <bl/base/cache.h>
+#include <bl/base/alignment.h>
+#include <bl/base/allocator.h>
+#include <bl/base/error.h>
 #include <bl/base/integer_manipulation.h>
+#include <bl/base/utility.h>
+#include <bl/base/atomic.h>
+#include <bl/nonblock/mpmc_b_common_priv.h>
+#include <bl/nonblock/mpmc_b.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-/*---------------------------------------------------------------------------*/
-static_assert_outside_func(
-  bl_has_two_comp_arithmetic,
-  "this algorithm is just valid on systems with complement of two arithmetic"
-  );
-/*---------------------------------------------------------------------------*/
-typedef union mpmc_b_i {
-  mpmc_b_info inf;
-  u32         raw;
-}
-mpmc_b_i;
-/*---------------------------------------------------------------------------*/
-static inline atomic_u32* mpmc_b_gate_ptr (mpmc_b* q, u8* join_data_ptr)
-{
-  return (atomic_u32*) (join_data_ptr + q->gate_offset);
-}
-/*---------------------------------------------------------------------------*/
-static inline u8* mpmc_b_mem_content_ptr (mpmc_b* q, u8* join_data_ptr)
-{
-  return (u8*) join_data_ptr;
-}
-/*---------------------------------------------------------------------------*/
-static inline u8* mpmc_b_join_data_ptr (mpmc_b* q, u32 position)
-{
-  return q->buffer + ((position & q->buffer_mask) * q->join_size);
-}
-/*---------------------------------------------------------------------------*/
-static inline void mpmc_b_write(
-    mpmc_b* q, u32 gate, u8* join_data, void const* value
-    )
-{
-  memcpy (mpmc_b_mem_content_ptr (q, join_data), value, q->contained_size);
-  atomic_u32_store (mpmc_b_gate_ptr (q, join_data), gate, mo_release);
-}
-/*---------------------------------------------------------------------------*/
-static inline void mpmc_b_read(
-    mpmc_b* q, u32 gate, u8* join_data, void* value
-    )
-{
-  memcpy (value, mpmc_b_mem_content_ptr (q, join_data), q->contained_size);
-  atomic_u32_store (mpmc_b_gate_ptr (q, join_data), gate, mo_release);
-}
-/*---------------------------------------------------------------------------*/
-/*returns:
-  -negative if the insert position is occupied
-  -positive if the producer gate looks outdated (someone inserting)
-  -zero if everything looks right
-
-  T he transactions are 24 bit, so to calculate the status using the
-  complement of two properties of the integer we must shift so the MSB of the
-  transaction/gate maps to the MSB of a 32 bit integer (the sign).
-*/
-static_assert_outside_func_ns (mpmc_b_info_transaction_bits < type_bits (i32));
-static inline i32 mpmc_b_transaction_status (u32 gate, mpmc_b_i now)
-{
-  u32 gate_u  = (gate << mpmc_b_info_signal_bits);
-  u32 trans_u = ((u32) now.inf.transaction) << mpmc_b_info_signal_bits;
-  /*bl_assert ((gate_u - trans_u) <= compare_unsigned_as_signed_max_diff (u32));*/
-  return (i32) (gate_u - trans_u);
-}
-/*---------------------------------------------------------------------------*/
-BL_NONBLOCK_EXPORT bl_err mpmc_b_produce_sig_fallback(
-  mpmc_b*      q,
-  mpmc_b_info* inf,
-  void const*  value,
-  bool         replace_sig,
-  mpmc_b_sig   sig_replacement,
-  mpmc_b_sig   sig_fallback_mask,
-  mpmc_b_sig   sig_fallback_match
+/*----------------------------------------------------------------------------*/
+enum mpmc_b_flags {
+  block_producers = 1 << 0,
+};
+/*----------------------------------------------------------------------------*/
+BL_NONBLOCK_EXPORT bl_err mpmc_b_init(
+  mpmc_b*          q,
+  alloc_tbl const* alloc,
+  u32              slot_count,
+  u32              data_size,
+  u32              data_alignment
   )
 {
-  bl_assert (q && inf && value && q->buffer);
-  u8*      join_data;
-  mpmc_b_i now;
-  mpmc_b_i next;
-
-  now.raw = atomic_u32_load_rlx (&q->i_producer);
-
-  while (1) {
-    i32 status;
-    u32 gate;
-
-    if ((now.inf.signal & sig_fallback_mask) == sig_fallback_match) {
-      *inf = now.inf;
-      return bl_preconditions;
-    }
-    join_data  = mpmc_b_join_data_ptr (q, now.inf.transaction);
-    gate       = atomic_u32_load (mpmc_b_gate_ptr (q, join_data), mo_acquire);
-    status     = mpmc_b_transaction_status (gate, now);
-
-    if (status == 0) {
-      next.inf.transaction = now.inf.transaction + 1;
-      next.inf.signal      = replace_sig ? sig_replacement : now.inf.signal;
-      if (atomic_u32_weak_cas_rlx (&q->i_producer, &now.raw, next.raw)) {
-        break;
-      }
-    }
-    else if (status < 0) {
-      return bl_would_overflow;
-    }
-    else {
-      now.raw = atomic_u32_load_rlx (&q->i_producer);
-    }
+  slot_count    = round_next_pow2_u (slot_count);
+  u32 slot_size = mpmc_b_compute_slot_size (data_size, data_alignment);
+  u32 offset    = slot_size - data_size;
+  slot_size     = mpmc_b_round_slot_size (slot_size, data_alignment);
+  if (slot_count < 2 || slot_count > mpmc_b_max_slots) {
+    return bl_invalid;
   }
-  mpmc_b_write (q, (u32) next.inf.transaction, join_data, value);
-  *inf = now.inf;
+  q->buffer = (u8*) bl_alloc (alloc, slot_count * slot_size);
+  if (!q->buffer) {
+    return bl_alloc;
+  }
+  q->slot_count  = slot_count;
+  q->slot_size   = slot_size;
+  q->data_offset = offset;
+  u32 v = 0;
+  u8* ptr = q->buffer;
+  while (v< slot_count) {
+    atomic_u32_store_rlx ((atomic_u32*) ptr, v);
+    ++v;
+    ptr += slot_size;
+  }
+  atomic_u32_store_rlx (&q->push_slot, 0);
+  atomic_u32_store_rlx (&q->pop_slot, 0);
+  atomic_u32_store_rlx (&q->flags, 0);
   return bl_ok;
 }
-/*---------------------------------------------------------------------------*/
-BL_NONBLOCK_EXPORT bl_err mpmc_b_produce_single_p(
-  mpmc_b* q, mpmc_b_info* inf, void const* value
-  )
-{
-  bl_assert (q->buffer && inf && value);
-  u8*      join_data;
-  mpmc_b_i now;
-  u32      gate;
-
-  now.raw    = atomic_u32_load_rlx (&q->i_producer);
-  join_data  = mpmc_b_join_data_ptr (q, now.inf.transaction);
-  gate       = atomic_u32_load (mpmc_b_gate_ptr (q, join_data), mo_acquire);
-  i32 status = mpmc_b_transaction_status (gate, now);
-
-  if (status == 0) {
-    *inf = now.inf;
-    ++now.inf.transaction;
-    now.inf.signal = 0;
-    mpmc_b_write (q, (u32) now.inf.transaction, join_data, value);
-    atomic_u32_store_rlx (&q->i_producer, now.raw);
-    return bl_ok;
-  }
-  bl_assert (status < 0);
-  return bl_would_overflow;
-}
-/*---------------------------------------------------------------------------*/
-BL_NONBLOCK_EXPORT bl_err mpmc_b_consume_sig_fallback(
-  mpmc_b*      q,
-  mpmc_b_info* inf,
-  void*        value,
-  bool         replace_sig,
-  mpmc_b_sig   sig_replacement,
-  mpmc_b_sig   sig_fallback_mask,
-  mpmc_b_sig   sig_fallback_match
-  )
-{
-  bl_assert (q && inf && value && q->buffer);
-  u8*      join_data;
-  mpmc_b_i now;
-  mpmc_b_i next;
-
-  now.raw = atomic_u32_load_rlx (&q->i_consumer);
-
-  while (1) {
-    u32 gate;
-
-    if ((now.inf.signal & sig_fallback_mask) == sig_fallback_match) {
-      *inf = now.inf;
-      return bl_preconditions;
-    }
-    join_data              = mpmc_b_join_data_ptr (q, now.inf.transaction);
-    gate                   =
-      atomic_u32_load (mpmc_b_gate_ptr (q, join_data), mo_acquire);
-    next.inf.transaction   = now.inf.transaction + 1;
-    next.inf.signal        = replace_sig ? sig_replacement : now.inf.signal;
-    i32 status             = mpmc_b_transaction_status (gate, next);
-
-    if (status == 0) {
-      if (atomic_u32_weak_cas_rlx (&q->i_consumer, &now.raw, next.raw)) {
-        break;
-      }
-    }
-    else if (status < 0) {
-      return bl_empty;
-    }
-    else {
-      now.raw = atomic_u32_load_rlx (&q->i_consumer);
-    }
-  }
-  next.inf.transaction += q->buffer_mask;
-  mpmc_b_read (q, (u32) next.inf.transaction, join_data, value);
-  *inf = now.inf;
-  return bl_ok;
-}
-/*---------------------------------------------------------------------------*/
-BL_NONBLOCK_EXPORT bl_err mpmc_b_consume_single_c(
-  mpmc_b* q, mpmc_b_info* inf, void* value
-  )
-{
-  bl_assert (q->buffer && inf && value);
-  u8*      join_data;
-  mpmc_b_i now, prev;
-  u32      gate;
-
-  prev.raw   = atomic_u32_load_rlx (&q->i_consumer);
-  join_data  = mpmc_b_join_data_ptr (q, prev.inf.transaction);
-  gate       = atomic_u32_load (mpmc_b_gate_ptr (q, join_data), mo_acquire);
-  now.raw    = prev.raw;
-  ++now.inf.transaction;
-  i32 status = mpmc_b_transaction_status (gate, now);
-
-  if (status == 0) {
-    now.inf.signal = 0;
-    atomic_u32_store_rlx (&q->i_consumer, now.raw);
-    now.inf.transaction += q->buffer_mask;
-    mpmc_b_read (q, now.inf.transaction, join_data, value);
-    *inf = prev.inf;
-    return bl_ok;
-  }
-  bl_assert (status < 0);
-  return bl_empty;
-}
-/*---------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 BL_NONBLOCK_EXPORT void mpmc_b_destroy (mpmc_b* q, alloc_tbl const* alloc)
 {
   if (q->buffer) {
     bl_dealloc (alloc, q->buffer);
   }
 }
-/*---------------------------------------------------------------------------*/
-static inline bl_err mpmc_b_signal(
-  atomic_u32* dst, mpmc_b_sig* expected, mpmc_b_sig desired
-  )
+/*----------------------------------------------------------------------------*/
+BL_NONBLOCK_EXPORT void mpmc_b_block_producers (mpmc_b* q)
 {
-  mpmc_b_i r;
-  mpmc_b_i w;
-  bl_err err = bl_ok;
-  r.raw      = atomic_u32_load_rlx (dst);
+  u32 flags = atomic_u32_load_rlx (&q->flags);
   do {
-    if (r.inf.signal != *expected) {
-      err = bl_preconditions;
-      break;
+    if ((flags & block_producers) == block_producers) {
+      return;
     }
-    w            = r;
-    w.inf.signal = desired;
   }
-  while (!atomic_u32_weak_cas_rlx (dst, &r.raw, w.raw));
-  *expected = r.inf.signal;
-  return err;
+  while (!atomic_u32_weak_cas_rlx (&q->flags, &flags, flags | block_producers));
+  /*TODO signals trashed*/
+  atomic_u32_fetch_add_rlx (&q->push_slot, 2 * q->slot_count);
 }
-/*---------------------------------------------------------------------------*/
-static inline bl_err mpmc_b_signal_trans(
-  atomic_u32* dst, mpmc_b_info* expected, mpmc_b_sig desired
+/*----------------------------------------------------------------------------*/
+static bl_err mpmc_b_prepare_m_check_ver(
+  mpmc_b*       q,
+  mpmc_b_ticket t,
+  u8**          data,
+  u32           ticket_cmp_offset,
+  bl_err        full_or_empty
   )
 {
-  mpmc_b_i r;
-  mpmc_b_i w;
-  mpmc_b_i exp;
-  bl_err   err;
-
-  err     = bl_preconditions;
-  exp.inf = *expected;
-  ++exp.inf.transaction;
-  r.raw   = atomic_u32_load_rlx (dst);
-
-  if (r.raw != exp.raw) {
-    goto save_expected;
+  mpmc_b_ticket ver;
+  u8* slot   = slot_addr (q->buffer, q->slot_count, q->slot_size, t);
+  ver        = atomic_u32_load ((atomic_u32*) slot, mo_acquire);
+  t         += ticket_cmp_offset;
+  i32 status = (i32) (mpmc_b_ticket_decode (ver) - mpmc_b_ticket_decode (t));
+  if (status == 0) {
+    *data  = slot + q->data_offset;
+    return bl_ok;
   }
-  w            = r;
-  w.inf.signal = desired;
-  if (atomic_u32_weak_cas_rlx (dst, &r.raw, w.raw)) {
-    err = bl_ok;
+  if (status > 0) {
+    return bl_busy;
   }
-save_expected:
-  --r.inf.transaction;
-  *expected = r.inf;
+  return (status > -(2 * q->slot_count)) ? full_or_empty : bl_locked;
+}
+/*----------------------------------------------------------------------------*/
+static bl_err mpmc_b_prepare_sig_fallback_m(
+  mpmc_b*        q,
+  mpmc_b_ticket* ticket,
+  u8**           data,
+  bool           replace_sig,
+  mpmc_b_sig     sig,
+  mpmc_b_sig     sig_fmask,
+  mpmc_b_sig     sig_fmatch,
+  atomic_u32*    ticket_var,
+  u32            ticket_cmp_offset,
+  bl_err         nodata_error
+  )
+{
+  bl_assert (q && q->buffer && ticket && data);
+  mpmc_b_ticket now = atomic_u32_load_rlx (ticket_var);
+  while (1) {
+    mpmc_b_sig signow = mpmc_b_sig_decode (now);
+    if (unlikely ((signow & sig_fmask) == sig_fmatch)) {
+      *ticket = now;
+      return bl_preconditions;
+    }
+    bl_err err = mpmc_b_prepare_m_check_ver(
+      q, now, data, ticket_cmp_offset, nodata_error
+      );
+    if (err == bl_ok) {
+      mpmc_b_ticket next = mpmc_b_ticket_encode(
+        now + 1, replace_sig ? sig : signow
+        );
+      if (atomic_u32_weak_cas_rlx (ticket_var, &now, next)) {
+        *ticket = now;
+        return err;
+      }
+    }
+    else if (err == bl_busy){
+      now = atomic_u32_load_rlx (ticket_var);
+    }
+    else {
+      *ticket = now;
+      *data   = nullptr;
+      return err;
+    }
+  }
+}
+/*----------------------------------------------------------------------------*/
+static bl_err mpmc_b_prepare_s(
+  mpmc_b*        q,
+  mpmc_b_ticket* ticket,
+  u8**           data,
+  atomic_u32*    ticket_var,
+  u32            ticket_cmp_offset,
+  bl_err         nodata_error
+  )
+{
+  bl_assert (q && q->buffer && ticket && data);
+  mpmc_b_ticket now = atomic_u32_load_rlx (ticket_var);
+  bl_err err = mpmc_b_prepare_m_check_ver(
+    q, now, data, ticket_cmp_offset, nodata_error
+    );
+  if (err == bl_ok) {
+    *ticket = now;
+    atomic_u32_store_rlx (ticket_var, mpmc_b_ticket_encode (now + 1, 0));
+    return err;
+  }
+  bl_assert (err == nodata_error);
   return err;
 }
-/*---------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
+static void mpmc_b_commit (mpmc_b* q, mpmc_b_ticket t, u32 increment)
+{
+  u8* slot = slot_addr (q->buffer, q->slot_count, q->slot_size, t);
+  t += increment;
+  atomic_u32_store(
+    (atomic_u32*) slot, mpmc_b_ticket_encode (t, 0), mo_release
+    );
+}
+/*----------------------------------------------------------------------------*/
+BL_NONBLOCK_EXPORT void mpmc_b_fifo_produce_prepare(
+  mpmc_b* q, mpmc_b_ticket* ticket
+  )
+{
+  *ticket = mpmc_b_ticket_encode(
+    atomic_u32_fetch_add_rlx (&q->push_slot, 1), 0
+    );
+}
+/*----------------------------------------------------------------------------*/
+BL_NONBLOCK_EXPORT bl_err mpmc_b_fifo_produce_prepare_is_ready(
+  mpmc_b* q, mpmc_b_ticket t, u8** data
+  )
+{
+  bl_err err = mpmc_b_prepare_m_check_ver (q, t, data, 0, bl_would_overflow);
+  if (likely (err != bl_would_overflow)) {
+    return err;
+  }
+  /* if the counter has advanced more than the slot count either:
+     - block has been called.
+     - the user is using more threads than slots on
+       "mpmc_b_fifo_produce_prepare" => user bug */
+  mpmc_b_ticket now = atomic_u32_load_rlx (&q->push_slot);
+  i32 status = (i32) (mpmc_b_ticket_decode (now) - mpmc_b_ticket_decode (t));
+  return status < q->slot_count ? bl_would_overflow : bl_locked;
+}
+/*----------------------------------------------------------------------------*/
+BL_NONBLOCK_EXPORT bl_err mpmc_b_produce_prepare_sig_fallback(
+  mpmc_b*        q,
+  mpmc_b_ticket* ticket,
+  u8**           data,
+  bool           replace_sig,
+  mpmc_b_sig     sig,
+  mpmc_b_sig     sig_fmask,
+  mpmc_b_sig     sig_fmatch
+  )
+{
+  return mpmc_b_prepare_sig_fallback_m(
+    q,
+    ticket,
+    data,
+    replace_sig,
+    sig,
+    sig_fmask,
+    sig_fmatch,
+    &q->push_slot,
+    0,
+    bl_would_overflow
+    );
+}
+/*----------------------------------------------------------------------------*/
+BL_NONBLOCK_EXPORT bl_err mpmc_b_produce_prepare_sp(
+    mpmc_b* q, mpmc_b_ticket* ticket, u8** data
+    )
+{
+  mpmc_b_prepare_s (q, ticket, data, &q->push_slot, 0, bl_would_overflow);
+}
+/*----------------------------------------------------------------------------*/
+BL_NONBLOCK_EXPORT void mpmc_b_produce_commit (mpmc_b* q, mpmc_b_ticket info)
+{
+  mpmc_b_commit (q, info, 1);
+}
+/*----------------------------------------------------------------------------*/
+BL_NONBLOCK_EXPORT bl_err mpmc_b_consume_prepare_sig_fallback(
+  mpmc_b*        q,
+  mpmc_b_ticket* ticket,
+  u8**           data,
+  bool           replace_sig,
+  mpmc_b_sig     sig,
+  mpmc_b_sig     sig_fmask,
+  mpmc_b_sig     sig_fmatch
+  )
+{
+  return mpmc_b_prepare_sig_fallback_m(
+    q,
+    ticket,
+    data,
+    replace_sig,
+    sig,
+    sig_fmask,
+    sig_fmatch,
+    &q->pop_slot,
+    1,
+    bl_empty
+    );
+}
+/*-----------------------------------------------------------------------------*/
+BL_NONBLOCK_EXPORT bl_err mpmc_b_consume_prepare_sc(
+  mpmc_b* q, mpmc_b_ticket* ticket, u8** data
+  )
+{
+  mpmc_b_prepare_s (q, ticket, data, &q->pop_slot, 1, bl_empty);
+}
+/*-----------------------------------------------------------------------------*/
+BL_NONBLOCK_EXPORT void mpmc_b_consume_commit (mpmc_b *q, mpmc_b_ticket info)
+{
+  mpmc_b_commit (q, info, q->slot_count);
+}
+/*----------------------------------------------------------------------------*/
 BL_NONBLOCK_EXPORT bl_err mpmc_b_producer_signal_try_set(
   mpmc_b* q, mpmc_b_sig* expected, mpmc_b_sig desired
   )
 {
-  return mpmc_b_signal (&q->i_producer, expected, desired);
+  mpmc_b_signal_try_set (&q->push_slot, expected, desired);
 }
-/*---------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
+BL_NONBLOCK_EXPORT bl_err mpmc_b_producer_signal_try_set_tmatch(
+  mpmc_b* q, mpmc_b_ticket* expected, mpmc_b_sig desired
+  )
+{
+  mpmc_b_signal_try_set_tmatch (&q->push_slot, expected, desired);
+}
+/*----------------------------------------------------------------------------*/
 BL_NONBLOCK_EXPORT bl_err mpmc_b_consumer_signal_try_set(
   mpmc_b* q, mpmc_b_sig* expected, mpmc_b_sig desired
   )
 {
-  return mpmc_b_signal (&q->i_consumer, expected, desired);
-
-/*---------------------------------------------------------------------------*/}
-BL_NONBLOCK_EXPORT bl_err mpmc_b_producer_signal_try_set_tmatch(
-  mpmc_b* q, mpmc_b_info* expected, mpmc_b_sig desired
-  )
-{
-  return mpmc_b_signal_trans (&q->i_producer, expected, desired);
+  mpmc_b_signal_try_set (&q->pop_slot, expected, desired);
 }
-/*---------------------------------------------------------------------------*/
+/*--------------------------- ------------------------------------------------*/
 BL_NONBLOCK_EXPORT bl_err mpmc_b_consumer_signal_try_set_tmatch(
-  mpmc_b* q, mpmc_b_info* expected, mpmc_b_sig desired
+  mpmc_b* q, mpmc_b_ticket* expected, mpmc_b_sig desired
   )
 {
-  return mpmc_b_signal_trans (&q->i_consumer, expected, desired);
+  mpmc_b_signal_try_set_tmatch (&q->pop_slot, expected, desired);
 }
-/*---------------------------------------------------------------------------*/
-BL_NONBLOCK_EXPORT bl_err mpmc_b_init_private(
-  mpmc_b*          q,
-  alloc_tbl const* alloc,
-  u32              buffer_size,
-  u32              join_size,
-  u32              contained_size,
-  u32              gate_offset
-  )
-{
-  bl_assert (join_size > contained_size);
-  bl_assert (gate_offset >= sizeof (u32));
+/*--------------------------- ------------------------------------------------*/
 
-  buffer_size = round_next_pow2_u (buffer_size);
-  if (buffer_size < 2 ||
-      buffer_size > pow2_u (mpmc_b_info_transaction_bits - 1)) {
-    return bl_invalid;
-  }
-
-  u32 bytes = (join_size * buffer_size);
-  q->buffer = (u8*) bl_alloc (alloc, bytes);
-  if (!q->buffer) {
-    return bl_alloc;
-  }
-  q->buffer_mask    = buffer_size - 1;
-  q->join_size      = join_size;
-  q->contained_size = contained_size;
-  q->gate_offset    = gate_offset;
-  u8* ptr           = q->buffer;
-
-  mpmc_b_i v;
-  v.raw = 0;
-  while (v.inf.transaction < buffer_size) {
-    atomic_u32_store_rlx (mpmc_b_gate_ptr (q, ptr), v.inf.transaction);
-    ptr += q->join_size;
-    ++v.inf.transaction;
-  }
-  atomic_u32_store_rlx (&q->i_producer, 0);
-  atomic_u32_store_rlx (&q->i_consumer, 0);
-  return bl_ok;
-}
-/*---------------------------------------------------------------------------*/
 #ifdef __cplusplus
 } /*extern "C" {*/
 #endif
+
+#endif /* __BL_NONBLOCKMC_H__ */
