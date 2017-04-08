@@ -2,7 +2,7 @@ Description
 ===========
 
 A project where I will place generic base utilities for C programming on an
-"as needed" basis. The idea is that everything should be very pretty simple, 
+"as needed" basis. The idea is that everything should be very pretty simple,
 statically linkable by modules and compilable with GCC and Visual Studio.
 
 As of today is a C++ compiler with no C99-C11 support, so sometimes I may fall
@@ -116,7 +116,7 @@ Credits and Used resources
   [https://github.com/18sg/uSHET]
 * Kim Gräsman for his getopt port. [https://github.com/kimgr/getopt_port]
 * My former employer Diadrom AB. Some parts of this library were written while
-  working there. 
+  working there.
 
 Compilers
 =================
@@ -143,13 +143,15 @@ Build on Linux (GCC)
 1. If you are planning to run the unit tests you need CMake, as cmocka uses it
 as its build system. It's mostly sure that every distro has a package for it.
 
-2. Go to the "dependencies" folder and run the "prepare_dependencies.sh" script.
+2. You need the "unzip" utility. On debian it's on the "unzip" package.
+
+3. Go to the "dependencies" folder and run the "prepare_dependencies.sh" script.
 Check that everything builds.
 
-3. Go to the "build/premake" folder and execute "./premake5 gmake".
+4. Go to the "build/premake" folder and execute "./premake5 gmake".
 This generates the makefile.
 
-4. The makefile is now on the "build/linux" folder. If you specify
+5. The makefile is now on the "build/linux" folder. If you specify
 "config=debug" yo will build debug binaries. Binaries are placed under
 "build/stage/linux".
 
