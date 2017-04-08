@@ -8,14 +8,18 @@
 #define div_ceil(num, div)\
   (((num) + (div) - 1) / (div))
 #define is_pow2(x) (x != 0 && has_one_or_zero_bits_set(x))
-#define pow2_u(unsigned_type) (1 << (unsigned_type))
-#define pow2_ubig(unsigned_type) (((ubig) 1) << (unsigned_type))
 #define unsigned_average(x, y)\
   (((x) & (y)) + (((x) ^ (y)) >> 1))
 #define is_multiple_unsafe(candidate, base)\
   (((candidate) % (base)) == 0)
 #define is_multiple(candidate, base)\
     ((candidate) && (base) && (is_multiple_unsafe ((candidate), (amount))))
+/*---------------------------------------------------------------------------*/
+#define pow2_u8(val) (((u8) 1) << (val))
+#define pow2_u16(val) (((u16) 1) << (val))
+#define pow2_u32(val) (((u32) 1) << (val))
+#define pow2_u64(val) (((u64) 1) << (val))
+#define pow2_ubig(unsigned_type) (((ubig) 1) << (unsigned_type))
 /*---------------------------------------------------------------------------*/
 /* The most simple cases of fixed-point arithmetic (both operands have the same
    format, a bigger data type with the required precission is available and
@@ -38,7 +42,7 @@
 #define static_msb_to_right_set_u8(x)\
   (((x) >> 0) | ((x) >> 1) | ((x) >> 2) | ((x) >> 3) |\
    ((x) >> 4) | ((x) >> 5) | ((x) >> 6) | ((x) >> 7)\
-   )   
+   )
 #define static_msb_to_right_set_u16(x)\
   (static_msb_to_right_set_u8 (x) |\
    ((x) >> 8)  | ((x) >> 9)  | ((x) >> 10) | ((x) >> 11) |\
@@ -367,6 +371,7 @@
   #define static_round_next_pow2_u  static_round_next_pow2_u8
   #define static_log2_floor_u       static_log2_floor_u8
   #define static_log2_ceil_u        static_log2_ceil_u8
+  #define pow2_u                    pow2_u8
 #endif
 /*---------------------------------------------------------------------------*/
 #if BL_WORDSIZE == 16
@@ -375,6 +380,7 @@
   #define static_round_next_pow2_u  static_round_next_pow2_u16
   #define static_log2_floor_u       static_log2_floor_u16
   #define static_log2_ceil_u        static_log2_ceil_u16
+  #define pow2_u                    pow2_u16
 #endif
 /*---------------------------------------------------------------------------*/
 #if BL_WORDSIZE == 32
@@ -383,6 +389,7 @@
   #define static_round_next_pow2_u  static_round_next_pow2_u32
   #define static_log2_floor_u       static_log2_floor_u32
   #define static_log2_ceil_u        static_log2_ceil_u32
+  #define pow2_u                    pow2_u32
 #endif
 /*---------------------------------------------------------------------------*/
 #if BL_WORDSIZE == 64
@@ -391,6 +398,7 @@
   #define static_round_next_pow2_u  static_round_next_pow2_u64
   #define static_log2_floor_u       static_log2_floor_u64
   #define static_log2_ceil_u        static_log2_ceil_u64
+  #define pow2_u                    pow2_u64
 #endif
 /*---------------------------------------------------------------------------*/
 
