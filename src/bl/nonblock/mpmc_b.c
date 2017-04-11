@@ -230,7 +230,9 @@ BL_NONBLOCK_EXPORT bl_err mpmc_b_produce_prepare_sp(
     mpmc_b* q, mpmc_b_ticket* ticket, u8** data
     )
 {
-  mpmc_b_prepare_s (q, ticket, data, &q->push_slot, 0, bl_would_overflow);
+  return mpmc_b_prepare_s(
+    q, ticket, data, &q->push_slot, 0, bl_would_overflow
+    );
 }
 /*----------------------------------------------------------------------------*/
 BL_NONBLOCK_EXPORT void mpmc_b_produce_commit (mpmc_b* q, mpmc_b_ticket info)
@@ -266,7 +268,7 @@ BL_NONBLOCK_EXPORT bl_err mpmc_b_consume_prepare_sc(
   mpmc_b* q, mpmc_b_ticket* ticket, u8** data
   )
 {
-  mpmc_b_prepare_s (q, ticket, data, &q->pop_slot, 1, bl_empty);
+  return mpmc_b_prepare_s (q, ticket, data, &q->pop_slot, 1, bl_empty);
 }
 /*-----------------------------------------------------------------------------*/
 BL_NONBLOCK_EXPORT void mpmc_b_consume_commit (mpmc_b *q, mpmc_b_ticket info)
@@ -278,28 +280,28 @@ BL_NONBLOCK_EXPORT bl_err mpmc_b_producer_signal_try_set(
   mpmc_b* q, mpmc_b_sig* expected, mpmc_b_sig desired
   )
 {
-  mpmc_b_signal_try_set (&q->push_slot, expected, desired);
+  return mpmc_b_signal_try_set (&q->push_slot, expected, desired);
 }
 /*----------------------------------------------------------------------------*/
 BL_NONBLOCK_EXPORT bl_err mpmc_b_producer_signal_try_set_tmatch(
   mpmc_b* q, mpmc_b_ticket* expected, mpmc_b_sig desired
   )
 {
-  mpmc_b_signal_try_set_tmatch (&q->push_slot, expected, desired);
+  return mpmc_b_signal_try_set_tmatch (&q->push_slot, expected, desired);
 }
 /*----------------------------------------------------------------------------*/
 BL_NONBLOCK_EXPORT bl_err mpmc_b_consumer_signal_try_set(
   mpmc_b* q, mpmc_b_sig* expected, mpmc_b_sig desired
   )
 {
-  mpmc_b_signal_try_set (&q->pop_slot, expected, desired);
+  return mpmc_b_signal_try_set (&q->pop_slot, expected, desired);
 }
 /*--------------------------- ------------------------------------------------*/
 BL_NONBLOCK_EXPORT bl_err mpmc_b_consumer_signal_try_set_tmatch(
   mpmc_b* q, mpmc_b_ticket* expected, mpmc_b_sig desired
   )
 {
-  mpmc_b_signal_try_set_tmatch (&q->pop_slot, expected, desired);
+  return mpmc_b_signal_try_set_tmatch (&q->pop_slot, expected, desired);
 }
 /*--------------------------- ------------------------------------------------*/
 

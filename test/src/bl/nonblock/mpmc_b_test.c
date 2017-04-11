@@ -16,8 +16,8 @@ typedef u16 mpmc_b_type;
 /*---------------------------------------------------------------------------*/
 typedef struct mpmc_b_container {
   mpmc_b_ticket hdr;
-  mpmc_b_type  v;
-  mpmc_b_type  padding;
+  mpmc_b_type   v;
+  mpmc_b_type   padding;
 }
 mpmc_b_container;
 /*---------------------------------------------------------------------------*/
