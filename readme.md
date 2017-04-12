@@ -146,36 +146,31 @@ Folders
 * "test": -
 * "src": -
 
-Build on Linux (GCC)
+Build on Linux
 =================
 
-1. If you are planning to run the unit tests you need CMake, as cmocka uses it
-as its build system. It's mostly sure that every distro has a package for it.
+On debian based systems:
 
-2. You need the "unzip" utility. On debian it's on the "unzip" package.
+> sudo apt install meson cmake
 
-3. Go to the "dependencies" folder and run the "prepare_dependencies.sh" script.
-Check that everything builds.
+To install to a intermediate directory
 
-4. Go to the "build/premake" folder and execute "./premake5 gmake".
-This generates the makefile.
+> mkdir ninja_build
+> meson ninja_build --prefix=/ --buildtype=release
+> ninja -C ninja_build
+> DESTDIR=$(pwd)/base_lib_install ninja -C ninja_build install
 
-5. The makefile is now on the "build/linux" folder. If you specify
-"config=debug" yo will build debug binaries. Binaries are placed under
-"build/stage/linux".
+To install on your system directories
+
+> mkdir ninja_build
+> meson ninja_build --buildtype=release
+> ninja -C ninja_build
+> sudo ninja -C ninja_build install
 
 Build on Windows
 ===============
 
-1. If you are planning to run the unit tests you need CMake, as cmocka uses it
+If you are planning to run the unit tests you need CMake, as cmocka uses it
 as its build system.
 
-2. Go to the "dependencies" folder and follow the instructions on the
-"prepare_dependencies_windows.txt" document.
-
-3. Go to the "build/premake" folder and execute "./premake5 vs2013".
-This generates the visual studio solution on "build/premake/windows".
-
-4. You can build either through the solution or through the
-"build/premake/build_vs2013.bat" script. Binaries are placed under
-"build/stage/windows".
+2. TODO
