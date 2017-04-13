@@ -12,13 +12,18 @@ project(
         'default_library=static'
         ]
     )
+
+run_command(
+    'git', 'submodule', 'update', '--init', '--recursive'
+    )
+
+message ('building cmocka')
 res = run_command(
     'build_helpers/build_cmake_project.sh',
     'cmocka',
     'libcmocka.a',
     '-DWITH_STATIC_LIB=on'
     )
-message ('building cmocka')
 if res.returncode() != 0
   error (res.stderr().strip())
 endif
