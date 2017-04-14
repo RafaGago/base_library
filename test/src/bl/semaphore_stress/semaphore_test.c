@@ -96,7 +96,6 @@ retry:
         }
       }
       else {
-        uword a = 0;
         printf(
           "on " thcon_hdr ": semaphore error %" FMT_ERR, thcon_hdr_v (c), err
            );

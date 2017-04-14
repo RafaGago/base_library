@@ -96,6 +96,9 @@ base_test_srcs = [
     'test/src/bl/base/tests_main.c',
     'test/src/bl/base/dynarray_test.c',
 ]
+base_sem_stress_srcs = [
+    'test/src/bl/semaphore_stress/semaphore_test.c',
+]
 base_lib = build_target(
     'bl-base',
     base_srcs,
@@ -121,6 +124,13 @@ test(
         link_args           : test_link_args,
         dependencies        : threads
     ))
+executable(
+    'bl-base-sem-stress',
+    base_sem_stress_srcs,
+    include_directories : testincludedirs,
+    link_with           : base_lib,
+    dependencies        : threads
+    )
 
 #- nonblock --------------------------------------------------------------------
 
@@ -171,6 +181,9 @@ taskqueue_test_srcs =[
     'test/src/bl/task_queue/task_queue_not_totally_broken_test.c',
     'test/src/bl/task_queue/tests_main.c',
 ]
+taskqueue_stress_test_srcs =[
+    'test/src/bl/task_queue_stress/task_queue_stress_test.c',
+]
 taskqueue_lib = build_target(
     'bl-taskqueue',
     taskqueue_srcs,
@@ -196,7 +209,13 @@ test(
         link_args           : test_link_args,
         dependencies        : threads
     ))
-
+executable(
+    'bl-taskqueue-stress',
+    taskqueue_stress_test_srcs,
+    include_directories : testincludedirs,
+    link_with           : [ base_lib, nonblock_lib ],
+    dependencies        : threads
+    )
 # - serial ---------------------------------------------------------------------
 
 serial_srcs = [

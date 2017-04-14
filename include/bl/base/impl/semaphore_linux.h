@@ -35,9 +35,9 @@ static inline bl_err bl_sem_wait (bl_sem* s)
 {
   if (sem_wait (s) == 0) {
     return bl_ok;
-  }  
+  }
   else {
-    errno == EINTR ? bl_interrupted : bl_error;
+    return errno == EINTR ? bl_interrupted : bl_error;
   }
 }
 /*----------------------------------------------------------------------------*/
