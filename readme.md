@@ -158,6 +158,7 @@ To install to a intermediate directory
 > mkdir ninja_build
 > meson ninja_build --prefix=/ --buildtype=release
 > ninja -C ninja_build
+> ninja -C ninja_build test
 > DESTDIR=$(pwd)/base_lib_install ninja -C ninja_build install
 
 To install on your system directories
@@ -165,6 +166,7 @@ To install on your system directories
 > mkdir ninja_build
 > meson ninja_build --buildtype=release
 > ninja -C ninja_build
+> ninja -C ninja_build test
 > sudo ninja -C ninja_build install
 
 Build on Windows
