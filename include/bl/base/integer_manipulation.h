@@ -23,8 +23,7 @@
 #define utype_get_bit(var, lsb_offset, type)\
           ((((type) var) >> (lsb_offset)) & ((type) 1))
 #define utype_var_set_bitv(var, lsb_offset, val, type)\
-          ((var) &\
-           ~utype_bit ((lsb_offset), type) |\
+          (((var) & ~utype_bit ((lsb_offset), type)) |\
            utype_bitv ((val), (lsb_offset), type))
 /*the first LSB that is clear, e.g on 1111001 would return 0000010*/
 #define utype_first_clear_lsb_mask(var, type)\
@@ -148,7 +147,7 @@
     (((u64) (byte_ptr)[5]) << (5 * 8)) |\
     (((u64) (byte_ptr)[6]) << (6 * 8)) |\
     (((u64) (byte_ptr)[7]) << (7 * 8))\
-  )           
+  )
 #define read_u64_low_mem_to_msb(byte_ptr)\
   (\
     (((u64) (byte_ptr)[0]) << (7 * 8)) |\
@@ -169,7 +168,7 @@
     (((u64) (byte_ptr)[3]) << (3 * 8)) |\
     (((u64) (byte_ptr)[4]) << (4 * 8)) |\
     (((u64) (byte_ptr)[5]) << (5 * 8))\
-  )           
+  )
 #define read_u48_low_mem_to_msb(byte_ptr)\
   (\
     (((u64) (byte_ptr)[0]) << (5 * 8)) |\
@@ -186,7 +185,7 @@
     (((u32) (byte_ptr)[1]) << (1 * 8)) |\
     (((u32) (byte_ptr)[2]) << (2 * 8)) |\
     (((u32) (byte_ptr)[3]) << (3 * 8))\
-  )           
+  )
 #define read_u32_low_mem_to_msb(byte_ptr)\
   (\
     (((u32) (byte_ptr)[0]) << (3 * 8)) |\
@@ -200,8 +199,8 @@
     (((u32) (byte_ptr)[0]) << (0 * 8)) |\
     (((u32) (byte_ptr)[1]) << (1 * 8)) |\
     (((u32) (byte_ptr)[2]) << (2 * 8)) \
-  ) 
-  
+  )
+
 #define read_u24_low_mem_to_msb(byte_ptr)\
   (\
     (((u32) (byte_ptr)[0]) << (2 * 8)) |\
@@ -214,7 +213,7 @@
     (((u16) (byte_ptr)[0]) << (0 * 8)) |\
     (((u16) (byte_ptr)[1]) << (1 * 8)) \
   )
-  
+
 #define read_u16_low_mem_to_msb(byte_ptr)\
   (\
     (((u16) (byte_ptr)[0]) << (1 * 8)) |\
@@ -241,7 +240,7 @@
   (u8) ((val64) >> (2 * 8)), (u8) ((val64) >> (3 * 8)),\
   (u8) ((val64) >> (4 * 8)), (u8) ((val64) >> (5 * 8)),\
   (u8) ((val64) >> (6 * 8)), (u8) ((val64) >> (7 * 8))
-  
+
 #define write_u64_low_mem_to_msb(byte_ptr, val64)\
   do {\
     (byte_ptr)[0] = (u8) ((val64) >> (7 * 8));\
@@ -254,7 +253,7 @@
     (byte_ptr)[7] = (u8) ((val64) >> (0 * 8));\
   }\
   while (0)
-  
+
 #define init_u64_low_mem_to_msb(val64)\
   (u8) ((val64) >> (7 * 8)), (u8) ((val64) >> (6 * 8)),\
   (u8) ((val64) >> (5 * 8)), (u8) ((val64) >> (4 * 8)),\
@@ -276,7 +275,7 @@
   (u8) ((val48) >> (0 * 8)), (u8) ((val48) >> (1 * 8)),\
   (u8) ((val48) >> (2 * 8)), (u8) ((val48) >> (3 * 8)),\
   (u8) ((val48) >> (4 * 8)), (u8) ((val48) >> (5 * 8))
-  
+
 #define write_u48_low_mem_to_msb(byte_ptr, val48)\
   do {\
     (byte_ptr)[0] = (u8) ((val48) >> (5 * 8));\
@@ -287,7 +286,7 @@
     (byte_ptr)[5] = (u8) ((val48) >> (0 * 8));\
   }\
   while (0)
-  
+
 #define init_u48_low_mem_to_msb(val48)\
   (u8) ((val48) >> (5 * 8)), (u8) ((val48) >> (4 * 8)),\
   (u8) ((val48) >> (3 * 8)), (u8) ((val48) >> (2 * 8)),\
@@ -305,7 +304,7 @@
 #define init_u32_low_mem_to_lsb(val32)\
   (u8) ((val32) >> (0 * 8)), (u8) ((val32) >> (1 * 8)),\
   (u8) ((val32) >> (2 * 8)), (u8) ((val32) >> (3 * 8))
-  
+
 #define write_u32_low_mem_to_msb(byte_ptr, val32)\
   do {\
     (byte_ptr)[0] = (u8) ((val32) >> (3 * 8));\
@@ -314,11 +313,11 @@
     (byte_ptr)[3] = (u8) ((val32) >> (0 * 8));\
   }\
   while (0)
-  
+
 #define init_u32_low_mem_to_msb(val32)\
   (u8) ((val32) >> (3 * 8)), (u8) ((val32) >> (2 * 8)),\
   (u8) ((val32) >> (1 * 8)), (u8) ((val32) >> (0 * 8))
-  
+
 /*---------------------------------------------------------------------------*/
 #define write_u24_low_mem_to_lsb(byte_ptr, val32)\
   do {\
@@ -327,10 +326,10 @@
     (byte_ptr)[2] = (u8) ((val32) >> (2 * 8));\
   }\
   while (0)
-  
+
 #define init_u24_low_mem_to_lsb(val32)\
   (u8) ((val32) >> (0 * 8)), (u8) ((val32) >> (1 * 8)), (u8) ((val32) >> (2 * 8))
-  
+
 #define write_u24_low_mem_to_msb(byte_ptr, val32)\
   do {\
     (byte_ptr)[0] = (u8) ((val32) >> (2 * 8));\
@@ -338,10 +337,10 @@
     (byte_ptr)[2] = (u8) ((val32) >> (0 * 8));\
   }\
   while (0)
-  
+
 #define init_u24_low_mem_to_msb(val32)\
   (u8) ((val32) >> (2 * 8)), (u8) ((val32) >> 8), (u8) ((val32) >> 0)
-  
+
 /*---------------------------------------------------------------------------*/
 #define write_u16_low_mem_to_lsb(byte_ptr, val16)\
   do {\
@@ -349,17 +348,17 @@
     (byte_ptr)[1] = (u8) ((val16) >> (1 * 8));\
   }\
   while (0)
-  
+
 #define init_u16_low_mem_to_lsb(val32)\
   (u8) ((val32) >> (0 * 8)), (u8) ((val32) >> (1 * 8))
-  
+
 #define write_u16_low_mem_to_msb(byte_ptr, val16)\
   do {\
     (byte_ptr)[0] = (u8) ((val16) >> (1 * 8));\
     (byte_ptr)[1] = (u8) ((val16) >> (0 * 8));\
   }\
   while (0)
-  
+
 #define init_u16_low_mem_to_msb(val32)\
   (u8) ((val32) >> (1 * 8)), (u8) ((val32) >> (0 * 8))
 /*---------------------------------------------------------------------------*/
@@ -368,7 +367,7 @@
 #define init_u8(val8) (u8) (val8)
 /*-----------------------------------------------------------------------------
 I used this de Bruijn sequence generator: www.hakank.org/comb/debruijn_arb.cgi
-/*-----------------------------------------------------------------------------*/
+------------------------------------------------------------------------------*/
 /*TODO: correct with BitScanForward on windows and the built-in functions on
   Linux*/
 static inline u8 u8_get_bit_idx (u8 non_zero_pow2)
@@ -398,7 +397,7 @@ static inline u8 u32_get_bit_idx (u32 non_zero_pow2)
 {
   static const u32 bruijn_seq               = 0x0563937d;
   static const u8  bruijn_seq_cycle_inv[32] = {
-     0,  1,  2, 11, 17, 3, 20, 12, 30, 18,  4, 6,  8,  21, 13, 24, 
+     0,  1,  2, 11, 17, 3, 20, 12, 30, 18,  4, 6,  8,  21, 13, 24,
     31, 10, 16, 19, 29, 5,  7, 23,  9, 15, 28, 22, 14, 27, 26, 25,
   };
   bl_assert (non_zero_pow2 && has_one_or_zero_bits_set (non_zero_pow2));
@@ -434,7 +433,7 @@ static inline u8 u64_get_bit_idx (u64 non_zero_pow2)
   #define u_get_bit_idx(v) u64_get_bit_idx(v)
 #endif
 /*---------------------------------------------------------------------------*/
-/* "_be" suffix = big endian, "_le" suffix = little endian                   */ 
+/* "_be" suffix = big endian, "_le" suffix = little endian                   */
 /*---------------------------------------------------------------------------*/
 
 /*on gcc for non static calculations see __builtin_bswap16 32, ...*/
@@ -460,14 +459,14 @@ static inline u8 u64_get_bit_idx (u64 non_zero_pow2)
   #define write_u32_le write_u32_low_mem_to_msb
   #define init_u32_be  init_u32_low_mem_to_lsb
   #define init_u32_le  init_u32_low_mem_to_msb
-  
+
   #define read_u24_be  read_u24_low_mem_to_lsb
   #define read_u24_le  read_u24_low_mem_to_msb
   #define write_u24_be write_u24_low_mem_to_lsb
   #define write_u24_le write_u24_low_mem_to_msb
   #define init_u24_be  init_u24_low_mem_to_lsb
   #define init_u24_le  init_u24_low_mem_to_msb
-  
+
   #define read_u16_be  read_u16_low_mem_to_lsb
   #define read_u16_le  read_u16_low_mem_to_msb
   #define write_u16_be write_u16_low_mem_to_lsb
@@ -497,14 +496,14 @@ static inline u8 u64_get_bit_idx (u64 non_zero_pow2)
   #define write_u32_le write_u32_low_mem_to_lsb
   #define init_u32_be  init_u32_low_mem_to_msb
   #define init_u32_le  init_u32_low_mem_to_lsb
-  
+
   #define read_u24_be  read_u24_low_mem_to_msb
   #define read_u24_le  read_u24_low_mem_to_lsb
   #define write_u24_be write_u24_low_mem_to_msb
   #define write_u24_le write_u24_low_mem_to_lsb
   #define init_u24_be  init_u24_low_mem_to_msb
   #define init_u24_le  init_u24_low_mem_to_lsb
-  
+
   #define read_u16_be  read_u16_low_mem_to_msb
   #define read_u16_le  read_u16_low_mem_to_lsb
   #define write_u16_be write_u16_low_mem_to_msb

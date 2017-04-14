@@ -12,7 +12,7 @@ typedef struct content {
 }
 content;
 /*---------------------------------------------------------------------------*/
-word cmp_func (void const* k1, void const* k2, void* cmp_context) 
+word cmp_func (void const* k1, void const* k2, void* cmp_context)
 {
   return ((content*) k1)->key - ((content*) k2)->key;
 }
@@ -139,12 +139,12 @@ static void oringb_test_insert_head_fifo_duplicates (void **state)
 
   next.key   = 1;
   next.value = oringb_capacity (&c->od) - 1;
-  uword it   = oringb_insert_fifo_duplicates (&c->od, &next, nullptr);
+  oringb_insert_fifo_duplicates (&c->od, &next, nullptr);
 
   for (uword i = 0; i < oringb_capacity (&c->od) - 1; ++i) {
     next.key   = 0;
     next.value = i;
-    it = oringb_insert_fifo_duplicates (&c->od, &next, nullptr);
+    oringb_insert_fifo_duplicates (&c->od, &next, nullptr);
   }
   uword i;
   for (i = 0; i < oringb_capacity (&c->od) - 1; ++i) {
@@ -161,12 +161,12 @@ static void oringb_test_insert_tail_fifo_duplicates (void **state)
 
   next.key   = 0;
   next.value = oringb_capacity (&c->od) - 1;
-  uword it   = oringb_insert_fifo_duplicates (&c->od, &next, nullptr);
+  oringb_insert_fifo_duplicates (&c->od, &next, nullptr);
 
   for (uword i = 0; i < oringb_capacity (&c->od) - 1; ++i) {
     next.key   = 1;
     next.value = i;
-    it = oringb_insert_fifo_duplicates (&c->od, &next, nullptr);
+    oringb_insert_fifo_duplicates (&c->od, &next, nullptr);
   }
   assert_true (oringb_at (&c->od, 0)->key == 0);
   for (uword i = 1; i < oringb_capacity (&c->od); ++i) {
@@ -219,12 +219,12 @@ static void oringb_test_insert_head_lifo_duplicates (void **state)
 
   next.key   = 1;
   next.value = oringb_capacity (&c->od) - 1;
-  uword it   = oringb_insert_lifo_duplicates (&c->od, &next, nullptr);
+  oringb_insert_lifo_duplicates (&c->od, &next, nullptr);
 
   for (uword i = 0; i < oringb_capacity (&c->od) - 1; ++i) {
     next.key   = 0;
     next.value = i;
-    it = oringb_insert_lifo_duplicates (&c->od, &next, nullptr);
+    oringb_insert_lifo_duplicates (&c->od, &next, nullptr);
   }
   for (uword i = 0; i < oringb_capacity (&c->od) - 1; ++i) {
     assert_true (oringb_at (&c->od, i)->key == 0);
@@ -242,12 +242,12 @@ static void oringb_test_insert_tail_lifo_duplicates (void **state)
 
   next.key   = 0;
   next.value = oringb_capacity (&c->od) - 1;
-  uword it   = oringb_insert_lifo_duplicates (&c->od, &next, nullptr);
+  oringb_insert_lifo_duplicates (&c->od, &next, nullptr);
 
   for (uword i = 1; i < oringb_capacity (&c->od); ++i) {
     next.key   = 1;
     next.value = i;
-    it = oringb_insert_lifo_duplicates (&c->od, &next, nullptr);
+    oringb_insert_lifo_duplicates (&c->od, &next, nullptr);
   }
   assert_true (oringb_at (&c->od, 0)->key == 0);
   for (uword i = 1; i < oringb_capacity (&c->od); ++i) {
@@ -428,7 +428,7 @@ static void oringb_test_drop_middle_upper (void **state)
     { 6, 6 },
     { 2, 2 },
     { 5, 5 },
-  };  
+  };
   for (uword i = 0; i < oringb_capacity (&c->od); ++i) {
     oringb_insert_lifo_duplicates (&c->od, &values[i], nullptr);
   }

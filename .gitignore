@@ -10,3 +10,4 @@ dependencies/code/premake-5.0.0-alpha6-src/
 dep
 ninja_build
 base_lib_install
+cscope*

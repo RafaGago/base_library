@@ -15,6 +15,8 @@
   #define BL_CLOCK_MONOTONIC CLOCK_MONOTONIC /*TODO this isn't posix now...*/
 #endif
 /*---------------------------------------------------------------------------*/
+/* FIXME: this is made inline just to */
+/*---------------------------------------------------------------------------*/
 #if !defined (BL_TIMESTAMP_64BIT)
 static inline tstamp bl_get_tstamp (void)
 {
@@ -54,7 +56,7 @@ static void timespec_normalize (struct timespec* t)
 }
 /* private. for internal use */
 /*---------------------------------------------------------------------------*/
-static struct timespec timespec_us_from_now (u32 usec, int clock)
+static inline struct timespec timespec_us_from_now (u32 usec, int clock)
 {
   struct timespec t;
   clock_gettime (clock, &t);

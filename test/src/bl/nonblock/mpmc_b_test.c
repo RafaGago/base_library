@@ -46,7 +46,6 @@ static void mpmc_b_test_queue_fill (void **state)
 {
   mpmc_b_context* c = (mpmc_b_context*) *state;
   mpmc_b_ticket t;
-  u8* mem;
   for (mpmc_b_type i = 0; i < arr_elems (c->buff); ++i) {
      u8* mem;
      assert_true (mpmc_b_produce_prepare (&c->q, &t, &mem) == bl_ok);

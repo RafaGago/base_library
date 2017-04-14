@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /* Thanks to:
-   -William Woodall <wjwwood@gmail.com> and 
-   -John Harrison <ash@greaterthaninfinity.com> 
+   -William Woodall <wjwwood@gmail.com> and
+   -John Harrison <ash@greaterthaninfinity.com>
 
    At:
    https://github.com/wjwwood/serial
@@ -23,7 +23,7 @@
 #include <fcntl.h>
 
 #include <sys/signal.h>
-#include <sys/types.h> 
+#include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/select.h>
 
@@ -105,7 +105,6 @@ BL_SERIAL_EXPORT void bl_serial_destroy (bl_serial* s, alloc_tbl const* alloc)
 {
   bl_assert (s);
   bl_serial_stop (s);
-destroy:
   bl_dealloc (alloc, s);
 }
 /*----------------------------------------------------------------------------*/
@@ -224,7 +223,7 @@ static bool try_get_standard_baudrate (uword baudrate, int* enum_val)
   case 4000000: *enum_val = B4000000; return true;
 #endif
   default: return false;
-  }  
+  }
 }
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
@@ -267,13 +266,13 @@ static inline bl_err try_set_nonstandard_baudrate (bl_serial* s, uword baudrate)
   ser.flags         &= ~ASYNC_SPD_MASK;
   ser.flags         |= ASYNC_SPD_CUST;
 
-  return ioctl (s->fd, TIOCSSERIAL, &ser) >= 0 ? bl_ok : bl_invalid;  
-} 
+  return ioctl (s->fd, TIOCSSERIAL, &ser) >= 0 ? bl_ok : bl_invalid;
+}
 /*----------------------------------------------------------------------------*/
 #else
 static inline bl_err try_set_nonstandard_baudrate (bl_serial* s, uword baudrate)
 {
-  return bl_invalid;  
+  return bl_invalid;
 }
 /*----------------------------------------------------------------------------*/
 #endif
@@ -332,7 +331,7 @@ try_again:
     }
     return bl_file;
   }
-  
+
   /*fixed attributes*/
   struct termios options;
   bl_err err = tcgetattr (s->fd, &options) >= 0 ? bl_ok : bl_file;
@@ -341,7 +340,7 @@ try_again:
   }
     /*raw mode / no echo / binary */
   options.c_cflag |= (tcflag_t)  (CLOCAL | CREAD);
-  options.c_lflag &= (tcflag_t) 
+  options.c_lflag &= (tcflag_t)
     ~(ICANON | ECHO | ECHOE | ECHOK | ECHONL | ISIG | IEXTEN);
   options.c_oflag &= (tcflag_t) ~(OPOST);
   options.c_iflag &= (tcflag_t) ~(INLCR | IGNCR | ICRNL | IGNBRK);
@@ -357,7 +356,7 @@ try_again:
       goto close;
     }
   }
-  
+
   /*char length*/
   options.c_cflag &= (tcflag_t) ~CSIZE;
   switch (cfg->byte_size) {
@@ -394,7 +393,7 @@ try_again:
   case bl_parity_none:
     options.c_cflag &= (tcflag_t) ~(PARENB | PARODD); break;
   case bl_parity_odd:
-    options.c_cflag |=  (PARENB | PARODD); 
+    options.c_cflag |=  (PARENB | PARODD);
     break;
   case bl_parity_even:
     options.c_cflag &= (tcflag_t) ~(PARODD);
@@ -409,7 +408,7 @@ try_again:
     options.c_cflag &= (tcflag_t) ~(PARODD);
     break;
 #endif /*CMSPAR*/
-  default:     
+  default:
     err = bl_invalid;
     goto close;
   }
@@ -446,7 +445,7 @@ try_again:
 close:
   bl_serial_stop (s);
   return err;
- 
+
 }
 /*----------------------------------------------------------------------------*/
 BL_SERIAL_EXPORT void bl_serial_stop (bl_serial* s)
@@ -470,7 +469,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_read(
   }
   /*leftovers from previous reads*/
   uword copied = bl_min (memr_size (rbuff), u8_dq_size (&s->rq));
-  if (copied != 0) { 
+  if (copied != 0) {
     uword adjacent = u8_dq_adjacent_elems_from (&s->rq, 0, copied);
     memcpy (memr_beg (rbuff), u8_dq_at_head (&s->rq), adjacent);
     if (adjacent != copied) {
@@ -485,8 +484,8 @@ BL_SERIAL_EXPORT bl_err bl_serial_read(
   if (copied == memr_size (rbuff)) {
     return bl_ok;
   }
-  
-  tstamp deadline = 0; 
+
+  tstamp deadline = 0;
   bl_err err      = bl_ok;
   if (timeout_us != 0) {
     err =  deadline_init (&deadline, timeout_us);
@@ -514,7 +513,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_read(
 
     fd_set fds;
     FD_ZERO (&fds);
-    FD_SET (s->fd, &fds);    
+    FD_SET (s->fd, &fds);
 
     struct timespec t;
     t.tv_sec  = us_pending / usec_in_sec;
@@ -525,7 +524,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_read(
       err = bl_error;
       goto rollback;
     }
-  }  
+  }
   return bl_ok;
 
 rollback:
@@ -545,13 +544,13 @@ BL_SERIAL_EXPORT bl_err bl_serial_write(
   bl_assert (written);
   bl_assert (s->fd >= 0);
   bl_assert (timeout_us >= 0);
-  
+
   if (!memr_is_valid (wbuff) || !written) {
     return bl_invalid;
   }
 
   *written        = 0;
-  tstamp deadline = 0; 
+  tstamp deadline = 0;
   bl_err err      = bl_ok;
   if (timeout_us != 0) {
     err = deadline_init (&deadline, timeout_us);
@@ -565,9 +564,9 @@ BL_SERIAL_EXPORT bl_err bl_serial_write(
     fd_set fds;
     FD_ZERO (&fds);
     FD_SET (s->fd, &fds);
-    
+
     struct timespec t;
-    struct timespec* t_ptr = nullptr;   
+    struct timespec* t_ptr = nullptr;
     if (timeout_us != 0) {
       tstampdiff diff = deadline_compare (deadline, bl_get_tstamp());
       if (diff <= 0) {
@@ -608,11 +607,11 @@ BL_SERIAL_EXPORT bl_err bl_serial_ioctl_get(
   switch (op) {
   case bl_cts:        mask = TIOCM_CTS; break;
   case bl_rts:        return bl_invalid;
-  case bl_dtr:        return bl_invalid;      
-  case bl_dsr:        mask = TIOCM_DSR; break;       
+  case bl_dtr:        return bl_invalid;
+  case bl_dsr:        mask = TIOCM_DSR; break;
   case bl_ri:         mask = TIOCM_RI; break;
   case bl_cd:         mask = TIOCM_CD; break;
-  case bl_send_break: return bl_invalid; 
+  case bl_send_break: return bl_invalid;
   case bl_set_break:  return bl_invalid;
   default:            return bl_invalid;
   }
@@ -643,13 +642,13 @@ BL_SERIAL_EXPORT bl_err bl_serial_ioctl_set(
   case bl_dtr:
     cmd    = TIOCM_DTR;
     ioctlv = (val) ? TIOCMBIS : TIOCMBIC;
-    break;   
+    break;
   case bl_dsr:        return bl_invalid;
   case bl_ri:         return bl_invalid;
   case bl_cd:         return bl_invalid;
-  case bl_send_break: 
+  case bl_send_break:
     tcsendbreak (s->fd, 0);
-    return bl_ok; 
+    return bl_ok;
   case bl_set_break:
     ioctlv = (val) ? TIOCSBRK : TIOCCBRK;
     return ioctl (s->fd, ioctlv) >= 0 ? bl_ok : bl_error;
@@ -676,9 +675,9 @@ BL_SERIAL_EXPORT uword bl_serial_get_byte_time_ns (bl_serial_cfg const* cfg)
     return 0;
   }
   u64 bit_ns    = int_to_fixp (u64, nsec_in_sec, 32) / cfg->baudrate;
-  u64 bits_byte = 1 + 
-    cfg->byte_size + 
-    (cfg->parity != bl_parity_none) + 
+  u64 bits_byte = 1 +
+    cfg->byte_size +
+    (cfg->parity != bl_parity_none) +
     (cfg->stop_bits == bl_stop_bits_one) ? 1 : 2;
   return (uword) fixp_to_int (bit_ns * bits_byte, 32);
 }

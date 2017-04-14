@@ -11,7 +11,7 @@ extern "C" {
 #endif
 
 /*----------------------------------------------------------------------------*/
-static u8* slot_addr (u8* mem, u32 slots, u32 slot_size, mpmc_b_ticket t)
+static inline u8* slot_addr (u8* mem, u32 slots, u32 slot_size, mpmc_b_ticket t)
 {
   return &mem[(t & (slots -1)) * slot_size];
 }

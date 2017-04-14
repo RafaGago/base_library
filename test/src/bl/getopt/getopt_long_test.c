@@ -202,7 +202,7 @@ static void getopt_long_only_long_options (void **state)
   bl_arg_option o[] = {
     { "aa", no_argument, nullptr, 'a' },
     { "bb", no_argument, nullptr, 'b' },
-    { 0 }, 
+    { 0 },
   };
   assert_true(
     'a' == bl_getopt_long (&s, arr_elems (argv), argv, nullptr, o, nullptr)
@@ -219,7 +219,7 @@ static void getopt_long_wrong_long_option (void **state)
   bl_arg_option o[] = {
     { "aa", no_argument, nullptr, 'a' },
     { "bb", no_argument, nullptr, 'b' },
-    { 0 }, 
+    { 0 },
   };
   assert_true(
     -1 == bl_getopt_long (&s, arr_elems (argv), argv, nullptr, o, nullptr)
@@ -233,7 +233,7 @@ static void getopt_long_wrong_long_abbreviation (void **state)
   bl_arg_option o[] = {
     { "aa", no_argument, nullptr, 'a' },
     { "bb", no_argument, nullptr, 'b' },
-    { 0 }, 
+    { 0 },
   };
   assert_true(
     'b' == bl_getopt_long (&s, arr_elems (argv), argv, nullptr, o, nullptr)
@@ -253,7 +253,7 @@ static void getopt_long_wrong_long_param_abbreviation_eq (void **state)
   bl_arg_option o[] = {
     { "aa", required_argument, nullptr, 'a' },
     { "bb", required_argument, nullptr, 'b' },
-    { 0 }, 
+    { 0 },
   };
   assert_true(
     'b' == bl_getopt_long (&s, arr_elems (argv), argv, nullptr, o, nullptr)
@@ -275,7 +275,7 @@ static void getopt_long_wrong_long_param_abbreviation_diff_arg (void **state)
   bl_arg_option o[] = {
     { "aa", required_argument, nullptr, 'a' },
     { "bb", required_argument, nullptr, 'b' },
-    { 0 }, 
+    { 0 },
   };
   assert_true(
     'b' == bl_getopt_long (&s, arr_elems (argv), argv, nullptr, o, nullptr)
@@ -297,7 +297,7 @@ static void getopt_long_wrong_long_ambiguous_abbrev (void **state)
   bl_arg_option o[] = {
     { "aa", no_argument, nullptr, 'a' },
     { "ab", no_argument, nullptr, 'b' },
-    { 0 }, 
+    { 0 },
   };
   assert_true(
     '?' == bl_getopt_long (&s, arr_elems (argv), argv, nullptr, o, nullptr)
@@ -312,7 +312,7 @@ static void getopt_long_using_longindex (void **state)
     { "aa", no_argument, nullptr, 'a' },
     { "bb", no_argument, nullptr, 'b' },
     { "cc", no_argument, nullptr, 'c' },
-    { 0 }, 
+    { 0 },
   };
   int longindex = -1;
   assert_true(
@@ -340,7 +340,7 @@ static void getopt_long_using_long_flag (void **state)
   bl_arg_option o[] = {
     { "aa", no_argument, &flag, 'a' },
     { "bb", no_argument, nullptr, 'b' },
-    { 0 }, 
+    { 0 },
   };
   assert_true(
     0 == bl_getopt_long (&s, arr_elems (argv), argv, nullptr, o, nullptr)
@@ -359,7 +359,7 @@ static void getopt_long_unknown (void **state)
   bl_arg_option o[] = {
     { "aa", no_argument, &flag, 'a' },
     { "bb", no_argument, nullptr, 'b' },
-    { 0 }, 
+    { 0 },
   };
   assert_true(
     '?' == bl_getopt_long (&s, arr_elems (argv), argv, "ab", o, nullptr)
@@ -373,7 +373,7 @@ static void getopt_long_missing_required_arg (void **state)
   char* argv[]      = {"foo.exe", "--aa"};
   bl_arg_option o[] = {
     { "aa", required_argument, nullptr, 'a' },
-    { 0 }, 
+    { 0 },
   };
   assert_true(
     ':' == bl_getopt_long (&s, arr_elems (argv), argv, nullptr, o, nullptr)
@@ -388,7 +388,7 @@ static void getopt_long_missing_required_arg_by_equal (void **state)
   char* argv[]      = {"foo.exe", "--aa="};
   bl_arg_option o[] = {
     { "aa", required_argument, nullptr, 'a' },
-    { 0 }, 
+    { 0 },
   };
   assert_true(
     'a' == bl_getopt_long (&s, arr_elems (argv), argv, nullptr, o, nullptr)
@@ -402,7 +402,7 @@ static void getopt_long_optional_arg (void **state)
   char* argv[]      = {"foo.exe", "--aa", "123"};
   bl_arg_option o[] = {
     { "aa", optional_argument, nullptr, 'a' },
-    { 0 }, 
+    { 0 },
   };
   assert_true(
     'a' == bl_getopt_long (&s, arr_elems (argv), argv, nullptr, o, nullptr)
@@ -416,7 +416,7 @@ static void getopt_long_optional_arg_by_equal (void **state)
   char* argv[]      = {"foo.exe", "--aa=123"};
   bl_arg_option o[] = {
     { "aa", optional_argument, nullptr, 'a' },
-    { 0 }, 
+    { 0 },
   };
   assert_true(
     'a' == bl_getopt_long (&s, arr_elems (argv), argv, nullptr, o, nullptr)
@@ -430,7 +430,7 @@ static void getopt_long_missing_optional_arg (void **state)
   char* argv[]      = {"foo.exe", "--aa"};
   bl_arg_option o[] = {
     { "aa", optional_argument, nullptr, 'a' },
-    { 0 }, 
+    { 0 },
   };
   assert_true(
     'a' == bl_getopt_long (&s, arr_elems (argv), argv, nullptr, o, nullptr)
@@ -445,7 +445,7 @@ static void getopt_long_empty_optional_arg_by_equal (void **state)
   char* argv[]      = {"foo.exe", "--aa="};
   bl_arg_option o[] = {
     { "aa", optional_argument, nullptr, 'a' },
-    { 0 }, 
+    { 0 },
   };
   assert_true(
     'a' == bl_getopt_long (&s, arr_elems (argv), argv, nullptr, o, nullptr)
@@ -468,7 +468,7 @@ static void real_getopt_long_missing_required_arg (void **state)
   char* argv[]      = {"foo.exe", "--aa"};
   struct option o[] = {
     { "aa", required_argument, nullptr, 'a' },
-    { 0 }, 
+    { 0 },
   };
   optind  = 1;
   int res = getopt_long (arr_elems (argv), argv, "a", o, nullptr);
@@ -481,7 +481,7 @@ static void real_getopt_long_missing_required_arg_by_equal (void **state)
   char* argv[]      = {"foo.exe", "--aa="};
   struct option o[] = {
     { "aa", required_argument, nullptr, 'a' },
-    { 0 }, 
+    { 0 },
   };
   optind = 1;
   assert_true(
@@ -495,7 +495,7 @@ static void real_getopt_long_missing_optional_arg (void **state)
   char* argv[]      = {"foo.exe", "--aa"};
   struct option o[] = {
     { "aa", optional_argument, nullptr, 'a' },
-    { 0 }, 
+    { 0 },
   };
   optind = 1;
   assert_true(
@@ -510,7 +510,7 @@ static void real_getopt_long_empty_optional_arg_by_equal (void **state)
   char* argv[]      = {"foo.exe", "--aa="};
   struct option o[] = {
     { "aa", optional_argument, nullptr, 'a' },
-    { 0 }, 
+    { 0 },
   };
   optind = 1;
   assert_true(
@@ -543,6 +543,7 @@ static const struct CMUnitTest tests[] = {
   cmocka_unit_test (getopt_long_wrong_long_abbreviation),
   cmocka_unit_test (getopt_long_wrong_long_param_abbreviation_eq),
   cmocka_unit_test (getopt_long_wrong_long_param_abbreviation_diff_arg),
+  cmocka_unit_test (getopt_long_wrong_long_ambiguous_abbrev),
   cmocka_unit_test (getopt_long_using_longindex),
   cmocka_unit_test (getopt_long_using_long_flag),
   cmocka_unit_test (getopt_long_unknown),

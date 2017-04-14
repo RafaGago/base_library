@@ -55,7 +55,7 @@ static inline mpmc_b_ticket mpmc_b_ticket_pack (mpmc_b_ticket_up td)
   return mpmc_b_ticket_encode (td.value, td.sig);
 }
 /*----------------------------------------------------------------------------*/
-static u32 mpmc_b_round_slot_size (u32 slot_size, u32 alignment)
+static inline u32 mpmc_b_round_slot_size (u32 slot_size, u32 alignment)
 {
   u32 al = bl_max (sizeof (u32), alignment);
   //fixes alignment to 4 bytes
