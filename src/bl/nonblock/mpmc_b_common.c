@@ -12,8 +12,8 @@ bl_err mpmc_b_signal_try_set(
   atomic_u32* dst, mpmc_b_sig* expected, mpmc_b_sig desired
   )
 {
-  mpmc_b_ticket r;
-  mpmc_b_ticket w;
+  mpmc_b_op r;
+  mpmc_b_op w;
   bl_err err = bl_ok;
   r          = atomic_u32_load_rlx (dst);
   do {
@@ -21,7 +21,7 @@ bl_err mpmc_b_signal_try_set(
       err = bl_preconditions;
       break;
     }
-    w = mpmc_b_ticket_encode (r, desired);
+    w = mpmc_b_op_encode (r, desired);
   }
   while (!atomic_u32_weak_cas_rlx (dst, &r, w));
   *expected = mpmc_b_sig_decode (r);
@@ -29,27 +29,25 @@ bl_err mpmc_b_signal_try_set(
 }
 /*----------------------------------------------------------------------------*/
 bl_err mpmc_b_signal_try_set_tmatch(
-  atomic_u32* dst, mpmc_b_ticket* expected, mpmc_b_sig desired
+  atomic_u32* dst, mpmc_b_op* expected, mpmc_b_sig desired
   )
 {
-  mpmc_b_ticket r;
-  mpmc_b_ticket w;
-  mpmc_b_ticket exp;
+  mpmc_b_op r;
+  mpmc_b_op w;
+  mpmc_b_op exp;
 
   bl_err err = bl_preconditions;
-  exp        = mpmc_b_ticket_encode(
-    *expected + 1, mpmc_b_sig_decode (*expected)
-    );
+  exp        = mpmc_b_op_encode (*expected + 1, mpmc_b_sig_decode (*expected));
   r = atomic_u32_load_rlx (dst);
   if (r != exp) {
     goto save_expected;
   }
-  w = mpmc_b_ticket_encode (r, desired);
+  w = mpmc_b_op_encode (r, desired);
   if (atomic_u32_weak_cas_rlx (dst, &r, w)) {
     err = bl_ok;
   }
 save_expected:
-  *expected = mpmc_b_ticket_encode (r - 1, mpmc_b_sig_decode (r));
+  *expected = mpmc_b_op_encode (r - 1, mpmc_b_sig_decode (r));
   return err;
 }
 /*----------------------------------------------------------------------------*/

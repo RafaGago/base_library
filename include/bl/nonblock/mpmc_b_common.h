@@ -9,6 +9,7 @@
 
 typedef u8  mpmc_b_sig;
 typedef u32 mpmc_b_ticket;
+typedef u32 mpmc_b_op;
 
 #define mpmc_b_signal_bits 6
 #define mpmc_b_ticket_bits \
@@ -17,42 +18,44 @@ typedef u32 mpmc_b_ticket;
 /* 1 bit is for regular queue wrapping (lap), the other one for blocking
    detection */
 #define mpmc_b_max_slots (pow2_u32 (mpmc_b_ticket_bits - 2))
-#define mpmc_b_unset_ticket u32_lsb_set (mpmc_b_ticket_bits)
+/* this is the op value that will allow using "tmatch" suffixed functions on a
+   newly initialized mpmc_b queue */
+#define mpmc_b_first_op u32_lsb_set (mpmc_b_ticket_bits)
 
-typedef struct mpmc_b_ticket_up {
-  mpmc_b_ticket value;
+typedef struct mpmc_b_op_up {
+  mpmc_b_ticket ticket;
   mpmc_b_sig    sig;
 }
-mpmc_b_ticket_up;
+mpmc_b_op_up;
 /*----------------------------------------------------------------------------*/
-static inline mpmc_b_ticket mpmc_b_ticket_decode (mpmc_b_ticket t)
+static inline mpmc_b_ticket mpmc_b_ticket_decode (mpmc_b_op op)
 {
-  return t & u32_lsb_set (mpmc_b_ticket_bits);
+  return (mpmc_b_ticket) (op & u32_lsb_set (mpmc_b_ticket_bits));
 }
 /*----------------------------------------------------------------------------*/
-static inline mpmc_b_sig mpmc_b_sig_decode (mpmc_b_ticket t)
+static inline mpmc_b_sig mpmc_b_sig_decode (mpmc_b_op op)
 {
-  return t >> mpmc_b_ticket_bits;
+  return (mpmc_b_sig) (op >> mpmc_b_ticket_bits);
 }
 /*----------------------------------------------------------------------------*/
-static inline mpmc_b_ticket mpmc_b_ticket_encode (mpmc_b_ticket t, mpmc_b_sig s)
+static inline mpmc_b_op mpmc_b_op_encode (mpmc_b_ticket t, mpmc_b_sig s)
 {
   bl_assert (s <= u32_lsb_set (mpmc_b_signal_bits));
   return (t & u32_lsb_set (mpmc_b_ticket_bits)) |
     ((u32) s) << mpmc_b_ticket_bits;
 }
 /*----------------------------------------------------------------------------*/
-static inline mpmc_b_ticket_up mpmc_b_ticket_unpack (mpmc_b_ticket t)
+static inline mpmc_b_op_up mpmc_b_op_unpack (mpmc_b_op op)
 {
-  mpmc_b_ticket_up tu;
-  tu.value = mpmc_b_ticket_decode (t);
-  tu.sig   = mpmc_b_sig_decode (t);
-  return tu;
+  mpmc_b_op_up ou;
+  ou.ticket = mpmc_b_ticket_decode (op);
+  ou.sig    = mpmc_b_sig_decode (op);
+  return ou;
 }
 /*----------------------------------------------------------------------------*/
-static inline mpmc_b_ticket mpmc_b_ticket_pack (mpmc_b_ticket_up td)
+static inline mpmc_b_op mpmc_b_op_pack (mpmc_b_op_up td)
 {
-  return mpmc_b_ticket_encode (td.value, td.sig);
+  return mpmc_b_op_encode (td.ticket, td.sig);
 }
 /*----------------------------------------------------------------------------*/
 static inline u32 mpmc_b_round_slot_size (u32 slot_size, u32 alignment)

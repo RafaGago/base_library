@@ -62,7 +62,7 @@ enum taskq_signals_e {
 /*---------------------------------------------------------------------------*/
 typedef struct taskq {
   mpmc_bt       queue;
-  mpmc_b_ticket last_consumed;
+  mpmc_b_op     last_consumed;
   bl_tm_sem     sem;
   taskq_delayed delayed;
 }
@@ -116,15 +116,15 @@ static inline bl_err taskq_post_impl(
   taskq* tq, cmd_elem* cmd, taskq_id* id
   )
 {
-  mpmc_b_ticket t;
+  mpmc_b_op op;
   bl_err err = mpmc_bt_produce_sig_fallback(
-    &tq->queue, &t, cmd, true, taskq_q_ok, taskq_q_blocked, taskq_q_blocked
+    &tq->queue, &op, cmd, true, taskq_q_ok, taskq_q_blocked, taskq_q_blocked
     );
   if (likely (err == bl_ok)) {
-    if (unlikely (mpmc_b_sig_decode (t) == taskq_q_waiting_sem)) {
+    if (unlikely (mpmc_b_sig_decode (op) == taskq_q_waiting_sem)) {
       bl_tm_sem_signal (&tq->sem);
     }
-    *id = mpmc_b_ticket_decode (t);
+    *id = mpmc_b_ticket_decode (op);
   }
   else {
     err = (err != bl_preconditions) ? err : bl_locked;
@@ -176,8 +176,8 @@ BL_TASKQ_EXPORT bl_err taskq_run_one (taskq* tq, u32 timeout_us)
     }
   }
   while (true) {
-    mpmc_b_ticket expect = tq->last_consumed;
-    bl_err        ierr   = bl_ok;
+    mpmc_b_op expect = tq->last_consumed;
+    bl_err    ierr   = bl_ok;
 
     taskq_delayed_entry const* dhead;
     dhead = taskq_delayed_get_head (&tq->delayed);
@@ -222,7 +222,7 @@ BL_TASKQ_EXPORT bl_err taskq_run_one (taskq* tq, u32 timeout_us)
         processor_pause();
         processor_pause();
       }
-      expect = mpmc_b_ticket_encode (expect, taskq_q_ok);
+      expect = mpmc_b_op_encode (expect, taskq_q_ok);
       ierr = bl_ok;
     }
 
@@ -249,7 +249,7 @@ try_again:
 /*---------------------------------------------------------------------------*/
 BL_TASKQ_EXPORT bl_err taskq_block (taskq* tq)
 {
-  mpmc_b_ticket expected = mpmc_b_ticket_encode (tq->last_consumed, taskq_q_ok);
+  mpmc_b_op expected = mpmc_b_op_encode (tq->last_consumed, taskq_q_ok);
   while(
     mpmc_bt_producer_signal_try_set_tmatch(
 	    &tq->queue, &expected, taskq_q_blocked
@@ -383,7 +383,7 @@ BL_TASKQ_EXPORT bl_err taskq_init(
     goto do_taskq_delayed_destroy;
   }
   *tqueue = tq;
-  tq->last_consumed = mpmc_b_ticket_encode (mpmc_b_unset_ticket, 0);
+  tq->last_consumed = mpmc_b_first_op;
   return bl_ok;
 
 do_taskq_delayed_destroy:

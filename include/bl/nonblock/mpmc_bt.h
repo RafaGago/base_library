@@ -37,10 +37,10 @@ static inline void mpmc_bt_destroy (mpmc_bt* q, alloc_tbl const* alloc)
 }
 /*------------------------------------------------------------------------------
  Inserts to the queue on multiple producer (MP) mode.
-ticket: when there is no error will contain the current transaction id
+op: when there is no error will contain the current ticket id
   and the signal that was present on the producer's "channel". On return of
   the "bl_preconditions" error code the signal will be the signal that was
-  present on the channel but the transaction will be the transaction of the
+  present on the channel but the ticket will be the ticket of the
   next insertion (which should be ignored). On return of another error code
   the value will be left untouched.
  replace_sigl + sig_replacement: If "replace_signal" is "true" the signal
@@ -56,60 +56,58 @@ ticket: when there is no error will contain the current transaction id
 ------------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
   bl_err mpmc_bt_produce_sig_fallback(
-    mpmc_bt*       q,
-    mpmc_b_ticket* ticket,
-    void const*    data,
-    bool           replace_sig,
-    mpmc_b_sig     sig_replacement,
-    mpmc_b_sig     sig_fallback_mask,
-    mpmc_b_sig     sig_fallback_match
+    mpmc_bt*    q,
+    mpmc_b_op*  op,
+    void const* data,
+    bool        replace_sig,
+    mpmc_b_sig  sig_replacement,
+    mpmc_b_sig  sig_fallback_mask,
+    mpmc_b_sig  sig_fallback_match
     );
 /*----------------------------------------------------------------------------*/
 static inline bl_err mpmc_bt_produce_sig(
-  mpmc_bt*       q,
-  mpmc_b_ticket* ticket,
-  void const*    data,
-  mpmc_b_sig     sig_replacement
+  mpmc_bt*    q,
+  mpmc_b_op*  op,
+  void const* data,
+  mpmc_b_sig  sig_replacement
   )
 {
   return mpmc_bt_produce_sig_fallback(
-    q, ticket, data, true, sig_replacement, 0, 1
+    q, op, data, true, sig_replacement, 0, 1
     );
 }
 /*----------------------------------------------------------------------------*/
 static inline bl_err mpmc_bt_produce_fallback(
-  mpmc_bt*       q,
-  mpmc_b_ticket* ticket,
-  void const*    data,
-  mpmc_b_sig     sig_fallback_mask,
-  mpmc_b_sig     sig_fallback_match
+  mpmc_bt*    q,
+  mpmc_b_op*  op,
+  void const* data,
+  mpmc_b_sig  sig_fallback_mask,
+  mpmc_b_sig  sig_fallback_match
   )
 {
   return mpmc_bt_produce_sig_fallback(
-    q, ticket, data, false, 0, sig_fallback_mask, sig_fallback_match
+    q, op, data, false, 0, sig_fallback_mask, sig_fallback_match
     );
 }
 /*----------------------------------------------------------------------------*/
 static inline bl_err mpmc_bt_produce(
-  mpmc_bt* q, mpmc_b_ticket* ticket, void const* data
+  mpmc_bt* q, mpmc_b_op* op, void const* data
   )
 {
-  return mpmc_bt_produce_sig_fallback (q, ticket, data, false, 0, 0, 1);
+  return mpmc_bt_produce_sig_fallback (q, op, data, false, 0, 0, 1);
 }
 /*------------------------------------------------------------------------------
  Single producer (SP) mode insert. Remember that you can't mix single and
  multiple producer modes on the same queue.
 ------------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
-  bl_err mpmc_bt_produce_sp(
-    mpmc_bt* q, mpmc_b_ticket* ticket, void const* data
-    );
+  bl_err mpmc_bt_produce_sp (mpmc_bt* q, mpmc_b_op* op, void const* data);
 /*------------------------------------------------------------------------------
  Comsumes from the queue on multiple consumer (MC) mode.
- ticket: when there is no error will contain the current transaction id
+ op: when there is no error will contain the current ticket id
   and the signal that was present on the producer's "channel". On return of
   the "bl_preconditions" error code the signal will be the signal that was
-  present on the channel but the transaction will be the transaction of the
+  present on the channel but the ticket will be the ticket of the
   next insertion (which should be ignored). On return of another error code
   the value will be left untouched.
  replace_sig + sig_replacement: If "replace_signal" is "true" the signal
@@ -126,56 +124,54 @@ extern BL_NONBLOCK_EXPORT
 ------------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
   bl_err mpmc_bt_consume_sig_fallback(
-    mpmc_bt*       q,
-    mpmc_b_ticket* ticket,
-    void*          data,
-    bool           replace_sig,
-    mpmc_b_sig     sig_replacement,
-    mpmc_b_sig     sig_fallback_mask,
-    mpmc_b_sig     sig_fallback_match
+    mpmc_bt*   q,
+    mpmc_b_op* op,
+    void*      data,
+    bool       replace_sig,
+    mpmc_b_sig sig_replacement,
+    mpmc_b_sig sig_fallback_mask,
+    mpmc_b_sig sig_fallback_match
     );
 /*----------------------------------------------------------------------------*/
 static inline bl_err mpmc_bt_consume_fallback(
-  mpmc_bt*       q,
-  mpmc_b_ticket* ticket,
-  void*          data,
-  mpmc_b_sig     sig_fallback_mask,
-  mpmc_b_sig     sig_fallback_match
+  mpmc_bt*   q,
+  mpmc_b_op* op,
+  void*      data,
+  mpmc_b_sig sig_fallback_mask,
+  mpmc_b_sig sig_fallback_match
   )
 {
   return mpmc_bt_consume_sig_fallback(
-    q, ticket, data, false, 0, sig_fallback_mask, sig_fallback_match
+    q, op, data, false, 0, sig_fallback_mask, sig_fallback_match
     );
 }
 /*----------------------------------------------------------------------------*/
 static inline bl_err mpmc_bt_consume_sig(
-  mpmc_bt*       q,
-  mpmc_b_ticket* ticket,
-  void*          data,
-  mpmc_b_sig     sig_replacement
+  mpmc_bt*   q,
+  mpmc_b_op* op,
+  void*      data,
+  mpmc_b_sig sig_replacement
   )
 {
   return mpmc_bt_consume_sig_fallback(
-    q, ticket, data, true, sig_replacement, 0, 1
+    q, op, data, true, sig_replacement, 0, 1
     );
 }
 /*----------------------------------------------------------------------------*/
 static inline bl_err mpmc_bt_consume(
-  mpmc_bt*       q,
-  mpmc_b_ticket* ticket,
-  void*          data
+  mpmc_bt*   q,
+  mpmc_b_op* op,
+  void*      data
   )
 {
-  return mpmc_bt_consume_sig_fallback (q, ticket, data, false, 0, 0, 1);
+  return mpmc_bt_consume_sig_fallback (q, op, data, false, 0, 0, 1);
 }
 /*------------------------------------------------------------------------------
  Single consumer (SC) mode insert. Remember that you can't mix single and
  multiple consumer modes on the same queue.
 ------------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
-  bl_err mpmc_bt_consume_sc(
-    mpmc_bt* q, mpmc_b_ticket* ticket, void* data
-    );
+  bl_err mpmc_bt_consume_sc (mpmc_bt* q, mpmc_b_op* op, void* data);
 /*------------------------------------------------------------------------------
   Can only be used on multiple producer mode. The interface is similar to the
   CAS interface on the C11 atomic library. The data is only changed if expected
@@ -191,11 +187,11 @@ static inline bl_err mpmc_bt_producer_signal_try_set(
   return mpmc_b_producer_signal_try_set (&q->q, expected, desired);
 }
 /*------------------------------------------------------------------------------
- Same as the above but the last successful transaction has to match too. If
- the queue is unitialized the last successful transaction is uint_max;
+ Same as the above but the last successful ticket has to match too. If
+ the queue is unitialized the last successful ticket is uint_max;
 ------------------------------------------------------------------------------*/
 static inline bl_err mpmc_bt_producer_signal_try_set_tmatch(
-  mpmc_bt* q, mpmc_b_ticket* expected, mpmc_b_sig desired
+  mpmc_bt* q, mpmc_b_op* expected, mpmc_b_sig desired
   )
 {
   return mpmc_b_producer_signal_try_set_tmatch (&q->q, expected, desired);
@@ -211,7 +207,7 @@ static inline bl_err mpmc_bt_consumer_signal_try_set(
 }
 /*--------------------------- ------------------------------------------------*/
 static inline bl_err mpmc_bt_consumer_signal_try_set_tmatch(
-    mpmc_bt* q, mpmc_b_ticket* expected, mpmc_b_sig desired
+    mpmc_bt* q, mpmc_b_op* expected, mpmc_b_sig desired
     )
 {
   return mpmc_b_consumer_signal_try_set_tmatch (&q->q, expected, desired);
