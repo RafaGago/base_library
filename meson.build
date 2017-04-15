@@ -36,7 +36,7 @@ include_dirs = [
 test_include_dirs  = include_dirs
 test_include_dirs += [ include_directories ('test/src') ]
 test_include_dirs += [ include_directories ('dep/install/include') ]
-cmockalib_path     = proj_dir + '/dep/install/lib/libcmocka.a'
+libcmocka_path     = proj_dir + '/dep/install/lib/libcmocka.a'
 
 pkg_mod = import ('pkgconfig')
 install_subdir ('include/bl', install_dir : 'include')
@@ -63,7 +63,7 @@ if cc.get_id() == 'gcc' or cc.get_id() == 'clang'
     endif
 endif
 
-test_link_args = [ cmockalib_path ]
+test_link_args = [ libcmocka_path ]
 
 if host_system == 'windows'
     test_link_args += ['-lwinmm.lib'] # Untested
