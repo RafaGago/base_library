@@ -13,13 +13,13 @@ project(
         ]
     )
 
-projdir           = meson.current_source_dir()
-build_helpers_dir = projdir + '/build_helpers'
+proj_dir          = meson.current_source_dir()
+build_helpers_dir = proj_dir + '/build_helpers'
 
 message ('building cmocka')
 res = run_command(
     build_helpers_dir + '/build_cmake_project.sh',
-    projdir,
+    proj_dir,
     'cmocka',
     'libcmocka.a',
     '-DWITH_STATIC_LIB=on'
@@ -28,15 +28,15 @@ if res.returncode() != 0
   error (res.stderr().strip())
 endif
 
-projdir = meson.current_source_dir()
+proj_dir = meson.current_source_dir()
 
-includedirs = [
+include_dirs = [
     include_directories ('include'), include_directories ('src')
 ]
-testincludedirs = includedirs
-testincludedirs += [ include_directories ('test/src') ]
-testincludedirs += [ include_directories ('dep/install/include') ]
-cmockalib_abspath = projdir + '/dep/install/lib/libcmocka.a'
+test_include_dirs  = include_dirs
+test_include_dirs += [ include_directories ('test/src') ]
+test_include_dirs += [ include_directories ('dep/install/include') ]
+cmockalib_path     = proj_dir + '/dep/install/lib/libcmocka.a'
 
 pkg_mod = import ('pkgconfig')
 install_subdir ('include/bl', install_dir : 'include')
@@ -63,7 +63,7 @@ if cc.get_id() == 'gcc' or cc.get_id() == 'clang'
     endif
 endif
 
-test_link_args = [ cmockalib_abspath ]
+test_link_args = [ cmockalib_path ]
 
 if host_system == 'windows'
     test_link_args += ['-lwinmm.lib'] # Untested
@@ -103,7 +103,7 @@ base_lib = build_target(
     'bl-base',
     base_srcs,
     target_type         : libtype,
-    include_directories : includedirs,
+    include_directories : include_dirs,
     c_args              : cflags + lib_cflags,
     install             : true
     )
@@ -119,7 +119,7 @@ test(
     executable(
         'bl-base-test',
         base_test_srcs,
-        include_directories : testincludedirs,
+        include_directories : test_include_dirs,
         link_with           : base_lib,
         link_args           : test_link_args,
         dependencies        : threads
@@ -127,7 +127,7 @@ test(
 executable(
     'bl-base-sem-stress',
     base_sem_stress_srcs,
-    include_directories : testincludedirs,
+    include_directories : test_include_dirs,
     link_with           : base_lib,
     dependencies        : threads
     )
@@ -149,7 +149,7 @@ nonblock_lib = build_target(
     'bl-nonblock',
     nonblock_srcs,
     target_type         : libtype,
-    include_directories : includedirs,
+    include_directories : include_dirs,
     c_args              : cflags + lib_cflags,
     install             : true
     )
@@ -165,7 +165,7 @@ test(
     executable(
         'bl-nonblock-test',
         nonblock_test_srcs,
-        include_directories : testincludedirs,
+        include_directories : test_include_dirs,
         link_with           : [ base_lib, nonblock_lib] ,
         link_args           : test_link_args,
         dependencies        : threads
@@ -188,7 +188,7 @@ taskqueue_lib = build_target(
     'bl-taskqueue',
     taskqueue_srcs,
     target_type         : libtype,
-    include_directories : includedirs,
+    include_directories : include_dirs,
     c_args              : cflags + lib_cflags,
     install             : true
     )
@@ -204,7 +204,7 @@ test(
     executable(
         'bl-taskqueue-test',
         taskqueue_test_srcs,
-        include_directories : testincludedirs,
+        include_directories : test_include_dirs,
         link_with           : [ base_lib, nonblock_lib, taskqueue_lib ],
         link_args           : test_link_args,
         dependencies        : threads
@@ -212,7 +212,7 @@ test(
 executable(
     'bl-taskqueue-stress',
     taskqueue_stress_test_srcs,
-    include_directories : testincludedirs,
+    include_directories : test_include_dirs,
     link_with           : [ base_lib, nonblock_lib ],
     dependencies        : threads
     )
@@ -227,7 +227,7 @@ serial_lib = build_target(
     serial_srcs,
     target_type         : libtype,
     c_args              : cflags + lib_cflags,
-    include_directories : includedirs,
+    include_directories : include_dirs,
     install             : true
     )
 pkg_mod.generate(
@@ -253,7 +253,7 @@ getopt_lib = build_target(
     'bl-getopt',
     getopt_srcs,
     target_type         : libtype,
-    include_directories : includedirs,
+    include_directories : include_dirs,
     c_args              : cflags + lib_cflags,
     install             : true
     )
@@ -269,6 +269,6 @@ test(
     executable(
         'bl-getopt-test',
         getopt_test_srcs,
-        include_directories : testincludedirs,
+        include_directories : test_include_dirs,
         link_args           : test_link_args,
     ))
