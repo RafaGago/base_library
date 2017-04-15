@@ -137,6 +137,7 @@ Build on Linux
 On debian based systems:
 
 > sudo apt install meson cmake
+> git submodule update --init --recursive
 
 To install to a intermediate directory
 
