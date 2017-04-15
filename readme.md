@@ -5,11 +5,12 @@ A project where I will place generic base utilities for C programming on an
 "as needed" basis. The idea is that everything should be very pretty simple,
 statically linkable by modules and compilable with GCC and Visual Studio.
 
-As of today is a C++ compiler with no C99-C11 support, so sometimes I may fall
-back to C++ to emulate some C99-C11 features.
+Some Visual Sudio versions have no C99-C11 support, so sometimes I may fall back
+to C++ to emulate some C99-C11 features.
 
 Now the library is divided in some very tiny sublibraries to avoid bloating. The
-intention is to don't make a big monolithic library for these basic things.
+intention is to don't make a big monolithic library for these basic things and
+to allow the linker to easily remove unused sections.
 
 1. (base) Base library
 ----------------------
@@ -27,14 +28,14 @@ This is the basic utilities library, mostly header-based and heavily relying on
 
 * Timestamp wrappers.
 
-* Humble fixed-size basic data structures (mostly for microcontrollers) as a
- ringbuffer, ordered ringbuffer and array based linked lists
- (to save size on pointers)
+* Humble fixed-size basic data structures (mostly for 16-bit microcontrollers)
+  as a ringbuffer, ordered ringbuffer and array based linked lists (to save size
+  on pointers)
 
 * The famous BSD data structures (lists and trees).
 
-* A futex + atomics semaphore based on the Monotonic clock for Linux (POSIX
-  doesn't provide this).
+* A futex + atomics timed semaphore based on the Monotonic clock for Linux
+  (POSIX doesn't provide this).
 
 * Wrappers for atomics.
 
@@ -76,7 +77,7 @@ semaphores ...)
 3. (task_queue) MPSC task queue with delayed/scheduled tasks
 ------------------------------------------------------------
 
-Depends on: base, noblock
+Depends on: base, nonblock
 
 A queue for worker/event dispatcher threads. Based on wrapping timestamps orde-
 red in an array based associative container, some lockfree queues and a
@@ -110,6 +111,9 @@ Under development.
 
  All the tests pass on Windows.
 
+ Buildsystem recently moved to meson, I have no Windows machines to test the
+ builds at the moment.
+
  Serial is untested.
 
  Getopt is untested (but it contanins no platform specific code...)
@@ -126,25 +130,6 @@ Credits and Used resources
 * Kim Gräsman for his getopt port. [https://github.com/kimgr/getopt_port]
 * My former employer Diadrom AB. Some parts of this library were written while
   working there.
-
-Compilers
-=================
-
--Visual Studio 2013
--GCC 4.8.1
-
-Folders
-=======
-
-* dependencies: External dependencies, as of now cmocka for the unit tests and
- premake5-alpha for building.
-* build/premake: The build script.
-* build/state: Place where the generated binaries are located after compilation.
-* build/*platform*: Folder where premake generates the makefiles, VS solutions
-, etc.
-* "include": -
-* "test": -
-* "src": -
 
 Build on Linux
 =================
@@ -175,4 +160,4 @@ Build on Windows
 If you are planning to run the unit tests you need CMake, as cmocka uses it
 as its build system.
 
-2. TODO
+2. TODO (meson untested on Windows)
