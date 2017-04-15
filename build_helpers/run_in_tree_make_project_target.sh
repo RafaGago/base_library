@@ -1,10 +1,9 @@
 #!/bin/bash -e
-USAGE="build_cmake_project <project root> <project name> <desired lib> [cmake-args]"
+USAGE="build_in_tree_make_project <project root> <project name> <desired lib> [make-target] [make-args]"
 
 PROOT=$1
 DEP=$PROOT/dep
 DEPINSTALL=$DEP/install
-DEPBUILD=$DEP/build
 SUBMODULES=$PROOT/gitmodules
 TARGETPROJECT=$SUBMODULES/$2
 
@@ -37,18 +36,12 @@ if [[ -f $DEPINSTALL/lib/$3 ]]; then
     exit 0
 fi
 
-if [[ ! -f $TARGETPROJECT/CMakeLists.txt ]]; then
+if [[ ! -f $TARGETPROJECT/Makefile ]] && [[ ! -f $TARGETPROJECT/makefile ]]; then
     git submodule update --init --recursive
 fi
 
 if [[ ! -f $TARGETPROJECT/CMakeLists.txt ]]; then
-    >&2 echo "not found: $TARGETPROJECT/CMakeLists.txt"
+    >&2 echo "not found: $TARGETPROJECT/[M|m]akefile"
 fi
 
-BUILDDIR=$DEPBUILD/$1
-rm -rf $BUILDDIR
-mkdir -p $BUILDDIR
-cd $BUILDDIR
-cmake -DCMAKE_INSTALL_PREFIX=/dep/install $4 $TARGETPROJECT
-make
-DESTDIR=$PROOT make install
+make -C $TARGETPROJECT $4 $5

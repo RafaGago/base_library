@@ -13,13 +13,13 @@ project(
         ]
     )
 
-run_command(
-    'git', 'submodule', 'update', '--init', '--recursive'
-    )
+projdir           = meson.current_source_dir()
+build_helpers_dir = projdir + '/build_helpers'
 
 message ('building cmocka')
 res = run_command(
-    'build_helpers/build_cmake_project.sh',
+    build_helpers_dir + '/build_cmake_project.sh',
+    projdir,
     'cmocka',
     'libcmocka.a',
     '-DWITH_STATIC_LIB=on'
@@ -28,7 +28,7 @@ if res.returncode() != 0
   error (res.stderr().strip())
 endif
 
-currdir = meson.current_source_dir()
+projdir = meson.current_source_dir()
 
 includedirs = [
     include_directories ('include'), include_directories ('src')
@@ -36,7 +36,7 @@ includedirs = [
 testincludedirs = includedirs
 testincludedirs += [ include_directories ('test/src') ]
 testincludedirs += [ include_directories ('dep/install/include') ]
-cmockalib_abspath = currdir + '/dep/install/lib/libcmocka.a'
+cmockalib_abspath = projdir + '/dep/install/lib/libcmocka.a'
 
 pkg_mod = import ('pkgconfig')
 install_subdir ('include/bl', install_dir : 'include')
