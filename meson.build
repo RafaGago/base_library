@@ -244,7 +244,7 @@ getopt_srcs = [
     'src/bl/getopt/getopt.c',
 ]
 getopt_test_srcs = [
-    'test/src/bl/getopt/getopt.c',
+    'test/src/bl/getopt/getopt_lib.c',
     'test/src/bl/getopt/getopt_short_test.c',
     'test/src/bl/getopt/tests_main.c',
     'test/src/bl/getopt/getopt_long_test.c',
