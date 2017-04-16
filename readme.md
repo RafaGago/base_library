@@ -134,9 +134,10 @@ Credits and Used resources
 Build on Linux
 =================
 
-On debian based systems:
+To install "meson" on debian based systems:
 
-> sudo apt install meson cmake
+> sudo apt install python3 python3-pip ninja-build cmake
+> pip3 install --user meson
 > git submodule update --init --recursive
 
 To install to a intermediate directory
@@ -145,7 +146,7 @@ To install to a intermediate directory
 > meson ninja_build --prefix=/ --buildtype=release
 > ninja -C ninja_build
 > ninja -C ninja_build test
-> DESTDIR=$(pwd)/base_lib_install ninja -C ninja_build install
+> DESTDIR=$(pwd)/install ninja -C ninja_build install
 
 To install on your system directories
 
