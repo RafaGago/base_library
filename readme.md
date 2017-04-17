@@ -52,8 +52,8 @@ this library as a static library on all platforms.
 
 Depends on: base
 
-Some non blocking queues (in the sense that never aquire OS locks (mutexes,
-semaphores ...)
+Some non blocking queues (in the sense that never aquire OS locks like mutexes,
+semaphores, etc), the algorithms may not be lock-free.
 
 * The beautiful and famous Dmitry Djukov's MPMC lockfree queue with some addons:
   1. It's broken in prepare and commit actions, so you can get direct access to
@@ -70,7 +70,10 @@ semaphores ...)
      scenarios.
   5. Provides a wrapper with a simpler interface.
 
-...More to come as needed...
+* The equally beautiful and famous Dmitry Djukov's MPSC intrusive queue with
+  some addons:
+  1. Multiple node single push.
+  2. Tagged pointers.
 
 3. (task_queue) MPSC task queue with delayed/scheduled tasks
 ------------------------------------------------------------

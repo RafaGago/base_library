@@ -137,12 +137,14 @@ executable(
 nonblock_srcs =[
     'src/bl/nonblock/mpmc_bt.c',
     'src/bl/nonblock/mpmc_b.c',
+    'src/bl/nonblock/mpsc_i.c',
     'src/bl/nonblock/backoff.c',
     'src/bl/nonblock/mpmc_b_common.c',
 ]
 nonblock_test_srcs =[
     'test/src/bl/nonblock/mpmc_bt_test.c',
     'test/src/bl/nonblock/mpmc_b_test.c',
+    'test/src/bl/nonblock/mpsc_i_test.c',
     'test/src/bl/nonblock/tests_main.c',
 ]
 nonblock_lib = build_target(
