@@ -26,6 +26,16 @@
   static inline void bl_thread_yield (void);
 
   static inline int bl_thread_join (bl_thread* t);
+
+  bl_thread_local;
+  bl_tss;
+  bl_tss_dtor;
+  bl_tss_dtor_callconv; #windows requires stdcall on the tss destructor
+
+  static inline int bl_tss_init (bl_tss* key, bl_tss_cleanup_func cleanup);
+  static inline void bl_tss_destroy (bl_tss key);
+  static inline int bl_tss_set (bl_tss key, void* val);
+  static inline void* bl_tss_get (bl_tss key);
 */
 /*---------------------------------------------------------------------------*/
 #if defined (__cplusplus)

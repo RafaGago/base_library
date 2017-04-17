@@ -7,6 +7,7 @@
 
 #include <pthread.h>
 #include <sched.h>
+#include <errno.h>
 #include <bl/base/assert.h>
 #include <bl/base/platform.h>
 
@@ -23,7 +24,7 @@ static inline int bl_thread_init(
   )
 {
   bl_assert (t);
-  return pthread_create (t, 0, (void* (*) (void*)) f, context) == 0 ? 
+  return pthread_create (t, 0, (void* (*) (void*)) f, context) == 0 ?
     bl_thread_success : bl_thread_error;
 }
 /*---------------------------------------------------------------------------*/
@@ -37,7 +38,8 @@ static inline int bl_thread_join (bl_thread* t)
   bl_assert (t);
   return pthread_join (*t, nullptr) == 0 ? bl_thread_success : bl_thread_error;
 }
-/*---------------------------------------------------------------------------*/
+
+#include <bl/base/impl/tss_posix.h>
 
 #endif /* __POSIX_THREAD_H__ */
 

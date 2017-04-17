@@ -40,7 +40,7 @@ static inline int bl_thread_init(
     new ((std::thread*) t) std::thread (f, context);
     return bl_thread_success;
   }
-  catch (...) {    
+  catch (...) {
     return bl_thread_error;
   }
 }
@@ -58,11 +58,19 @@ static inline int bl_thread_join (bl_thread* t)
     return bl_thread_success;
   }
   catch (...) {
-    return bl_thread_error;   
+    return bl_thread_error;
   }
 }
 /*---------------------------------------------------------------------------*/
+
 }  /*extern "C" {*/
 
-#endif /* __BL_CPP_THREAD_H__ */
+#if defined (BL_POSIX)
+  #include <bl/base/impl/tss_posix.h>
+#elif defined (BL_WINDOWS)
+  #include <bl/base/impl/tss_windows.h>
+#else
+  #error "TSS unavailable on this platform"
+#endif
 
+#endif /* __BL_CPP_THREAD_H__ */

@@ -39,10 +39,8 @@ This is the basic utilities library, mostly header-based and heavily relying on
 
 * Wrappers for atomics.
 
-* Wrappers for thread manipulation (adding as needed). As of now mutexes and
-  condition variables aren't wrapped (I personally try to code multithreaded
-  applications either by message passing (through lock-free queues) or by
-  using cooperative scheduling).
+* Wrappers for thread manipulation. As of now just thread creation and thread
+  local storage.
 
 It depends on the platform which functions are or aren't "static inline", so it
 might happen that in some platform some things compile as header only and in
