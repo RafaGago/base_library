@@ -29,7 +29,7 @@
 /*---------------------------------------------------------------------------*/
 template <class T>
 struct cpp_atomic_size_align_checker {
-  static const bool ok = 
+  static const bool ok =
     sizeof (std::atomic<T>) == sizeof (T) &&
     bl_alignof (std::atomic<T>) == bl_alignof (T);
 };
@@ -275,6 +275,18 @@ static inline u32 atomic_u32_fetch_and(
   )
 {
   return ((std::atomic<u32>*) a)->fetch_and(v, (std::memory_order) o);
+}
+/*---------------------------------------------------------------------------*/
+/* Fences */
+/*---------------------------------------------------------------------------*/
+static inline void atomic_fence (memory_order o)
+{
+  std::atomic_thread_fence (o);
+}
+/*---------------------------------------------------------------------------*/
+static inline void atomic_sigfence (memory_order o)
+{
+  std::atomic_signal_fence (o);
 }
 /*---------------------------------------------------------------------------*/
 } //extern "C" {

@@ -268,6 +268,8 @@ static inline u32 atomic_u32_fetch_and(
   return atomic_fetch_and_explicit (a, v, o);
 }
 /*---------------------------------------------------------------------------*/
+/* Fences */
+/*---------------------------------------------------------------------------*/
 static inline void atomic_fence (memory_order o)
 {
   __atomic_thread_fence (o);
