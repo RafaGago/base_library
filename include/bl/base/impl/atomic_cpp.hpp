@@ -66,6 +66,13 @@ static inline uword atomic_uword_load (volatile atomic_uword* a, mem_order o)
   return ((std::atomic<uword>*) a)->load ((std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
+static inline uword atomic_uword_exchange(
+  volatile atomic_uword* a, uword v, mem_order o
+  )
+{
+  return ((std::atomic<uword>*) a)->exchange (v, (std::memory_order) o);
+}
+/*---------------------------------------------------------------------------*/
 static inline bool atomic_uword_strong_cas(
   volatile atomic_uword* a,
   uword*                 expected,
@@ -141,6 +148,13 @@ static inline word atomic_word_load (volatile atomic_word* a, mem_order o)
   return ((std::atomic<word>*) a)->load ((std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
+static inline word atomic_word_exchange(
+  volatile atomic_word* a, word v, mem_order o
+  )
+{
+  return ((std::atomic<word>*) a)->exchange (v, (std::memory_order) o);
+}
+/*---------------------------------------------------------------------------*/
 static inline bool atomic_word_strong_cas(
   volatile atomic_word* a,
   word*                 expected,
@@ -214,6 +228,13 @@ static inline void atomic_u32_store(volatile atomic_u32* a, u32 v, mem_order o)
 static inline u32 atomic_u32_load(volatile atomic_u32* a, mem_order o)
 {
   return ((std::atomic<u32>*) a)->load((std::memory_order) o);
+}
+/*---------------------------------------------------------------------------*/
+static inline u32 atomic_u32_exchange(
+  volatile atomic_u32* a, u32 v, mem_order o
+  )
+{
+  return ((std::atomic<u32>*) a)->exchange (v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
 static inline bool atomic_u32_strong_cas(

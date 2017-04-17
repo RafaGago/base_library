@@ -21,6 +21,9 @@ static_assert_outside_func_ns (sizeof (atomic_u32)  == sizeof (u32));
 
 #define atomic_uword_store_rlx(a, v) atomic_uword_store ((a), (v), mo_relaxed)
 
+#define atomic_uword_exchange_rlx(a, v) \
+  atomic_uword_exchange ((a), (v), mo_relaxed)
+
 #define atomic_uword_strong_cas_rlx(a, e, d)\
   atomic_uword_strong_cas ((a), (e), (d), mo_relaxed, mo_relaxed)
 
@@ -52,6 +55,9 @@ static_assert_outside_func_ns (sizeof (atomic_u32)  == sizeof (u32));
 
 #define atomic_word_store_rlx(a, v) atomic_word_store ((a), (v), mo_relaxed)
 
+#define atomic_word_exchange_rlx(a, v) \
+  atomic_word_exchange ((a), (v), mo_relaxed)
+
 #define atomic_word_strong_cas_rlx(a, e, d)\
   atomic_word_strong_cas ((a), (e), (d), mo_relaxed, mo_relaxed)
 
@@ -82,6 +88,8 @@ static_assert_outside_func_ns (sizeof (atomic_u32)  == sizeof (u32));
 #define atomic_u32_load_rlx(a) atomic_u32_load ((a), mo_relaxed)
 
 #define atomic_u32_store_rlx(a, v) atomic_u32_store ((a), (v), mo_relaxed)
+
+#define atomic_u32_exchange_rlx(a, v) atomic_u32_exchange ((a), (v), mo_relaxed)
 
 #define atomic_u32_strong_cas_rlx(a, e, d)\
   atomic_u32_strong_cas ((a), (e), (d), mo_relaxed, mo_relaxed)

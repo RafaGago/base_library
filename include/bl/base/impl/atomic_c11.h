@@ -57,6 +57,13 @@ static inline uword atomic_uword_load(
   return atomic_load_explicit (a, mo);
 }
 /*---------------------------------------------------------------------------*/
+static inline uword atomic_uword_exchange(
+  volatile atomic_uword* a, uword v, memory_order mo
+  )
+{
+  return atomic_exchange_explicit (a, v, mo);
+}
+/*---------------------------------------------------------------------------*/
 static inline bool atomic_uword_strong_cas(
   volatile atomic_uword* a,
   uword*                 expected,
@@ -132,6 +139,13 @@ static inline word atomic_word_load (volatile atomic_word* a, memory_order mo)
   return atomic_load_explicit (a, mo);
 }
 /*---------------------------------------------------------------------------*/
+static inline word atomic_word_exchange(
+  volatile atomic_word* a, word v, memory_order mo
+  )
+{
+  return atomic_exchange_explicit (a, v, mo);
+}
+/*---------------------------------------------------------------------------*/
 static inline bool atomic_word_strong_cas(
   volatile atomic_word* a,
   word*                 expected,
@@ -205,6 +219,13 @@ static inline void atomic_u32_store(
 static inline u32 atomic_u32_load (volatile atomic_u32* a, memory_order mo)
 {
   return atomic_load_explicit (a, mo);
+}
+/*---------------------------------------------------------------------------*/
+static inline u32 atomic_u32_exchange(
+  volatile atomic_u32* a, u32 v, memory_order mo
+  )
+{
+  return atomic_exchange_explicit (a, v, mo);
 }
 /*---------------------------------------------------------------------------*/
 static inline bool atomic_u32_strong_cas(
