@@ -34,6 +34,8 @@
 #define ptr_aligned_to_builtin_type (ptr, type)\
   (is_pow2 (sizeof (type)) && ((((uword) ptr) & (sizeof (type) - 1)) == 0))
 /*---------------------------------------------------------------------------*/
+#define lit_len(literal) (sizeof (literal) - 1)
+/*---------------------------------------------------------------------------*/
 typedef struct empty_struct {} empty_struct;
 /*---------------------------------------------------------------------------*/
 #ifdef BL_GCC

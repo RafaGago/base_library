@@ -41,6 +41,8 @@ typedef enum bl_err_e {
   bl_interrupted,
   /*ENOMEM*/
   bl_alloc,
+  /*ERANGE*/
+  bl_range,
   bl_err_for_free_use_first = 256
 }
 bl_err_e;
@@ -74,6 +76,7 @@ char const* bl_err_to_str (bl_err e)\
     case bl_cancelled      : return "cancelled";\
     case bl_interrupted    : return "interrupted";\
     case bl_alloc          : return "allocation";\
+    case bl_range          : return "range";\
     default                : return "unknown error";\
   }\
 }

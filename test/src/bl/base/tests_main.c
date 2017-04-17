@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+extern int dstr_tests (void);
 extern int ringb_tests (void);
 extern int integer_manipulation_tests (void);
 extern int alnls_tests (void);
@@ -26,6 +27,7 @@ int main (void)
   if (time_tests() != 0)                         { ++failed; }
   if (flat_deadlines_tests() != 0)               { ++failed; }
   if (hex_string_tests() != 0)                   { ++failed; }
+  if (dstr_tests() != 0)                         { ++failed; }
   printf ("\n[SUITE ERR ] %d suite(s)\n", failed);
   return failed;
 }

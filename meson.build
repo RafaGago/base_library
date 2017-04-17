@@ -81,6 +81,8 @@ base_srcs = [
     'src/bl/base/thread_micro_sleep.c',
     'src/bl/base/hex_string.c',
     'src/bl/base/timestamp_funcs_arbitrary_base.c',
+    'src/bl/base/string.c',
+    'src/bl/base/dynamic_string.c',
 ]
 base_test_srcs = [
     'test/src/bl/base/hex_string_test.c',
@@ -95,6 +97,7 @@ base_test_srcs = [
     'test/src/bl/base/flat_deadlines_test.c',
     'test/src/bl/base/tests_main.c',
     'test/src/bl/base/dynarray_test.c',
+    'test/src/bl/base/dynamic_string_test.c',
 ]
 base_sem_stress_srcs = [
     'test/src/bl/semaphore_stress/semaphore_test.c',

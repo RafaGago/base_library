@@ -42,6 +42,8 @@ This is the basic utilities library, mostly header-based and heavily relying on
 * Wrappers for thread manipulation. As of now just thread creation and thread
   local storage.
 
+* A naive dynamic string accepting printf format setters.
+
 It depends on the platform which functions are or aren't "static inline", so it
 might happen that in some platform some things compile as header only and in
 another one it does need some definitions on .c files. It's recommended to use
