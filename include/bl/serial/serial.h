@@ -29,7 +29,7 @@ typedef uword bl_serial_ioctl;
 /*----------------------------------------------------------------------------*/
 typedef struct bl_serial bl_serial;
 /*----------------------------------------------------------------------------*/
-extern BL_SERIAL_EXPORT bl_err bl_serial_create(
+extern BL_SERIAL_EXPORT bl_err bl_serial_init(
   bl_serial** s_out, uword read_buffer_min_size, alloc_tbl const* alloc
   );
 /*----------------------------------------------------------------------------*/
@@ -45,7 +45,7 @@ extern BL_SERIAL_EXPORT bl_err bl_serial_start(
 /* undefined behaviour is to be expected if some thread is reading or writing */
 extern BL_SERIAL_EXPORT void bl_serial_stop (bl_serial* s);
 /*----------------------------------------------------------------------------*/
-/* This call is to be called from just one thread. 0 = nonblocking. No partial 
+/* This call is to be called from just one thread. 0 = nonblocking. No partial
   reads are returned in case of a timeout */
 extern BL_SERIAL_EXPORT bl_err bl_serial_read(
   bl_serial* s, memr rbuff, toffset timeout_us

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /* Thanks to:
-   -William Woodall <wjwwood@gmail.com> and 
-   -John Harrison <ash@greaterthaninfinity.com> 
+   -William Woodall <wjwwood@gmail.com> and
+   -John Harrison <ash@greaterthaninfinity.com>
 
    At:
    https://github.com/wjwwood/serial
@@ -53,7 +53,7 @@ struct bl_serial {
   uword  wtimeout_ms;
 };
 /*----------------------------------------------------------------------------*/
-BL_SERIAL_EXPORT bl_err bl_serial_create(
+BL_SERIAL_EXPORT bl_err bl_serial_init(
   bl_serial** s_out, uword read_buffer_min_size, alloc_tbl const* alloc
   )
 {
@@ -80,9 +80,9 @@ BL_SERIAL_EXPORT bl_err bl_serial_create(
 /*----------------------------------------------------------------------------*/
 BL_SERIAL_EXPORT void bl_serial_destroy (bl_serial* s, alloc_tbl const* alloc)
 {
-  bl_assert (s);  
+  bl_assert (s);
   bl_serial_stop (s);
-  bl_dealloc (alloc, s);  
+  bl_dealloc (alloc, s);
 }
 /*----------------------------------------------------------------------------*/
 static bool try_get_standard_baudrate (uword baudrate, int* enum_val)
@@ -176,7 +176,7 @@ static bool try_get_standard_baudrate (uword baudrate, int* enum_val)
   case 921600: *enum_val = CBR_921600; return true;
 #endif
   default: *enum_val = baudrate; return false;
-  }  
+  }
 }
 /*----------------------------------------------------------------------------*/
 BL_SERIAL_EXPORT bl_err bl_serial_start(
@@ -202,13 +202,13 @@ BL_SERIAL_EXPORT bl_err bl_serial_start(
   if (s->fd == INVALID_HANDLE_VALUE) {
     return bl_file;
   }
-   
+
   DCB options;
   memset (&options, 0, sizeof options);
   options.DCBlength = sizeof options;
 
   bl_err err = bl_ok;
-  
+
   /*baudrate*/
   int br_enum;
   try_get_standard_baudrate (cfg->baudrate, &br_enum);
@@ -223,7 +223,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_start(
 
   /*stop bits*/
   switch (cfg->stop_bits) {
-  case bl_stop_bits_one: 
+  case bl_stop_bits_one:
     options.StopBits = ONESTOPBIT; break;
   case bl_stop_bits_one_point_five:
     options.StopBits = ONE5STOPBITS; break;
@@ -246,7 +246,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_start(
     options.Parity = MARKPARITY; break;
   case bl_parity_space:
     options.Parity = SPACEPARITY; break;
-  default:     
+  default:
     err = bl_invalid;
     goto close;
   }
@@ -301,7 +301,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_start(
 close:
   bl_serial_stop (s);
   return err;
- 
+
 }
 /*----------------------------------------------------------------------------*/
 BL_SERIAL_EXPORT void bl_serial_stop (bl_serial* s)
@@ -325,7 +325,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_read(
   }
   /*leftovers from previous reads*/
   uword copied = bl_min (memr_size (rbuff), u8_dq_size (&s->rq));
-  if (copied != 0) { 
+  if (copied != 0) {
     uword adjacent = u8_dq_adjacent_elems_from (&s->rq, 0, copied);
     memcpy (memr_beg (rbuff), u8_dq_at_head (&s->rq), adjacent);
     if (adjacent != copied) {
@@ -340,7 +340,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_read(
   if (copied == memr_size (rbuff)) {
     return bl_ok;
   }
-  
+
   bl_err err = bl_ok;
   uword t_ms = div_ceil (timeout_us, usec_in_msec);
   if (t_ms != s->rtimeout_ms) {
@@ -354,7 +354,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_read(
       err = bl_error;
       goto roll_back;
     }
-    s->rtimeout_ms = t_ms;    
+    s->rtimeout_ms = t_ms;
   }
 
   DWORD read;
@@ -402,7 +402,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_write(
     if (!SetCommTimeouts (s->fd, &timeouts)) {
       return bl_error;
     }
-    s->wtimeout_ms = t_ms;    
+    s->wtimeout_ms = t_ms;
   }
 
   DWORD wr;
@@ -433,11 +433,11 @@ BL_SERIAL_EXPORT bl_err bl_serial_ioctl_get(
   switch (op) {
   case bl_cts:        mask = MS_CTS_ON; break;
   case bl_rts:        return bl_invalid;
-  case bl_dtr:        return bl_invalid;      
-  case bl_dsr:        mask = MS_DSR_ON; break;       
+  case bl_dtr:        return bl_invalid;
+  case bl_dsr:        mask = MS_DSR_ON; break;
   case bl_ri:         mask = MS_RING_ON; break;
   case bl_cd:         mask = MS_RLSD_ON; break;
-  case bl_send_break: return bl_invalid; 
+  case bl_send_break: return bl_invalid;
   case bl_set_break:  return bl_invalid;
   default:            return bl_invalid;
   }
@@ -494,7 +494,7 @@ BL_SERIAL_EXPORT uword bl_serial_get_byte_time_ns (bl_serial_cfg const* cfg)
   bits_byte     = int_to_fixp (u64, bits_byte, 32);
 
   switch (cfg->stop_bits) {
-  case bl_stop_bits_one: 
+  case bl_stop_bits_one:
     bits_byte += int_to_fixp (u64, 1, 32);
     break;
   case bl_stop_bits_one_point_five:
@@ -512,7 +512,7 @@ BL_SERIAL_EXPORT uword bl_serial_get_byte_time_ns (bl_serial_cfg const* cfg)
     break;
   }
   return (uword) fixp_to_int(
-    fixp_mul (u64, bit_ns, bits_byte, 32), 
+    fixp_mul (u64, bit_ns, bits_byte, 32),
     32
     );
 }

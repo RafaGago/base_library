@@ -77,7 +77,7 @@ struct bl_serial {
   u8_dq rq;
 };
 /*----------------------------------------------------------------------------*/
-BL_SERIAL_EXPORT bl_err bl_serial_create(
+BL_SERIAL_EXPORT bl_err bl_serial_init(
   bl_serial** s_out, uword read_buffer_min_size, alloc_tbl const* alloc
   )
 {
