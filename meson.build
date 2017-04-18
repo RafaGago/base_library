@@ -98,6 +98,7 @@ base_test_srcs = [
     'test/src/bl/base/tests_main.c',
     'test/src/bl/base/dynarray_test.c',
     'test/src/bl/base/dynamic_string_test.c',
+    'test/src/bl/base/bl_string_test.c',
 ]
 base_sem_stress_srcs = [
     'test/src/bl/semaphore_stress/semaphore_test.c',
