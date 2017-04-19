@@ -1,8 +1,7 @@
 #ifndef __BL_DYNSTRING_H__
 #define __BL_DYNSTRING_H__
 
-/* A naive non-optimized staightforward dynamic string */
-
+#include <string.h>
 #include <bl/base/platform.h>
 #include <bl/base/libexport.h>
 #include <bl/base/integer.h>
@@ -21,6 +20,7 @@ dstr_arr;
 typedef struct dstr {
   dstr_arr         da;
   alloc_tbl const* alloc;
+  uword            len;
 }
 dstr;
 /*---------------------------------------------------------------------------*/
@@ -28,14 +28,33 @@ static inline void dstr_init (dstr *s, alloc_tbl const* alloc)
 {
   s->da.str  = nullptr;
   s->da.size = 0;
+  s->len     = 0;
   s->alloc   = alloc;
 }
 /*---------------------------------------------------------------------------*/
-static inline char* dstr_take_ownership (dstr *s)
+/*adjust the internal string buffer capacity, setting it to "dstr_len" will
+  optimize the string space usage. Setting it to a bigger value will save
+  memory allocations at the expense of having potentially unused memory.
+
+  The capacities always exclude the null terminator so a capacity of 1 will
+  have room to allocate a character and the null termination.
+*/
+/*---------------------------------------------------------------------------*/
+extern BL_EXPORT bl_err dstr_set_capacity (dstr* s, uword new_len);
+static inline uword dstr_get_capacity (dstr const* s)
 {
-  char* ret = s->da.str;
-  dstr_init (s, s->alloc);
-  return ret;
+  return s->da.size != 0 ? s->da.size - 1 : 0;
+}
+/*---------------------------------------------------------------------------*/
+static inline void dstr_clear (dstr *s)
+{
+  s->len = 0;
+}
+/*---------------------------------------------------------------------------*/
+static inline void dstr_destroy (dstr *s)
+{
+  dstr_clear (s);
+  dstr_set_capacity (s, 0);
 }
 /*---------------------------------------------------------------------------*/
 static inline char const* dstr_get (dstr const *s)
@@ -45,7 +64,7 @@ static inline char const* dstr_get (dstr const *s)
 /*---------------------------------------------------------------------------*/
 static inline uword dstr_len (dstr const *s)
 {
-  return s->da.str ? s->da.size - 1 : 0;
+  return s->len;
 }
 /*---------------------------------------------------------------------------*/
 static inline alloc_tbl const* dstr_alloc (dstr const *s)
@@ -53,13 +72,41 @@ static inline alloc_tbl const* dstr_alloc (dstr const *s)
   return s->alloc;
 }
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT bl_err dstr_set (dstr *s, char const *str);
-extern BL_EXPORT bl_err dstr_append (dstr *s, char const *str);
-extern BL_EXPORT bl_err dstr_prepend (dstr *s, char const *str);
+extern BL_EXPORT char* dstr_steal_ownership (dstr *s);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT bl_err dstr_set_o (dstr *s, dstr const *str);
-extern BL_EXPORT bl_err dstr_append_o (dstr *s, dstr const *str);
-extern BL_EXPORT bl_err dstr_prepend_o (dstr *s, dstr const *str);
+extern BL_EXPORT void dstr_transfer_ownership(
+  dstr *s, char* heap_string_from_same_alloc
+  );
+/*---------------------------------------------------------------------------*/
+extern BL_EXPORT bl_err dstr_set_l (dstr *s, char const *str, uword len);
+extern BL_EXPORT bl_err dstr_append_l (dstr *s, char const *str, uword len);
+extern BL_EXPORT bl_err dstr_prepend_l (dstr *s, char const *str, uword len);
+/*---------------------------------------------------------------------------*/
+static inline bl_err dstr_set (dstr *s, char const *str)
+{
+  return str ? dstr_set_l (s, str, strlen (str)) : bl_ok;
+}
+static inline bl_err dstr_append (dstr *s, char const *str)
+{
+  return str ? dstr_append_l (s, str, strlen (str)) : bl_ok;
+}
+static inline bl_err dstr_prepend (dstr *s, char const *str)
+{
+  return str ? dstr_prepend_l (s, str, strlen (str)) : bl_ok;
+}
+/*---------------------------------------------------------------------------*/
+static inline bl_err dstr_set_o (dstr *s, dstr const *str)
+{
+  return dstr_set_l (s, dstr_get (str), dstr_len (str));
+}
+static inline bl_err dstr_append_o (dstr *s, dstr const *str)
+{
+  return dstr_append_l (s, dstr_get (str), dstr_len (str));
+}
+static inline bl_err dstr_prepend_o (dstr *s, dstr const *str)
+{
+  return dstr_prepend_l (s, dstr_get (str), dstr_len (str));
+}
 /*---------------------------------------------------------------------------*/
 /* all the *_va functions use a printf style format string plus varags */
 extern BL_EXPORT bl_err dstr_set_va (dstr *s, char const* fmt, ...);
@@ -109,13 +156,6 @@ extern BL_EXPORT bl_err dstr_apply(
 static inline bl_err dstr_apply_all (dstr *s, bl_ctype_func fn)
 {
     return dstr_apply (s, fn, 0, dstr_len (s));
-}
-/*---------------------------------------------------------------------------*/
-extern BL_EXPORT void dstr_clear (dstr *s);
-/*---------------------------------------------------------------------------*/
-static inline void dstr_destroy (dstr *s)
-{
-  dstr_clear (s);
 }
 /*---------------------------------------------------------------------------*/
 /*convenience init funcs*/

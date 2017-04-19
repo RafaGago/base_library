@@ -7,6 +7,8 @@
 /*---------------------------------------------------------------------------*/
 #define div_ceil(num, div)\
   (((num) + (div) - 1) / (div))
+#define round_to_next_multiple(v, mult)\
+  (div_ceil ((v), (mult)) * (mult))
 #define is_pow2(x) (x != 0 && has_one_or_zero_bits_set(x))
 #define unsigned_average(x, y)\
   (((x) & (y)) + (((x) ^ (y)) >> 1))

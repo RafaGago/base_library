@@ -211,7 +211,7 @@ static inline int log2_ceil_8 (u8 x) /* log_2 of 0 will return -1 */
 {
     i8 y = x & (x - 1);
     y   |= -y;
-    y  >>= type_bits (y) - 1;  
+    y  >>= type_bits (y) - 1;
 
     x = msb_to_right_set_u8 (x);
     return popcount_u8 (x) - 1 - (int) y;

@@ -1,124 +1,104 @@
 #include <stdio.h>
 #include <bl/base/assert.h>
 #include <bl/base/dynarray.h>
-#include <bl/base/dynamic_string.h>
+#include <bl/base/integer.h>
+#include <bl/base/integer_math.h>
+#include <bl/base/utility.h>
 #include <bl/base/string.h>
-#include <string.h>
+#include <bl/base/dynamic_string.h>
+
+static uword dstr_minalloc = 32;
 
 /*----------------------------------------------------------------------------*/
-static bl_err dstr_alloc_copy (dstr *s, char const *str, uword str_len)
+BL_EXPORT bl_err dstr_set_capacity (dstr* s, uword newlen)
 {
-  bl_assert (s->da.str == nullptr && s->da.size == 0);
-  bl_err err = dynarray_resize(
-    (dynarray_stub*) &s->da, str_len + 1, sizeof (char), s->alloc
-    );
-  if (err) {
-    return err;
+  if (newlen >= dstr_len (s)) {
+    return dynarray_resize(
+      (dynarray_stub*) &s->da, newlen + 1, sizeof (char), s->alloc
+      );
   }
-  memcpy (s->da.str, str, str_len + 1);
-  s->da.str[str_len] = 0;
-  return bl_ok;
+  return bl_invalid;
 }
 /*----------------------------------------------------------------------------*/
-static bl_err dstr_append_impl (dstr *s, char const *str, uword str_len)
+static bl_err dstr_resize_if (dstr *s, uword newlen)
+{
+  bl_err err = bl_ok;
+  if (dstr_get_capacity (s) < newlen) {
+    uword overalloc = round_to_next_multiple (newlen, dstr_minalloc);
+    overalloc      += bl_max (next_pow2_u (newlen) / 32, dstr_minalloc);
+    return dynarray_resize(
+      (dynarray_stub*) &s->da, overalloc, sizeof (char), s->alloc
+      );
+  }
+  return err;
+}
+/*----------------------------------------------------------------------------*/
+static bl_err dstr_append_impl (dstr *s, char const *str, uword len)
 {
   bl_assert(
     ((s->da.str && s->da.size) ||
     (s->da.str == nullptr && s->da.size == 0)) &&
-    (str_len > 0)
+    (len > 0)
     );
   uword oldlen = dstr_len (s);
-  uword newlen = oldlen + str_len + 1;
-  if (newlen < str_len) {
-    return bl_would_overflow;
+  uword newlen = oldlen + len;
+  bl_err err   = dstr_resize_if (s, newlen);
+  if (!err) {
+    memcpy (s->da.str + oldlen, str, len);
+    s->da.str[newlen] = 0;
+    s->len = newlen;
   }
-  bl_err err = dynarray_resize(
-    (dynarray_stub*) &s->da, newlen, sizeof (char), s->alloc
-    );
-  if (err) {
-    return err;
-  }
-  memcpy (s->da.str + oldlen, str, str_len);
-  s->da.str[s->da.size - 1] = 0;
-  return bl_ok;
+  return err;
 }
 /*----------------------------------------------------------------------------*/
-BL_EXPORT bl_err dstr_set (dstr *s, char const *str)
+BL_EXPORT bl_err dstr_set_l (dstr *s, char const *str, uword len)
 {
   dstr_clear (s);
-  if (str) {
-    dstr stro;
-    stro.da.str  = (char*) str;
-    stro.da.size = strlen (str) + 1;
-    stro.alloc   = s->alloc;
-    return dstr_set_o (s, &stro);
+  if (len > 0 && str) {
+    return dstr_append_impl (s, str, len);
   }
-  return bl_ok;
+  return (str && len == 0) ? bl_ok : bl_invalid;
 }
 /*----------------------------------------------------------------------------*/
-BL_EXPORT bl_err dstr_append (dstr *s, char const *str)
+BL_EXPORT bl_err dstr_append_l (dstr *s, char const *str, uword len)
 {
-  if (str) {
-    dstr stro;
-    stro.da.str  = (char*) str;
-    stro.da.size = strlen (str) + 1;
-    stro.alloc   = s->alloc;
-    return dstr_append_o (s, &stro);
+  if (len > 0 && str) {
+    return dstr_append_impl (s, str, len);
   }
-  return bl_ok;
+  return (str && len == 0) ? bl_ok : bl_invalid;
 }
 /*----------------------------------------------------------------------------*/
-BL_EXPORT bl_err dstr_prepend (dstr *s, char const *str)
+BL_EXPORT bl_err dstr_prepend_l (dstr *s, char const *str, uword len)
 {
-  if (str) {
-    dstr stro;
-    stro.da.str  = (char*) str;
-    stro.da.size = strlen(str) + 1;
-    stro.alloc   = s->alloc;
-    return dstr_prepend_o (s, &stro);
+  if (unlikely (len == 0 || !str)) {
+    return (len == 0 && !str) ? bl_ok : bl_invalid;
   }
-  return bl_ok;
-}
-/*----------------------------------------------------------------------------*/
-BL_EXPORT bl_err dstr_set_o (dstr *s, dstr const *str)
-{
-  dstr_clear (s);
-  if (dstr_len (str) > 0) {
-    return dstr_alloc_copy (s, dstr_get (str), dstr_len (str));
+  if (unlikely (dstr_len (s) == 0)) {
+    return dstr_set_l (s, str, len);
   }
-  return bl_ok;
-}
-/*----------------------------------------------------------------------------*/
-BL_EXPORT bl_err dstr_append_o (dstr *s, dstr const *str)
-{
-  if (dstr_len (str) > 0) {
-    return dstr_append_impl (s, dstr_get (str), dstr_len (str));
-  }
-  return bl_ok;
-}
-/*----------------------------------------------------------------------------*/
-BL_EXPORT bl_err dstr_prepend_o (dstr *s, dstr const *str)
-{
-  if (dstr_len (str) > 0) {
-    if (dstr_len (s) > 0) {
-      dstr res      = dstr_init_rv (s->alloc);
-      uword s_len   = dstr_len (s);
-      uword str_len = dstr_len (str);
-      bl_err err    = dynarray_resize(
-        (dynarray_stub*) &res.da, s_len + str_len + 1, sizeof (char), s->alloc
-        );
-      if (err) {
-        return err;
-      }
-      memcpy (res.da.str, dstr_get (str), str_len);
-      memcpy (res.da.str + str_len, dstr_get (s), s_len);
-      res.da.str[s_len + str_len] = 0;
-      dstr_destroy (s);
-      *s = res;
-      return bl_ok;
+  uword newlen = s->len + len;
+  if (newlen <= dstr_get_capacity (s)) {
+    if (len >= s->len) {
+      memcpy (s->da.str + len, s->da.str, s->len);
     }
-    return dstr_set_o (s, str);
+    else {
+      memmove (s->da.str + len, s->da.str, s->len);
+    }
+    memcpy (s->da.str, str, len);
   }
+  else {
+    char* newstr = (char*) bl_alloc (s->alloc, newlen + 1);
+    if (unlikely (!newstr)) {
+      return bl_alloc;
+    }
+    memcpy (newstr, str, len);
+    memcpy (newstr + len, s->da.str, s->len);
+    bl_dealloc (s->alloc, s->da.str);
+    s->da.str  = newstr;
+    s->da.size = newlen + 1;
+  }
+  s->len = newlen;
+  s->da.str[s->len] = 0;
   return bl_ok;
 }
 /*----------------------------------------------------------------------------*/
@@ -126,19 +106,34 @@ static bl_err dstr_append_va_priv(
   dstr *s, char const *fmt, va_list list
   )
 {
-  char* str;
-  int str_len = bl_vasprintf (&str, s->alloc, fmt, list);
-  if (str_len > 0) {
+  uword available = s->da.size - s->len;
+  char* str       = nullptr;
+  if (available > 1) { /* 1 char would only leave place for the null term */
+    str = s->da.str + s->len;
+  }
+  else {
+    available = 0;
+  }
+  int len = bl_vasprintf_ext(
+    &str, available, dstr_minalloc, s->alloc, fmt, list
+    );
+  if (len < available && len > 0) {
+    bl_assert (str == s->da.str + s->len);
+    s->len += len;
+    return bl_ok;
+  }
+  if (len > 0) {
     if (dstr_len (s) == 0) {
       s->da.str  = str;
-      s->da.size = str_len + 1;
+      s->da.size = len + 1;
+      s->len     = len;
       return bl_ok;
     }
-    bl_err err = dstr_append_impl (s, str, str_len);
+    bl_err err = dstr_append_impl (s, str, len);
     bl_dealloc (s->alloc, str);
     return err;
   }
-  return (str_len == 0) ? bl_ok : bl_alloc;
+  return (len == 0) ? bl_ok : bl_alloc;
 }
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err dstr_append_va (dstr *s, char const *fmt, ...)
@@ -194,13 +189,9 @@ BL_EXPORT bl_err dstr_erase_head (dstr *s, uword char_count)
     return bl_range;
   }
   if (newlen != 0) {
-    dstr tmp   = dstr_init_rv (s->alloc);
-    bl_err err = dstr_alloc_copy (&tmp, s->da.str + char_count, newlen);
-    if (err) {
-       return err;
-    }
-    dstr_destroy (s);
-    *s = tmp;
+    memmove (s->da.str, s->da.str + char_count, newlen);
+    s->len            = newlen;
+    s->da.str[newlen] = 0;
     return bl_ok;
   }
   dstr_clear (s);
@@ -214,12 +205,7 @@ BL_EXPORT bl_err dstr_erase_tail (dstr *s, uword char_count)
     return bl_range;
   }
   if (newlen != 0) {
-    bl_err err = dynarray_resize(
-      (dynarray_stub*) &s->da, newlen + 1, sizeof (char), s->alloc
-      );
-    if (err) {
-      return err;
-    }
+    s->len            = newlen;
     s->da.str[newlen] = 0;
     return bl_ok;
   }
@@ -282,12 +268,22 @@ BL_EXPORT bl_err dstr_apply(
   }
   return bl_ok;
 }
-/*----------------------------------------------------------------------------*/
-BL_EXPORT void dstr_clear (dstr *s)
+/*---------------------------------------------------------------------------*/
+BL_EXPORT char* dstr_steal_ownership (dstr *s)
 {
-  if (s->da.str) {
-    dynarray_resize ((dynarray_stub*) &s->da, 0, sizeof (char), s->alloc);
-    dstr_init (s, s->alloc);
-  }
+  dstr_set_capacity (s, dstr_len (s));
+  char* ret = s->da.str;
+  dstr_init (s, s->alloc);
+  return ret;
+}
+/*---------------------------------------------------------------------------*/
+BL_EXPORT void dstr_transfer_ownership(
+  dstr *s, char* heap_string_from_alloc
+  )
+{
+  dstr_destroy (s);
+  s->da.str  = heap_string_from_alloc;
+  s->len     = strlen (heap_string_from_alloc);
+  s->da.size = s->len + 1;
 }
 /*----------------------------------------------------------------------------*/
