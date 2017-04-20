@@ -55,7 +55,7 @@ THE SOFTWARE.
  Major differences are a greater level of detailed explanation in this
  implementation and also a refusal to include any macros which require a O(N)
  macro definitions to handle O(N) arguments (with the exception of pp_defern).
-/
+*/
 /*---------------------------------------------------------------------------*/
 #include <bl/base/preprocessor_basic.h>
 /*---------------------------------------------------------------------------*/
@@ -267,7 +267,7 @@ THE SOFTWARE.
 #define pp_if_else_private(c) pp_concat (pp_if_else_,c)
 #define pp_if_else(c)         pp_if_else_private (pp_bool(c))
 /*---------------------------------------------------------------------------*/
-/**
+/*
  Macro which checks if it has any arguments. Returns '0' if there are no
  arguments, '1' otherwise.
 
