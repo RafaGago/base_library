@@ -2,7 +2,7 @@
 #define __BL_PREPROCESSOR_H__
 
 /*
-This header is a simple adaptation of the file linked below to my own 
+This header is a simple adaptation of the file linked below to my own
 formatting and with some personal add-ons:
 
 https://github.com/18sg/uSHET/blob/master/lib/cpp_magic.h
@@ -99,7 +99,7 @@ THE SOFTWARE.
 
    #define pp_pass_THROUGH(...) __VA_ARGS__
 
- We can now do "pp_pass_THROUGH(pp_not_QUITE_RIGHT(999))" causing 
+ We can now do "pp_pass_THROUGH(pp_not_QUITE_RIGHT(999))" causing
  "pp_not_QUITE_RIGHT" to be expanded to "A (999)", as described above, when the
  arguments are expanded.
  Now when the body of pp_pass_THROUGH is expanded, "A (999)" gets expanded to
@@ -195,7 +195,7 @@ THE SOFTWARE.
  When 0, _pp_not_0 will be found which evaluates to the pp_do_probe. When 1
  (or any other value) is given, an appropriately named macro won't be found
  and the concatenated string will be produced. pp_is_probed then simply checks
- to see if the pp_do_probe was returned, cleanly converting the argument into 
+ to see if the pp_do_probe was returned, cleanly converting the argument into
  a 1 or 0.
 */
 /*---------------------------------------------------------------------------*/
@@ -237,12 +237,12 @@ THE SOFTWARE.
 
  1. The preprocessor expands the arguments to pp_if_private casting the
     condition to '0'or '1'.
- 2. The casted condition is concatencated with pp_if_private_ giving 
+ 2. The casted condition is concatencated with pp_if_private_ giving
     pp_if_private_0 or pp_if_private_1.
  3. The pp_if_private_0 and pp_if_private_1 macros either returns the argument
     or doesn't (e.g. they implement the "choice selection" part of the macro).
  4. Note that the "true" clause is in the extra set of brackets; thus these
-    become the arguments to pp_if_private_0 or pp_if_private_1 and thus a 
+    become the arguments to pp_if_private_0 or pp_if_private_1 and thus a
     selection is made!
 */
 /*---------------------------------------------------------------------------*/
@@ -289,11 +289,34 @@ THE SOFTWARE.
   #define pp_vargs_end() 0
   #define pp_has_vargs(...) pp_bool (pp_vargs_first (pp_vargs_end __VA_ARGS__)())
 #else
-/*this is an improvement over the original, which failed if the first argument
-  contained parentheses*/
-#define pp_vargs_end_fn() 0
-#define pp_has_vargs(...)\
-  pp_bool (pp_tokconcat (pp_vargs_first (pp_vargs_end __VA_ARGS__), _fn)())
+  /*this is an improvement over the original, which failed if the first argument
+  contained parentheses. E.g. with this input:
+
+  > (void*) value
+
+  This would result in:
+
+  > pp_vargs_end (void*) value
+
+  And the preprocessor complaining that the function takes one parameter.
+
+  Now there are two addons:
+
+  -pp_vargs_end is variadic too and casts to bool the first passed argument.
+  -The invocation to pp_vargs_end adds a 0 as an argument.
+
+  This results in any invocation with a (0) between parentheses succeeding.
+
+  Note that this function can be broken like this, as this code is valid C:
+
+  > (0) + variable_name
+
+  In practice IMO that code should be rare, it requires arithmetic to a zero
+  between parentheses.
+  */
+  #define pp_vargs_end(...) pp_bool (pp_vargs_first (__VA_ARGS__))
+  #define pp_has_vargs(...)\
+    pp_bool (pp_vargs_first (pp_vargs_end __VA_ARGS__)(0))
 #endif
 /*---------------------------------------------------------------------------*/
 /**
@@ -321,13 +344,13 @@ THE SOFTWARE.
  2. The pp_apply_private macro is substituted for its body.
  3. In the body, op(cur_val) is substituted giving the value for this
     iteration.
- 4. The pp_if macro expands according to whether further iterations are 
+ 4. The pp_if macro expands according to whether further iterations are
     required.This expansion either produces pp_if_0 or pp_if_1.
  5. Since the pp_if is followed by a set of brackets containing the "if true"
     clause, these become the argument to pp_if_0 or pp_if_1. At this point,
     the macro in the brackets will be expanded giving the separator followed by
     pp_apply_private_name pp_empty()()(op, sep, __VA_ARGS__).
- 5. If the pp_if was not taken, the above will simply be discarded and 
+ 5. If the pp_if was not taken, the above will simply be discarded and
     everything stops. If the pp_if is taken, The expression is then processed a
     second time yielding "pp_apply_private_name()(op, sep, __VA_ARGS__)". Note
     that this call looks very similar to the  essentially the same as the
@@ -345,12 +368,12 @@ THE SOFTWARE.
 
  Important tricks used:
 
- * If we directly produce "pp_apply_private" in an expansion of 
+ * If we directly produce "pp_apply_private" in an expansion of
    pp_apply_private, a special case in the preprocessor will prevent it being
-   expanded in the future, even if we pp_eval.  As a result, the 
-   pp_apply_private macro carefully only expands to something containing   
+   expanded in the future, even if we pp_eval.  As a result, the
+   pp_apply_private macro carefully only expands to something containing
    "pp_apply_private_name()" which requires a further expansion step to invoke
-   pp_apply_private and thus implementing the recursion. 
+   pp_apply_private and thus implementing the recursion.
  * To prevent pp_apply_private_name being expanded within the macro we must
    first defer its expansion during its initial pass as an argument to pp_if_0 or
    pp_if_1. We must then defer its expansion a second time as part of the body
@@ -462,8 +485,8 @@ THE SOFTWARE.
    #define SIMON_SAYS() 0
 
    pp_apply_slide(
-    SIMON_SAYS_OP, 
-    SIMON_SAYS_LAST_OP, 
+    SIMON_SAYS_OP,
+    SIMON_SAYS_LAST_OP,
     pp_empty, wiggle, SIMON_SAYS, dance, move, SIMON_SAYS, boogie, stop
     )
 
