@@ -325,9 +325,9 @@ int main (int argc, char* argv[])
 
     for (uword i = 0; i < arr_elems (pd); ++i) {
       int r = bl_thread_init (&producer_th[i], producer_thread, &pd[i].dat);
-      if (r != bl_thread_success) {
+      if (r != bl_ok) {
         printf ("bl_thread_init err: %"FMT_ERR"\n", err);
-        if (i != bl_thread_success) {
+        if (i != bl_ok) {
           taskq_block (tq);
           join_threads (producer_th, i - 1);
         }
@@ -336,7 +336,7 @@ int main (int argc, char* argv[])
       }
     }
     int r = bl_thread_init (&consumer_th, consumer_thread, &cd);
-    if (r != bl_thread_success) {
+    if (r != bl_ok) {
       printf ("bl_thread_init err: %"FMT_ERR"\n", err);
       taskq_block (tq);
       join_threads (producer_th, thread_count);

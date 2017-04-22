@@ -8,8 +8,8 @@
 #include <bl/base/semaphore.h>
 #include <bl/base/semaphore_linux.c>
 /*---------------------------------------------------------------------------*/
-/* 
-  A file to test that the timed semaphore hasn't too many issues unrelated to 
+/*
+  A file to test that the timed semaphore hasn't too many issues unrelated to
   multithreading.
 
   It was just used to run the debugger through after coding and seeing that
@@ -61,7 +61,7 @@ static void sem_ntb_wait_then_signal (void **state)
 {
   sem_ntb_context* c = (sem_ntb_context*) *state;
   assert_true(
-    bl_thread_init (&c->thr, sem_ntb_do_waiting, c) == bl_thread_success
+    bl_thread_init (&c->thr, sem_ntb_do_waiting, c) == bl_ok
     );
   while ((tm_sem_futex_get_wait (c->sem.sem) == 0)) {
     bl_thread_yield(); /*poor-man's synchronization*/

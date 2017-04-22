@@ -133,7 +133,7 @@ sig_fallback_mask + sig_fallback_match: The call will early fail with
 
 Errors returned:
 
-- bl_success: Succes, "data" can be written and "mpmpc_ba_produce_commit" can
+- bl_ok: Succes, "data" can be written and "mpmpc_ba_produce_commit" can
   be called.
 - bl_preconditions: see sig_fallback_mask + sig_fallback_match.
 - bl_would_overflow: queue can't allocate that number of bytes - queue full.
@@ -236,7 +236,7 @@ extern BL_NONBLOCK_EXPORT
 
   Errors returned:
 
-- bl_success: Succes, "data" can be written and "mpmpc_ba_produce_commit" can
+- bl_ok: Succes, "data" can be written and "mpmpc_ba_produce_commit" can
   be called.
 - bl_locked: The queue is blocked for producers, you can safely fall back.
 - bl_would_overflow: keep waiting for a consumer to release the entry.
