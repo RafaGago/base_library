@@ -49,7 +49,7 @@ static inline bl_err bl_thread_join (bl_thread* t)
   bl_assert (t);
   try {
     ((std::thread*) t)->join();
-    return bl_succes;
+    return bl_ok;
   }
   catch (...) {
     return bl_error;
