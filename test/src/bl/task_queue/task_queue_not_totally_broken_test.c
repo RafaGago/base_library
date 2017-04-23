@@ -15,7 +15,7 @@ static inline tstamp bl_get_tstamp (void)
 #include <bl/task_queue/task_queue.c>
 #include <bl/task_queue/delayed.c>
 /*---------------------------------------------------------------------------*/
-/* 
+/*
   A file to test that queue hasn't too many issues unrelated to
    multithreading.
 
@@ -73,7 +73,7 @@ static void taskq_test_try_run_nothing_to_do (void **state)
 static void taskq_test_simple (void **state)
 {
   taskq_test_context* c = (taskq_test_context*) *state;
-  taskq_id id;
+  taskq_id id = 0;
   taskq_task task = taskq_task_rv (taskq_callback, c);
   bl_err      err = taskq_post (c->tq, &id, task);
   assert_true (!err);
@@ -85,7 +85,7 @@ static void taskq_test_simple (void **state)
 /*---------------------------------------------------------------------------*/
 static void taskq_test_simple_delayed (void **state)
 {
-  taskq_id            id;
+  taskq_id            id = 0;
   tstamp              tp_cancel;
   taskq_test_context* c;
   taskq_task          task;
@@ -115,7 +115,7 @@ static void taskq_test_simple_delayed (void **state)
 /*---------------------------------------------------------------------------*/
 static void taskq_test_two_delayed (void **state)
 {
-  taskq_id            id, id2;
+  taskq_id            id = 0, id2 = 0;
   tstamp              tp_cancel;
   taskq_test_context* c;
   taskq_task          task;
@@ -157,7 +157,7 @@ static void taskq_test_two_delayed (void **state)
 /*---------------------------------------------------------------------------*/
 static void taskq_test_two_delayed_same_tp (void **state)
 {
-  taskq_id            id, id2;
+  taskq_id            id  = 0, id2 = 0;
   tstamp              tp_cancel;
   taskq_test_context* c;
   taskq_task          task;
@@ -194,7 +194,7 @@ static void taskq_test_two_delayed_same_tp (void **state)
 /*---------------------------------------------------------------------------*/
 static void taskq_test_delayed_expired_on_first_run (void **state)
 {
-  taskq_id            id;
+  taskq_id            id = 0;
   tstamp              tp_cancel;
   taskq_test_context* c;
   taskq_task          task;
@@ -252,7 +252,7 @@ static void taskq_test_delayed_queue_overflow (void **state)
 /*---------------------------------------------------------------------------*/
 static void taskq_test_post_try_cancel_delayed (void **state)
 {
-  taskq_id            id;
+  taskq_id            id = 0;
   tstamp              tp_cancel;
   taskq_test_context* c;
   taskq_task          task;
@@ -299,7 +299,7 @@ static void taskq_run_one_timeout_under_sched (void **state)
 /*---------------------------------------------------------------------------*/
 static void taskq_run_one_pending_delayed (void **state)
 {
-  taskq_id            id;  
+  taskq_id            id;
   tstamp              tp_cancel;
   taskq_test_context* c;
   taskq_task          task;
@@ -312,7 +312,7 @@ static void taskq_run_one_pending_delayed (void **state)
   will_return (bl_get_tstamp, 0); /*taskq_try_run_one*/
   will_return (bl_get_tstamp, 0); /*taskq_run_one, init expiration*/
   will_return (bl_get_tstamp, 1); /*taskq_run_one, calc sem timeout*/
-  will_return (bl_get_tstamp, (BL_SCHED_TMIN_US * 2) - 1); /*taskq_try_run_one 
+  will_return (bl_get_tstamp, (BL_SCHED_TMIN_US * 2) - 1); /*taskq_try_run_one
                                                            after sem wake up*/
   err = taskq_post_delayed (c->tq, &id, &tp_cancel, task, BL_SCHED_TMIN_US * 2);
 
@@ -369,7 +369,7 @@ static const struct CMUnitTest tests[] = {
     ),
   cmocka_unit_test_setup_teardown(
     taskq_test_post_try_cancel_delayed, taskq_test_setup, taskq_test_teardown
-    ),  
+    ),
   cmocka_unit_test_setup_teardown(
     taskq_run_one_timeout, taskq_test_setup, taskq_test_teardown
     ),

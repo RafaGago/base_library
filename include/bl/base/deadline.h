@@ -20,6 +20,7 @@ static inline bl_err deadline_init_explicit(
     return bl_ok;
   }
   else {
+    *d = 0;
     return bl_invalid;
   }
 }

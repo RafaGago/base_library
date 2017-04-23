@@ -168,7 +168,7 @@ BL_TASKQ_EXPORT bl_err taskq_run_one (taskq* tq, u32 timeout_us)
   }
   /*slow path*/
   bool   has_deadline = timeout_us != taskq_no_timeout;
-  tstamp deadline;
+  tstamp deadline     = 0;
   if (has_deadline) {
     err = deadline_init (&deadline, timeout_us);
     if (unlikely (err)) {

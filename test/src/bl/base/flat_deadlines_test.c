@@ -114,7 +114,7 @@ static void flat_deadlines_o1_regular_insertion_wrap (void **state)
   err = flat_deadlines_insert (&c->dl, &e[0]);
   assert_true (err == bl_would_overflow);
 
-  const flat_deadlines_entry* v = 
+  const flat_deadlines_entry* v =
     flat_deadlines_get_head_if_expired_explicit (&c->dl, near_wrap + 999);
   assert_true (v == nullptr);
 
@@ -143,16 +143,16 @@ static void flat_deadlines_cancellation (void **state)
 
   deadline_init_explicit (&e[0].key, 0, 1000);
   e[0].value.id = 0;
- 
+
   deadline_init_explicit (&e[1].key, 0, 2000);
   e[1].value.id = 1;
- 
+
   bl_err err = flat_deadlines_insert (&c->dl, &e[1]);
   assert_true (!err);
   err = flat_deadlines_insert (&c->dl, &e[0]);
   assert_true (!err);
 
-  flat_deadlines_content cancel;
+  flat_deadlines_content cancel = { 0 };
   bool                   res;
   res = flat_deadlines_try_get_and_drop(
     &c->dl, &cancel, e[0].key, &e[0].value
@@ -195,7 +195,7 @@ static void flat_deadlines_duplicate_deadline (void **state)
   err = flat_deadlines_insert (&c->dl, &e[1]);
   assert_true (err == bl_would_overflow);
 
-  const flat_deadlines_entry* v = 
+  const flat_deadlines_entry* v =
     flat_deadlines_get_head_if_expired_explicit (&c->dl, 999);
   assert_true (v == nullptr);
 
@@ -230,11 +230,11 @@ static void flat_deadlines_duplicate_deadline_deletion (void **state)
   err = flat_deadlines_insert (&c->dl, &e[0]);
   assert_true (err == bl_would_overflow);
 
-  const flat_deadlines_entry* v = 
+  const flat_deadlines_entry* v =
     flat_deadlines_get_head_if_expired_explicit (&c->dl, 999);
   assert_true (v == nullptr);
 
-  flat_deadlines_content cancel;
+  flat_deadlines_content cancel = { 0 };
   bool                   res;
   res = flat_deadlines_try_get_and_drop(
     &c->dl, &cancel, e[0].key, &e[0].value
