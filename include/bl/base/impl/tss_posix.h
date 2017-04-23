@@ -20,7 +20,7 @@ extern "C" {
 typedef pthread_key_t bl_tss;
 typedef void (bl_tss_dtor_callconv *bl_tss_cleanup_func)(void*);
 /*----------------------------------------------------------------------------*/
-static inline bl_error bl_tss_init (bl_tss* key, bl_tss_cleanup_func cleanup)
+static inline bl_err bl_tss_init (bl_tss* key, bl_tss_cleanup_func cleanup)
 {
   switch (pthread_key_create (key, cleanup)) {
   case 0:      return bl_ok;
@@ -35,9 +35,9 @@ static inline void bl_tss_destroy (bl_tss key)
    (void) pthread_key_delete (key);
 }
 /*----------------------------------------------------------------------------*/
-static inline bl_error bl_tss_set (bl_tss key, void const* val)
+static inline bl_err bl_tss_set (bl_tss key, void const* val)
 {
-  switch (pthread_setspecific (key, cleanup)) {
+  switch (pthread_setspecific (key, val)) {
   case 0:      return bl_ok;
   case ENOMEM: return bl_alloc;
   case EINVAL: return bl_invalid;
