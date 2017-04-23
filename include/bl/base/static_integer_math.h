@@ -37,7 +37,7 @@
   -just numbers of the same format can be added or subtracted.
   -when multiplying two numbers the format at each side format is the sum of
    both e.g. X(A.B) * Y(C.D) = (X * Y) (A + C. B + D)
-  -when multiplying two numbers the format at each side format is the diff of
+  -when dividing two numbers the format at each side format is the diff of
    both e.g. X(A.B) / Y(C.D) = (X / Y) (A - C. B - D)
 */
 /*---------------------------------------------------------------------------*/
@@ -316,7 +316,9 @@
   ((u16)(val) >  ((u16) 1 <<  1)) ?  2 :\
   ((u16)(val) >  ((u16) 1 <<  0)) ?  1 :\
   ((u16)(val) == ((u16) 1 <<  0)) ?  0 :\
-  -1\*(u16) ---------------------------------------------------------------------------*/
+  -1\
+  )
+/*----------------------------------------------------------------------------*/
 #define static_log2_floor_u16(val)\
   (\
   ((u16)(val) >= ((u16) 1 << 15)) ? 15 :\
