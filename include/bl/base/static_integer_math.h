@@ -15,7 +15,7 @@
 #define is_multiple_unsafe(candidate, base)\
   (((candidate) % (base)) == 0)
 #define is_multiple(candidate, base)\
-    ((candidate) && (base) && (is_multiple_unsafe ((candidate), (amount))))
+    ((candidate) && (base) && (is_multiple_unsafe ((candidate), (base))))
 /*---------------------------------------------------------------------------*/
 #define pow2_u8(val) (((u8) 1) << (val))
 #define pow2_u16(val) (((u16) 1) << (val))
