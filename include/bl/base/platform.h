@@ -51,6 +51,7 @@
 
   #define BL_VISIBILITY_DEFAULT
   #define BL_VISIBILITY_HIDDEN
+  #define BL_PRINTF_FORMAT(string_idx, va_args_idx)
 
 #endif
 /*---------------------------------------------------------------------------*/
@@ -131,6 +132,10 @@
     #define BL_HAS_C11_STDALIGN(bl_compiler) 1
     #define BL_HAS_C11_ATOMICS(bl_compiler) 1
   #endif
+
+  #define BL_PRINTF_FORMAT(string_idx, va_args_idx) \
+    __attribute__ ((format (printf, string_idx, va_args_idx)))
+
 #endif
 /*---------------------------------------------------------------------------*/
 #if !defined (BL_COMPILER)

@@ -109,9 +109,17 @@ static inline bl_err dstr_prepend_o (dstr *s, dstr const *str)
 }
 /*---------------------------------------------------------------------------*/
 /* all the *_va functions use a printf style format string plus varags */
-extern BL_EXPORT bl_err dstr_set_va (dstr *s, char const* fmt, ...);
-extern BL_EXPORT bl_err dstr_append_va (dstr *s, char const* fmt, ...);
-extern BL_EXPORT bl_err dstr_prepend_va (dstr *s, char const* fmt, ...);
+extern BL_EXPORT bl_err
+  dstr_set_va (dstr *s, char const* fmt, ...)
+   BL_PRINTF_FORMAT (2, 3);
+
+extern BL_EXPORT bl_err
+  dstr_append_va (dstr *s, char const* fmt, ...)
+    BL_PRINTF_FORMAT (2, 3);
+
+extern BL_EXPORT bl_err
+  dstr_prepend_va (dstr *s, char const* fmt, ...)
+    BL_PRINTF_FORMAT (2, 3);;
 /*---------------------------------------------------------------------------*/
 extern BL_EXPORT bl_err dstr_erase_head (dstr *s, uword char_count);
 extern BL_EXPORT bl_err dstr_erase_tail (dstr *s, uword char_count);
