@@ -15,24 +15,24 @@ typedef struct testnode {
 }
 testnode;
 /*---------------------------------------------------------------------------*/
-typedef struct mpmc_i_context {
+typedef struct mpsc_i_context {
   mpsc_i    q;
   testnode  nodes[8];
 }
-mpmc_i_context;
+mpsc_i_context;
 /*---------------------------------------------------------------------------*/
-static int mpmc_bt_test_setup (void **state)
+static int mpsc_i_test_setup (void **state)
 {
-  static mpmc_i_context c;
+  static mpsc_i_context c;
   *state = (void*) &c;
   mpsc_i_init (&c.q);
   return 0;
 }
 /*---------------------------------------------------------------------------*/
-static void mpmc_i_produce_consume (void **state)
+static void mpsc_i_produce_consume (void **state)
 {
   static const uword tag_bits = 2;
-  mpmc_i_context* c = (mpmc_i_context*) *state;
+  mpsc_i_context* c = (mpsc_i_context*) *state;
   uword mask        = u_lsb_set (tag_bits);
   for (uword i = 0; i < arr_elems (c->nodes); ++i) {
     mpsc_i_node_set (&c->nodes[i].n, nullptr, i & mask, tag_bits);
@@ -53,10 +53,10 @@ static void mpmc_i_produce_consume (void **state)
   assert_true (err = bl_empty);
 }
 /*---------------------------------------------------------------------------*/
-static void mpmc_i_multiproduce_consume (void **state)
+static void mpsc_i_multiproduce_consume (void **state)
 {
   static const uword tag_bits = 2;
-  mpmc_i_context* c = (mpmc_i_context*) *state;
+  mpsc_i_context* c = (mpsc_i_context*) *state;
   uword mask        = u_lsb_set (tag_bits);
   uword i;
   for (i = 0; i < arr_elems (c->nodes) - 1; ++i) {
@@ -83,8 +83,8 @@ static void mpmc_i_multiproduce_consume (void **state)
 }
 /*---------------------------------------------------------------------------*/
 static const struct CMUnitTest tests[] = {
-  cmocka_unit_test_setup (mpmc_i_produce_consume, mpmc_bt_test_setup),
-  cmocka_unit_test_setup (mpmc_i_multiproduce_consume, mpmc_bt_test_setup),
+  cmocka_unit_test_setup (mpsc_i_produce_consume, mpsc_i_test_setup),
+  cmocka_unit_test_setup (mpsc_i_multiproduce_consume, mpsc_i_test_setup),
 };
 /*---------------------------------------------------------------------------*/
 int mpsc_i_tests ()

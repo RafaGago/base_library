@@ -27,6 +27,19 @@ BL_NONBLOCK_EXPORT bool mpsc_i_produce_many(
   return old == &q->stable_node;
 }
 /*----------------------------------------------------------------------------*/
+BL_NONBLOCK_EXPORT bool mpsc_i_produce_many_notag(
+  mpsc_i* q, mpsc_i_node* first, mpsc_i_node* last
+  )
+{
+  bl_assert (mpsc_i_node_get_next (last, 0) == nullptr);
+  mpsc_i_node* old  = (mpsc_i_node*) atomic_uword_exchange(
+    &q->tail, (uword) last, mo_acq_rel
+    );
+  /* window of inconsistence */
+  atomic_uword_store (&old->next, (uword) first, mo_release);
+  return old == &q->stable_node;
+}
+/*----------------------------------------------------------------------------*/
 BL_NONBLOCK_EXPORT bl_err mpsc_i_consume(
   mpsc_i* q, mpsc_i_node** n, uword tag_bits
   )

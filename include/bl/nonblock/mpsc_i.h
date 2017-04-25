@@ -80,6 +80,27 @@ static inline bool mpsc_i_produce (mpsc_i* q, mpsc_i_node* n, uword tag_bits)
 {
   return mpsc_i_produce_many (q, n, n, tag_bits);
 }
+/*------------------------------------------------------------------------------
+The tagged pointer has the effect of requiring a LOAD of the previous node hook
+to retrieve the previous tag before overwriting the field. This extra LOAD has
+an effect on performance. When using these "_notag" functions use
+"mpsc_i_consume" with tag bits set to 0.
+------------------------------------------------------------------------------*/
+extern BL_NONBLOCK_EXPORT bool mpsc_i_produce_many_notag(
+  mpsc_i* q, mpsc_i_node* first, mpsc_i_node* last
+  );
+/*------------------------------------------------------------------------------
+tag_bits: if the nodes use tagged pointers, the number of bits used by it.
+
+n: a node which already has the "next" value pointing to "null" and its tag
+  set;
+
+returns: A hint (that can give false positives) saying if the queue was empty.
+------------------------------------------------------------------------------*/
+static inline bool mpsc_i_produce_notag (mpsc_i* q, mpsc_i_node* n)
+{
+  return mpsc_i_produce_many_notag (q, n, n);
+}
 /*----------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT bl_err mpsc_i_consume(
   mpsc_i* q, mpsc_i_node** n, uword tag_bits
