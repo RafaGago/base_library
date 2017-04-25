@@ -3,6 +3,7 @@
 extern int dstr_tests (void);
 extern int ringb_tests (void);
 extern int integer_manipulation_tests (void);
+extern int integer_math_tests (void);
 extern int alnls_tests (void);
 extern int adlnls_tests (void);
 extern int dynarray_tests (void);
@@ -19,6 +20,7 @@ int main (void)
   int failed = 0;
   if (ringb_tests() != 0)                        { ++failed; }
   if (integer_manipulation_tests() != 0)         { ++failed; }
+  if (integer_math_tests() != 0)                 { ++failed; }
   if (alnls_tests() != 0)                        { ++failed; }
   if (adlnls_tests() != 0)                       { ++failed; }
   if (dynarray_tests() != 0)                     { ++failed; }

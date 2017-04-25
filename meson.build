@@ -93,6 +93,7 @@ base_test_srcs = [
     'test/src/bl/base/autoarray_test.c',
     'test/src/bl/base/ordered_ringbuffer_test.c',
     'test/src/bl/base/integer_manipulation_test.c',
+    'test/src/bl/base/integer_math_test.c',
     'test/src/bl/base/array_linked_list_test.c',
     'test/src/bl/base/flat_deadlines_test.c',
     'test/src/bl/base/tests_main.c',
