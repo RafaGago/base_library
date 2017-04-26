@@ -130,3 +130,14 @@ static inline int log2_ceil_u8 (u8 x) /* log_2 of 0 will return -1 */
     return popcount_u8 (x) - 1 - (int) y;
 }
 /*---------------------------------------------------------------------------*/
+/* to be used when the input is known to not be zero, the result for an input
+   of zero is undefined */
+#define log2_floor_unsafe_u64 log2_floor_u64
+#define log2_floor_unsafe_u32 log2_floor_u32
+#define log2_floor_unsafe_u16 log2_floor_u16
+#define log2_floor_unsafe_u8  log2_floor_u8
+#define log2_ceil_unsafe_u64  log2_ceil_u64
+#define log2_ceil_unsafe_u32  log2_ceil_u32
+#define log2_ceil_unsafe_u16  log2_ceil_u16
+#define log2_ceil_unsafe_u8   log2_ceil_u8
+/*---------------------------------------------------------------------------*/
