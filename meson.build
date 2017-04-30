@@ -1,17 +1,21 @@
-# See https://github.com/anholt/libepoxy/blob/master/meson.build
-# TODO: version, tests, valgrind, visibility, config generation
+# TODO: address sanitizer/valgrind
 
 project(
     'base_library',
     'c',
-    version : '0.0.1',
-    license : 'BSD-3',
-    default_options : [
+    version: '0.0.1',
+    license: 'BSD-3',
+    default_options: [
         'c_std=gnu99',
 #        'warning_level=1',
         'default_library=static'
         ]
     )
+
+version_minor = '0'
+version_major = '0'
+version_rev   = '1'
+version       = version_minor + '.' + version_major + '.' + version_rev
 
 proj_dir          = meson.current_source_dir()
 build_helpers_dir = proj_dir + '/build_helpers'
@@ -70,6 +74,24 @@ if host_system == 'windows'
 endif
 
 threads = dependency ('threads')
+
+cdata = configuration_data()
+if get_option ('timestamp_64bit')
+    cflags += [ '-DBL_TIMESTAMP_64BIT' ]
+    cdata.set ('timestamp_64_placeholder', '#define BL_TIMESTAMP_64BIT')
+endif
+
+cdata.set ('version', version)
+cdata.set ('version_major', version_major)
+cdata.set ('version_minor', version_minor)
+cdata.set ('version_rev', version_rev)
+
+configure_file(
+    input:         'config.h.in',
+    output:        'config.h',
+    configuration: cdata,
+    install_dir:   'include/bl'
+    )
 
 #- base ------------------------------------------------------------------------
 

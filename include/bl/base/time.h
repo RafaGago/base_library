@@ -1,6 +1,8 @@
 #ifndef __BL_TIME_H__
 #define __BL_TIME_H__
 
+#include <bl/config.h>
+
 /*---------------------------------------------------------------------------*/
 #define si_unit_factor 1000
 

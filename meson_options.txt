@@ -10,3 +10,9 @@ option(
      value       : false,
      description : 'compile as shared libraries'
      )
+option(
+    'timestamp_64bit',
+     type        : 'boolean',
+     value       : false,
+     description : 'timestamps are 64 bit long instead of 32'
+     )
