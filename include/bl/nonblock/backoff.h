@@ -17,10 +17,10 @@ typedef struct nonblock_backoff {
   uword   spin_max;
   uword   yield;
   uword   yield_max;
-  toffset sleep_us;
+  toffset sleep_ns;
   toffset sleep_mul;
   toffset sleep_div;
-  toffset sleep_us_max;
+  toffset sleep_ns_max;
 }
 nonblock_backoff;
 /*------------------------------------------------------------------------------

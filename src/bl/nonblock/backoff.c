@@ -30,12 +30,12 @@ void nonblock_backoff_init(
 
   nb->spin = nb->yield = 0;
 
-  nb->sleep_us     = sleep_us_init;
+  nb->sleep_ns     = sleep_us_init * 1000;
   nb->spin_max     = spin_max;
   nb->yield_max    = yield_max;
   nb->sleep_mul    = sleep_mul;
   nb->sleep_div    = sleep_div;
-  nb->sleep_us_max = sleep_us_max;
+  nb->sleep_ns_max = sleep_us_max * 1000;
 }
 /*----------------------------------------------------------------------------*/
 BL_NONBLOCK_EXPORT
@@ -44,16 +44,16 @@ void nonblock_backoff_init_default (nonblock_backoff* nb, toffset sleep_us_max)
    nonblock_backoff_init (nb, 40, 20, BL_SCHED_TMIN_US, 1, 3, sleep_us_max);
 }
 /*----------------------------------------------------------------------------*/
-static toffset nonblock_get_next_sleep (nonblock_backoff* nb)
+static toffset nonblock_get_next_sleep_ns (nonblock_backoff* nb)
 {
-  toffset usleep = nb->sleep_us;
-  i64 add        = nb->sleep_us * 2048;
+  toffset nsleep = nb->sleep_ns;
+  i64 add        = nsleep * 2048;
   add           *= nb->sleep_mul;
   add           /= nb->sleep_div;
-  usleep        += (toffset) add / 2048;
-  usleep         = bl_max (nb->sleep_us, usleep);
-  usleep         = bl_min (nb->sleep_us_max, usleep);
-  return usleep;
+  nsleep        += (toffset) add / 2048;
+  nsleep         = bl_max (nb->sleep_ns, nsleep);
+  nsleep         = bl_min (nb->sleep_ns_max, nsleep);
+  return nsleep;
 }
 /*----------------------------------------------------------------------------*/
 BL_NONBLOCK_EXPORT
@@ -62,7 +62,7 @@ toffset nonblock_backoff_next_sleep_us (nonblock_backoff* nb)
   if (nb->spin < nb->spin_max || nb->yield < nb->yield_max) {
     return 0;
   }
-  return nonblock_get_next_sleep (nb);
+  return nonblock_get_next_sleep_ns (nb) / 1000;
 }
 /*----------------------------------------------------------------------------*/
 BL_NONBLOCK_EXPORT
@@ -85,7 +85,7 @@ void nonblock_backoff_run (nonblock_backoff* nb)
     ++nb->spin;
     return;
   }
-  if (nb->yield < nb->yield_max || nb->sleep_us_max / 1000 < BL_SCHED_TMIN_US) {
+  if (nb->yield < nb->yield_max || nb->sleep_ns_max / 1000 < BL_SCHED_TMIN_US) {
     ++nb->yield;
 #ifdef BL_LINUX
     /*Short sleep to avoid a potential sched_yield call to return immediately*/
@@ -100,8 +100,8 @@ void nonblock_backoff_run (nonblock_backoff* nb)
 #endif
     return;
   }
-  bl_thread_usleep (nb->sleep_us);
-  nb->sleep_us = nonblock_get_next_sleep (nb);
+  bl_thread_usleep (nb->sleep_ns / 1000);
+  nb->sleep_ns = nonblock_get_next_sleep_ns (nb);
 }
 /*----------------------------------------------------------------------------*/
 #ifdef __cplusplus
