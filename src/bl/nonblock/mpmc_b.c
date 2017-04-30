@@ -1,7 +1,4 @@
 /*---------------------------------------------------------------------------*/
-#ifndef __BL_NONBLOCKMC_B_H__
-#define __BL_NONBLOCKMC_B_H__
-/*---------------------------------------------------------------------------*/
 #include <bl/nonblock/libexport.h>
 #include <bl/base/platform.h>
 #include <bl/base/cache.h>
@@ -298,5 +295,3 @@ BL_NONBLOCK_EXPORT bl_err mpmc_b_consumer_signal_try_set_tmatch(
 #ifdef __cplusplus
 } /*extern "C" {*/
 #endif
-
-#endif /* __BL_NONBLOCKMC_H__ */

@@ -4,9 +4,6 @@
 #include <string.h>
 #include <bl/base/integer.h>
 #include <bl/nonblock/mpmc_b.h>
-#include <bl/nonblock/mpmc_b.c>
-#include <bl/nonblock/mpmc_b.c>
-#include <bl/nonblock/mpmc_b_common.c>
 #include <bl/base/utility.h>
 #include <bl/base/integer_math.h>
 #include <bl/base/to_type_containing.h>
