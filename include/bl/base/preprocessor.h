@@ -554,6 +554,27 @@ pp_varg_count(...) : Counts va_args e.g.
     )
 /*---------------------------------------------------------------------------*/
 /*
+pp_vargs_last(...) : Gets the last var arg e.g.
+
+  pp_varg_count (empty) -> is evaluated to "empty".
+  pp_varg_count(empty, 0, 1, 2) -> is evaluated to 2.
+*/
+/*---------------------------------------------------------------------------*/
+#define pp_vargs_last_private_name() pp_vargs_last_private
+
+#define pp_vargs_last_private(cur_val, ...) \
+  pp_if_else (pp_not (pp_has_vargs (__VA_ARGS__)))(\
+    (cur_val),\
+    (pp_defer2 (pp_vargs_last_private_name) () (__VA_ARGS__))\
+    )
+
+#define pp_vargs_last(on_empty_val, ...) \
+  pp_if_else (pp_has_vargs (__VA_ARGS__))(\
+    pp_eval (pp_vargs_last_private (__VA_ARGS__)),\
+    (on_empty_val)\
+    )
+/*---------------------------------------------------------------------------*/
+/*
 pp_add (x, y) : Positive numeric addition
 
   pp_add (4, 11) -> is evaluated to 15.
