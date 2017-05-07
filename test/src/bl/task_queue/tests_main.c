@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include <bl/task_queue/task_queue_not_totally_broken_test.h>
+
+extern int task_queue_not_totally_broken_tests (void);
 
 int main (void)
 {

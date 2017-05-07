@@ -1,7 +1,8 @@
 #include <stdio.h>
-#include <bl/nonblock/mpmc_b_test.h>
-#include <bl/nonblock/mpmc_bt_test.h>
-#include <bl/nonblock/mpsc_i_test.h>
+
+extern int mpmc_bt_tests (void);
+extern int mpmc_b_tests (void);
+extern int mpsc_i_tests (void);
 
 int main (void)
 {

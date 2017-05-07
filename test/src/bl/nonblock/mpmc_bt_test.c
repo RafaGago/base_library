@@ -1,5 +1,4 @@
 #include <bl/cmocka_pre.h>
-#include <bl/nonblock/mpmc_bt_test.h>
 
 #include <bl/base/integer.h>
 #include <bl/nonblock/mpmc_bt.h>
