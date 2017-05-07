@@ -72,6 +72,16 @@ semaphores, etc), the algorithms may not be lock-free.
      scenarios.
   5. Provides a wrapper with a simpler interface.
 
+* A custom modification of the MSMC queue which is suitable for variable-length
+  element storage:
+  1. It's broken in prepare and commit actions, so you can get direct access to
+     the internal array memory to avoid memory copying.
+  2. Allows variable-size producers only using the same underlying array (the
+     algorithm is as cache-friendly as the original one).
+  3. Uses some bits of the CAS counters as a broadcast signaling/tagging
+     mechanism that can communicate with producers (on MP mode) or consumers
+     (on MC mode).
+
 * The equally beautiful and famous Dmitry Djukov's MPSC intrusive queue with
   some addons:
   1. Multiple node single push.

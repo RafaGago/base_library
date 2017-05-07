@@ -3,10 +3,12 @@
 project(
     'base_library',
     'c',
+    'cpp', # only for relacy
     version: '0.0.1',
     license: 'BSD-3',
     default_options: [
         'c_std=gnu99',
+        'cpp_std=c++11',
 #        'warning_level=1',
         'default_library=static'
         ]
@@ -44,6 +46,8 @@ libcmocka_path     = proj_dir + '/dep/install/lib/libcmocka.a'
 
 pkg_mod = import ('pkgconfig')
 install_subdir ('include/bl', install_dir : 'include')
+
+relacy_path = 'gitmodules/relacy'
 
 cflags = []
 lib_cflags = []
@@ -164,6 +168,7 @@ executable(
 nonblock_srcs =[
     'src/bl/nonblock/mpmc_bt.c',
     'src/bl/nonblock/mpmc_b.c',
+    'src/bl/nonblock/mpmc_bpm.c',
     'src/bl/nonblock/mpsc_i.c',
     'src/bl/nonblock/backoff.c',
     'src/bl/nonblock/mpmc_b_common.c',
@@ -171,8 +176,12 @@ nonblock_srcs =[
 nonblock_test_srcs =[
     'test/src/bl/nonblock/mpmc_bt_test.c',
     'test/src/bl/nonblock/mpmc_b_test.c',
+    'test/src/bl/nonblock/mpmc_bpm_test.c',
     'test/src/bl/nonblock/mpsc_i_test.c',
     'test/src/bl/nonblock/tests_main.c',
+]
+nonblock_mpmc_bpm_relacy_srcs =[
+    'test/src/bl/mpmc_bpm_relacy/mpmc_bpm_relacy.cpp',
 ]
 nonblock_lib = build_target(
     'bl-nonblock',
@@ -199,6 +208,12 @@ test(
         link_args           : test_link_args,
         dependencies        : threads
     ))
+executable(
+    'bl-nonblock-mpmc-bpm-relacy',
+    nonblock_mpmc_bpm_relacy_srcs,
+    include_directories : [ include_directories (relacy_path) ],
+    dependencies        : threads
+    )
 
 # - taskqueue ------------------------------------------------------------------
 

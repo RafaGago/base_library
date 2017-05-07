@@ -13,7 +13,7 @@ extern "C" {
 /*----------------------------------------------------------------------------*/
 static inline u8* slot_addr (u8* mem, u32 slots, u32 slot_size, mpmc_b_ticket t)
 {
-  return &mem[(t & (slots -1)) * slot_size];
+  return &mem[(t & (slots - 1)) * slot_size];
 }
 /*----------------------------------------------------------------------------*/
 extern bl_err mpmc_b_signal_try_set(
