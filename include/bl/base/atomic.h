@@ -3,7 +3,9 @@
 
 #include <bl/base/platform.h>
 /*---------------------------------------------------------------------------*/
-#if BL_HAS_C11_ATOMICS (BL_COMPILER)
+#ifdef BL_ATOMIC_USE_RELACY
+  #include <bl/base/impl/atomic_relacy.hpp>
+#elif BL_HAS_C11_ATOMICS (BL_COMPILER)
   #include <bl/base/impl/atomic_c11.h>
 #elif defined (__cplusplus)
   #include <bl/base/impl/atomic_cpp.hpp>
@@ -13,9 +15,11 @@
   #error "atomics unimplemented on this platform"
 #endif
 /*---------------------------------------------------------------------------*/
-static_assert_outside_func_ns (sizeof (atomic_uword)  == sizeof (uword));
-static_assert_outside_func_ns (sizeof (atomic_word)  == sizeof (word));
-static_assert_outside_func_ns (sizeof (atomic_u32)  == sizeof (u32));
+#ifndef BL_ATOMIC_USE_RELACY
+  static_assert_outside_func_ns (sizeof (atomic_uword)  == sizeof (uword));
+  static_assert_outside_func_ns (sizeof (atomic_word)  == sizeof (word));
+  static_assert_outside_func_ns (sizeof (atomic_u32)  == sizeof (u32));
+#endif
 /*---------------------------------------------------------------------------*/
 #define atomic_uword_load_rlx(a) atomic_uword_load ((a), mo_relaxed)
 
