@@ -65,6 +65,14 @@ BL_NONBLOCK_EXPORT bl_err mpmc_bpm_init(
   return bl_ok;
 }
 /*----------------------------------------------------------------------------*/
+BL_NONBLOCK_EXPORT void mpmc_bpm_destroy (mpmc_bpm* q, alloc_tbl const* alloc)
+{
+  bl_assert (q && alloc);
+  if (q->mem_unaligned) {
+    bl_dealloc (alloc, q->mem_unaligned);
+  }
+}
+/*----------------------------------------------------------------------------*/
 BL_NONBLOCK_EXPORT bl_err mpmc_bpm_produce_prepare_sig_fallback(
    mpmc_bpm*  q,
    mpmc_b_op* op,
