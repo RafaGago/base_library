@@ -292,8 +292,7 @@ BL_NONBLOCK_EXPORT void mpmc_bpm_dealloc (mpmc_bpm* q, u8* mem, uword slots)
   if (unlikely (!mem)) {
     return;
   }
-  if (unlikely (mem < q->mem_unaligned ||
-      mem >= (q->mem_unaligned + (q->slots * q->slot_size))
+  if (unlikely (mem < q->mem || mem >= (q->mem + (q->slots * q->slot_size))
     )) {
 #ifdef BL_POSIX
     raise (SIGSEGV);
