@@ -211,7 +211,9 @@ test(
 executable(
     'bl-nonblock-mpmc-bpm-relacy',
     nonblock_mpmc_bpm_relacy_srcs,
-    include_directories : [ include_directories (relacy_path) ],
+    include_directories : test_include_dirs +
+        [include_directories (relacy_path)],
+#    cpp_args            : [ '-DBL_NONBLOCK_MPMC_ONLY_TEST_ALGORITHM' ],
     dependencies        : threads
     )
 

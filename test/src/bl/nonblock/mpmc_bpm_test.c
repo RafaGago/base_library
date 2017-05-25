@@ -52,8 +52,8 @@ static int mpmc_bpm_test_setup (void **state)
     &c.q,
     &c.alloc,
     mpmc_bpm_slots,
-    sizeof (mpmc_bpm_container),
     mpmc_bpm_slots - 1,
+    sizeof (mpmc_bpm_container),
     bl_alignof (mpmc_bpm_container),
     false
     ) == bl_ok);
@@ -73,8 +73,8 @@ static int mpmc_bpm_test_setup_fair (void **state)
     &c.q,
     &c.alloc,
     mpmc_bpm_slots,
-    sizeof (mpmc_bpm_container),
     mpmc_bpm_slots - 1,
+    sizeof (mpmc_bpm_container),
     bl_alignof (mpmc_bpm_container),
     true
     ) == bl_ok);
@@ -320,36 +320,6 @@ static void mpmc_bpm_alloc_dealloc (void **state)
   }
 }
 /*---------------------------------------------------------------------------*/
-static void mpmc_bpm_one_fair (void **state)
-{
-  mpmc_bpm_one (state);
-}
-/*---------------------------------------------------------------------------*/
-static void mpmc_bpm_max_fair (void **state)
-{
-  mpmc_bpm_max (state);
-}
-/*---------------------------------------------------------------------------*/
-static void mpmc_bpm_full_fair (void **state)
-{
-  mpmc_bpm_full (state);
-}
-/*---------------------------------------------------------------------------*/
-static void mpmc_bpm_wrap_fair (void **state)
-{
-  mpmc_bpm_one (state);
-}
-/*---------------------------------------------------------------------------*/
-static void mpmc_bpm_wrap_using_extra_tail_space_fair (void **state)
-{
-  mpmc_bpm_wrap_using_extra_tail_space (state);
-}
-/*---------------------------------------------------------------------------*/
-static void mpmc_bpm_alloc_dealloc_fair (void **state)
-{
-  mpmc_bpm_alloc_dealloc (state);
-}
-/*---------------------------------------------------------------------------*/
 static const struct CMUnitTest tests[] = {
   cmocka_unit_test_setup (mpmc_bpm_init_test, mpmc_bpm_test_setup),
   cmocka_unit_test_setup (mpmc_bpm_one, mpmc_bpm_test_setup),
@@ -360,15 +330,15 @@ static const struct CMUnitTest tests[] = {
     mpmc_bpm_wrap_using_extra_tail_space, mpmc_bpm_test_setup
     ),
   cmocka_unit_test_setup (mpmc_bpm_alloc_dealloc, mpmc_bpm_test_setup),
-  cmocka_unit_test_setup (mpmc_bpm_one_fair, mpmc_bpm_test_setup_fair),
-  cmocka_unit_test_setup (mpmc_bpm_max_fair, mpmc_bpm_test_setup_fair),
-  cmocka_unit_test_setup (mpmc_bpm_full_fair, mpmc_bpm_test_setup_fair),
-  cmocka_unit_test_setup (mpmc_bpm_wrap_fair, mpmc_bpm_test_setup_fair),
+  cmocka_unit_test_setup (mpmc_bpm_one, mpmc_bpm_test_setup_fair),
+  cmocka_unit_test_setup (mpmc_bpm_max, mpmc_bpm_test_setup_fair),
+  cmocka_unit_test_setup (mpmc_bpm_full, mpmc_bpm_test_setup_fair),
+  cmocka_unit_test_setup (mpmc_bpm_wrap, mpmc_bpm_test_setup_fair),
   cmocka_unit_test_setup(
-    mpmc_bpm_wrap_using_extra_tail_space_fair, mpmc_bpm_test_setup_fair
+    mpmc_bpm_wrap_using_extra_tail_space, mpmc_bpm_test_setup_fair
     ),
   cmocka_unit_test_setup(
-    mpmc_bpm_alloc_dealloc_fair, mpmc_bpm_test_setup_fair
+    mpmc_bpm_alloc_dealloc, mpmc_bpm_test_setup_fair
     ),
 };
 /*---------------------------------------------------------------------------*/

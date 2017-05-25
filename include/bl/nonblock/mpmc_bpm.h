@@ -81,6 +81,8 @@ slot_count: number of queue slots. a power of two. max is "mpmc_bpm_max_slots".
   The slot count must be bigger than the number of producer threads if you use
   "mpmc_bpm_fifo_produce_prepare".
 
+slot_size: Absolute size of the slot including a leading u32 variable.
+
 slot_max: the maximum amount of slots to be reserved at once. This parameter
   causes the queue to a tail of free memory so the last slot of the queue can
   reserve "slot_max" slots. A queue of "slot_count = 8" and "slot_max" = 8 would
@@ -100,8 +102,8 @@ extern BL_NONBLOCK_EXPORT
     mpmc_bpm*        q,
     alloc_tbl const* alloc,
     u32              slot_count,
-    u32              slot_size,
     u32              slot_max,
+    u32              slot_size,
     u32              slot_alignment,
     bool             enable_fairness
     );
@@ -208,7 +210,7 @@ static inline bl_err mpmc_bpm_produce_prepare(
 /*----------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
   void mpmc_bpm_produce_commit(
-    mpmc_bpm*q, mpmc_b_op op, u8* mem, u32 slots
+    mpmc_bpm* q, mpmc_b_op op, u8* mem, u32 slots
     );
 /*------------------------------------------------------------------------------
 The interface is exactly the same as on the "mpmc_bpm_produce_prepare*" funtion
@@ -264,7 +266,7 @@ static inline bl_err mpmc_bpm_consume_prepare(
 /*----------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
   void mpmc_bpm_consume_commit(
-    mpmc_bpm*q, mpmc_b_op info, u8* mem, u32 slots
+    mpmc_bpm* q, mpmc_b_op op, u8* mem, u32 slots
     );
 /*------------------------------------------------------------------------------
   This queue can be used just as an allocator, but the underlying queue is the

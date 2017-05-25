@@ -19,8 +19,8 @@ BL_NONBLOCK_EXPORT bl_err mpmc_bpm_init(
   mpmc_bpm*        q,
   alloc_tbl const* alloc,
   u32              slot_count,
-  u32              slot_size,
   u32              slot_max,
+  u32              slot_size,
   u32              slot_alignment,
   bool             enable_fairness
   )
@@ -37,24 +37,31 @@ BL_NONBLOCK_EXPORT bl_err mpmc_bpm_init(
     return bl_invalid;
   }
   uword alloc_size = (slot_count + slot_max - 1) * slot_size;
-  alloc_size      += slot_alignment + sizeof (u32);
+  alloc_size      += slot_alignment + sizeof (atomic_u32);
   q->mem_unaligned = (u8*) bl_alloc (alloc, alloc_size);
   if (!q->mem_unaligned) {
     return bl_alloc;
   }
   uword alignaddr = (uword) q->mem_unaligned;
-  alignaddr      += slot_alignment + sizeof (u32);
+  alignaddr      += slot_alignment + sizeof (atomic_u32);
   alignaddr      &= ~slot_alignment;
-  alignaddr      -= sizeof (u32);
+  alignaddr      -= sizeof (atomic_u32);
   q->mem = (u8*) alignaddr;
 
-  atomic_u32_store_rlx (&q->push_slot, 0);
-  atomic_u32_store_rlx (&q->pop_slot, 0);
+#ifndef BL_ATOMIC_USE_RELACY
+  mem_order mo = mo_relaxed;
+#else
+  mem_order mo = mo_seq_cst;
+#endif
+  atomic_u32_store (&q->push_slot, 0, mo);
+  atomic_u32_store (&q->pop_slot, 0, mo);
   q->flags     = enable_fairness ? mpmc_bpm_fairness : 0;
   q->slot_max  = slot_max;
   q->slot_size = slot_size;
   q->slots     = slot_count;
 
+/*When simulating with relacy intialization will be done externally*/
+#ifndef BL_ATOMIC_USE_RELACY
   u32 v   = 0;
   u8* ptr = q->mem;
   while (v < slot_count) {
@@ -62,6 +69,7 @@ BL_NONBLOCK_EXPORT bl_err mpmc_bpm_init(
     ++v;
     ptr += slot_size;
   }
+#endif
   return bl_ok;
 }
 /*----------------------------------------------------------------------------*/
@@ -158,7 +166,7 @@ resync:;
     now + slots_ceil, replace_sig ? sig : signow
     );
   if (likely (atomic_u32_weak_cas_rlx (&q->push_slot, &now, next))) {
-    *mem = slot + sizeof (mpmc_b_op);
+    *mem = slot + sizeof (atomic_u32);
     *op  = now;
     return bl_ok;
   }
@@ -174,7 +182,7 @@ BL_NONBLOCK_EXPORT void mpmc_bpm_produce_commit(
   bl_assert (((mem - q->mem) / q->slot_size) == (op & (q->slots - 1)));
   op += slots;
   atomic_u32_store(
-    (atomic_u32*) (mem - sizeof (mpmc_b_op)),
+    (atomic_u32*) (mem - sizeof (atomic_u32)),
 	mpmc_b_op_encode (op, 0),
 	mo_release
     );
@@ -207,7 +215,7 @@ resync:;
   if (unlikely (diff <= 0)) {
     return bl_empty;
   }
-  else if (unlikely (diff >= q->slots)) {
+  else if (unlikely ((u32) diff >= q->slots)) {
     now = atomic_u32_load_rlx (&q->pop_slot);
     goto resync;
   }
@@ -216,7 +224,7 @@ resync:;
     now + slots_ceil, replace_sig ? sig : signow
     );
   if (likely (atomic_u32_weak_cas_rlx (&q->pop_slot, &now, next))) {
-    *mem   = slot + sizeof (mpmc_b_op);
+    *mem   = slot + sizeof (atomic_u32);
     *op    = now;
     *slots = (u32) diff;
     return bl_ok;
@@ -230,7 +238,7 @@ BL_NONBLOCK_EXPORT void mpmc_bpm_consume_commit(
 {
   bl_assert (q && mem && slots);
   bl_assert (((mem - q->mem) / q->slot_size) == (op & (q->slots - 1)));
-  mem      -= sizeof (mpmc_b_op);
+  mem      -= sizeof (atomic_u32);
   op        = mpmc_b_op_encode (op + q->slots, 0);
   u8* memcp = mem;
   slots     = get_slot_ceil (q, op & (q->slots - 1), slots);
@@ -300,8 +308,9 @@ BL_NONBLOCK_EXPORT void mpmc_bpm_dealloc (mpmc_bpm* q, u8* mem, uword slots)
     bl_assert_always (false && "out of range");
 #endif
   }
-  uword idx            = (mem - q->mem) / q->slot_size;
-  mpmc_b_op op         =  atomic_u32_load_rlx ((atomic_u32*) (mem - sizeof op));
+  uword idx    = (mem - q->mem) / q->slot_size;
+  mpmc_b_op op =
+    atomic_u32_load_rlx ((atomic_u32*) (mem - sizeof (atomic_u32)));
   uword slots_expected = (mpmc_b_ticket_decode (op) - idx) & (q->slots - 1);
   if (slots != 0) {
 #ifdef BL_POSIX
