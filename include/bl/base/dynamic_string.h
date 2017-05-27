@@ -80,7 +80,14 @@ extern BL_EXPORT void dstr_transfer_ownership(
 /*---------------------------------------------------------------------------*/
 extern BL_EXPORT bl_err dstr_set_l (dstr *s, char const *str, uword len);
 extern BL_EXPORT bl_err dstr_append_l (dstr *s, char const *str, uword len);
-extern BL_EXPORT bl_err dstr_prepend_l (dstr *s, char const *str, uword len);
+extern BL_EXPORT bl_err dstr_insert_l(
+  dstr *s, uword idx, char const *str, uword len
+  );
+/*---------------------------------------------------------------------------*/
+#define dstr_set_lit(s, lit) dstr_set_l ((s), lit, sizeof lit - 1)
+#define dstr_append_lit(s, lit) dstr_append_l ((s), lit, sizeof lit - 1)
+#define dstr_insert_lit(s, idx, lit)\
+  dstr_insert_l ((s), (idx), lit, sizeof lit - 1)
 /*---------------------------------------------------------------------------*/
 #define dstr_set_lit(s, lit)     dstr_set_l ((s), lit, sizeof lit - 1)
 #define dstr_append_lit(s, lit)  dstr_append_l ((s), lit, sizeof lit - 1)
@@ -94,9 +101,9 @@ static inline bl_err dstr_append (dstr *s, char const *str)
 {
   return str ? dstr_append_l (s, str, strlen (str)) : bl_ok;
 }
-static inline bl_err dstr_prepend (dstr *s, char const *str)
+static inline bl_err dstr_insert (dstr *s, uword idx, char const *str)
 {
-  return str ? dstr_prepend_l (s, str, strlen (str)) : bl_ok;
+  return str ? dstr_insert_l (s, idx, str, strlen (str)) : bl_ok;
 }
 /*---------------------------------------------------------------------------*/
 static inline bl_err dstr_set_o (dstr *s, dstr const *str)
@@ -107,9 +114,9 @@ static inline bl_err dstr_append_o (dstr *s, dstr const *str)
 {
   return dstr_append_l (s, dstr_get (str), dstr_len (str));
 }
-static inline bl_err dstr_prepend_o (dstr *s, dstr const *str)
+static inline bl_err dstr_insert_o (dstr *s, uword idx, dstr const *str)
 {
-  return dstr_prepend_l (s, dstr_get (str), dstr_len (str));
+  return dstr_insert_l (s, idx, dstr_get (str), dstr_len (str));
 }
 /*---------------------------------------------------------------------------*/
 /* all the *_va functions use a printf style format string plus varags */
@@ -122,8 +129,8 @@ extern BL_EXPORT bl_err
     BL_PRINTF_FORMAT (2, 3);
 
 extern BL_EXPORT bl_err
-  dstr_prepend_va (dstr *s, char const* fmt, ...)
-    BL_PRINTF_FORMAT (2, 3);;
+  dstr_insert_va (dstr *s, uword idx, char const* fmt, ...)
+    BL_PRINTF_FORMAT (3, 4);
 /*---------------------------------------------------------------------------*/
 extern BL_EXPORT bl_err dstr_erase_head (dstr *s, uword char_count);
 extern BL_EXPORT bl_err dstr_erase_tail (dstr *s, uword char_count);

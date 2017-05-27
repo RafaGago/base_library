@@ -86,36 +86,89 @@ static void dstrt_append_to_empty (void **state)
   dstr_destroy(&s);
 }
 /*----------------------------------------------------------------------------*/
-static void dstrt_prepend (void **state)
+static void dstrt_insert_head (void **state)
 {
   dstr s = dstr_init_rv (&alloc);
   bl_err err = dstr_set (&s, STRING1);
   assert_int_equal (err, bl_ok);
   assert_int_equal (dstr_len (&s), lit_len (STRING1));
   assert_string_equal (dstr_get (&s), STRING1);
-  err = dstr_prepend (&s, STRING2);
+  err = dstr_insert (&s, 0, STRING2);
   assert_int_equal (dstr_len (&s), lit_len (STRING2 STRING1));
   assert_string_equal (dstr_get (&s), STRING2 STRING1);
   dstr_destroy(&s);
 }
 /*----------------------------------------------------------------------------*/
-static void dstrt_prepend_null (void **state)
+static void dstrt_insert_middle (void **state)
+{
+  dstr s = dstr_init_rv (&alloc);
+  bl_err err = dstr_set (&s, STRING1 STRING3);
+  assert_int_equal (err, bl_ok);
+  assert_int_equal (dstr_len (&s), lit_len (STRING1 STRING3));
+  assert_string_equal (dstr_get (&s), STRING1 STRING3);
+  err = dstr_insert (&s, lit_len (STRING1), STRING2);
+  assert_int_equal (dstr_len (&s), lit_len (STRING1 STRING2 STRING3));
+  assert_string_equal (dstr_get (&s), STRING1 STRING2 STRING3);
+  dstr_destroy(&s);
+}
+/*----------------------------------------------------------------------------*/
+static void dstrt_insert_head_prealloc (void **state)
+{
+  dstr s = dstr_init_rv (&alloc);
+  bl_err err = dstr_set_capacity (&s, lit_len (STRING2 STRING1));
+  assert_int_equal (err, bl_ok);
+  err = dstr_set (&s, STRING1);
+  assert_int_equal (err, bl_ok);
+  assert_int_equal (dstr_len (&s), lit_len (STRING1));
+  assert_string_equal (dstr_get (&s), STRING1);
+  err = dstr_insert (&s, 0, STRING2);
+  assert_int_equal (dstr_len (&s), lit_len (STRING2 STRING1));
+  assert_string_equal (dstr_get (&s), STRING2 STRING1);
+  dstr_destroy(&s);
+}
+/*----------------------------------------------------------------------------*/
+static void dstrt_insert_middle_prealloc (void **state)
+{
+  dstr s = dstr_init_rv (&alloc);
+  bl_err err = dstr_set_capacity (&s, lit_len (STRING1 STRING2 STRING3));
+  assert_int_equal (err, bl_ok);
+  err = dstr_set (&s, STRING1 STRING3);
+  assert_int_equal (err, bl_ok);
+  assert_int_equal (dstr_len (&s), lit_len (STRING1 STRING3));
+  assert_string_equal (dstr_get (&s), STRING1 STRING3);
+  err = dstr_insert (&s, lit_len (STRING1), STRING2);
+  assert_int_equal (dstr_len (&s), lit_len (STRING1 STRING2 STRING3));
+  assert_string_equal (dstr_get (&s), STRING1 STRING2 STRING3);
+  dstr_destroy(&s);
+}
+/*----------------------------------------------------------------------------*/
+static void dstrt_insert_head_null (void **state)
 {
   dstr s = dstr_init_rv (&alloc);
   bl_err err = dstr_set (&s, STRING1);
   assert_int_equal (err, bl_ok);
   assert_int_equal (dstr_len (&s), lit_len (STRING1));
   assert_string_equal (dstr_get (&s), STRING1);
-  err = dstr_prepend (&s, nullptr);
+  err = dstr_insert (&s, 0, nullptr);
   assert_int_equal (dstr_len (&s), lit_len (STRING1));
   assert_string_equal (dstr_get (&s), STRING1);
   dstr_destroy(&s);
 }
 /*----------------------------------------------------------------------------*/
-static void dstrt_prepend_to_empty (void **state)
+static void dstrt_insert_head_to_empty (void **state)
 {
   dstr s = dstr_init_rv (&alloc);
-  bl_err err = dstr_prepend (&s, STRING1);
+  bl_err err = dstr_insert (&s, 0, STRING1);
+  assert_int_equal (err, bl_ok);
+  assert_int_equal (dstr_len (&s), lit_len (STRING1));
+  assert_string_equal (dstr_get (&s), STRING1);
+  dstr_destroy(&s);
+}
+/*----------------------------------------------------------------------------*/
+static void dstrt_insert_middle_to_empty (void **state)
+{
+  dstr s = dstr_init_rv (&alloc);
+  bl_err err = dstr_insert (&s, 99, STRING1);
   assert_int_equal (err, bl_ok);
   assert_int_equal (dstr_len (&s), lit_len (STRING1));
   assert_string_equal (dstr_get (&s), STRING1);
@@ -154,21 +207,68 @@ static void dstrt_append_va_to_empty (void **state)
   dstr_destroy(&s);
 }
 /*----------------------------------------------------------------------------*/
-static void dstrt_prepend_va (void **state)
+static void dstrt_insert_head_va (void **state)
 {
   dstr s = dstr_init_rv (&alloc);
   bl_err err = dstr_set (&s, STRING1);
   assert_int_equal (err, bl_ok);
-  err = dstr_prepend_va (&s, "%s%s", STRING2, STRING3);
+  err = dstr_insert_va (&s, 0, "%s%s", STRING2, STRING3);
   assert_int_equal (dstr_len (&s), lit_len (STRING2 STRING3 STRING1));
   assert_string_equal (dstr_get (&s), STRING2 STRING3 STRING1);
   dstr_destroy(&s);
 }
 /*----------------------------------------------------------------------------*/
-static void dstrt_prepend_va_to_empty (void **state)
+static void dstrt_insert_middle_va (void **state)
 {
   dstr s = dstr_init_rv (&alloc);
-  bl_err err = dstr_prepend_va (&s, "%s%s", STRING2, STRING3);
+  bl_err err = dstr_set (&s, STRING1 STRING3);
+  assert_int_equal (err, bl_ok);
+  err = dstr_insert_va (&s, lit_len (STRING1), "%s", STRING2);
+  assert_int_equal (dstr_len (&s), lit_len (STRING1 STRING2 STRING3));
+  assert_string_equal (dstr_get (&s), STRING1 STRING2 STRING3);
+  dstr_destroy(&s);
+}
+/*----------------------------------------------------------------------------*/
+static void dstrt_insert_head_va_prealloc (void **state)
+{
+  dstr s = dstr_init_rv (&alloc);
+  bl_err err = dstr_set_capacity (&s, lit_len (STRING2 STRING3 STRING1));
+  assert_int_equal (err, bl_ok);
+  err = dstr_set (&s, STRING1);
+  assert_int_equal (err, bl_ok);
+  err = dstr_insert_va (&s, 0, "%s%s", STRING2, STRING3);
+  assert_int_equal (dstr_len (&s), lit_len (STRING2 STRING3 STRING1));
+  assert_string_equal (dstr_get (&s), STRING2 STRING3 STRING1);
+  dstr_destroy(&s);
+}
+/*----------------------------------------------------------------------------*/
+static void dstrt_insert_middle_va_prealloc (void **state)
+{
+  dstr s = dstr_init_rv (&alloc);
+  bl_err err = dstr_set_capacity (&s, lit_len (STRING1 STRING2 STRING3));
+  assert_int_equal (err, bl_ok);
+  err = dstr_set (&s, STRING1 STRING3);
+  assert_int_equal (err, bl_ok);
+  err = dstr_insert_va (&s, lit_len (STRING1), "%s", STRING2);
+  assert_int_equal (dstr_len (&s), lit_len (STRING1 STRING2 STRING3));
+  assert_string_equal (dstr_get (&s), STRING1 STRING2 STRING3);
+  dstr_destroy(&s);
+}
+/*----------------------------------------------------------------------------*/
+static void dstrt_insert_head_va_to_empty (void **state)
+{
+  dstr s = dstr_init_rv (&alloc);
+  bl_err err = dstr_insert_va (&s, 0, "%s%s", STRING2, STRING3);
+  assert_int_equal (err, bl_ok);
+  assert_int_equal (dstr_len (&s), lit_len (STRING2 STRING3));
+  assert_string_equal (dstr_get (&s), STRING2 STRING3);
+  dstr_destroy(&s);
+}
+/*----------------------------------------------------------------------------*/
+static void dstrt_insert_middle_va_to_empty (void **state)
+{
+  dstr s = dstr_init_rv (&alloc);
+  bl_err err = dstr_insert_va (&s, 99, "%s%s", STRING2, STRING3);
   assert_int_equal (err, bl_ok);
   assert_int_equal (dstr_len (&s), lit_len (STRING2 STRING3));
   assert_string_equal (dstr_get (&s), STRING2 STRING3);
@@ -388,14 +488,22 @@ static const struct CMUnitTest tests[] = {
   cmocka_unit_test (dstrt_append),
   cmocka_unit_test (dstrt_append_null),
   cmocka_unit_test (dstrt_append_to_empty),
-  cmocka_unit_test (dstrt_prepend),
-  cmocka_unit_test (dstrt_prepend_null),
-  cmocka_unit_test (dstrt_prepend_to_empty),
+  cmocka_unit_test (dstrt_insert_head),
+  cmocka_unit_test (dstrt_insert_middle),
+  cmocka_unit_test (dstrt_insert_head_prealloc),
+  cmocka_unit_test (dstrt_insert_middle_prealloc),
+  cmocka_unit_test (dstrt_insert_head_null),
+  cmocka_unit_test (dstrt_insert_head_to_empty),
+  cmocka_unit_test (dstrt_insert_middle_to_empty),
   cmocka_unit_test (dstrt_set_va),
   cmocka_unit_test (dstrt_append_va),
   cmocka_unit_test (dstrt_append_va_to_empty),
-  cmocka_unit_test (dstrt_prepend_va),
-  cmocka_unit_test (dstrt_prepend_va_to_empty),
+  cmocka_unit_test (dstrt_insert_head_va),
+  cmocka_unit_test (dstrt_insert_middle_va),
+  cmocka_unit_test (dstrt_insert_head_va_prealloc),
+  cmocka_unit_test (dstrt_insert_middle_va_prealloc),
+  cmocka_unit_test (dstrt_insert_head_va_to_empty),
+  cmocka_unit_test (dstrt_insert_middle_va_to_empty),
   cmocka_unit_test (dstrt_erase_head),
   cmocka_unit_test (dstrt_erase_head_out_of_range),
   cmocka_unit_test (dstrt_erase_tail),

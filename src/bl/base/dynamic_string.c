@@ -68,7 +68,9 @@ BL_EXPORT bl_err dstr_append_l (dstr *s, char const *str, uword len)
   return (str && len == 0) ? bl_ok : bl_invalid;
 }
 /*----------------------------------------------------------------------------*/
-BL_EXPORT bl_err dstr_prepend_l (dstr *s, char const *str, uword len)
+BL_EXPORT bl_err dstr_insert_l(
+  dstr *s, uword idx, char const *str, uword len
+  )
 {
   if (unlikely (len == 0 || !str)) {
     return (len == 0 && !str) ? bl_ok : bl_invalid;
@@ -76,23 +78,27 @@ BL_EXPORT bl_err dstr_prepend_l (dstr *s, char const *str, uword len)
   if (unlikely (dstr_len (s) == 0)) {
     return dstr_set_l (s, str, len);
   }
+  if (unlikely (idx >= dstr_len (s))) {
+    return dstr_append_l (s, str, len);
+  }
   uword newlen = s->len + len;
   if (newlen <= dstr_get_capacity (s)) {
-    if (len >= s->len) {
-      memcpy (s->da.str + len, s->da.str, s->len);
+    if (len >= s->len - idx) {
+      memcpy (s->da.str + len + idx, s->da.str + idx, s->len - idx);
     }
     else {
-      memmove (s->da.str + len, s->da.str, s->len);
+      memmove (s->da.str + len + idx, s->da.str + idx, s->len - idx);
     }
-    memcpy (s->da.str, str, len);
+    memcpy (s->da.str + idx, str, len);
   }
   else {
     char* newstr = (char*) bl_alloc (s->alloc, newlen + 1);
     if (unlikely (!newstr)) {
       return bl_alloc;
     }
-    memcpy (newstr, str, len);
-    memcpy (newstr + len, s->da.str, s->len);
+    memcpy (newstr, s->da.str, idx);
+    memcpy (newstr + idx, str, len);
+    memcpy (newstr + idx + len, s->da.str + idx, s->len - idx);
     bl_dealloc (s->alloc, s->da.str);
     s->da.str  = newstr;
     s->da.size = newlen + 1;
@@ -155,24 +161,19 @@ BL_EXPORT bl_err dstr_set_va (dstr *s, char const *fmt, ...)
   return err;
 }
 /*----------------------------------------------------------------------------*/
-BL_EXPORT bl_err dstr_prepend_va (dstr *s, char const *fmt, ...)
+BL_EXPORT bl_err dstr_insert_va (dstr *s, uword idx, char const *fmt, ...)
 {
   va_list list;
   va_start (list, fmt);
   bl_err err = 0;
-  if (dstr_len (s) != 0) {
+  if (dstr_len (s) != 0 && idx < dstr_len (s) - 1) {
     dstr newstr = dstr_init_rv (s->alloc);
     err = dstr_append_va_priv (&newstr, fmt, list);
     if (err) {
       goto done;
     }
-    err = dstr_append_o (&newstr, s);
-    if (err) {
-      dstr_destroy (&newstr);
-      goto done;
-    }
-    dstr_destroy (s);
-    *s = newstr;
+    err = dstr_insert_o (s, idx, &newstr);
+    dstr_destroy (&newstr);
   }
   else {
     err = dstr_append_va_priv (s, fmt, list);
