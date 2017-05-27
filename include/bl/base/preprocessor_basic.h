@@ -3,6 +3,13 @@
 
 /*---------------------------------------------------------------------------*/
 /**
+ Convert to string: pp_str(3) => "3"
+*/
+/*---------------------------------------------------------------------------*/
+#define pp_to_str_private(v) #v
+#define pp_to_str(v) pp_to_str_private(v)
+/*---------------------------------------------------------------------------*/
+/**
  Indirection around the standard ## concatenation operator. This simply
  ensures that the arguments are expanded (once) before concatenation.
 */
