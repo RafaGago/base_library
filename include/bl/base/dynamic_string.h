@@ -82,6 +82,10 @@ extern BL_EXPORT bl_err dstr_set_l (dstr *s, char const *str, uword len);
 extern BL_EXPORT bl_err dstr_append_l (dstr *s, char const *str, uword len);
 extern BL_EXPORT bl_err dstr_prepend_l (dstr *s, char const *str, uword len);
 /*---------------------------------------------------------------------------*/
+#define dstr_set_lit(s, lit)     dstr_set_l ((s), lit, sizeof lit - 1)
+#define dstr_append_lit(s, lit)  dstr_append_l ((s), lit, sizeof lit - 1)
+#define dstr_prepend_lit(s, lit) dstr_prepend_l ((s), lit, sizeof lit - 1)
+/*---------------------------------------------------------------------------*/
 static inline bl_err dstr_set (dstr *s, char const *str)
 {
   return str ? dstr_set_l (s, str, strlen (str)) : bl_ok;
