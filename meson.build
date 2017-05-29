@@ -109,6 +109,7 @@ base_srcs = [
     'src/bl/base/timestamp_funcs_arbitrary_base.c',
     'src/bl/base/string.c',
     'src/bl/base/dynamic_string.c',
+    'src/bl/base/dynamic_string_replace.c',
 ]
 base_test_srcs = [
     'test/src/bl/base/hex_string_test.c',

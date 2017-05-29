@@ -8,6 +8,8 @@
 #include <bl/base/allocator.h>
 #include <bl/base/dynarray.h>
 
+/* A near trivial dynamic string for small string sizes */
+
 /* one of the functions on ctype.h */
 typedef int (*bl_ctype_func) (int character);
 /*---------------------------------------------------------------------------*/
@@ -89,9 +91,28 @@ extern BL_EXPORT bl_err dstr_insert_l(
 #define dstr_insert_lit(s, idx, lit)\
   dstr_insert_l ((s), (idx), lit, sizeof lit - 1)
 /*---------------------------------------------------------------------------*/
-#define dstr_set_lit(s, lit)     dstr_set_l ((s), lit, sizeof lit - 1)
-#define dstr_append_lit(s, lit)  dstr_append_l ((s), lit, sizeof lit - 1)
-#define dstr_prepend_lit(s, lit) dstr_prepend_l ((s), lit, sizeof lit - 1)
+extern BL_EXPORT bl_err dstr_replace_l(
+  dstr*       s,
+  char const* match,
+  uword       match_len,
+  char const* replace,
+  uword       replace_len,
+  uword       max_replace_count /* 0 replaces all matches */
+  );
+/*---------------------------------------------------------------------------*/
+#define dstr_set_lit(s, lit) dstr_set_l ((s), lit, sizeof lit - 1)
+#define dstr_append_lit(s, lit) dstr_append_l ((s), lit, sizeof lit - 1)
+#define dstr_insert_lit(s, idx, lit)\
+  dstr_insert_l ((s), (idx), lit, sizeof lit - 1)
+#define dstr_replace_lit(s, match_lit, replace_lit, count)\
+  dstr_replace_l(\
+    (s),\
+    match_lit,\
+    sizeof match_lit - 1,\
+    replace_lit,\
+    sizeof replace_lit - 1,\
+    (count)\
+    )
 /*---------------------------------------------------------------------------*/
 static inline bl_err dstr_set (dstr *s, char const *str)
 {
@@ -105,6 +126,14 @@ static inline bl_err dstr_insert (dstr *s, uword idx, char const *str)
 {
   return str ? dstr_insert_l (s, idx, str, strlen (str)) : bl_ok;
 }
+static inline bl_err dstr_replace(
+  dstr *s, char const *match, char const *replace, uword count
+  )
+{
+  return dstr_replace_l(
+    s, match, strlen (match), replace, strlen (replace), count
+    );
+}
 /*---------------------------------------------------------------------------*/
 static inline bl_err dstr_set_o (dstr *s, dstr const *str)
 {
@@ -117,6 +146,19 @@ static inline bl_err dstr_append_o (dstr *s, dstr const *str)
 static inline bl_err dstr_insert_o (dstr *s, uword idx, dstr const *str)
 {
   return dstr_insert_l (s, idx, dstr_get (str), dstr_len (str));
+}
+static inline bl_err dstr_replace_o(
+  dstr *s, dstr const *match, dstr const *replace, uword count
+  )
+{
+  return dstr_replace_l(
+    s,
+    dstr_get (match),
+    dstr_len (match),
+    dstr_get (replace),
+    dstr_len (replace),
+    count
+    );
 }
 /*---------------------------------------------------------------------------*/
 /* all the *_va functions use a printf style format string plus varags */
