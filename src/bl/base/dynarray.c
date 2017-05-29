@@ -21,7 +21,6 @@ bl_err dynarray_resize(
     }
   }
   else {
-    /*realloc with size 0 has implementation defined behavior on C11*/
     bl_dealloc (alloc, d->arr);
     new_ptr = nullptr;
   }
