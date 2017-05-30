@@ -1,5 +1,6 @@
 #ifdef BL_NONBLOCK_MPMC_ONLY_TEST_ALGORITHM
 
+#include <bl/base/integer_printf_format.h>
 #include <relacy/relacy.hpp>
 #include <stdint.h>
 #include <iostream>
@@ -280,13 +281,13 @@ struct mpmc_bpm_test : rl::test_suite<mpmc_bpm_test, THREADS>
   void after()
   {
     if (produced_slots < SLOTS) {
-      std::printf ("produced slots: %u\n", produced_slots);
+      std::printf ("produced slots: %" FMT_UW "\n", produced_slots);
       RL_ASSERT (false && "producer slots not filled");
     }
     while (run_reader_once());
     if (consumed_slots != produced_slots) {
       std::printf(
-        "produced slots: %u, consumed slots: %u\n",
+        "produced slots: %" FMT_UW ", consumed slots: %" FMT_UW "\n",
         produced_slots, consumed_slots
         );
       RL_ASSERT (false && "consumer slots not filled");
@@ -299,6 +300,7 @@ struct mpmc_bpm_test : rl::test_suite<mpmc_bpm_test, THREADS>
 #define BL_ATOMIC_USE_RELACY
 
 /*This has always to be included first, it replaces malloc, free, etc.*/
+#include <bl/base/integer_printf_format.h>
 #include <relacy/relacy.hpp>
 
 #include <bl/base/alignment.h>
@@ -490,13 +492,13 @@ struct mpmc_bpm_test : rl::test_suite<mpmc_bpm_test, THREADS>
   void after()
   {
     if (produced_slots < SLOTS) {
-      std::printf ("produced slots: %u\n", produced_slots);
+      std::printf ("produced slots: %" FMT_UW "\n", produced_slots);
       RL_ASSERT (false && "producer slots not filled");
     }
     while (run_reader_once());
     if (consumed_slots != produced_slots) {
       std::printf(
-        "produced slots: %u, consumed slots: %u\n",
+        "produced slots: %" FMT_UW ", consumed slots: %" FMT_UW "\n",
         produced_slots, consumed_slots
         );
       RL_ASSERT (false && "consumer slots not filled");
