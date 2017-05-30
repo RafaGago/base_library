@@ -13,8 +13,9 @@ static uword dstr_minalloc = 32;
 BL_EXPORT bl_err dstr_set_capacity (dstr* s, uword newlen)
 {
   if (newlen >= dstr_len (s)) {
+    newlen += (newlen != 0);
     return dynarray_resize(
-      (dynarray_stub*) &s->da, newlen + 1, sizeof (char), s->alloc
+      (dynarray_stub*) &s->da, newlen, sizeof (char), s->alloc
       );
   }
   return bl_invalid;
