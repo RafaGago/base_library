@@ -86,11 +86,6 @@ extern BL_EXPORT bl_err dstr_insert_l(
   dstr *s, uword idx, char const *str, uword len
   );
 /*---------------------------------------------------------------------------*/
-#define dstr_set_lit(s, lit) dstr_set_l ((s), lit, sizeof lit - 1)
-#define dstr_append_lit(s, lit) dstr_append_l ((s), lit, sizeof lit - 1)
-#define dstr_insert_lit(s, idx, lit)\
-  dstr_insert_l ((s), (idx), lit, sizeof lit - 1)
-/*---------------------------------------------------------------------------*/
 extern BL_EXPORT bl_err dstr_replace_l(
   dstr*       s,
   char const* match,
@@ -174,7 +169,11 @@ extern BL_EXPORT bl_err
   dstr_insert_va (dstr *s, uword idx, char const* fmt, ...)
     BL_PRINTF_FORMAT (3, 4);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT bl_err dstr_erase_head (dstr *s, uword char_count);
+extern BL_EXPORT bl_err dstr_erase (dstr *s, uword idx, uword char_count);
+static inline bl_err dstr_erase_head (dstr *s, uword char_count)
+{
+  return dstr_erase (s, 0, char_count);
+}
 extern BL_EXPORT bl_err dstr_erase_tail (dstr *s, uword char_count);
 /*---------------------------------------------------------------------------*/
 /* erases characters from the head and the tail, e.g. to trim a string you

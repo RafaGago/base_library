@@ -183,14 +183,14 @@ done:
   return err;
 }
 /*----------------------------------------------------------------------------*/
-BL_EXPORT bl_err dstr_erase_head (dstr *s, uword char_count)
+BL_EXPORT bl_err dstr_erase (dstr *s, uword idx, uword char_count)
 {
   uword newlen = dstr_len (s) - char_count;
-  if (newlen > dstr_len (s)) {
+  if ((newlen - idx) > dstr_len (s)) {
     return bl_range;
   }
   if (newlen != 0) {
-    memmove (s->da.str, s->da.str + char_count, newlen);
+    memmove (s->da.str + idx, s->da.str + idx + char_count, newlen - idx);
     s->len            = newlen;
     s->da.str[newlen] = 0;
     return bl_ok;

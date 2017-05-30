@@ -332,6 +332,30 @@ static void dstrt_erase_tail_out_of_range (void **state)
   dstr_destroy(&s);
 }
 /*----------------------------------------------------------------------------*/
+static void dstrt_erase (void **state)
+{
+  dstr s = dstr_init_rv (&alloc);
+  bl_err err = dstr_set_va (&s, STRING1 STRING2);
+  assert_int_equal (err, bl_ok);
+  err = dstr_erase (&s, lit_len (STRING1), lit_len (STRING2));
+  assert_int_equal (err, bl_ok);
+  assert_int_equal (dstr_len (&s), lit_len (STRING1));
+  assert_string_equal (dstr_get (&s), STRING1);
+  dstr_destroy(&s);
+}
+/*----------------------------------------------------------------------------*/
+static void dstrt_erase_out_of_range (void **state)
+{
+  dstr s = dstr_init_rv (&alloc);
+  bl_err err = dstr_set_va (&s, STRING1 STRING2);
+  assert_int_equal (err, bl_ok);
+  err = dstr_erase (&s, lit_len (STRING1), lit_len (STRING2) + 1);
+  assert_int_equal (err, bl_range);
+  assert_int_equal (dstr_len (&s), lit_len (STRING1 STRING2));
+  assert_string_equal (dstr_get (&s), STRING1 STRING2);
+  dstr_destroy(&s);
+}
+/*----------------------------------------------------------------------------*/
 static void dstrt_erase_head_while (void **state)
 {
   dstr s = dstr_init_rv (&alloc);
@@ -677,6 +701,8 @@ static const struct CMUnitTest tests[] = {
   cmocka_unit_test (dstrt_erase_head_out_of_range),
   cmocka_unit_test (dstrt_erase_tail),
   cmocka_unit_test (dstrt_erase_tail_out_of_range),
+  cmocka_unit_test (dstrt_erase),
+  cmocka_unit_test (dstrt_erase_out_of_range),
   cmocka_unit_test (dstrt_erase_head_while),
   cmocka_unit_test (dstrt_erase_head_while_negated),
   cmocka_unit_test (dstrt_erase_tail_while),
