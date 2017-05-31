@@ -105,7 +105,7 @@ extern BL_EXPORT bl_err dstr_insert_l(
   dstr *s, uword idx, char const *str, uword len
   );
 extern BL_EXPORT uword dstr_find_l(
-  dstr* s, uword offset, char const* find, uword find_len
+  dstr* s, uword offset, char const* search, uword search_len
   );
 /*---------------------------------------------------------------------------*/
 extern BL_EXPORT bl_err dstr_replace_l(
@@ -130,8 +130,8 @@ extern BL_EXPORT bl_err dstr_replace_l(
     sizeof replace_lit - 1,\
     (count)\
     )
-#define dstr_find_lit(s, offset, lit)\
-  dstr_find_l ((s), (offset), lit, sizeof lit - 1)
+#define dstr_find_lit(s, offset, search_lit)\
+  dstr_find_l ((s), (offset), search_lit, sizeof search_lit - 1)
 /*---------------------------------------------------------------------------*/
 static inline bl_err dstr_set (dstr *s, char const *str)
 {
@@ -153,9 +153,9 @@ static inline bl_err dstr_replace(
     s, match, strlen (match), replace, strlen (replace), count
     );
 }
-static inline uword dstr_find (dstr* s, uword offset, char const* find)
+static inline uword dstr_find (dstr* s, uword offset, char const* seach)
 {
-  return dstr_find_l (s, offset, find, strlen (find));
+  return dstr_find_l (s, offset, seach, strlen (seach));
 }
 /*---------------------------------------------------------------------------*/
 static inline bl_err dstr_set_o (dstr *s, dstr const *str)
@@ -183,9 +183,9 @@ static inline bl_err dstr_replace_o(
     count
     );
 }
-static inline bl_err dstr_find_o (dstr *s, uword offset, dstr const *find)
+static inline bl_err dstr_find_o (dstr *s, uword offset, dstr const *search)
 {
-  return dstr_find_l (s, offset, dstr_get (find), dstr_len (find));
+  return dstr_find_l (s, offset, dstr_get (search), dstr_len (search));
 }
 /*---------------------------------------------------------------------------*/
 /* all the *_va functions use a printf style format string plus varags */
