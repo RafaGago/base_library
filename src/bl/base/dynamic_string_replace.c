@@ -17,20 +17,23 @@ static inline bl_err dstr_replace_replace_le_match(
   uword       match_len,
   char const* replace,
   uword       replace_len,
+  uword       offset,
   uword       max
   )
 {
-  uword scan_start = 0;
+  uword scan_start = offset;
   uword found      = 0;
-  char* wptr       = s->da.str;
+  char* wptr       = s->da.str + offset;
 
   while (found < max) {
-    uword f = dstr_find_l (s, scan_start, match, match_len);
+    uword f = dstr_find_l (s, match, match_len, scan_start);
     if (f >= dstr_len (s)) {
       break;
     }
     uword advanced = f - scan_start;
-    memmove (wptr, s->da.str + scan_start, advanced);
+    if (scan_start != offset) {
+    	memmove (wptr, s->da.str + scan_start, advanced);
+    }
     wptr += advanced;
     memcpy (wptr, replace, replace_len);
     wptr      += replace_len;
@@ -53,6 +56,7 @@ static inline bl_err dstr_replace_replace_gt_match_no_alloc(
   uword       match_len,
   char const* replace,
   uword       replace_len,
+  uword       offset,
   uword       max,
   uword       len_bytes
   )
@@ -61,12 +65,12 @@ static inline bl_err dstr_replace_replace_gt_match_no_alloc(
     string as a linked-list (the string is lost in case of an allocation
     failure)*/
   bl_assert (dstr_len (s) < itype_max (word));
-  uword scan_start = 0;
+  uword scan_start = offset;
   uword last       = 0;
   uword found      = 0;
 
   while (found < max) {
-    uword f = dstr_find_l (s, scan_start, match, match_len);
+    uword f = dstr_find_l (s, match, match_len, scan_start);
     if (f >= dstr_len (s)) {
       break;
     }
@@ -118,6 +122,7 @@ static inline bl_err dstr_replace_replace_gt_match(
   uword       match_len,
   char const* replace,
   uword       replace_len,
+  uword       offset,
   uword       max
   )
 {
@@ -129,11 +134,11 @@ static inline bl_err dstr_replace_replace_gt_match(
 
   u32arr_init (&matches, stack_matches, arr_elems (stack_matches));
   bl_err err       = bl_ok;
-  uword scan_start = 0;
+  uword scan_start = offset;
   uword found      = 0;
 
   while (found < max) {
-    uword f = dstr_find_l (s, scan_start, match, match_len);
+    uword f = dstr_find_l (s, match, match_len, scan_start);
     if (f >= dstr_len (s)) {
       break;
     }
@@ -181,31 +186,32 @@ BL_EXPORT bl_err dstr_replace_l(
   uword       match_len,
   char const* replace,
   uword       replace_len,
+  uword       offset,
   uword       max_replace
   )
 {
   if (unlikely (dstr_len (s) == 0 || match_len == 0)) {
     return bl_ok;
   }
-  if (unlikely (!match || !replace)) {
+  if (unlikely (!match || !replace || offset >= dstr_len (s))) {
     bl_assert (false);
     return bl_invalid;
   }
   uword max = max_replace ? max_replace : (uword) -1;
   if (match_len >= replace_len) {
     return dstr_replace_replace_le_match(
-      s, match, match_len, replace, replace_len, max
+      s, match, match_len, replace, replace_len, offset, max
       );
   }
   uword len_bytes = div_ceil (log2_ceil_u (dstr_len (s)), 8);
   if (match_len >= len_bytes) {
     return dstr_replace_replace_gt_match_no_alloc(
-      s, match, match_len, replace, replace_len, max, len_bytes
+      s, match, match_len, replace, replace_len, offset, max, len_bytes
       );
   }
   else {
     return dstr_replace_replace_gt_match(
-      s, match, match_len, replace, replace_len, max
+      s, match, match_len, replace, replace_len, offset, max
       );
   }
   return bl_ok;

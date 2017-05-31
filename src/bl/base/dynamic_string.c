@@ -292,7 +292,7 @@ BL_EXPORT void dstr_transfer_ownership_l (dstr *s, char* str, uword len)
 }
 /*---------------------------------------------------------------------------*/
 BL_EXPORT uword dstr_find_l(
-  dstr* s, uword offset, char const* search, uword search_len
+  dstr* s, char const* search, uword search_len, uword offset
   )
 {
 /*This is optimized for:

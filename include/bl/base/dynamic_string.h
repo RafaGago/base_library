@@ -105,7 +105,7 @@ extern BL_EXPORT bl_err dstr_insert_l(
   dstr *s, uword idx, char const *str, uword len
   );
 extern BL_EXPORT uword dstr_find_l(
-  dstr* s, uword offset, char const* search, uword search_len
+  dstr* s, char const* search, uword search_len, uword offset
   );
 /*---------------------------------------------------------------------------*/
 extern BL_EXPORT bl_err dstr_replace_l(
@@ -114,6 +114,7 @@ extern BL_EXPORT bl_err dstr_replace_l(
   uword       match_len,
   char const* replace,
   uword       replace_len,
+  uword       offset,
   uword       max_replace_count /* 0 replaces all matches */
   );
 /*---------------------------------------------------------------------------*/
@@ -121,17 +122,18 @@ extern BL_EXPORT bl_err dstr_replace_l(
 #define dstr_append_lit(s, lit) dstr_append_l ((s), lit, sizeof lit - 1)
 #define dstr_insert_lit(s, idx, lit)\
   dstr_insert_l ((s), (idx), lit, sizeof lit - 1)
-#define dstr_replace_lit(s, match_lit, replace_lit, count)\
+#define dstr_replace_lit(s, match_lit, replace_lit, offset, count)\
   dstr_replace_l(\
     (s),\
     match_lit,\
     sizeof match_lit - 1,\
     replace_lit,\
     sizeof replace_lit - 1,\
+    (offset),\
     (count)\
     )
-#define dstr_find_lit(s, offset, search_lit)\
-  dstr_find_l ((s), (offset), search_lit, sizeof search_lit - 1)
+#define dstr_find_lit(s, search_lit, offset)\
+  dstr_find_l ((s), search_lit, sizeof search_lit - 1, (offset))
 /*---------------------------------------------------------------------------*/
 static inline bl_err dstr_set (dstr *s, char const *str)
 {
@@ -146,16 +148,16 @@ static inline bl_err dstr_insert (dstr *s, uword idx, char const *str)
   return str ? dstr_insert_l (s, idx, str, strlen (str)) : bl_ok;
 }
 static inline bl_err dstr_replace(
-  dstr *s, char const *match, char const *replace, uword count
+  dstr *s, char const *match, char const *replace, uword offset, uword count
   )
 {
   return dstr_replace_l(
-    s, match, strlen (match), replace, strlen (replace), count
+    s, match, strlen (match), replace, strlen (replace), offset, count
     );
 }
-static inline uword dstr_find (dstr* s, uword offset, char const* seach)
+static inline uword dstr_find (dstr* s, char const* seach, uword offset)
 {
-  return dstr_find_l (s, offset, seach, strlen (seach));
+  return dstr_find_l (s, seach, strlen (seach), offset);
 }
 /*---------------------------------------------------------------------------*/
 static inline bl_err dstr_set_o (dstr *s, dstr const *str)
@@ -171,7 +173,7 @@ static inline bl_err dstr_insert_o (dstr *s, uword idx, dstr const *str)
   return dstr_insert_l (s, idx, dstr_get (str), dstr_len (str));
 }
 static inline bl_err dstr_replace_o(
-  dstr *s, dstr const *match, dstr const *replace, uword count
+  dstr *s, dstr const *match, dstr const *replace, uword offset, uword count
   )
 {
   return dstr_replace_l(
@@ -180,12 +182,13 @@ static inline bl_err dstr_replace_o(
     dstr_len (match),
     dstr_get (replace),
     dstr_len (replace),
+    offset,
     count
     );
 }
-static inline bl_err dstr_find_o (dstr *s, uword offset, dstr const *search)
+static inline bl_err dstr_find_o (dstr *s, dstr const *search, uword offset)
 {
-  return dstr_find_l (s, offset, dstr_get (search), dstr_len (search));
+  return dstr_find_l (s, dstr_get (search), dstr_len (search), offset);
 }
 /*---------------------------------------------------------------------------*/
 /* all the *_va functions use a printf style format string plus varags */

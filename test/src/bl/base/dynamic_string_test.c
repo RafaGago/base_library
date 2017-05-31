@@ -521,19 +521,19 @@ static void dstrt_find (void **state)
   assert_int_equal (err, bl_ok);
 
   uword f = 0;
-  f = dstr_find_lit (&s, f, STRINGS);
+  f = dstr_find_lit (&s, STRINGS, f);
   assert_int_equal (f, 0);
   f += lit_len (STRINGS);
 
-  f = dstr_find_lit (&s, f, STRINGS);
+  f = dstr_find_lit (&s, STRINGS, f);
   assert_int_equal (f, lit_len (STRINGS STRINGM));
   f += lit_len (STRINGS);
 
-  f = dstr_find_lit (&s, f, STRINGS);
+  f = dstr_find_lit (&s, STRINGS, f);
   assert_int_equal (f, lit_len (STRINGS STRINGM STRINGS));
   f += lit_len (STRINGS);
 
-  f = dstr_find_lit (&s, f, STRINGS);
+  f = dstr_find_lit (&s, STRINGS, f);
   assert_int_equal (f, lit_len (STRINGS STRINGM STRINGS STRINGS));
   assert_int_equal (f, dstr_len (&s));
 }
@@ -543,7 +543,7 @@ static void dstrt_replace_replacelen_le_matchlen_no_match (void **state)
   dstr s = dstr_init_rv (&alloc);
   bl_err err = dstr_set_lit (&s, STRINGL STRINGM STRINGL STRINGM);
   assert_int_equal (err, bl_ok);
-  err = dstr_replace_lit (&s, "nomatch", STRINGS, 0);
+  err = dstr_replace_lit (&s, "nomatch", STRINGS, 0, 0);
   assert_int_equal (err, bl_ok);
   assert_int_equal (dstr_len (&s), lit_len (STRINGL STRINGM STRINGL STRINGM));
   assert_string_equal (dstr_get (&s), STRINGL STRINGM STRINGL STRINGM);
@@ -554,10 +554,21 @@ static void dstrt_replace_replacelen_le_matchlen_all (void **state)
   dstr s = dstr_init_rv (&alloc);
   bl_err err = dstr_set_lit (&s, STRINGM STRINGL STRINGM STRINGL);
   assert_int_equal (err, bl_ok);
-  err = dstr_replace_lit (&s, STRINGM, STRINGS, 0);
+  err = dstr_replace_lit (&s, STRINGM, STRINGS, 0, 0);
   assert_int_equal (err, bl_ok);
   assert_int_equal (dstr_len (&s), lit_len (STRINGS STRINGL STRINGS STRINGL));
   assert_string_equal (dstr_get (&s), STRINGS STRINGL STRINGS STRINGL);
+}
+/*----------------------------------------------------------------------------*/
+static void dstrt_replace_replacelen_le_matchlen_all_offset_1 (void **state)
+{
+  dstr s = dstr_init_rv (&alloc);
+  bl_err err = dstr_set_lit (&s, STRINGM STRINGL STRINGM STRINGL);
+  assert_int_equal (err, bl_ok);
+  err = dstr_replace_lit (&s, STRINGM, STRINGS, 1, 0);
+  assert_int_equal (err, bl_ok);
+  assert_int_equal (dstr_len (&s), lit_len (STRINGM STRINGL STRINGS STRINGL));
+  assert_string_equal (dstr_get (&s), STRINGM STRINGL STRINGS STRINGL);
 }
 /*----------------------------------------------------------------------------*/
 static void dstrt_replace_replacelen_le_matchlen_all_tail_match (void **state)
@@ -565,7 +576,7 @@ static void dstrt_replace_replacelen_le_matchlen_all_tail_match (void **state)
   dstr s = dstr_init_rv (&alloc);
   bl_err err = dstr_set_lit (&s, STRINGL STRINGM STRINGL STRINGM);
   assert_int_equal (err, bl_ok);
-  err = dstr_replace_lit (&s, STRINGM, STRINGS, 0);
+  err = dstr_replace_lit (&s, STRINGM, STRINGS, 0, 0);
   assert_int_equal (err, bl_ok);
   assert_int_equal (dstr_len (&s), lit_len (STRINGL STRINGS STRINGL STRINGS));
   assert_string_equal (dstr_get (&s), STRINGL STRINGS STRINGL STRINGS);
@@ -576,7 +587,7 @@ static void dstrt_replace_replacelen_le_matchlen_one (void **state)
   dstr s = dstr_init_rv (&alloc);
   bl_err err = dstr_set_lit (&s, STRINGL STRINGM STRINGL STRINGM);
   assert_int_equal (err, bl_ok);
-  err = dstr_replace_lit (&s, STRINGM, STRINGS, 1);
+  err = dstr_replace_lit (&s, STRINGM, STRINGS, 0, 1);
   assert_int_equal (err, bl_ok);
   assert_int_equal (dstr_len (&s), lit_len (STRINGL STRINGS STRINGL STRINGM));
   assert_string_equal (dstr_get (&s), STRINGL STRINGS STRINGL STRINGM);
@@ -587,7 +598,7 @@ static void dstrt_replace_replacelen_gt_matchlen_no_match (void **state)
   dstr s = dstr_init_rv (&alloc);
   bl_err err = dstr_set_lit (&s, STRINGL STRINGS STRINGL STRINGS);
   assert_int_equal (err, bl_ok);
-  err = dstr_replace_lit (&s, "nomatch", STRINGM, 0);
+  err = dstr_replace_lit (&s, "nomatch", STRINGM, 0, 0);
   assert_int_equal (err, bl_ok);
   assert_int_equal (dstr_len (&s), lit_len (STRINGL STRINGS STRINGL STRINGS));
   assert_string_equal (dstr_get (&s), STRINGL STRINGS STRINGL STRINGS);
@@ -598,7 +609,7 @@ static void dstrt_replace_replacelen_gt_matchlen_all (void **state)
   dstr s = dstr_init_rv (&alloc);
   bl_err err = dstr_set_lit (&s, STRINGS STRINGL STRINGS STRINGL STRING_240);
   assert_int_equal (err, bl_ok);
-  err = dstr_replace_lit (&s, STRINGS, STRINGM, 0);
+  err = dstr_replace_lit (&s, STRINGS, STRINGM, 0, 0);
   assert_int_equal (err, bl_ok);
   assert_int_equal(
     dstr_len (&s), lit_len (STRINGM STRINGL STRINGM STRINGL STRING_240)
@@ -608,12 +619,27 @@ static void dstrt_replace_replacelen_gt_matchlen_all (void **state)
     );
 }
 /*----------------------------------------------------------------------------*/
+static void dstrt_replace_replacelen_gt_matchlen_all_offset_1 (void **state)
+{
+  dstr s = dstr_init_rv (&alloc);
+  bl_err err = dstr_set_lit (&s, STRINGS STRINGL STRINGS STRINGL STRING_240);
+  assert_int_equal (err, bl_ok);
+  err = dstr_replace_lit (&s, STRINGS, STRINGM, 1, 0);
+  assert_int_equal (err, bl_ok);
+  assert_int_equal(
+    dstr_len (&s), lit_len (STRINGS STRINGL STRINGM STRINGL STRING_240)
+    );
+  assert_string_equal(
+    dstr_get (&s), STRINGS STRINGL STRINGM STRINGL STRING_240
+    );
+}
+/*----------------------------------------------------------------------------*/
 static void dstrt_replace_replacelen_gt_matchlen_all_tail_match (void **state)
 {
   dstr s = dstr_init_rv (&alloc);
   bl_err err = dstr_set_lit (&s, STRINGL STRINGS STRINGL STRINGS STRING_240);
   assert_int_equal (err, bl_ok);
-  err = dstr_replace_lit (&s, STRINGS, STRINGM, 0);
+  err = dstr_replace_lit (&s, STRINGS, STRINGM, 0, 0);
   assert_int_equal (err, bl_ok);
   assert_int_equal(
     dstr_len (&s), lit_len (STRINGL STRINGM STRINGL STRINGM STRING_240)
@@ -628,7 +654,7 @@ static void dstrt_replace_replacelen_gt_matchlen_one (void **state)
   dstr s = dstr_init_rv (&alloc);
   bl_err err = dstr_set_lit (&s, STRINGL STRINGS STRINGL STRINGS STRING_240);
   assert_int_equal (err, bl_ok);
-  err = dstr_replace_lit (&s, STRINGS, STRINGM, 1);
+  err = dstr_replace_lit (&s, STRINGS, STRINGM, 0, 1);
   assert_int_equal (err, bl_ok);
   assert_int_equal(
     dstr_len (&s), lit_len (STRINGL STRINGM STRINGL STRINGS STRING_240)
@@ -643,7 +669,7 @@ static void dstrt_replace_generic_no_match (void **state)
   dstr s = dstr_init_rv (&alloc);
   bl_err err = dstr_set_lit (&s, STRINGL STRINGXS STRINGL STRINGXS STRING_240);
   assert_int_equal (err, bl_ok);
-  err = dstr_replace_lit (&s, "nomatch", STRINGM, 0);
+  err = dstr_replace_lit (&s, "nomatch", STRINGM, 0, 0);
   assert_int_equal (err, bl_ok);
   assert_int_equal(
     dstr_len (&s), lit_len (STRINGL STRINGXS STRINGL STRINGXS STRING_240)
@@ -658,7 +684,7 @@ static void dstrt_replace_generic_all (void **state)
   dstr s = dstr_init_rv (&alloc);
   bl_err err = dstr_set_lit (&s, STRINGXS STRINGL STRINGXS STRINGL STRING_240);
   assert_int_equal (err, bl_ok);
-  err = dstr_replace_lit (&s, STRINGXS, STRINGM, 0);
+  err = dstr_replace_lit (&s, STRINGXS, STRINGM, 0, 0);
   assert_int_equal (err, bl_ok);
   assert_int_equal(
     dstr_len (&s), lit_len (STRINGM STRINGL STRINGM STRINGL STRING_240)
@@ -668,12 +694,27 @@ static void dstrt_replace_generic_all (void **state)
     );
 }
 /*----------------------------------------------------------------------------*/
+static void dstrt_replace_generic_all_offset_1 (void **state)
+{
+  dstr s = dstr_init_rv (&alloc);
+  bl_err err = dstr_set_lit (&s, STRINGXS STRINGL STRINGXS STRINGL STRING_240);
+  assert_int_equal (err, bl_ok);
+  err = dstr_replace_lit (&s, STRINGXS, STRINGM, 1, 0);
+  assert_int_equal (err, bl_ok);
+  assert_int_equal(
+    dstr_len (&s), lit_len (STRINGXS STRINGL STRINGM STRINGL STRING_240)
+    );
+  assert_string_equal(
+    dstr_get (&s), STRINGXS STRINGL STRINGM STRINGL STRING_240
+    );
+}
+/*----------------------------------------------------------------------------*/
 static void dstrt_replace_generic_all_tail_match (void **state)
 {
   dstr s = dstr_init_rv (&alloc);
   bl_err err = dstr_set_lit (&s, STRINGL STRINGXS STRINGL STRINGXS STRING_240);
   assert_int_equal (err, bl_ok);
-  err = dstr_replace_lit (&s, STRINGXS, STRINGM, 0);
+  err = dstr_replace_lit (&s, STRINGXS, STRINGM, 0, 0);
   assert_int_equal (err, bl_ok);
   assert_int_equal(
     dstr_len (&s), lit_len (STRINGL STRINGM STRINGL STRINGM STRING_240)
@@ -688,7 +729,7 @@ static void dstrt_replace_generic_one (void **state)
   dstr s = dstr_init_rv (&alloc);
   bl_err err = dstr_set_lit (&s, STRINGL STRINGXS STRINGL STRINGXS STRING_240);
   assert_int_equal (err, bl_ok);
-  err = dstr_replace_lit (&s, STRINGXS, STRINGM, 1);
+  err = dstr_replace_lit (&s, STRINGXS, STRINGM, 0, 1);
   assert_int_equal (err, bl_ok);
   assert_int_equal(
     dstr_len (&s), lit_len (STRINGL STRINGM STRINGL STRINGXS STRING_240)
@@ -742,14 +783,17 @@ static const struct CMUnitTest tests[] = {
   cmocka_unit_test (dstrt_find),
   cmocka_unit_test (dstrt_replace_replacelen_le_matchlen_no_match),
   cmocka_unit_test (dstrt_replace_replacelen_le_matchlen_all),
+  cmocka_unit_test (dstrt_replace_replacelen_le_matchlen_all_offset_1),
   cmocka_unit_test (dstrt_replace_replacelen_le_matchlen_all_tail_match),
   cmocka_unit_test (dstrt_replace_replacelen_le_matchlen_one),
   cmocka_unit_test (dstrt_replace_replacelen_gt_matchlen_no_match),
   cmocka_unit_test (dstrt_replace_replacelen_gt_matchlen_all),
+  cmocka_unit_test (dstrt_replace_replacelen_gt_matchlen_all_offset_1),
   cmocka_unit_test (dstrt_replace_replacelen_gt_matchlen_all_tail_match),
   cmocka_unit_test (dstrt_replace_replacelen_gt_matchlen_one),
   cmocka_unit_test (dstrt_replace_generic_no_match),
   cmocka_unit_test (dstrt_replace_generic_all),
+  cmocka_unit_test (dstrt_replace_generic_all_offset_1),
   cmocka_unit_test (dstrt_replace_generic_all_tail_match),
   cmocka_unit_test (dstrt_replace_generic_one),
 };
