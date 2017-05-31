@@ -291,3 +291,45 @@ BL_EXPORT void dstr_transfer_ownership_l (dstr *s, char* str, uword len)
   s->da.size = len + (len != 0);
 }
 /*---------------------------------------------------------------------------*/
+BL_EXPORT uword dstr_find_l(
+  dstr* s, uword offset, char const* find, uword find_len
+  )
+{
+/* This is optimized for:
+ -small strings.
+ -small find len.
+ -plain text alphabets (big alphabets).
+ -no setup time.
+ -no extra space (allocations).
+
+  If memchr is well optimized it will most likely compare many chars with a few
+  instructions (e.g. on x86-64 with SSE2 16), this and the lack of setup time
+  can beat a generic (non architecture-specifig) implementation of smarter
+  algorithms with the types of input descrived here while the implementation
+  remains trivial.
+
+  If big find strings on long strings are important a separate efficient
+  algorithm for these type of inputs can be implemented. There are many
+  well-known:
+  http://www-igm.univ-mlv.fr/~lecroq/string/node2.html
+  */
+  if (unlikely (find == 0 || !find || offset >= dstr_len (s))) {
+    return dstr_len (s);
+  }
+  bl_assert (strlen (find) >= find_len);
+  char const* rptr = dstr_beg (s) + offset;
+  char const* end  = dstr_end (s);
+  while (true) {
+    rptr = memchr (rptr, find[0], end - rptr);
+    if (!rptr || (end - rptr) < find_len) {
+      return dstr_len (s);
+    }
+    if (memcmp (rptr + 1, find + 1, find_len - 1) == 0) {
+      return rptr - dstr_beg (s);
+    }
+    else {
+      ++rptr;
+    }
+  }
+}
+/*----------------------------------------------------------------------------*/

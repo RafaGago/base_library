@@ -493,7 +493,7 @@ static void dstrt_apply_no_op (void **state)
   dstr_destroy(&s);
 }
 /*----------------------------------------------------------------------------*/
-static void dstr_set_capacity_append_va (void **state)
+static void dstrt_set_capacity_append_va (void **state)
 {
   dstr s = dstr_init_rv (&alloc);
   assert_int_equal (dstr_get_capacity (&s), 0);
@@ -512,6 +512,30 @@ static void dstr_set_capacity_append_va (void **state)
   assert_string_equal (dstr_get (&s), STRING1 STRING2);
   assert_ptr_equal (dstr_get (&s), ptr);
   dstr_destroy(&s);
+}
+/*----------------------------------------------------------------------------*/
+static void dstrt_find (void **state)
+{
+  dstr s = dstr_init_rv (&alloc);
+  bl_err err = dstr_set_lit (&s, STRINGS STRINGM STRINGS STRINGS);
+  assert_int_equal (err, bl_ok);
+
+  uword f = 0;
+  f = dstr_find_lit (&s, f, STRINGS);
+  assert_int_equal (f, 0);
+  f += lit_len (STRINGS);
+
+  f = dstr_find_lit (&s, f, STRINGS);
+  assert_int_equal (f, lit_len (STRINGS STRINGM));
+  f += lit_len (STRINGS);
+
+  f = dstr_find_lit (&s, f, STRINGS);
+  assert_int_equal (f, lit_len (STRINGS STRINGM STRINGS));
+  f += lit_len (STRINGS);
+
+  f = dstr_find_lit (&s, f, STRINGS);
+  assert_int_equal (f, lit_len (STRINGS STRINGM STRINGS STRINGS));
+  assert_int_equal (f, dstr_len (&s));
 }
 /*----------------------------------------------------------------------------*/
 static void dstrt_replace_replacelen_le_matchlen_no_match (void **state)
@@ -714,7 +738,8 @@ static const struct CMUnitTest tests[] = {
   cmocka_unit_test (dstrt_apply_erange_end),
   cmocka_unit_test (dstrt_apply_erange_start),
   cmocka_unit_test (dstrt_apply_no_op),
-  cmocka_unit_test (dstr_set_capacity_append_va),
+  cmocka_unit_test (dstrt_set_capacity_append_va),
+  cmocka_unit_test (dstrt_find),
   cmocka_unit_test (dstrt_replace_replacelen_le_matchlen_no_match),
   cmocka_unit_test (dstrt_replace_replacelen_le_matchlen_all),
   cmocka_unit_test (dstrt_replace_replacelen_le_matchlen_all_tail_match),

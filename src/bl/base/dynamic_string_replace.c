@@ -10,30 +10,6 @@
 #include <bl/base/string.h>
 #include <bl/base/dynamic_string.h>
 
-/* Algorith optimization for:
- -small strings.
- -small match len.
- -plain text alphabets (big alphabets).
- -no setup time (low number of matches).
- -smallest number of allocations.
- -minimal extra space.
- -strings with enough capacity to host the changes (uses realloc instead of
-  creating a new string and copying forward). Strings that are planned to be
-  used for replacements have to be dimensioned properly if the performance is
-  relevant.
-
-NOTE: if some day RAW perf is more important than to have minimal allocations,
-benchmark on many platforms by using "strstr" + separate allocation + forward
-copy.
-
-If strstr is linear O(M) (instead of O(M*N)) it will require setup time, to
-get the match string length and will be looking for the null terminator. memchr
-+ memcmp may be faster for most typical inputs, as it might be heavily optimized
-(SIMD) and doesn't need to check for the NULL terminator.
-
-If optimizations for long (haystack) strings and long match strings (needles)
-are desired, implement a more advanced exact string matching algorithm. There
-are many well-known efficient ones. */
 /*---------------------------------------------------------------------------*/
 static inline bl_err dstr_replace_replace_le_match(
   dstr*       s,
@@ -44,39 +20,26 @@ static inline bl_err dstr_replace_replace_le_match(
   uword       max
   )
 {
-  /*forward copy (replace_len <= match_len) */
-  uword found = 0;
-  char* rptr = s->da.str;
-  char* end  = rptr + dstr_len (s);
-  char* scanbegptr = rptr;
-  char* wptr       = rptr;
-  while (true) {
-    rptr = memchr (rptr, match[0], end - rptr);
-    if (!rptr || (end - rptr) < match_len) {
+  uword scan_start = 0;
+  uword found      = 0;
+  char* wptr       = s->da.str;
+
+  while (found < max) {
+    uword f = dstr_find_l (s, scan_start, match, match_len);
+    if (f >= dstr_len (s)) {
       break;
     }
-    if (memcmp (rptr + 1, match + 1, match_len - 1) == 0) {
-      uword advanced = rptr - scanbegptr;
-      if (wptr != scanbegptr) {
-        memmove (wptr, scanbegptr, advanced);
-      }
-      wptr      += advanced;
-      memcpy (wptr, replace, replace_len);
-      wptr      += replace_len;
-      rptr      += match_len;
-      scanbegptr = rptr;
-      ++found;
-      if (found == max) {
-        break;
-      }
-    }
-    else {
-      ++rptr;
-    }
+    uword advanced = f - scan_start;
+    memmove (wptr, s->da.str + scan_start, advanced);
+    wptr += advanced;
+    memcpy (wptr, replace, replace_len);
+    wptr      += replace_len;
+    scan_start = f + match_len;
+    ++found;
   }
-  if (wptr != scanbegptr) {
-    uword to_end = end - scanbegptr;
-    memmove (wptr, scanbegptr, to_end);
+  if (found) {
+    uword to_end = dstr_len (s) - scan_start;
+    memmove (wptr, s->da.str + scan_start, to_end);
     wptr             += to_end;
     s->len            = wptr - s->da.str;
     s->da.str[s->len] = 0;
@@ -84,7 +47,7 @@ static inline bl_err dstr_replace_replace_le_match(
   return bl_ok;
 }
 /*---------------------------------------------------------------------------*/
-static inline bl_err dstr_replace_gt_match_matches_stored_in_string(
+static inline bl_err dstr_replace_replace_gt_match_no_alloc(
   dstr*       s,
   char const* match,
   uword       match_len,
@@ -97,32 +60,22 @@ static inline bl_err dstr_replace_gt_match_matches_stored_in_string(
   /*Backwards copy (replace_len > match_len). The matches are saved on the
     string as a linked-list (the string is lost in case of an allocation
     failure)*/
-  uword found = 0;
-  char* rptr = s->da.str;
-  char* end  = rptr + dstr_len (s);
-  /*using the memory of the string to be replaced as an offset list*/
-  uword last = 0;
   bl_assert (dstr_len (s) < itype_max (word));
-  while (true) {
-    rptr = memchr (rptr, match[0], end - rptr);
-    if (!rptr || (end - rptr) < match_len) {
+  uword scan_start = 0;
+  uword last       = 0;
+  uword found      = 0;
+
+  while (found < max) {
+    uword f = dstr_find_l (s, scan_start, match, match_len);
+    if (f >= dstr_len (s)) {
       break;
     }
-    if (memcmp (rptr + 1, match + 1, match_len - 1) == 0) {
-      for (uword i = 0; i < len_bytes; ++i) {
-        /*saving prev inside the string as a linked list*/
-        rptr[i] = (char) (last >> (i * 8));
-      }
-      last  = rptr - s->da.str;
-      rptr += match_len;
-      ++found;
-      if (found == max) {
-        break;
-      }
+    for (uword i = 0; i < len_bytes; ++i) {
+      s->da.str[f + i] = (char) (last >> (i * 8));
     }
-    else {
-      ++rptr;
-    }
+    last       = f;
+    scan_start = f + match_len;
+    ++found;
   }
   if (found == 0) {
     return bl_ok;
@@ -134,11 +87,12 @@ static inline bl_err dstr_replace_gt_match_matches_stored_in_string(
     dstr_destroy (s); /* the string was modified */
     return err;
   }
-  char* rptr_prev   = end;
+  char* rptr_prev   = s->da.str + dstr_len (s);
   s->len            = bytes;
   s->da.str[s->len] = 0;
+
   do {
-    rptr       = s->da.str + last + match_len;
+    char* rptr = s->da.str + last + match_len;
     char *wptr = rptr + (found * diff);
     memmove (wptr, rptr, rptr_prev - rptr);
     rptr -= match_len;
@@ -172,33 +126,26 @@ static inline bl_err dstr_replace_replace_gt_match(
   bl_assert (dstr_len (s) < utype_max (u32));
   u32    stack_matches[32];
   u32arr matches;
+
   u32arr_init (&matches, stack_matches, arr_elems (stack_matches));
-  bl_err err  = bl_ok;
-  uword found = 0;
-  char* rptr  = s->da.str;
-  char* end   = rptr + dstr_len (s);
-  while (true) {
-    rptr = memchr (rptr, match[0], end - rptr);
-    if (!rptr || (end - rptr) < match_len) {
+  bl_err err       = bl_ok;
+  uword scan_start = 0;
+  uword found      = 0;
+
+  while (found < max) {
+    uword f = dstr_find_l (s, scan_start, match, match_len);
+    if (f >= dstr_len (s)) {
       break;
     }
-    if (memcmp (rptr + 1, match + 1, match_len - 1) == 0) {
-      if (u32arr_size (&matches) <= found) {
-        bl_err err = u32arr_grow (&matches, 32, s->alloc);
-        if (err) {
-          goto destroy_dynarray;
-        }
-      }
-      *u32arr_at (&matches, found) = (u32) (rptr - s->da.str);
-      rptr += match_len;
-      ++found;
-      if (found == max) {
-        break;
+    if (u32arr_size (&matches) <= found) {
+      bl_err err = u32arr_grow (&matches, 32, s->alloc);
+      if (err) {
+        goto destroy_dynarray;
       }
     }
-    else {
-      ++rptr;
-    }
+    *u32arr_at (&matches, found) = (u32) f;
+    scan_start = f + match_len;
+    ++found;
   }
   if (found == 0) {
     goto destroy_dynarray;
@@ -209,12 +156,12 @@ static inline bl_err dstr_replace_replace_gt_match(
   if (err) {
     goto destroy_dynarray;
   }
-  char* rptr_prev   = end;
+  char* rptr_prev   = s->da.str + dstr_len (s);
   s->len            = bytes;
   s->da.str[s->len] = 0;
   do {
     --found;
-    rptr       = s->da.str + *u32arr_at (&matches, found) + match_len;
+    char* rptr = s->da.str + *u32arr_at (&matches, found) + match_len;
     char *wptr = rptr + ((found + 1)* diff);
     memmove (wptr, rptr, rptr_prev - rptr);
     rptr -= match_len;
@@ -252,12 +199,11 @@ BL_EXPORT bl_err dstr_replace_l(
   }
   uword len_bytes = div_ceil (log2_ceil_u (dstr_len (s)), 8);
   if (match_len >= len_bytes) {
-    return dstr_replace_gt_match_matches_stored_in_string(
+    return dstr_replace_replace_gt_match_no_alloc(
       s, match, match_len, replace, replace_len, max, len_bytes
       );
   }
-  else
-       {
+  else {
     return dstr_replace_replace_gt_match(
       s, match, match_len, replace, replace_len, max
       );
