@@ -54,6 +54,7 @@ static bl_err dstr_append_impl (dstr *s, char const *str, uword len)
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err dstr_set_l (dstr *s, char const *str, uword len)
 {
+  bl_assert (strlen (str) >= len);
   dstr_clear (s);
   if (len > 0 && str) {
     return dstr_append_impl (s, str, len);
@@ -63,6 +64,7 @@ BL_EXPORT bl_err dstr_set_l (dstr *s, char const *str, uword len)
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err dstr_append_l (dstr *s, char const *str, uword len)
 {
+  bl_assert (strlen (str) >= len);
   if (len > 0 && str) {
     return dstr_append_impl (s, str, len);
   }
@@ -73,6 +75,7 @@ BL_EXPORT bl_err dstr_insert_l(
   dstr *s, uword idx, char const *str, uword len
   )
 {
+  bl_assert (strlen (str) >= len);
   if (unlikely (len == 0 || !str)) {
     return (len == 0 && !str) ? bl_ok : bl_invalid;
   }
@@ -279,13 +282,12 @@ BL_EXPORT char* dstr_steal_ownership (dstr *s)
   return ret;
 }
 /*---------------------------------------------------------------------------*/
-BL_EXPORT void dstr_transfer_ownership(
-  dstr *s, char* heap_string_from_alloc
-  )
+BL_EXPORT void dstr_transfer_ownership_l (dstr *s, char* str, uword len)
 {
+  bl_assert (strlen (str) >= len);
   dstr_destroy (s);
-  s->da.str  = heap_string_from_alloc;
-  s->len     = strlen (heap_string_from_alloc);
-  s->da.size = s->len + 1;
+  s->da.str  = str;
+  s->len     = len;
+  s->da.size = len + (len != 0);
 }
-/*----------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------*/

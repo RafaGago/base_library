@@ -69,6 +69,16 @@ static inline uword dstr_len (dstr const *s)
   return s->len;
 }
 /*---------------------------------------------------------------------------*/
+static inline char const* dstr_beg (dstr const *s)
+{
+  return dstr_get (s);
+}
+/*---------------------------------------------------------------------------*/
+static inline char const* dstr_end (dstr const *s)
+{
+  return dstr_get (s) + dstr_len (s);
+}
+/*---------------------------------------------------------------------------*/
 static inline alloc_tbl const* dstr_alloc (dstr const *s)
 {
   return s->alloc;
@@ -76,9 +86,18 @@ static inline alloc_tbl const* dstr_alloc (dstr const *s)
 /*---------------------------------------------------------------------------*/
 extern BL_EXPORT char* dstr_steal_ownership (dstr *s);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT void dstr_transfer_ownership(
-  dstr *s, char* heap_string_from_same_alloc
+extern BL_EXPORT void dstr_transfer_ownership_l(
+  dstr *s, char* heap_string_from_same_alloc, uword len
   );
+/*---------------------------------------------------------------------------*/
+static inline void dstr_transfer_ownership(
+  dstr *s, char* heap_string_from_same_alloc
+  )
+{
+  dstr_transfer_ownership_l(
+    s, heap_string_from_same_alloc, strlen (heap_string_from_same_alloc)
+    );
+}
 /*---------------------------------------------------------------------------*/
 extern BL_EXPORT bl_err dstr_set_l (dstr *s, char const *str, uword len);
 extern BL_EXPORT bl_err dstr_append_l (dstr *s, char const *str, uword len);
