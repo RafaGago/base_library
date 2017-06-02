@@ -186,9 +186,24 @@ static inline bl_err dstr_replace_o(
     count
     );
 }
-static inline bl_err dstr_find_o (dstr *s, dstr const *search, uword offset)
+/*---------------------------------------------------------------------------*/
+static inline bl_err dstr_set_char (dstr *s, char c)
 {
-  return dstr_find_l (s, dstr_get (search), dstr_len (search), offset);
+  return dstr_set_l (s, &c, 1);
+}
+static inline bl_err dstr_append_char (dstr *s, char c)
+{
+  return dstr_append_l (s, &c, 1);
+}
+static inline bl_err dstr_insert_char (dstr *s, uword idx, char c)
+{
+  return dstr_insert_l (s, idx, &c, 1);
+}
+static inline bl_err dstr_replace_char(
+  dstr *s, char match, char replace, uword offset, uword count
+  )
+{
+  return dstr_replace_l (s, &match, 1, &replace, 1, offset, count);
 }
 /*---------------------------------------------------------------------------*/
 /* all the *_va functions use a printf style format string plus varags */
