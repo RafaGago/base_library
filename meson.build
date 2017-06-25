@@ -110,6 +110,14 @@ base_srcs = [
     'src/bl/base/string.c',
     'src/bl/base/dynamic_string.c',
     'src/bl/base/dynamic_string_replace.c',
+    'src/bl/base/alnls/array_linked_list_u8_basic.c',
+    'src/bl/base/alnls/array_linked_list_u8_extended.c',
+    'src/bl/base/alnls/array_linked_list_u16_basic.c',
+    'src/bl/base/alnls/array_linked_list_u16_extended.c',
+    'src/bl/base/alnls/array_linked_list_u32_basic.c',
+    'src/bl/base/alnls/array_linked_list_u32_extended.c',
+    'src/bl/base/alnls/array_linked_list_u64_basic.c',
+    'src/bl/base/alnls/array_linked_list_u64_extended.c',
 ]
 base_test_srcs = [
     'test/src/bl/base/hex_string_test.c',

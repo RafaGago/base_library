@@ -1,8 +1,7 @@
 #ifndef __BL_ARRAY_LINKED_LIST_H__
 #define __BL_ARRAY_LINKED_LIST_H__
 
-/*---------------------------------------------------------------------------*/
-/*
+/*------------------------------------------------------------------------------
   A singly-linked list with node references as array indexes to an embedded
   fixed sized array.
 
@@ -10,11 +9,22 @@
   access another array containing the data you want to associate with each
   entry.
 
-  This is a very specialized data structure just for memory constrained 
+  This is a very specialized data structure just for memory constrained
   environments. Not a general use one.
 
-  For further usage reference see the unit tests for this type.
-*/
+  For further usage reference see the unit tests for this type or any of the
+  files included below.
+------------------------------------------------------------------------------*/
+#include <bl/base/impl/array_linked_list_u8.h>
+#include <bl/base/impl/array_linked_list_u16.h>
+#include <bl/base/impl/array_linked_list_u32.h>
+#include <bl/base/impl/array_linked_list_u64.h>
+
+#endif /* __BL_ARRAY_LINKED_LIST_H__ */
+
+#if 0
+
+
 /*---------------------------------------------------------------------------*/
 #include <bl/base/assert.h>
 #include <bl/base/platform.h>
@@ -22,7 +32,7 @@
 #include <bl/base/utility.h>
 #include <bl/base/impl/array_linked_list_private.h>
 
-typedef uword alnls_it; 
+typedef uword alnls_it;
 /*---------------------------------------------------------------------------*/
 #define alnls_nodes(type_ptr)            ((type_ptr)->nodes)
 #define alnls_capacity(type_ptr)         arr_elems (alnls_nodes (type_ptr))
@@ -200,7 +210,7 @@ func_prefix index_uint_type new_alnls_type_basename##_size(\
   return new_alnls_type_basename##_size_get_private (l);\
 }
 /*---------------------------------------------------------------------------*/
-#if 0 
+#if 0
 
 /*
 debug test code. Equivalent to the next two macro invocations:
@@ -337,5 +347,4 @@ static inline alnls_it alnls_test_drop_tail (alnls_test* l)
 }
 #endif
 
-#endif /* __BL_ARRAY_LINKED_LIST_H__ */
-
+#endif
