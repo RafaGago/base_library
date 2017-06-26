@@ -13,9 +13,9 @@
 typedef u64 alnls_u64_it;
 /*---------------------------------------------------------------------------*/
 typedef struct alnls_u64 {
-  uword head;
   uword capacity;
   uword size;
+  u64 head;
   u64* nodes;
 }
 alnls_u64;

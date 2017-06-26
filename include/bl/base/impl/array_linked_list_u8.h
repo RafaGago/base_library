@@ -13,9 +13,9 @@
 typedef u8 alnls_u8_it;
 /*---------------------------------------------------------------------------*/
 typedef struct alnls_u8 {
-  uword head;
   uword capacity;
   uword size;
+  u8 head;
   u8* nodes;
 }
 alnls_u8;

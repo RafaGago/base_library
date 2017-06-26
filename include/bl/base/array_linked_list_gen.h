@@ -25,9 +25,9 @@ linker.
 typedef {TYPE} alnls_{TYPE}_it;
 /*---------------------------------------------------------------------------*/
 typedef struct alnls_{TYPE} {
-  uword head;
   uword capacity;
   uword size;
+  {TYPE} head;
   {TYPE}* nodes;
 }
 alnls_{TYPE};

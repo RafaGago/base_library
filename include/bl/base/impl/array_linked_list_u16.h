@@ -13,9 +13,9 @@
 typedef u16 alnls_u16_it;
 /*---------------------------------------------------------------------------*/
 typedef struct alnls_u16 {
-  uword head;
   uword capacity;
   uword size;
+  u16 head;
   u16* nodes;
 }
 alnls_u16;

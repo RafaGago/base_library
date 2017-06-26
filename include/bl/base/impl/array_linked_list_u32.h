@@ -13,9 +13,9 @@
 typedef u32 alnls_u32_it;
 /*---------------------------------------------------------------------------*/
 typedef struct alnls_u32 {
-  uword head;
   uword capacity;
   uword size;
+  u32 head;
   u32* nodes;
 }
 alnls_u32;
