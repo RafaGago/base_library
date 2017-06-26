@@ -1,82 +1,81 @@
 #include <bl/cmocka_pre.h>
 
-#include <bl/base/array_doubly_linked_list.h>
+#include <bl/base/impl/array_doubly_linked_list_u8.h>
+
 #include <bl/base/utility.h>
 #include <bl/base/to_type_containing.h>
 /*---------------------------------------------------------------------------*/
-adlnls_sz_define_types (adlnls_test, u8, 4)
-adlnls_sz_define_funcs (adlnls_test, u8, static inline)
-/*---------------------------------------------------------------------------*/
-typedef struct adlnls_test_context {
-  adlnls_test  l;
-  adlnls_it    its[adlnls_capacity ((adlnls_test*) 0)];
+typedef struct adlnls_u8_context {
+  adlnls_u8    l;
+  adlnls_u8_it nodes[4];
+  adlnls_u8_it its[4];
 }
-adlnls_test_context;
+adlnls_u8_context;
 /*---------------------------------------------------------------------------*/
-static int adlnls_test_setup (void **state)
+static int adlnls_u8_setup (void **state)
 {
-  static adlnls_test_context c;
+  static adlnls_u8_context c;
 
   *state = (void*) &c;
-  adlnls_test_init (&c.l);
+  adlnls_u8_init (&c.l, c.nodes);
   return 0;
 }
 /*---------------------------------------------------------------------------*/
-static void adlnls_test_acquire_release_nodes (void **state)
+static void adlnls_u8_acquire_release_nodes (void **state)
 {
-  adlnls_test_context* c = (adlnls_test_context*) *state;
+  adlnls_u8_context* c = (adlnls_u8_context*) *state;
   for (uword i = 0; i < arr_elems (c->its); ++i) {
-    c->its[i] = adlnls_test_try_acquire_a_node (&c->l);
-    assert_true (c->its[i] != adlnls_it_end (&c->l));
+    c->its[i] = adlnls_u8_try_acquire_a_node (&c->l);
+    assert_true (c->its[i] != adlnls_u8_it_end (&c->l));
   }
-  assert_true (adlnls_test_try_acquire_a_node (&c->l) == adlnls_it_end(&c->l));
-  adlnls_it release = c->its[arr_elems (c->its) - 1];
-  adlnls_node_release (&c->l, release);
-  assert_true (adlnls_test_try_acquire_a_node (&c->l) == release);
+  assert_true (adlnls_u8_try_acquire_a_node (&c->l) == adlnls_u8_it_end(&c->l));
+  adlnls_u8_it release = c->its[arr_elems (c->its) - 1];
+  adlnls_u8_node_release (&c->l, release);
+  assert_true (adlnls_u8_try_acquire_a_node (&c->l) == release);
 }
 /*---------------------------------------------------------------------------*/
-static void adlnls_test_insert_tail_drop_head (void **state)
+static void adlnls_u8_insert_tail_drop_head (void **state)
 {
-  adlnls_test_context* c = (adlnls_test_context*) *state;
+  adlnls_u8_context* c = (adlnls_u8_context*) *state;
   for (uword i = 0; i < arr_elems (c->its); ++i) {
-    c->its[i] = adlnls_test_try_acquire_a_node (&c->l);
-    adlnls_test_insert_tail (&c->l, c->its[i]);
-    assert_true (adlnls_test_size (&c->l) == i + 1);
+    c->its[i] = adlnls_u8_try_acquire_a_node (&c->l);
+    adlnls_u8_insert_tail (&c->l, c->its[i]);
+    assert_true (adlnls_u8_size (&c->l) == i + 1);
   }
   for (uword i = 0; i < arr_elems (c->its); ++i) {
-    assert_true (adlnls_test_drop_head (&c->l) == c->its[i]);
-    adlnls_node_release (&c->l, c->its[i]);
-    assert_true (adlnls_test_size (&c->l) == arr_elems (c->its) - i - 1);
+    assert_true (adlnls_u8_drop_head (&c->l) == c->its[i]);
+    adlnls_u8_node_release (&c->l, c->its[i]);
+    assert_true (adlnls_u8_size (&c->l) == arr_elems (c->its) - i - 1);
   }
-  assert_true (adlnls_is_empty (&c->l));
+  assert_true (adlnls_u8_is_empty (&c->l));
 }
 /*---------------------------------------------------------------------------*/
-static void adlnls_test_insert_head_drop_tail (void **state)
+static void adlnls_u8_insert_head_drop_tail (void **state)
 {
-  adlnls_test_context* c = (adlnls_test_context*) *state;
+  adlnls_u8_context* c = (adlnls_u8_context*) *state;
   for (uword i = 0; i < arr_elems (c->its); ++i) {
-    c->its[i] = adlnls_test_try_acquire_a_node (&c->l);
-    adlnls_test_insert_head (&c->l, c->its[i]);
-    assert_true (adlnls_test_size (&c->l) == i + 1);
+    c->its[i] = adlnls_u8_try_acquire_a_node (&c->l);
+    adlnls_u8_insert_head (&c->l, c->its[i]);
+    assert_true (adlnls_u8_size (&c->l) == i + 1);
   }
   for (uword i = 0; i < arr_elems (c->its); ++i) {
-    assert_true (adlnls_test_drop_tail (&c->l) == c->its[i]);
-    adlnls_node_release (&c->l, c->its[i]);
-    assert_true (adlnls_test_size (&c->l) == arr_elems (c->its) - i - 1);
+    assert_true (adlnls_u8_drop_tail (&c->l) == c->its[i]);
+    adlnls_u8_node_release (&c->l, c->its[i]);
+    assert_true (adlnls_u8_size (&c->l) == arr_elems (c->its) - i - 1);
   }
-  assert_true (adlnls_is_empty (&c->l));
+  assert_true (adlnls_u8_is_empty (&c->l));
 }
 /*---------------------------------------------------------------------------*/
-static void adlnls_iteration (void **state)
+static void adlnls_u8_iteration (void **state)
 {
-  adlnls_test_context* c = (adlnls_test_context*) *state;
+  adlnls_u8_context* c = (adlnls_u8_context*) *state;
   for (uword i = 0; i < arr_elems (c->its); ++i) {
-    c->its[i] = adlnls_test_try_acquire_a_node (&c->l);
-    adlnls_test_insert_tail (&c->l, c->its[i]);
+    c->its[i] = adlnls_u8_try_acquire_a_node (&c->l);
+    adlnls_u8_insert_tail (&c->l, c->its[i]);
   }
-  adlnls_it it;
+  adlnls_u8_it it;
   uword i = 0;
-  adlnls_foreach_read_only (&c->l, it)
+  adlnls_u8_foreach_read_only (&c->l, it)
   {
     assert_true (it == c->its[i]);
     ++i;
@@ -84,16 +83,16 @@ static void adlnls_iteration (void **state)
   assert_true (i == arr_elems (c->its));
 }
 /*---------------------------------------------------------------------------*/
-static void adlnls_reverse_iteration (void **state)
+static void adlnls_u8_reverse_iteration (void **state)
 {
-  adlnls_test_context* c = (adlnls_test_context*) *state;
+  adlnls_u8_context* c = (adlnls_u8_context*) *state;
   for (uword i = 0; i < arr_elems (c->its); ++i) {
-    c->its[i] = adlnls_test_try_acquire_a_node (&c->l);
-    adlnls_test_insert_head (&c->l, c->its[i]);
+    c->its[i] = adlnls_u8_try_acquire_a_node (&c->l);
+    adlnls_u8_insert_head (&c->l, c->its[i]);
   }
-  adlnls_it it;
+  adlnls_u8_it it;
   uword i = 0;
-  adlnls_foreach_r_read_only (&c->l, it)
+  adlnls_u8_foreach_r_read_only (&c->l, it)
   {
     assert_true (it == c->its[i]);
     ++i;
@@ -101,21 +100,21 @@ static void adlnls_reverse_iteration (void **state)
   assert_true (i == arr_elems (c->its));
 }
 /*---------------------------------------------------------------------------*/
-static void adlnls_test_middle_removal_no_head_no_tail (void **state)
+static void adlnls_u8_middle_removal_no_head_no_tail (void **state)
 {
-  adlnls_test_context* c = (adlnls_test_context*) *state;
+  adlnls_u8_context* c = (adlnls_u8_context*) *state;
   for (uword i = 0; i < arr_elems (c->its); ++i) {
-    c->its[i] = adlnls_test_try_acquire_a_node (&c->l);
-    adlnls_test_insert_tail (&c->l, c->its[i]);
+    c->its[i] = adlnls_u8_try_acquire_a_node (&c->l);
+    adlnls_u8_insert_tail (&c->l, c->its[i]);
   }
   uword removed_pos = arr_elems (c->its) / 2;
   assert_true(
-    adlnls_test_drop_explicit (&c->l, c->its[removed_pos], true
+    adlnls_u8_drop_explicit (&c->l, c->its[removed_pos], true
     ) == c->its[removed_pos - 1]
    );
-  assert_true (adlnls_test_size (&c->l) == arr_elems (c->its) - 1);
+  assert_true (adlnls_u8_size (&c->l) == arr_elems (c->its) - 1);
   uword i = 0;
-  adlnls_foreach (&c->l, it)
+  adlnls_u8_foreach (&c->l, it)
   {
 	if (i == removed_pos) { ++i; }
     assert_true (it == c->its[i]);
@@ -124,20 +123,20 @@ static void adlnls_test_middle_removal_no_head_no_tail (void **state)
   assert_true (i == arr_elems (c->its));
 }
 /*---------------------------------------------------------------------------*/
-static void adlnls_test_middle_removal_tail (void **state)
+static void adlnls_u8_middle_removal_tail (void **state)
 {
-  adlnls_test_context* c = (adlnls_test_context*) *state;
+  adlnls_u8_context* c = (adlnls_u8_context*) *state;
   for (uword i = 0; i < arr_elems (c->its); ++i) {
-    c->its[i] = adlnls_test_try_acquire_a_node (&c->l);
-    adlnls_test_insert_tail (&c->l, c->its[i]);
+    c->its[i] = adlnls_u8_try_acquire_a_node (&c->l);
+    adlnls_u8_insert_tail (&c->l, c->its[i]);
   }
   uword removed_pos = arr_elems (c->its) - 1;
   assert_true(
-    adlnls_test_drop_explicit (&c->l, c->its[removed_pos], true
+    adlnls_u8_drop_explicit (&c->l, c->its[removed_pos], true
       ) == c->its[removed_pos - 1]
    );
   uword i = 0;
-  adlnls_foreach (&c->l, it)
+  adlnls_u8_foreach (&c->l, it)
   {
     assert_true (it == c->its[i]);
     ++i;
@@ -145,32 +144,32 @@ static void adlnls_test_middle_removal_tail (void **state)
   assert_true (i == arr_elems (c->its) - 1);
 }
 /*---------------------------------------------------------------------------*/
-static void adlnls_test_middle_removal_head (void **state)
+static void adlnls_u8_middle_removal_head (void **state)
 {
-  adlnls_test_context* c = (adlnls_test_context*) *state;
-  adlnls_it it      = adlnls_test_try_acquire_a_node (&c->l);
-  adlnls_test_insert_tail (&c->l, it);
+  adlnls_u8_context* c = (adlnls_u8_context*) *state;
+  adlnls_u8_it it      = adlnls_u8_try_acquire_a_node (&c->l);
+  adlnls_u8_insert_tail (&c->l, it);
 
   assert_true(
-    adlnls_test_drop_explicit (&c->l, it, true) == adlnls_it_end (&c->l)
+    adlnls_u8_drop_explicit (&c->l, it, true) == adlnls_u8_it_end (&c->l)
     );
-  assert_true (adlnls_is_empty (&c->l));
+  assert_true (adlnls_u8_is_empty (&c->l));
 }
 /*---------------------------------------------------------------------------*/
-static void adlnls_test_iterate_removal (void **state)
+static void adlnls_u8_iterate_removal (void **state)
 {
-  adlnls_test_context* c = (adlnls_test_context*) *state;
+  adlnls_u8_context* c = (adlnls_u8_context*) *state;
   for (uword i = 0; i < arr_elems (c->its); ++i) {
-    c->its[i] = adlnls_test_try_acquire_a_node (&c->l);
-    adlnls_test_insert_tail (&c->l, c->its[i]);
+    c->its[i] = adlnls_u8_try_acquire_a_node (&c->l);
+    adlnls_u8_insert_tail (&c->l, c->its[i]);
   }
   uword remove_pos = arr_elems (c->its) / 2;
   uword i = 0;
-  adlnls_foreach (&c->l, it)
+  adlnls_u8_foreach (&c->l, it)
   {
     assert_true (it == c->its[i]);
     if (i == remove_pos) {
-      adlnls_it prev = adlnls_test_drop_explicit (&c->l, it, true);
+      adlnls_u8_it prev = adlnls_u8_drop_explicit (&c->l, it, true);
       assert_true (prev == c->its[i - 1]);
     }
     ++i;
@@ -178,41 +177,41 @@ static void adlnls_test_iterate_removal (void **state)
   assert_true (i == arr_elems (c->its));
 }
 /*---------------------------------------------------------------------------*/
-static void adlnls_test_iterate_removal_head (void **state)
+static void adlnls_u8_iterate_removal_head (void **state)
 {
-  adlnls_test_context* c = (adlnls_test_context*) *state;
+  adlnls_u8_context* c = (adlnls_u8_context*) *state;
   for (uword i = 0; i < arr_elems (c->its); ++i) {
-    c->its[i] = adlnls_test_try_acquire_a_node (&c->l);
-    adlnls_test_insert_tail (&c->l, c->its[i]);
+    c->its[i] = adlnls_u8_try_acquire_a_node (&c->l);
+    adlnls_u8_insert_tail (&c->l, c->its[i]);
   }
   uword remove_pos = 0;
   uword i = 0;
-  adlnls_foreach (&c->l, it)
+  adlnls_u8_foreach (&c->l, it)
   {
     assert_true (it == c->its[i]);
     if (i == remove_pos) {
-      adlnls_it noprev = adlnls_test_drop_explicit (&c->l, it, true);
-      assert_true (noprev == adlnls_it_end (&c->l));
+      adlnls_u8_it noprev = adlnls_u8_drop_explicit (&c->l, it, true);
+      assert_true (noprev == adlnls_u8_it_end (&c->l));
     }
     ++i;
   }
   assert_true (i == arr_elems (c->its));
 }
 /*---------------------------------------------------------------------------*/
-static void adlnls_test_iterate_removal_tail (void **state)
+static void adlnls_u8_iterate_removal_tail (void **state)
 {
-  adlnls_test_context* c = (adlnls_test_context*) *state;
+  adlnls_u8_context* c = (adlnls_u8_context*) *state;
   for (uword i = 0; i < arr_elems (c->its); ++i) {
-    c->its[i] = adlnls_test_try_acquire_a_node (&c->l);
-    adlnls_test_insert_tail (&c->l, c->its[i]);
+    c->its[i] = adlnls_u8_try_acquire_a_node (&c->l);
+    adlnls_u8_insert_tail (&c->l, c->its[i]);
   }
   uword remove_pos = arr_elems (c->its) - 1;
   uword i = 0;
-  adlnls_foreach (&c->l, it)
+  adlnls_u8_foreach (&c->l, it)
   {
     assert_true (it == c->its[i]);
     if (i == remove_pos) {
-      adlnls_it prev = adlnls_test_drop_explicit (&c->l, it, true);
+      adlnls_u8_it prev = adlnls_u8_drop_explicit (&c->l, it, true);
       assert_true (prev == c->its[i - 1]);
     }
     ++i;
@@ -220,20 +219,20 @@ static void adlnls_test_iterate_removal_tail (void **state)
   assert_true (i == arr_elems (c->its));
 }
 /*---------------------------------------------------------------------------*/
-static void adlnls_test_iterate_removal_reverse (void **state)
+static void adlnls_u8_iterate_removal_reverse (void **state)
 {
-  adlnls_test_context* c = (adlnls_test_context*) *state;
+  adlnls_u8_context* c = (adlnls_u8_context*) *state;
   for (uword i = 0; i < arr_elems (c->its); ++i) {
-    c->its[i] = adlnls_test_try_acquire_a_node (&c->l);
-    adlnls_test_insert_head (&c->l, c->its[i]);
+    c->its[i] = adlnls_u8_try_acquire_a_node (&c->l);
+    adlnls_u8_insert_head (&c->l, c->its[i]);
   }
   uword remove_pos = arr_elems (c->its) / 2;
   uword i = 0;
-  adlnls_foreach_r (&c->l, it)
+  adlnls_u8_foreach_r (&c->l, it)
   {
     assert_true (it == c->its[i]);
     if (i == remove_pos) {
-      adlnls_it next = adlnls_test_drop_explicit (&c->l, it, false);
+      adlnls_u8_it next = adlnls_u8_drop_explicit (&c->l, it, false);
       assert_true (next == c->its[i - 1]);
     }
     ++i;
@@ -241,41 +240,41 @@ static void adlnls_test_iterate_removal_reverse (void **state)
   assert_true (i == arr_elems (c->its));
 }
 /*---------------------------------------------------------------------------*/
-static void adlnls_test_iterate_removal_reverse_head (void **state)
+static void adlnls_u8_iterate_removal_reverse_head (void **state)
 {
-  adlnls_test_context* c = (adlnls_test_context*) *state;
+  adlnls_u8_context* c = (adlnls_u8_context*) *state;
   for (uword i = 0; i < arr_elems (c->its); ++i) {
-    c->its[i] = adlnls_test_try_acquire_a_node (&c->l);
-    adlnls_test_insert_head (&c->l, c->its[i]);
+    c->its[i] = adlnls_u8_try_acquire_a_node (&c->l);
+    adlnls_u8_insert_head (&c->l, c->its[i]);
   }
   uword remove_pos = 0;
   uword i = 0;
-  adlnls_foreach_r (&c->l, it)
+  adlnls_u8_foreach_r (&c->l, it)
   {
     assert_true (it == c->its[i]);
     if (i == remove_pos) {
-      adlnls_it no_next = adlnls_test_drop_explicit (&c->l, it, false);
-      assert_true (no_next == adlnls_it_end (&c->l));
+      adlnls_u8_it no_next = adlnls_u8_drop_explicit (&c->l, it, false);
+      assert_true (no_next == adlnls_u8_it_end (&c->l));
     }
     ++i;
   }
   assert_true (i == arr_elems (c->its));
 }
 /*---------------------------------------------------------------------------*/
-static void adlnls_test_iterate_removal_reverse_tail (void **state)
+static void adlnls_u8_iterate_removal_reverse_tail (void **state)
 {
-  adlnls_test_context* c = (adlnls_test_context*) *state;
+  adlnls_u8_context* c = (adlnls_u8_context*) *state;
   for (uword i = 0; i < arr_elems (c->its); ++i) {
-    c->its[i] = adlnls_test_try_acquire_a_node (&c->l);
-    adlnls_test_insert_head (&c->l, c->its[i]);
+    c->its[i] = adlnls_u8_try_acquire_a_node (&c->l);
+    adlnls_u8_insert_head (&c->l, c->its[i]);
   }
   uword remove_pos = arr_elems (c->its) - 1;
   uword i = 0;
-  adlnls_foreach_r (&c->l, it)
+  adlnls_u8_foreach_r (&c->l, it)
   {
     assert_true (it == c->its[i]);
     if (i == remove_pos) {
-      adlnls_it next = adlnls_test_drop_explicit (&c->l, it, false);
+      adlnls_u8_it next = adlnls_u8_drop_explicit (&c->l, it, false);
       assert_true (next == c->its[i - 1]);
     }
     ++i;
@@ -285,31 +284,31 @@ static void adlnls_test_iterate_removal_reverse_tail (void **state)
 /*---------------------------------------------------------------------------*/
 static const struct CMUnitTest tests[] = {
 
-  cmocka_unit_test_setup (adlnls_test_acquire_release_nodes, adlnls_test_setup),
+  cmocka_unit_test_setup (adlnls_u8_acquire_release_nodes, adlnls_u8_setup),
   cmocka_unit_test_setup(
-    adlnls_test_insert_tail_drop_head, adlnls_test_setup
+    adlnls_u8_insert_tail_drop_head, adlnls_u8_setup
     ),
   cmocka_unit_test_setup(
-    adlnls_test_insert_head_drop_tail, adlnls_test_setup
+    adlnls_u8_insert_head_drop_tail, adlnls_u8_setup
     ),
-  cmocka_unit_test_setup (adlnls_iteration, adlnls_test_setup),
-  cmocka_unit_test_setup (adlnls_reverse_iteration, adlnls_test_setup),
+  cmocka_unit_test_setup (adlnls_u8_iteration, adlnls_u8_setup),
+  cmocka_unit_test_setup (adlnls_u8_reverse_iteration, adlnls_u8_setup),
   cmocka_unit_test_setup(
-    adlnls_test_middle_removal_no_head_no_tail, adlnls_test_setup
+    adlnls_u8_middle_removal_no_head_no_tail, adlnls_u8_setup
     ),
-  cmocka_unit_test_setup (adlnls_test_middle_removal_head, adlnls_test_setup),
-  cmocka_unit_test_setup (adlnls_test_middle_removal_tail, adlnls_test_setup),
-  cmocka_unit_test_setup (adlnls_test_iterate_removal, adlnls_test_setup),
-  cmocka_unit_test_setup (adlnls_test_iterate_removal_head, adlnls_test_setup),
-  cmocka_unit_test_setup (adlnls_test_iterate_removal_tail, adlnls_test_setup),
+  cmocka_unit_test_setup (adlnls_u8_middle_removal_head, adlnls_u8_setup),
+  cmocka_unit_test_setup (adlnls_u8_middle_removal_tail, adlnls_u8_setup),
+  cmocka_unit_test_setup (adlnls_u8_iterate_removal, adlnls_u8_setup),
+  cmocka_unit_test_setup (adlnls_u8_iterate_removal_head, adlnls_u8_setup),
+  cmocka_unit_test_setup (adlnls_u8_iterate_removal_tail, adlnls_u8_setup),
   cmocka_unit_test_setup(
-    adlnls_test_iterate_removal_reverse, adlnls_test_setup
+    adlnls_u8_iterate_removal_reverse, adlnls_u8_setup
 	),
   cmocka_unit_test_setup(
-   adlnls_test_iterate_removal_reverse_head, adlnls_test_setup
+   adlnls_u8_iterate_removal_reverse_head, adlnls_u8_setup
     ),
   cmocka_unit_test_setup(
-    adlnls_test_iterate_removal_reverse_tail, adlnls_test_setup
+    adlnls_u8_iterate_removal_reverse_tail, adlnls_u8_setup
     ),
 };
 /*---------------------------------------------------------------------------*/

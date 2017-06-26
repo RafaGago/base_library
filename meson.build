@@ -118,6 +118,10 @@ base_srcs = [
     'src/bl/base/alnls/array_linked_list_u32_extended.c',
     'src/bl/base/alnls/array_linked_list_u64_basic.c',
     'src/bl/base/alnls/array_linked_list_u64_extended.c',
+    'src/bl/base/adlnls/array_doubly_linked_list_u8_basic.c',
+    'src/bl/base/adlnls/array_doubly_linked_list_u16_basic.c',
+    'src/bl/base/adlnls/array_doubly_linked_list_u32_basic.c',
+    'src/bl/base/adlnls/array_doubly_linked_list_u64_basic.c',
 ]
 base_test_srcs = [
     'test/src/bl/base/hex_string_test.c',
