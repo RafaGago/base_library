@@ -112,6 +112,7 @@ base_srcs = [
     'src/bl/base/dynamic_string_replace.c',
     'src/bl/base/ringbuffer_basic.c',
     'src/bl/base/ringbuffer_extended.c',
+    'src/bl/base/ordered_ringbuffer.c',
     'src/bl/base/alnls/array_linked_list_u8_basic.c',
     'src/bl/base/alnls/array_linked_list_u8_extended.c',
     'src/bl/base/alnls/array_linked_list_u16_basic.c',

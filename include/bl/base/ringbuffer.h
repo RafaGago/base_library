@@ -217,7 +217,7 @@ static inline void prefix##_set_start_position (ringb* rb, uword idx)\
 \
 static inline bool prefix##_can_insert_n (const ringb* rb, uword n)\
 {\
-  return prefix##_capacity (rb) >= prefix##_size (rb) + n;\
+  return ringb_capacity (rb) >= ringb_size (rb) + n;\
 }\
 \
 static inline bool prefix##_can_insert (const ringb* rb)\
@@ -259,7 +259,7 @@ static inline void prefix##_insert_head (ringb* rb, content_type const* v)\
 \
 static inline void prefix##_expand_tail_n (ringb* rb, uword n)\
 {\
-   prefix##_expand_tail_n (rb, n);\
+   ringb_expand_tail_n (rb, n);\
 }\
 \
 static inline void prefix##_insert_tail (ringb* rb, content_type const* v)\

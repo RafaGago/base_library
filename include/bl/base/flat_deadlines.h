@@ -1,7 +1,7 @@
 #ifndef __BL_FLAT_DEADLINES_H__
 #define __BL_FLAT_DEADLINES_H__
 
-/*represents a fixed-size array-based associative structure with 
+/*represents a fixed-size array-based associative structure with
  wrapping/overflowing timestamps as the key and some struct as the value. to
  use with small datasets and structures.
 
@@ -27,19 +27,32 @@ typedef struct prefix##_entry {\
 prefix##_entry;\
 \
 /*--------------------------------------------------------------------------*/\
-define_oringb_types (prefix##_ringb, prefix##_entry)\
-/*--------------------------------------------------------------------------*/\
 typedef struct prefix {\
-  prefix##_ringb list;\
-  tstamp         time_offset;\
+  oringb list;\
+  tstamp time_offset;\
 }\
 prefix;
 /*---------------------------------------------------------------------------*/
 /* Function declarations*/
 /*---------------------------------------------------------------------------*/
-#define declare_flat_deadlines_funcs(prefix, value_type, linkage_and_modif)\
+#define declare_flat_deadlines_funcs(\
+  prefix, value_type, linkage_and_modif\
+  )\
 /*--------------------------------------------------------------------------*/\
-declare_oringb_funcs (prefix##_ringb, prefix##_entry, linkage_and_modif)\
+static inline word prefix##_flat_deadlines_ordering_func(\
+  void const* a, void const* b, void* context\
+  )\
+{\
+  prefix* l = (prefix*) context;\
+  return deadline_compare(\
+    ((prefix##_entry*) a)->key - l->time_offset,\
+    ((prefix##_entry*) b)->key - l->time_offset\
+    );\
+}\
+/*--------------------------------------------------------------------------*/\
+oringb_define_wrap_funcs(\
+  prefix##_ringb, prefix##_entry, prefix##_flat_deadlines_ordering_func\
+  )\
 /*--------------------------------------------------------------------------*/\
 linkage_and_modif \
 prefix##_entry const* prefix##_get_head (prefix* dl);\
@@ -118,24 +131,6 @@ static inline prefix##_entry const* prefix##_at (prefix const* dl, uword idx)\
 /*---------------------------------------------------------------------------*/
 #define define_flat_deadlines_funcs(\
   prefix, value_type, content_type_cmp_func, linkage_and_modif\
-  )\
-/*--------------------------------------------------------------------------*/\
-static inline word prefix##_flat_deadlines_ordering_func(\
-  void const* a, void const* b, void* context\
-  )\
-{\
-  prefix* l = (prefix*) context;\
-  return deadline_compare(\
-    ((prefix##_entry*) a)->key - l->time_offset,\
-    ((prefix##_entry*) b)->key - l->time_offset\
-    );\
-}\
-/*--------------------------------------------------------------------------*/\
-define_oringb_funcs(\
-  prefix##_ringb,\
-  prefix##_entry,\
-  prefix##_flat_deadlines_ordering_func,\
-  linkage_and_modif\
   )\
 /*--------------------------------------------------------------------------*/\
 linkage_and_modif \
