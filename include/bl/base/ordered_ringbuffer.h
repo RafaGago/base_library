@@ -18,13 +18,12 @@ oringb_insert_result;
 /*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 #define define_oringb_types(prefix, content_type)\
-  define_ringb_types(prefix, content_type)\
-  typedef prefix prefix##_private;\
+  typedef ringb prefix;\
+  typedef ringb prefix##_private;
 /*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 #define declare_oringb_funcs(prefix, content_type, linkage_and_modif)\
-declare_ringb_funcs(prefix##_private, content_type, linkage_and_modif)\
-declare_ringb_extended_funcs(prefix##_private, content_type, linkage_and_modif)\
+ringb_define_wrap_funcs (prefix##_private, content_type)\
 /*--------------------------------------------------------------------------*/\
 static inline \
 bl_err prefix##_init_extern (prefix* rb, content_type* mem, uword capacity)\
@@ -159,15 +158,13 @@ uword prefix##_find_eq_or_gt(\
   Which returns:
   -N: "a" is smaller (to be placed towards the head of the buffer from b).
   -0: equal
-  -N: "a" is bigger. 
+  -N: "a" is bigger.
 */
 /*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 #define define_oringb_funcs(\
   prefix, content_type, cmp_func, linkage_and_modif \
   )\
-define_ringb_funcs (prefix##_private, content_type, linkage_and_modif)\
-define_ringb_extended_funcs (prefix##_private, content_type, linkage_and_modif)\
 /*--------------------------------------------------------------------------*/\
 linkage_and_modif \
 uword prefix##_find_eq_or_gt (prefix* rb, content_type const* v, void* context)\

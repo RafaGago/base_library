@@ -68,13 +68,11 @@
 extern "C" {
 #endif
 /*----------------------------------------------------------------------------*/
-define_ringb_types (u8_dq, u8)
-define_ringb_funcs (u8_dq, u8, static inline)
-declare_ringb_funcs (u8_dq, u8, static inline)
+ringb_define_wrap_funcs (u8_dq, u8)
 /*----------------------------------------------------------------------------*/
 struct bl_serial {
   int   fd;
-  u8_dq rq;
+  ringb rq;
 };
 /*----------------------------------------------------------------------------*/
 BL_SERIAL_EXPORT bl_err bl_serial_init(
