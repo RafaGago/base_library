@@ -84,9 +84,9 @@ static inline bool taskq_handle_cmd (taskq* tq, cmd_elem* cmd, taskq_id tid)
     /*no check for expiration here, as we might have expired events on the queue
       and we want to guarantee that they are called on expiration order*/
     taskq_delayed_entry d;
-    d.key        = cmd->data.d.tp;
-    d.value.task = cmd->data.d.task;
-    d.value.id   = tid;
+    d.time = cmd->data.d.tp;
+    d.task = cmd->data.d.task;
+    d.id   = tid;
     bl_err err = taskq_delayed_insert (&tq->delayed, &d);
     if (unlikely (err)) {
       taskq_task_run (cmd->data.d.task, err, tid);
@@ -95,12 +95,11 @@ static inline bool taskq_handle_cmd (taskq* tq, cmd_elem* cmd, taskq_id tid)
     return false;
   }
   case cmd_delayed_cancel: {
-    taskq_delayed_data task;
-    taskq_delayed_data match;
-    match.id = cmd->data.dcancel.id;
-    if (taskq_delayed_try_get_and_drop(
-        &tq->delayed, &task, cmd->data.dcancel.tp, &match
-        )) {
+    taskq_delayed_entry task;
+    taskq_delayed_entry match;
+    match.time = cmd->data.dcancel.tp;
+    match.id   = cmd->data.dcancel.id;
+    if (taskq_delayed_try_get_and_drop (&tq->delayed, &task, &match)) {
       taskq_task_run (task.task, bl_cancelled, cmd->data.dcancel.id);
       return true;
     }
@@ -140,9 +139,9 @@ BL_TASKQ_EXPORT bl_err taskq_try_run_one (taskq* tq)
   bool     retry;
   do {
     retry   = false;
-    expired = taskq_delayed_get_head_if_expired (&tq->delayed);
+    expired = taskq_delayed_get_head_if_expired (&tq->delayed, false, 0);
     if (expired) {
-      taskq_task_run (expired->value.task, bl_ok, expired->value.id);
+      taskq_task_run (expired->task, bl_ok, expired->id);
       taskq_delayed_drop_head (&tq->delayed);
       return bl_ok;
     }
@@ -184,11 +183,11 @@ BL_TASKQ_EXPORT bl_err taskq_run_one (taskq* tq, u32 timeout_us)
 
     if (dhead) {
       if (has_deadline) {
-        deadline = deadline_min (deadline, dhead->key);
+        deadline = deadline_min (deadline, dhead->time);
       }
       else {
         has_deadline = true;
-        deadline     = dhead->key;
+        deadline     = dhead->time;
       }
     }
     u32 sem_us;
@@ -289,7 +288,7 @@ retry:
   if (!dhead) {
     return bl_nothing_to_do;
   }
-  taskq_task_run (dhead->value.task, bl_cancelled, dhead->value.id);
+  taskq_task_run (dhead->task, bl_cancelled, dhead->id);
   taskq_delayed_drop_head (&tq->delayed);
   return bl_ok;
 }
@@ -374,7 +373,9 @@ BL_TASKQ_EXPORT bl_err taskq_init(
   /*NOTE the delay list could be easily placed adjacently with the
     taskq struct using just one allocator call, oringb has the "init_extern"
     call in which the user externally provides the buffer */
-  err = taskq_delayed_init (&tq->delayed, delayed_capacity, alloc);
+  err = taskq_delayed_init(
+    &tq->delayed, bl_get_tstamp(), delayed_capacity, alloc
+    );
   if (err) {
     goto taskq_queue_destroy;
   }

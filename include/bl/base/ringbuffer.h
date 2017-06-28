@@ -11,9 +11,13 @@
 #include <bl/base/allocator.h>
 #include <bl/base/utility.h>
 
-/*---------------------------------------------------------------------------*/
-/* A simple ringbuffer implementation for fixed sizes that are powers of two.*/
-/*---------------------------------------------------------------------------*/
+/*-----------------------------------------------------------------------------
+A simple ringbuffer implementation for fixed sizes that are powers of two.
+
+REMINDER: elem_size is passed around because it might be optimized by being
+visible in some of the most common ringbuffer operations (e.g. ringbuffer_at,
+ringbuffer_insert_head...).
+-----------------------------------------------------------------------------*/
 typedef struct ringb {
   u8*   stor;
   uword mask;

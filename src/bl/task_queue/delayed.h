@@ -9,14 +9,20 @@ extern "C" {
 #endif
 
 /*---------------------------------------------------------------------------*/
-typedef struct taskq_delayed_data {
-  u32        id;
-  taskq_task task;
-}
-taskq_delayed_data;
+typedef flat_deadlines taskq_delayed;
 /*---------------------------------------------------------------------------*/
-define_flat_deadlines_types (taskq_delayed, taskq_delayed_data)
-declare_flat_deadlines_funcs (taskq_delayed, taskq_delayed_data, extern)
+typedef struct taskq_delayed_entry {
+  tstamp     time;
+  taskq_task task;
+  u32        id;
+}
+taskq_delayed_entry;
+/*---------------------------------------------------------------------------*/
+extern word taskq_delayed_entry_cmp_func (void const* av, void const* bv);
+/*---------------------------------------------------------------------------*/
+flat_deadlines_define_wrap_funcs(
+    taskq_delayed, taskq_delayed_entry, taskq_delayed_entry_cmp_func
+    )
 /*---------------------------------------------------------------------------*/
 
 #ifdef __cplusplus
