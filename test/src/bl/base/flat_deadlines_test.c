@@ -17,7 +17,7 @@ static word fdl_cmpeq_func (void const* a, void const* b)
     ((flat_deadlines_content const*) b)->id;
 }
 /*---------------------------------------------------------------------------*/
-flat_deadlines_define_wrap_funcs (fdl, flat_deadlines_content, fdl_cmpeq_func)
+define_flat_deadlines_funcs (fdl, flat_deadlines_content, fdl_cmpeq_func)
 /*---------------------------------------------------------------------------*/
 typedef struct flat_deadlines_context {
   alloc_tbl      alloc;

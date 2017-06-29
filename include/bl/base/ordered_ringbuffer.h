@@ -60,7 +60,7 @@ extern BL_EXPORT uword oringb_find(
   void*       cmp_context
   );
 /*---------------------------------------------------------------------------*/
-#define oringb_define_wrap_funcs(prefix, content_type, cmp_func)\
+#define define_oringb_funcs(prefix, content_type, cmp_func)\
 static inline bl_err prefix##_init_extern(\
   oringb* rb, content_type* mem, uword capacity\
   )\

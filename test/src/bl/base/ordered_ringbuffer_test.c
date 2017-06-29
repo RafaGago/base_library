@@ -17,7 +17,7 @@ word cmp_func (void const* k1, void const* k2, void* cmp_context)
   return ((content*) k1)->key - ((content*) k2)->key;
 }
 /*---------------------------------------------------------------------------*/
-oringb_define_wrap_funcs (oringbt, content, cmp_func)
+define_oringb_funcs (oringbt, content, cmp_func)
 /*---------------------------------------------------------------------------*/
 typedef struct oringb_context {
   content dat[8];

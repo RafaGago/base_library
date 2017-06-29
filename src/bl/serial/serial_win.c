@@ -42,7 +42,7 @@ static inline std::string prefix_port (std::string const& in)
 extern "C" {
 #endif
 /*----------------------------------------------------------------------------*/
-ringb_define_wrap_funcs (u8_dq, u8)
+define_ringb_funcs (u8_dq, u8)
 /*----------------------------------------------------------------------------*/
 struct bl_serial {
   HANDLE fd;

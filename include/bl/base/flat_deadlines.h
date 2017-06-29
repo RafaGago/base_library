@@ -107,7 +107,7 @@ struct content_type {
 "cmpeq_func" a function invoked to compare two "content_type" structures. If
 "content_type" has only the timestamp you can pass null here.
 ----------------------------------------------------------------------------*/
-#define flat_deadlines_define_wrap_funcs(prefix, content_type, cmpeq_func) \
+#define define_flat_deadlines_funcs(prefix, content_type, cmpeq_func) \
 \
 static_assert_outside_func( \
   offsetof (content_type, time) == 0, \
@@ -271,7 +271,7 @@ static inline word prefix##_flat_deadlines_ordering_func(\
     );\
 }\
 /*--------------------------------------------------------------------------*/\
-oringb_define_wrap_funcs(\
+define_oringb_funcs(\
   prefix##_ringb, prefix##_entry, prefix##_flat_deadlines_ordering_func\
   )\
 /*--------------------------------------------------------------------------*/\

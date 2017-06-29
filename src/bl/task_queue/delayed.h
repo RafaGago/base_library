@@ -20,7 +20,7 @@ taskq_delayed_entry;
 /*---------------------------------------------------------------------------*/
 extern word taskq_delayed_entry_cmp_func (void const* av, void const* bv);
 /*---------------------------------------------------------------------------*/
-flat_deadlines_define_wrap_funcs(
+define_flat_deadlines_funcs(
     taskq_delayed, taskq_delayed_entry, taskq_delayed_entry_cmp_func
     )
 /*---------------------------------------------------------------------------*/
