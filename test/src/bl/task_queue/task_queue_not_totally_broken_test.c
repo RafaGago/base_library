@@ -1,4 +1,4 @@
-#define BL_ASSERT_DEFAULT_BEHAVIOR 1 /*to avoid interfearing with cmocka */
+#define BL_ASSERT_DEFAULT_BEHAVIOR 1 /*to avoid interfering with cmocka */
 #include <bl/base/assert.h>
 #include <bl/base/platform.h>
 #include <bl/cmocka_pre.h>
@@ -11,6 +11,7 @@ static inline tstamp bl_get_tstamp (void)
 }
 /*---------------------------------------------------------------------------*/
 #include <bl/base/default_allocator.h>
+#include <bl/base/flat_deadlines.c> /* rebuild here to link with the mock */
 #include <bl/task_queue/task_queue.h>
 #include <bl/task_queue/task_queue.c>
 #include <bl/task_queue/delayed.c>
