@@ -312,7 +312,7 @@ BL_EXPORT uword dstr_find_l(
   efficient algorithm for these type of inputs can be implemented:
   http://www-igm.univ-mlv.fr/~lecroq/string/node2.html
   */
-  if (unlikely (search == 0 || !search || offset >= dstr_len (s))) {
+  if (unlikely (search_len == 0 || !search || offset >= dstr_len (s))) {
     return dstr_len (s);
   }
   bl_assert (strnlen (search, search_len + 1) >= search_len);
