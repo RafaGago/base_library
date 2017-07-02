@@ -8,7 +8,7 @@ project(
     license: 'BSD-3',
     default_options: [
         'c_std=gnu99',
-        'cpp_std=c++11',
+        'cpp_std=gnu++11',
 #        'warning_level=1',
         'default_library=static'
         ]
@@ -49,7 +49,7 @@ install_subdir ('include/bl', install_dir : 'include')
 
 relacy_path = 'gitmodules/relacy'
 
-cflags = []
+cflags = [ '-D_GNU_SOURCE' ]
 lib_cflags = []
 test_cflags = []
 host_system = host_machine.system()
@@ -168,6 +168,7 @@ test(
     executable(
         'bl-base-test',
         base_test_srcs,
+        c_args              : cflags + test_cflags,
         include_directories : test_include_dirs,
         link_with           : base_lib,
         link_args           : test_link_args,
@@ -176,6 +177,7 @@ test(
 executable(
     'bl-base-sem-stress',
     base_sem_stress_srcs,
+    c_args              : cflags,
     include_directories : test_include_dirs,
     link_with           : base_lib,
     dependencies        : threads
@@ -222,6 +224,7 @@ test(
         'bl-nonblock-test',
         nonblock_test_srcs,
         include_directories : test_include_dirs,
+        c_args              : cflags + test_cflags,
         link_with           : [ base_lib, nonblock_lib] ,
         link_args           : test_link_args,
         dependencies        : threads
@@ -269,6 +272,7 @@ test(
         'bl-taskqueue-test',
         taskqueue_test_srcs,
         include_directories : test_include_dirs,
+        c_args              : cflags + test_cflags,
         link_with           : [ base_lib, nonblock_lib, taskqueue_lib ],
         link_args           : test_link_args,
         dependencies        : threads
@@ -277,6 +281,7 @@ executable(
     'bl-taskqueue-stress',
     taskqueue_stress_test_srcs,
     include_directories : test_include_dirs,
+    c_args              : cflags,
     link_with           : [ base_lib, nonblock_lib ],
     dependencies        : threads
     )
@@ -333,6 +338,7 @@ test(
     executable(
         'bl-getopt-test',
         getopt_test_srcs,
+        c_args              : cflags,
         include_directories : test_include_dirs,
         link_args           : test_link_args,
     ))

@@ -1,6 +1,7 @@
 #ifndef __BL_THREAD_H__
 #define __BL_THREAD_H__
 
+#include <bl/base/assert.h>
 #include <bl/base/libexport.h>
 #include <bl/base/platform.h>
 #include <bl/base/integer.h>
@@ -41,9 +42,58 @@
 #if defined (__cplusplus)
 extern "C" {
 #endif
-
+/*---------------------------------------------------------------------------*/
 extern BL_EXPORT uword bl_thread_min_sleep_us (void);
 extern BL_EXPORT void bl_thread_usleep (u32 us);
+/*---------------------------------------------------------------------------*/
+#if defined BL_LINUX
+
+#include <sched.h>
+#include <unistd.h>
+
+/*---------------------------------------------------------------------------*/
+static inline uword bl_get_cpu_count (void)
+{
+  return sysconf (_SC_NPROCESSORS_ONLN);
+}
+/*---------------------------------------------------------------------------*/
+static inline uword bl_get_cpu (void)
+{
+  int v = sched_getcpu();
+#ifndef BL_THREAD_GET_CPU_NO_ASSERT
+  bl_assert (v >=0 && v < bl_get_cpu_count());
+#endif
+  return (uword) (v >= 0 ? v : 0);
+}
+/*---------------------------------------------------------------------------*/
+
+/* affinity functions will be added...*/
+
+#elif defined BL_WINDOWS
+
+#include <bl/base/include_windows.h>
+/*---------------------------------------------------------------------------*/
+static inline uword bl_get_cpu_count (void)
+{
+  SYSTEM_INFO sysinfo;
+  GetSystemInfo (&sysinfo);
+  return (uword) sysinfo.dwNumberOfProcessors;
+}
+/*---------------------------------------------------------------------------*/
+static inline uword bl_get_cpu (void)
+{
+  /* TODO: check that this isn't heavyweight */
+  uword v = (uword) GetCurrentProcessorNumber();
+#ifndef BL_THREAD_GET_CPU_NO_ASSERT
+  bl_assert (v < bl_get_cpu_count());
+#endif
+  return v;
+}
+/*---------------------------------------------------------------------------*/
+
+#else
+  #error "Implement or #ifdef out this error..."
+#endif
 
 #if defined (__cplusplus)
 } /* extern "C" { */

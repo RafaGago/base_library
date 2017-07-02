@@ -6,7 +6,7 @@
 #endif
 
 #include <pthread.h>
-#include <sched.h>
+
 #include <errno.h>
 #include <bl/base/assert.h>
 #include <bl/base/platform.h>
