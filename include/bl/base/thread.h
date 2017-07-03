@@ -46,9 +46,11 @@ extern "C" {
 extern BL_EXPORT uword bl_thread_min_sleep_us (void);
 extern BL_EXPORT void bl_thread_usleep (u32 us);
 /*---------------------------------------------------------------------------*/
+
 #if defined BL_LINUX
 
 #include <sched.h>
+#include <pthread.h>
 #include <unistd.h>
 
 /*---------------------------------------------------------------------------*/
@@ -66,8 +68,54 @@ static inline uword bl_get_cpu (void)
   return (uword) (v >= 0 ? v : 0);
 }
 /*---------------------------------------------------------------------------*/
+typedef cpu_set_t bl_affinity_mask;
+/*---------------------------------------------------------------------------*/
+static inline void bl_affinity_mask_init (bl_affinity_mask* m)
+{
+  CPU_ZERO (m);
+}
+/*---------------------------------------------------------------------------*/
+static inline void bl_affinity_mask_set_cpu (bl_affinity_mask* m, uword cpu)
+{
+  bl_assert (cpu < bl_get_cpu_count());
+  CPU_SET (cpu, m);
+}
+/*---------------------------------------------------------------------------*/
+static inline bool bl_affinity_mask_cpu_is_set(
+  bl_affinity_mask const* m, uword cpu
+  )
+{
+  bl_assert (cpu < bl_get_cpu_count());
+  return CPU_ISSET (cpu, m);
+}
+/*---------------------------------------------------------------------------*/
+static inline bl_err bl_set_thread_affinity(
+  bl_thread t, bl_affinity_mask const* m
+  )
+{
+#ifndef __cplusplus
+  int e = pthread_setaffinity_np (t, sizeof *m, m);
+#else
+  int e = pthread_setaffinity_np (t.native_handle(), sizeof *m, m);
+#endif
+  return !e ? bl_ok : bl_error;
+}
+/*---------------------------------------------------------------------------*/
+static inline bl_err bl_get_thread_affinity (bl_thread t, bl_affinity_mask* m)
+{
+  bl_assert (m);
+#ifndef __cplusplus
+  int e = pthread_getaffinity_np (t, sizeof *m, m);
+#else
+  int e = pthread_getaffinity_np (t.native_handle(), sizeof *m, m);
+#endif
+  return !e ? bl_ok : bl_error;
+}
+/*---------------------------------------------------------------------------*/
 
-/* affinity functions will be added...*/
+/*TODO: function to get a bl_thread from the current thread need to be added,
+  but C++ can't get a std::thread from this_thread. This may require a refactor
+  of c++'s' bl_thread */
 
 #elif defined BL_WINDOWS
 
@@ -90,7 +138,49 @@ static inline uword bl_get_cpu (void)
   return v;
 }
 /*---------------------------------------------------------------------------*/
-
+typedef DWORD_PTR bl_affinity_mask;
+/*---------------------------------------------------------------------------*/
+static inline void bl_affinity_mask_init (bl_affinity_mask* m)
+{
+  bl_assert (m);
+  *m = 0;
+}
+/*---------------------------------------------------------------------------*/
+static inline void bl_affinity_mask_set_cpu (bl_affinity_mask* m, uword cpu)
+{
+  *m |= (1 << cpu);
+}
+/*---------------------------------------------------------------------------*/
+static inline bool bl_affinity_mask_cpu_is_set(
+  bl_affinity_mask const* m, uword cpu
+  )
+{
+  bl_assert (m);
+  bl_assert (cpu < bl_get_cpu_count());
+  return (*m & (1 << cpu)) != 0;
+}
+/*---------------------------------------------------------------------------*/
+static inline bl_err bl_set_thread_affinity(
+  bl_thread t, bl_affinity_mask const* m
+  )
+{
+  bl_assert (m);
+  bl_affinity_mask e = SetThreadAffinityMask (t.native_handle(), *m);
+  return e ? bl_ok : bl_error;
+}
+/*---------------------------------------------------------------------------*/
+static inline bl_err bl_get_thread_affinity (bl_thread t, bl_affinity_mask* m)
+{
+  bl_assert (m);
+  bl_affinity_mask dummy = 1;
+  *m = SetThreadAffinityMask (t.native_handle(), dummy);
+  if (*m) {
+    /* error ignored: impossible to recover*/
+    (void) SetThreadAffinityMask (t.native_handle(), *m);
+  }
+  return bl_ok;
+}
+/*---------------------------------------------------------------------------*/
 #else
   #error "Implement or #ifdef out this error..."
 #endif
