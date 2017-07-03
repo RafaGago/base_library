@@ -396,7 +396,9 @@ int main (int argc, char* argv[])
           for (uword j = 0; j < taskq_delayed_size (&tq->delayed); ++j) {
             taskq_delayed_entry const* f = taskq_delayed_at (&tq->delayed, j);
             printf(
-              "delayed list element %"FMT_UWORD" timestamp: %d\n", j, f->time
+              "delayed list element %"FMT_UWORD" timestamp: %"FMT_TSTAMP"\n",
+               j,
+               f->time
               );
           }
         }
