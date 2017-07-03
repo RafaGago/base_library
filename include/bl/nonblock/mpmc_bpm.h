@@ -291,6 +291,11 @@ static inline void mpmc_bpm_dealloc_unsafe (mpmc_bpm* q, u8* mem)
 {
   mpmc_bpm_dealloc (q, mem, 0);
 }
+/*----------------------------------------------------------------------------*/
+static inline bool mpmc_bpm_allocation_is_in_range (mpmc_bpm* q, u8* mem)
+{
+  return (mem >= q->mem) && (mem < (q->mem + (q->slots * q->slot_size)));
+}
 /*------------------------------------------------------------------------------
   See mpmc_b.h for documentation on these functions, they work exactly the same
 ------------------------------------------------------------------------------*/
