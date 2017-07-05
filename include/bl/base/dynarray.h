@@ -58,10 +58,16 @@ bl_err prefix##_resize (prefix* d, uword new_size, alloc_tbl const* alloc)\
 }\
 /*--------------------------------------------------------------------------*/\
 static inline \
-bl_err prefix##_init (prefix* d, uword size, alloc_tbl const* alloc)\
+void prefix##_init_empty (prefix* d)\
 {\
   d->arr  = nullptr;\
   d->size = 0;\
+}\
+/*--------------------------------------------------------------------------*/\
+static inline \
+bl_err prefix##_init (prefix* d, uword size, alloc_tbl const* alloc)\
+{\
+  prefix##_init_empty (d);\
   return prefix##_resize (d, size, alloc);\
 }\
 /*--------------------------------------------------------------------------*/\
