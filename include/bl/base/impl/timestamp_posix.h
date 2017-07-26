@@ -15,9 +15,11 @@
   #define BL_CLOCK_MONOTONIC CLOCK_MONOTONIC /*TODO this isn't posix now...*/
 #endif
 /*---------------------------------------------------------------------------*/
-/* FIXME: this is made inline just to */
+/* FIXME: this is made inline just to remove warnings*/
 /*---------------------------------------------------------------------------*/
 #if !defined (BL_TIMESTAMP_64BIT)
+#define bl_tstamp_get_freq() usec_in_sec
+/*---------------------------------------------------------------------------*/
 static inline tstamp bl_get_tstamp (void)
 {
   struct timespec t;
@@ -26,12 +28,22 @@ static inline tstamp bl_get_tstamp (void)
    ((((u64) t.tv_sec) * usec_in_sec) + (t.tv_nsec / nsec_in_usec));
 }
 /*---------------------------------------------------------------------------*/
-#define bl_tstamp_get_freq() usec_in_sec
+#define bl_sysclock_tstamp_get_freq() 1
+/*---------------------------------------------------------------------------*/
+static inline tstamp bl_get_sysclock_tstamp (void)
+{
+  struct timespec t;
+  clock_gettime (CLOCK_REALTIME, &t);
+  return (tstamp) t.tv_sec;
+}
 /*---------------------------------------------------------------------------*/
 #include <bl/base/impl/timestamp_funcs_microsecond_base.h>
+#include <bl/base/impl/timestamp_sysclock_funcs_second_base.h>
 /*---------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 #else
+/*---------------------------------------------------------------------------*/
+#define bl_tstamp_get_freq() nsec_in_sec
 /*---------------------------------------------------------------------------*/
 static inline tstamp bl_get_tstamp (void)
 {
@@ -40,17 +52,29 @@ static inline tstamp bl_get_tstamp (void)
   return (((u64) t.tv_sec) * nsec_in_sec) + t.tv_nsec;
 }
 /*---------------------------------------------------------------------------*/
-#define bl_tstamp_get_freq() nsec_in_sec
+#define bl_sysclock_tstamp_get_freq() nsec_in_sec
+/*---------------------------------------------------------------------------*/
+static inline tstamp bl_get_sysclock_tstamp (void)
+{
+  struct timespec t;
+  clock_gettime (CLOCK_REALTIME, &t);
+  return (((u64) t.tv_sec) * nsec_in_sec) + t.tv_nsec;
+}
 /*---------------------------------------------------------------------------*/
 #include <bl/base/impl/timestamp_funcs_nanosecond_base.h>
+#include <bl/base/impl/timestamp_sysclock_funcs_nanosecond_base.h>
 /*---------------------------------------------------------------------------*/
 #endif /* #if !defined (BL_TIMESTAMP_64BIT) */
-
+/*---------------------------------------------------------------------------*/
+static inline tstamp bl_sysclock_tstamp_to_epoch (tstamp t)
+{
+  return t;
+}
+/*---------------------------------------------------------------------------*/
 /* private. for internal use */
 /*---------------------------------------------------------------------------*/
 static void timespec_normalize (struct timespec* t)
 {
-  /*on most cpus this is a div, an addition and a substraction*/
   t->tv_sec += (t->tv_nsec / nsec_in_sec);
   t->tv_nsec = (t->tv_nsec % nsec_in_sec);
 }

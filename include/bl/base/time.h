@@ -17,12 +17,16 @@
 
 /*---------------------------------------------------------------------------*/
 /*
- This header adds the next timestamp function facilities:
+ This header adds the next time functions:
 
  ---------------------------------------------------------------
  tstamp:
-  An unsigned type representing some time units and intended to measure short
-  time periods (<60s). It can wrap and is compared using signed conversion.
+  An unsigned type representing some time units and intended to measure
+  time periods. It can wrap and is compared using signed conversion.
+
+  Define "BL_TIMESTAMP_64BIT" most of the time if you want the timestamps to be
+  64 bit (recommended). Having 32-bit timestamps affects the resolution of all
+  the timing functions. The 32-bit timestamp is microcontroller legacy.
 
  tstampdiff:
   The signed counterpart of "tstamp". Its absolute value can be safely added
@@ -82,7 +86,9 @@
  ---------------------------------------------------------------
  "static inline tstamp bl_get_tstamp (void)"
 
-   Gets the current timestamp.
+  Gets the current timestamp of a monotonic clock. The reference point is
+  arbitrary (maybe system boot time) but the clock is always guarenteed to
+  advance.
  ---------------------------------------------------------------
  "static inline u64 bl_get_tstamp_freq (void)"
 
@@ -90,11 +96,41 @@
   ting in. This function may be defined as a macro if the value is known
   at compile time (Don't try to take the address of the "function").
 
+  On most cases you may want to use the "bl_tstamp_to_sec/msec/usec/nsec"
+  function series instead of doing conversions manually.
+
+ ---------------------------------------------------------------
+ "static inline tstamp bl_get_sysclock_tstamp (void)"
+
+  Gets the current timestamp of a system clock. The reference point is
+  arbitrary (the one returned by the OS).
+
+  On Unix derivatives this is based on CLOCK_REALTIME, on Windows this is
+  implemented through a call to "GetSystemTimeAsFileTime".
+
+  Be aware that sysclock timestamps don't need to be on the same units of its
+  underlying call.
+ ---------------------------------------------------------------
+ "static inline u64 bl_get_sysclock_freq (void)"
+
+  Gets the frequency (in Hz) at which the time base of the timestamp is opera-
+  ting in. This function may be defined as a macro if the value is known
+  at compile time (Don't try to take the address of the "function").
+
+  ---------------------------------------------------------------
+ "static inline tstamp bl_sysclock_tstamp_to_epoch (tstamp)"
+
+  Makes a sysclock call to be referenced to UNIX epoch. This is a no-op on UNIX
+  OSes.
  ---------------------------------------------------------------
  "static inline toffset bl_tstamp_to_sec (tstamp ts)"
  "static inline toffset bl_tstamp_to_msec (tstamp ts)"
  "static inline toffset bl_tstamp_to_usec (tstamp ts)"
  "static inline toffset bl_tstamp_to_nsec (tstamp ts)"
+ "static inline toffset bl_tstamp_sysclock_to_sec (tstamp ts)"
+ "static inline toffset bl_tstamp_sysclock_to_msec (tstamp ts)"
+ "static inline toffset bl_tstamp_sysclock_to_usec (tstamp ts)"
+ "static inline toffset bl_tstamp_sysclock_to_nsec (tstamp ts)"
 
    Convert a raw timestamp to a value representing time e.g:
 
@@ -106,6 +142,10 @@
  "static inline toffset bl_tstamp_to_msec_ceil (tstamp ts)"
  "static inline toffset bl_tstamp_to_usec_ceil (tstamp ts)"
  "static inline toffset bl_tstamp_to_nsec_ceil (tstamp ts)"
+ "static inline toffset bl_tstamp_sysclock_to_sec_ceil (tstamp ts)"
+ "static inline toffset bl_tstamp_sysclock_to_msec_ceil (tstamp ts)"
+ "static inline toffset bl_tstamp_sysclock_to_usec_ceil (tstamp ts)"
+ "static inline toffset bl_tstamp_sysclock_to_nsec_ceil (tstamp ts)"
 
     Same as above, but the values are rounded to the ceiling.
  ---------------------------------------------------------------
@@ -113,6 +153,10 @@
  "static inline tstamp bl_msec_to_tstamp (toffset msec_min)"
  "static inline tstamp bl_usec_to_tstamp (toffset usec_min)"
  "static inline tstamp bl_nsec_to_tstamp (toffset nsec_min)"
+ "static inline tstamp bl_sec_to_tstamp_sysclock (toffset sec_min)"
+ "static inline tstamp bl_msec_to_tstamp_sysclock (toffset msec_min)"
+ "static inline tstamp bl_usec_to_tstamp_sysclock (toffset usec_min)"
+ "static inline tstamp bl_nsec_to_tstamp_sysclock (toffset nsec_min)"
 
    Gets an offset that is AT LEAST the given amount which can be added or
    subtracted to a timestamp.
@@ -136,6 +180,10 @@
  "static inline toffset bl_msec_to_tstamp_max (void)"
  "static inline toffset bl_usec_to_tstamp_max (void)"
  "static inline toffset bl_nsec_to_tstamp_max (void)"
+ "static inline toffset bl_sec_to_tstamp_sysclock_max (void)"
+ "static inline toffset bl_msec_to_tstamp_sysclock_max (void)"
+ "static inline toffset bl_usec_to_tstamp_sysclock_max (void)"
+ "static inline toffset bl_nsec_to_tstamp_sysclock_max (void)"
 
    Get the maximum input value that any of the functions above can take.
    This function group may be defined as macros if all values are known
@@ -146,8 +194,6 @@
 
  ---------------------------------------------------------------
 */
-
 #include <bl/base/impl/timestamp.h>
-
 /*----------------------------------------------------------------------------*/
 #endif /* __BL_TIME_H__ */
