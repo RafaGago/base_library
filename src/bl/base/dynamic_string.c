@@ -54,12 +54,12 @@ static bl_err dstr_append_impl (dstr *s, char const *str, uword len)
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err dstr_set_l (dstr *s, char const *str, uword len)
 {
-  bl_assert (strnlen (str, len + 1) >= len);
+  bl_assert (!str || strnlen (str, len + 1) >= len);
   dstr_clear (s);
   if (len > 0 && str) {
     return dstr_append_impl (s, str, len);
   }
-  return (str && len == 0) ? bl_ok : bl_invalid;
+  return ((!str && len == 0) || len == 0) ? bl_ok : bl_invalid;
 }
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err dstr_append_l (dstr *s, char const *str, uword len)

@@ -137,7 +137,7 @@ extern BL_EXPORT bl_err dstr_replace_l(
 /*---------------------------------------------------------------------------*/
 static inline bl_err dstr_set (dstr *s, char const *str)
 {
-  return str ? dstr_set_l (s, str, strlen (str)) : bl_ok;
+  return dstr_set_l (s, str, str ? strlen (str) : 0);
 }
 static inline bl_err dstr_append (dstr *s, char const *str)
 {
