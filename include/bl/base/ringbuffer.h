@@ -41,6 +41,7 @@ static inline void ringb_destroy (ringb* rb, alloc_tbl const* alloc)
   bl_assert (rb);
   if (rb->stor) {
     bl_dealloc (alloc, rb->stor);
+    rb->stor = nullptr;
   }
 }
 /*--------------------------------------------------------------------------*/
