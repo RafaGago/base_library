@@ -34,6 +34,12 @@ static inline bl_err bl_thread_join (bl_thread* t)
   bl_assert (t);
   return pthread_join (*t, nullptr) == 0 ? bl_ok : bl_error;
 }
+/*----------------------------------------------------------------------------*/
+static inline bl_thread bl_thread_native_handle (bl_thread t)
+{
+  return t;
+}
+/*----------------------------------------------------------------------------*/
 
 #include <bl/base/impl/tss_posix.h>
 

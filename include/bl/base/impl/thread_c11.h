@@ -69,7 +69,11 @@ static inline void* bl_tss_get (bl_tss key)
   return tss_get (key);
 }
 /*----------------------------------------------------------------------------*/
-
+static inline bl_thread bl_thread_native_handle (bl_thread t)
+{
+  return t;
+}
+/*----------------------------------------------------------------------------*/
 
 #endif /* __BL_CC_THREAD_H__ */
 

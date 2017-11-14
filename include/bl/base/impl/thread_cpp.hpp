@@ -55,7 +55,13 @@ static inline bl_err bl_thread_join (bl_thread* t)
     return bl_error;
   }
 }
-/*---------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
+static inline decltype(((std::thread*) 0)->native_handle())
+  bl_thread_native_handle (bl_thread& t)
+{
+  return ((std::thread*) &t)->native_handle();
+}
+/*----------------------------------------------------------------------------*/
 
 }  /*extern "C" {*/
 

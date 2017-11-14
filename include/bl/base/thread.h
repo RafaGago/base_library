@@ -93,22 +93,14 @@ static inline bl_err bl_set_thread_affinity(
   bl_thread t, bl_affinity_mask const* m
   )
 {
-#ifndef __cplusplus
-  int e = pthread_setaffinity_np (t, sizeof *m, m);
-#else
-  int e = pthread_setaffinity_np (t.native_handle(), sizeof *m, m);
-#endif
+  int e = pthread_setaffinity_np (bl_thread_native_handle (t), sizeof *m, m);
   return !e ? bl_ok : bl_error;
 }
 /*---------------------------------------------------------------------------*/
 static inline bl_err bl_get_thread_affinity (bl_thread t, bl_affinity_mask* m)
 {
   bl_assert (m);
-#ifndef __cplusplus
-  int e = pthread_getaffinity_np (t, sizeof *m, m);
-#else
-  int e = pthread_getaffinity_np (t.native_handle(), sizeof *m, m);
-#endif
+  int e = pthread_getaffinity_np (bl_thread_native_handle (t), sizeof *m, m);
   return !e ? bl_ok : bl_error;
 }
 /*---------------------------------------------------------------------------*/
@@ -165,7 +157,7 @@ static inline bl_err bl_set_thread_affinity(
   )
 {
   bl_assert (m);
-  bl_affinity_mask e = SetThreadAffinityMask (t.native_handle(), *m);
+  bl_affinity_mask e = SetThreadAffinityMask (bl_thread_native_handle (t), *m);
   return e ? bl_ok : bl_error;
 }
 /*---------------------------------------------------------------------------*/
@@ -173,10 +165,10 @@ static inline bl_err bl_get_thread_affinity (bl_thread t, bl_affinity_mask* m)
 {
   bl_assert (m);
   bl_affinity_mask dummy = 1;
-  *m = SetThreadAffinityMask (t.native_handle(), dummy);
+  *m = SetThreadAffinityMask (bl_thread_native_handle (t), dummy);
   if (*m) {
     /* error ignored: impossible to recover*/
-    (void) SetThreadAffinityMask (t.native_handle(), *m);
+    (void) SetThreadAffinityMask (bl_thread_native_handle (t), *m);
   }
   return bl_ok;
 }
