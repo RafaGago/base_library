@@ -1,67 +1,68 @@
+#include <stdio.h>
+
 #include <bl/base/string.h>
-#include <bl/base/assert.h>
 #include <bl/base/utility.h>
 #include <bl/base/error.h>
-#include <stdio.h>
 
 /*----------------------------------------------------------------------------*/
 BL_EXPORT int bl_vasprintf_ext(
   char**           str,
-  int              str_usable_bytes,
-  int              alloc_bytes,
+  int              str_alloc_size,
+  int              str_offset,
+  int              do_realloc,
   alloc_tbl const* alloc,
   char const*      format,
   va_list          args
   )
 {
-  char* ret;
-  char* in_buff = *str;
-  *str          = nullptr;
-  if (str_usable_bytes <= 1) {
-    bl_assert (alloc_bytes > 1);
-    in_buff = nullptr;
-    ret     = bl_alloc (alloc, alloc_bytes);
-    if (unlikely (!ret)) {
+  bl_assert(alloc && format && str);
+  char* out_buff;
+  char* in_buff      = *str;
+  int   usable_bytes = str_alloc_size - str_offset;
+  *str               = nullptr;
+
+  if (unlikely(
+      str_alloc_size < 1 || usable_bytes <= 0 || str_offset < 0
+      )) {
+    return -bl_invalid;
+  }
+  if (in_buff) {
+    out_buff = in_buff;
+  }
+  else {
+    out_buff   = bl_alloc (alloc, str_alloc_size);
+    do_realloc = 1;
+    if (unlikely (!out_buff)) {
       return -bl_alloc;
     }
   }
-  else {
-    alloc_bytes = str_usable_bytes;
-    ret         = in_buff;
-  }
   va_list args_cp;
   va_copy (args_cp, args);
-  int size = vsnprintf (ret, alloc_bytes, format, args);
-  if (unlikely (size < 0)) {
+
+  int size = vsnprintf(out_buff + str_offset, usable_bytes, format, args);
+  if (size < usable_bytes) {
+    size = (size >= 0) ? size : -bl_invalid;
     goto end;
   }
-  if (str_usable_bytes >= 1) {
-    if (size < str_usable_bytes) {
-      /* successfully used the provided buffer, no realloc on the provided
-         buffer, jump to end */
-      goto end;
+
+  int required_bytes  = str_offset + size + 1;
+  char* out_buff_prev = out_buff;
+  out_buff = bl_realloc(
+    alloc, do_realloc ? out_buff : nullptr, required_bytes
+    );
+  if (unlikely (!out_buff)) {
+    if (!in_buff) {
+      bl_dealloc (alloc, out_buff_prev);
     }
-    /* the provided buffer didn't fit, will reallocate a new buffer */
-    ret = nullptr;
+    return -bl_alloc;
   }
-  /* setting buffer to the correct size */
-  char* ret_realloc = bl_realloc (alloc, ret, size + 1);
-  if (unlikely (!ret_realloc)) {
-    size = -bl_alloc;
-    goto end;
-  }
-  ret = ret_realloc;
-  if (size >= alloc_bytes) {
-    /* it was truncated: retry with the right size */
-    size = vsnprintf (ret, size + 1, format, args_cp);
-  }
+
+  size = vsnprintf (out_buff + str_offset, required_bytes, format, args_cp);
+  bl_assert (size == required_bytes - str_offset - 1);
 end:
   va_end (args_cp);
   if (likely (size >= 0)) {
-    *str = ret;
-  }
-  else if (ret && ret != in_buff) {
-    bl_dealloc (alloc, ret);
+    *str = out_buff;
   }
   return size;
 }

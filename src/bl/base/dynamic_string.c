@@ -116,34 +116,17 @@ static bl_err dstr_append_va_priv(
   dstr *s, char const *fmt, va_list list
   )
 {
-  uword available = s->da.size - s->len;
-  char* str       = nullptr;
-  if (available > 1) { /* 1 char would only leave place for the null term */
-    str = s->da.str + s->len;
-  }
-  else {
-    available = 0;
-  }
-  int len = bl_vasprintf_ext(
-    &str, available, dstr_minalloc, s->alloc, fmt, list
+  char *str = s->da.str;
+  int len   = bl_vasprintf_ext(
+    &str, str ? s->da.size : dstr_minalloc, s->len, 1, s->alloc, fmt, list
     );
-  if (len < available && len > 0) {
-    bl_assert (str == s->da.str + s->len);
-    s->len += len;
-    return bl_ok;
+  if (unlikely (len < 0)) {
+    return -len;
   }
-  if (len > 0) {
-    if (dstr_len (s) == 0) {
-      s->da.str  = str;
-      s->da.size = len + 1;
-      s->len     = len;
-      return bl_ok;
-    }
-    bl_err err = dstr_append_impl (s, str, len);
-    bl_dealloc (s->alloc, str);
-    return err;
-  }
-  return (len == 0) ? bl_ok : bl_alloc;
+  s->da.str  = str;
+  s->len    += len;
+  s->da.size = bl_max (s->da.size, s->len + 1);
+  return bl_ok;
 }
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err dstr_append_va (dstr *s, char const *fmt, ...)

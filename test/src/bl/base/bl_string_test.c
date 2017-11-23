@@ -15,8 +15,8 @@ alloc_tbl alloc;
 /*---------------------------------------------------------------------------*/
 static int run_vasnprintf_ex(
   char**      str,
-  int         str_usable_bytes,
-  int         first_alloc_bytes,
+  int         str_size,
+  int         str_offset,
   char const* format,
   ...
   )
@@ -24,7 +24,7 @@ static int run_vasnprintf_ex(
   va_list args;
   va_start (args, format);
   int ret = bl_vasprintf_ext(
-    str, str_usable_bytes, first_alloc_bytes, &alloc, format, args
+    str, str_size, str_offset, 0, &alloc, format, args
     );
   va_end (args);
   return ret;
@@ -33,7 +33,7 @@ static int run_vasnprintf_ex(
 static void bl_string_vasnprintf_ex_success_first_alloc (void **state)
 {
   char* str = nullptr;
-  int ret   = run_vasnprintf_ex (&str, 0, sizeof EXPECTED, FORMAT, ARGS());
+  int ret   = run_vasnprintf_ex(&str, sizeof EXPECTED, 0, FORMAT, ARGS());
   assert_int_equal (ret, lit_len (EXPECTED));
   assert_string_equal (str, EXPECTED);
   bl_dealloc (&alloc, str);
@@ -42,7 +42,7 @@ static void bl_string_vasnprintf_ex_success_first_alloc (void **state)
 static void bl_string_vasnprintf_ex_success_second_alloc (void **state)
 {
   char* str = nullptr;
-  int ret   = run_vasnprintf_ex (&str, 0, lit_len (EXPECTED), FORMAT, ARGS());
+  int ret   = run_vasnprintf_ex(&str, lit_len (EXPECTED), 0, FORMAT, ARGS());
   assert_int_equal (ret, lit_len (EXPECTED));
   assert_string_equal (str, EXPECTED);
   bl_dealloc (&alloc, str);
