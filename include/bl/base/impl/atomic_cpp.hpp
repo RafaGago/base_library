@@ -300,14 +300,14 @@ static inline u32 atomic_u32_fetch_and(
 /*---------------------------------------------------------------------------*/
 /* Fences */
 /*---------------------------------------------------------------------------*/
-static inline void atomic_fence (memory_order o)
+static inline void atomic_fence (mem_order o)
 {
-  std::atomic_thread_fence (o);
+  std::atomic_thread_fence ((std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline void atomic_sigfence (memory_order o)
+static inline void atomic_sigfence (mem_order o)
 {
-  std::atomic_signal_fence (o);
+  std::atomic_signal_fence ((std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
 } //extern "C" {
