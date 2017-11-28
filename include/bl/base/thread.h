@@ -61,7 +61,7 @@ static inline uword bl_get_cpu_count (void)
 /*---------------------------------------------------------------------------*/
 static inline uword bl_get_cpu (void)
 {
-  int v = sched_getcpu();
+  unsigned int v = sched_getcpu();
 #ifndef BL_THREAD_GET_CPU_NO_ASSERT
   bl_assert (v >=0 && v < bl_get_cpu_count());
 #endif
