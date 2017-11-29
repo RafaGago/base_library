@@ -65,18 +65,18 @@ static void flat_deadlines_o1_regular_insertion (void **state)
   assert_true (err == bl_would_overflow);
 
   const flat_deadlines_content* v =
-    fdl_get_head_if_expired (&c->dl, true, 999);
+    fdl_get_head_if_expired (&c->dl, true, bl_usec_to_tstamp (999));
   assert_true (v == nullptr);
 
-  v = fdl_get_head_if_expired (&c->dl, true, 1000);
+  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_tstamp (1000));
   assert_true (v != nullptr);
   assert_true (v->id == 0);
   fdl_drop_head (&c->dl);
 
-  v = fdl_get_head_if_expired (&c->dl, true, 1999);
+  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_tstamp (1999));
   assert_true (v == nullptr);
 
-  v = fdl_get_head_if_expired (&c->dl, true, 2000);
+  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_tstamp (2000));
   assert_true (v != nullptr);
   assert_true (v->id == 1);
   fdl_drop_head (&c->dl);
@@ -87,7 +87,7 @@ static void flat_deadlines_o1_regular_insertion_wrap (void **state)
   flat_deadlines_context* c = (flat_deadlines_context*) *state;
   flat_deadlines_content e[2];
 
-  const tstamp near_wrap = utype_max (tstamp) - 1500;
+  const tstamp near_wrap = utype_max (tstamp) - bl_usec_to_tstamp (1500);
 
   static_assert_ns (arr_elems (e) == flat_deadlines_test_elems);
 
@@ -96,7 +96,7 @@ static void flat_deadlines_o1_regular_insertion_wrap (void **state)
   deadline_init_explicit (&e[0].time, near_wrap, 1000);
   e[0].id = 0;
 
-  deadline_init_explicit (&e[1].time, near_wrap, 2000);
+  deadline_init_explicit (&e[1].time, near_wrap, 2000); /*integer wrap*/
   e[1].id = 1;
 
   bl_err err = fdl_insert (&c->dl, &e[1]);
@@ -107,20 +107,26 @@ static void flat_deadlines_o1_regular_insertion_wrap (void **state)
   assert_true (err == bl_would_overflow);
 
   const flat_deadlines_content* v =
-    fdl_get_head_if_expired (&c->dl, true, near_wrap + 999);
+    fdl_get_head_if_expired (&c->dl, true, near_wrap + bl_usec_to_tstamp (999));
   assert_true (v == nullptr);
 
-  v = fdl_get_head_if_expired (&c->dl, true, near_wrap + 1000);
+  v = fdl_get_head_if_expired(
+    &c->dl, true, near_wrap + bl_usec_to_tstamp (1000)
+    );
   assert_true (v != nullptr);
   assert_true (v->id == 0);
   fdl_drop_head (&c->dl);
 
   /*deliberate tstamp overflow*/
-  v = fdl_get_head_if_expired (&c->dl, true, near_wrap + 1999);
+  v = fdl_get_head_if_expired(
+    &c->dl, true, near_wrap + bl_usec_to_tstamp (1999)
+    );
   assert_true (v == nullptr);
 
   /*deliberate tstamp overflow*/
-  v = fdl_get_head_if_expired (&c->dl, true, near_wrap + 2000);
+  v = fdl_get_head_if_expired(
+    &c->dl, true, near_wrap + bl_usec_to_tstamp (2000)
+    );
   assert_true (v != nullptr);
   assert_true (v->id == 1);
   fdl_drop_head (&c->dl);
@@ -180,15 +186,15 @@ static void flat_deadlines_duplicate_deadline (void **state)
   assert_true (err == bl_would_overflow);
 
   const flat_deadlines_content* v =
-    fdl_get_head_if_expired (&c->dl, true, 999);
+    fdl_get_head_if_expired (&c->dl, true, bl_usec_to_tstamp (999));
   assert_true (v == nullptr);
 
-  v = fdl_get_head_if_expired (&c->dl, true, 1000);
+  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_tstamp (1000));
   assert_true (v != nullptr);
   assert_true (v->id == 0);
   fdl_drop_head (&c->dl);
 
-  v = fdl_get_head_if_expired (&c->dl, true, 1000);
+  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_tstamp (1000));
   assert_true (v != nullptr);
   assert_true (v->id == 1);
   fdl_drop_head (&c->dl);
@@ -214,7 +220,9 @@ static void flat_deadlines_duplicate_deadline_deletion (void **state)
   err = fdl_insert (&c->dl, &e[0]);
   assert_true (err == bl_would_overflow);
 
-  const flat_deadlines_content* v = fdl_get_head_if_expired (&c->dl, true, 999);
+  const flat_deadlines_content* v = fdl_get_head_if_expired(
+    &c->dl, true, bl_usec_to_tstamp (999)
+    );
   assert_true (v == nullptr);
 
   flat_deadlines_content cancel = { 0 };
@@ -225,7 +233,7 @@ static void flat_deadlines_duplicate_deadline_deletion (void **state)
   res = fdl_try_get_and_drop (&c->dl, &cancel, &e[0]);
   assert_true (!res);
 
-  v = fdl_get_head_if_expired (&c->dl, true, 1000);
+  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_tstamp (1000));
   assert_true (v != nullptr);
   assert_true (v->id == 1);
   fdl_drop_head (&c->dl);
