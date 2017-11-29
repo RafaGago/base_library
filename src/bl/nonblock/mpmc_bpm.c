@@ -44,8 +44,8 @@ BL_NONBLOCK_EXPORT bl_err mpmc_bpm_init(
   }
   uword alignaddr = (uword) q->mem_unaligned;
   alignaddr      += slot_alignment + sizeof (atomic_u32);
-  alignaddr      &= ~slot_alignment;
-  alignaddr      -= sizeof (atomic_u32);
+  alignaddr      &= ~((uword) slot_alignment - 1);
+  alignaddr      -= sizeof (atomic_u32); /*the aligned address starts after*/
   q->mem = (u8*) alignaddr;
 
 #ifndef BL_ATOMIC_USE_RELACY
