@@ -22,16 +22,18 @@ version       = version_minor + '.' + version_major + '.' + version_rev
 proj_dir          = meson.current_source_dir()
 build_helpers_dir = proj_dir + '/build_helpers'
 
-message ('building cmocka')
-res = run_command(
-    build_helpers_dir + '/build_cmake_project.sh',
-    proj_dir,
-    'cmocka',
-    'libcmocka.a',
-    '-DWITH_STATIC_LIB=on'
-    )
-if res.returncode() != 0
-  error (res.stderr().strip())
+if not get_option ('bare')
+    message ('building cmocka')
+    res = run_command(
+        build_helpers_dir + '/build_cmake_project.sh',
+        proj_dir,
+        'cmocka',
+        'libcmocka.a',
+        '-DWITH_STATIC_LIB=on'
+        )
+    if res.returncode() != 0
+      error (res.stderr().strip())
+    endif
 endif
 
 proj_dir = meson.current_source_dir()
@@ -41,8 +43,10 @@ include_dirs = [
 ]
 test_include_dirs  = include_dirs
 test_include_dirs += [ include_directories ('test/src') ]
-test_include_dirs += [ include_directories ('dep/install/include') ]
-libcmocka_path     = proj_dir + '/dep/install/lib/libcmocka.a'
+if not get_option ('bare')
+    test_include_dirs += [ include_directories ('dep/install/include') ]
+endif
+libcmocka_path = proj_dir + '/dep/install/lib/libcmocka.a'
 
 pkg_mod = import ('pkgconfig')
 install_subdir ('include/bl', install_dir : 'include')
@@ -163,25 +167,27 @@ pkg_mod.generate(
     filebase    : 'bl-base',
     description : 'bl base library commons'
     )
-test(
-    'bl-base',
+if not get_option ('bare')
+    test(
+        'bl-base',
+        executable(
+            'bl-base-test',
+            base_test_srcs,
+            c_args              : cflags + test_cflags,
+            include_directories : test_include_dirs,
+            link_with           : base_lib,
+            link_args           : test_link_args,
+            dependencies        : threads
+        ))
     executable(
-        'bl-base-test',
-        base_test_srcs,
-        c_args              : cflags + test_cflags,
+        'bl-base-sem-stress',
+        base_sem_stress_srcs,
+        c_args              : cflags,
         include_directories : test_include_dirs,
         link_with           : base_lib,
-        link_args           : test_link_args,
         dependencies        : threads
-    ))
-executable(
-    'bl-base-sem-stress',
-    base_sem_stress_srcs,
-    c_args              : cflags,
-    include_directories : test_include_dirs,
-    link_with           : base_lib,
-    dependencies        : threads
-    )
+        )
+endif
 
 #- nonblock --------------------------------------------------------------------
 
@@ -218,25 +224,27 @@ pkg_mod.generate(
     filebase    : 'bl-nonblock',
     description : 'bl multithreaded data queues'
     )
-test(
-    'bl-nonblock',
+if not get_option ('bare')
+    test(
+        'bl-nonblock',
+        executable(
+            'bl-nonblock-test',
+            nonblock_test_srcs,
+            include_directories : test_include_dirs,
+            c_args              : cflags + test_cflags,
+            link_with           : [ base_lib, nonblock_lib] ,
+            link_args           : test_link_args,
+            dependencies        : threads
+        ))
     executable(
-        'bl-nonblock-test',
-        nonblock_test_srcs,
-        include_directories : test_include_dirs,
-        c_args              : cflags + test_cflags,
-        link_with           : [ base_lib, nonblock_lib] ,
-        link_args           : test_link_args,
+        'bl-nonblock-mpmc-bpm-relacy',
+        nonblock_mpmc_bpm_relacy_srcs,
+        include_directories : test_include_dirs +
+            [include_directories (relacy_path)],
+    #    cpp_args            : [ '-DBL_NONBLOCK_MPMC_ONLY_TEST_ALGORITHM' ],
         dependencies        : threads
-    ))
-executable(
-    'bl-nonblock-mpmc-bpm-relacy',
-    nonblock_mpmc_bpm_relacy_srcs,
-    include_directories : test_include_dirs +
-        [include_directories (relacy_path)],
-#    cpp_args            : [ '-DBL_NONBLOCK_MPMC_ONLY_TEST_ALGORITHM' ],
-    dependencies        : threads
-    )
+        )
+endif
 
 # - taskqueue ------------------------------------------------------------------
 
@@ -266,25 +274,28 @@ pkg_mod.generate(
     filebase    : 'bl-taskqueue',
     description : 'bl task queue'
     )
-test(
-    'bl-taskqueue-test',
-    executable(
+if not get_option ('bare')
+    test(
         'bl-taskqueue-test',
-        taskqueue_test_srcs,
+        executable(
+            'bl-taskqueue-test',
+            taskqueue_test_srcs,
+            include_directories : test_include_dirs,
+            c_args              : cflags + test_cflags,
+            link_with           : [ base_lib, nonblock_lib, taskqueue_lib ],
+            link_args           : test_link_args,
+            dependencies        : threads
+        ))
+    executable(
+        'bl-taskqueue-stress',
+        taskqueue_stress_test_srcs,
         include_directories : test_include_dirs,
-        c_args              : cflags + test_cflags,
-        link_with           : [ base_lib, nonblock_lib, taskqueue_lib ],
-        link_args           : test_link_args,
+        c_args              : cflags,
+        link_with           : [ base_lib, nonblock_lib ],
         dependencies        : threads
-    ))
-executable(
-    'bl-taskqueue-stress',
-    taskqueue_stress_test_srcs,
-    include_directories : test_include_dirs,
-    c_args              : cflags,
-    link_with           : [ base_lib, nonblock_lib ],
-    dependencies        : threads
-    )
+        )
+endif
+
 # - serial ---------------------------------------------------------------------
 
 serial_srcs = [
@@ -333,12 +344,14 @@ pkg_mod.generate(
     filebase    : 'bl-getopt',
     description : 'getopt multiplatform implementation with no globals'
     )
-test(
-    'bl-getopt-test',
-    executable(
+if not get_option ('bare')
+    test(
         'bl-getopt-test',
-        getopt_test_srcs,
-        c_args              : cflags,
-        include_directories : test_include_dirs,
-        link_args           : test_link_args,
-    ))
+        executable(
+            'bl-getopt-test',
+            getopt_test_srcs,
+            c_args              : cflags,
+            include_directories : test_include_dirs,
+            link_args           : test_link_args,
+        ))
+endif
