@@ -214,7 +214,7 @@ void prefix##_drop_n (prefix* d, uword idx, uword count)\
   assert (d);\
   uword move_elems = d->size - (idx + count);\
   assert (move_elems <= d->size);\
-  memcpy (&d->arr[idx], &d->arr[idx + count], move_elems * sizeof d->arr[0]);\
+  memmove (&d->arr[idx], &d->arr[idx + count], move_elems * sizeof d->arr[0]);\
   d->size -= count;\
 }\
 /*--------------------------------------------------------------------------*/\
