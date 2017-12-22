@@ -54,7 +54,7 @@ static bl_err dstr_append_impl (dstr *s, char const *str, uword len)
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err dstr_set_l (dstr *s, char const *str, uword len)
 {
-  bl_assert (!str || strnlen (str, len + 1) >= len);
+  bl_assert (!str || strnlen (str, len) >= len);
   dstr_clear (s);
   if (len > 0 && str) {
     return dstr_append_impl (s, str, len);
@@ -64,7 +64,7 @@ BL_EXPORT bl_err dstr_set_l (dstr *s, char const *str, uword len)
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err dstr_append_l (dstr *s, char const *str, uword len)
 {
-  bl_assert (strnlen (str, len + 1) >= len);
+  bl_assert (strnlen (str, len) >= len);
   if (len > 0 && str) {
     return dstr_append_impl (s, str, len);
   }
@@ -75,7 +75,7 @@ BL_EXPORT bl_err dstr_insert_l(
   dstr *s, uword idx, char const *str, uword len
   )
 {
-  bl_assert (strnlen (str, len + 1) >= len);
+  bl_assert (strnlen (str, len) >= len);
   if (unlikely (len == 0 || !str)) {
     return (len == 0 && !str) ? bl_ok : bl_invalid;
   }
@@ -267,7 +267,7 @@ BL_EXPORT char* dstr_steal_ownership (dstr *s)
 /*---------------------------------------------------------------------------*/
 BL_EXPORT void dstr_transfer_ownership_l (dstr *s, char* str, uword len)
 {
-  bl_assert (strnlen (str, len + 1) >= len);
+  bl_assert (strnlen (str, len) >= len);
   dstr_destroy (s);
   s->da.str  = str;
   s->len     = len;
@@ -298,7 +298,7 @@ BL_EXPORT uword dstr_find_l(
   if (unlikely (search_len == 0 || !search || offset >= dstr_len (s))) {
     return dstr_len (s);
   }
-  bl_assert (strnlen (search, search_len + 1) >= search_len);
+  bl_assert (strnlen (search, search_len) >= search_len);
   char const* rptr = dstr_beg (s) + offset;
   char const* end  = dstr_end (s);
   while (true) {
