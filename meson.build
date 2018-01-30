@@ -132,6 +132,7 @@ base_srcs = [
     'src/bl/base/adlnls/array_doubly_linked_list_u64_basic.c',
 ]
 base_test_srcs = [
+    'test/src/bl/base/error.c',
     'test/src/bl/base/hex_string_test.c',
     'test/src/bl/base/ringbuffer_test.c',
     'test/src/bl/base/time_test.c',

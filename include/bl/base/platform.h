@@ -53,6 +53,8 @@
   #define BL_VISIBILITY_HIDDEN
   #define BL_PRINTF_FORMAT(string_idx, va_args_idx)
 
+  #define BL_HAS_ERRNO_H 0 /*for very backwards compatibility, can be improved*/
+
 #endif
 /*---------------------------------------------------------------------------*/
 #if defined (__GNUC__) || defined (GCC) || defined (__clang__)
@@ -135,6 +137,8 @@
 
   #define BL_PRINTF_FORMAT(string_idx, va_args_idx) \
     __attribute__ ((format (printf, string_idx, va_args_idx)))
+
+  #define BL_HAS_ERRNO_H 1
 
 #endif
 /*---------------------------------------------------------------------------*/

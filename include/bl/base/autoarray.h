@@ -101,7 +101,7 @@ bl_err prefix##_set_capacity(\
   assert (d && alloc);\
   return (new_capacity >= d->size) ?\
     dynarray_resize ((dynarray_stub*) d, new_capacity, sizeof *d->arr, alloc) :\
-    bl_not_allowed;\
+    bl_preconditions;\
 }\
 /*--------------------------------------------------------------------------*/\
 static inline \

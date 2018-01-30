@@ -314,7 +314,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_start(
 {
   bl_assert (s && cfg);
   if (s->fd) {
-    return bl_not_allowed;
+    return bl_preconditions;
   }
   if (!cfg->device_name) {
     return bl_invalid;
