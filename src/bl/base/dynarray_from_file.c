@@ -2,7 +2,7 @@
 
 #include <bl/base/assert.h>
 #include <bl/base/utility.h>
-#include <bl/base/dynamic_string.h>
+#include <bl/base/dynarray.h>
 #include <bl/base/static_integer_math.h>
 
 bl_err dynarray_from_file(
