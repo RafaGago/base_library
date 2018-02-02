@@ -16,7 +16,7 @@ bl_err dynarray_from_file(
   alloc_tbl const* alloc
   )
 {
-  bl_assert (d && d_written && fp);
+  bl_assert (d && d_written && fp && alloc);
   uword start = ftell (fp);
   if (unlikely (fseek (fp, 0L, SEEK_END))) {
     return bl_file;
