@@ -315,3 +315,15 @@ BL_EXPORT uword dstr_find_l(
   }
 }
 /*----------------------------------------------------------------------------*/
+bl_err dstr_append_file (dstr *s, FILE* file, uword file_read_limit)
+{
+  uword written;
+  dynarray_stub* da = (dynarray_stub*) &s->da;
+  bl_err err = dynarray_from_file(
+    da, &written, s->len, 1, 1, file, file_read_limit, s->alloc
+    );
+  s->len += written;
+  s->da.str[s->len] = 0;
+  return err;
+}
+/*----------------------------------------------------------------------------*/

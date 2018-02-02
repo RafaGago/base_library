@@ -106,6 +106,7 @@ configure_file(
 base_srcs = [
     'src/bl/base/semaphore_win.c',
     'src/bl/base/dynarray.c',
+    'src/bl/base/dynarray_from_file.c',
     'src/bl/base/semaphore_linux.c',
     'src/bl/base/autoarray.c',
     'src/bl/base/thread_micro_sleep.c',

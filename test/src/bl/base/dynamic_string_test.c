@@ -755,6 +755,28 @@ static void dstrt_replace_generic_one (void **state)
   dstr_destroy (&s);
 }
 /*----------------------------------------------------------------------------*/
+static void dstrt_append_file (void **state)
+{
+  static const char* fname = "testfile.txt";
+  dstr s;
+  assert_int_equal (0, dstr_init_str (&s, STRINGL, &alloc));
+  FILE* f = fopen (fname, "w");
+  assert_non_null (f);
+  assert_int_equal(
+    lit_len (STRING_240),
+    fwrite (STRING_240, 1, lit_len (STRING_240), f)
+    );
+  fclose(f);
+  f = fopen (fname, "r");
+  assert_non_null (f);
+  bl_err err = dstr_append_file (&s, f, 0);
+  fclose (f);
+  remove(fname);
+  assert_int_equal (err, bl_ok);
+  assert_string_equal (dstr_get (&s), STRINGL STRING_240);
+  dstr_destroy (&s);
+}
+/*----------------------------------------------------------------------------*/
 static const struct CMUnitTest tests[] = {
   cmocka_unit_test (dstrt_init),
   cmocka_unit_test (dstrt_set),
@@ -812,6 +834,7 @@ static const struct CMUnitTest tests[] = {
   cmocka_unit_test (dstrt_replace_generic_all_offset_1),
   cmocka_unit_test (dstrt_replace_generic_all_tail_match),
   cmocka_unit_test (dstrt_replace_generic_one),
+  cmocka_unit_test (dstrt_append_file),
 };
 /*----------------------------------------------------------------------------*/
 int dstr_tests (void)

@@ -268,6 +268,18 @@ static inline bl_err dstr_apply_all (dstr *s, bl_ctype_func fn)
     return dstr_apply (s, fn, 0, dstr_len (s));
 }
 /*---------------------------------------------------------------------------*/
+/* sets from file */
+/*---------------------------------------------------------------------------*/
+extern BL_EXPORT bl_err dstr_append_file(
+  dstr *s, FILE* file, uword file_read_limit
+  );
+/*---------------------------------------------------------------------------*/
+static inline bl_err dstr_set_file (dstr *s, FILE* file, uword file_read_limit)
+{
+  dstr_clear (s);
+  return dstr_append_file (s, file, file_read_limit);
+}
+/*---------------------------------------------------------------------------*/
 /*convenience init funcs*/
 static inline bl_err dstr_init_str(
   dstr *s, char const* str, alloc_tbl const* alloc
