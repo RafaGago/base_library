@@ -322,8 +322,10 @@ bl_err dstr_append_file (dstr *s, FILE* file, uword file_read_limit)
   bl_err err = dynarray_from_file(
     da, &written, s->len, 1, 1, file, file_read_limit, s->alloc
     );
-  s->len += written;
-  s->da.str[s->len] = 0;
+  if (!err && written) {
+    s->len += written;
+    s->da.str[s->len] = 0;
+  }
   return err;
 }
 /*----------------------------------------------------------------------------*/
