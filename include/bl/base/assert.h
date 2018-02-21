@@ -18,7 +18,7 @@
 
 #ifdef BL_ASSERT_RELEASE_BEHAVIOR_PRIVATE
   #undef BL_ASSERT_RELEASE_BEHAVIOR_PRIVATE
-  #define NDEBUG                        1  
+  #define NDEBUG                        1
   #define bl_assert(expr)
   #define bl_assert_always(expr)        assert (expr)
   #define bl_assert_side_effect(expr)   (void) (expr)

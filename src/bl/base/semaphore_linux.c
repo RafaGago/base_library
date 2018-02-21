@@ -21,7 +21,7 @@ static inline int futex_wait_masked_absolute_monotonic(
   atomic_u32*            f,
   u32                    expected_fval,
   u32                    expected_fval_mask,
-  const struct timespec* tp 
+  const struct timespec* tp
   )
 {
   return syscall(
@@ -67,7 +67,7 @@ BL_EXPORT bl_err bl_tm_sem_signal (bl_tm_sem* s)
     curr = tm_sem_futex_set (sig + 1, wait);
 
     if (unlikely (tm_sem_futex_get_sig (curr) < sig)) {
-      return bl_would_overflow;      
+      return bl_would_overflow;
     }
   }
   while (!atomic_u32_weak_cas (&s->sem, &prev, curr, mo_release, mo_relaxed));
@@ -92,14 +92,14 @@ BL_EXPORT bl_err bl_tm_sem_wait (bl_tm_sem* s, u32 usec)
     sig  = tm_sem_futex_get_sig (prev);
     wait = tm_sem_futex_get_wait (prev);
 
-    if (likely (sig > 0)) { 
+    if (likely (sig > 0)) {
       curr = tm_sem_futex_set (sig - 1, wait);
     }
     else {
-      curr = tm_sem_futex_set (sig, wait + 1); 
+      curr = tm_sem_futex_set (sig, wait + 1);
       if (unlikely (tm_sem_futex_get_wait (curr) < wait)) {
         bl_assert (false && "too many waiter threads");
-        return bl_would_overflow;      
+        return bl_would_overflow;
       }
     }
   }
@@ -125,14 +125,14 @@ BL_EXPORT bl_err bl_tm_sem_wait (bl_tm_sem* s, u32 usec)
         sig  = tm_sem_futex_get_sig (prev);
         wait = tm_sem_futex_get_wait (prev);
 
-        if (sig > 0) { 
+        if (sig > 0) {
           curr = tm_sem_futex_set (sig - 1, wait - 1);
         }
         else {
           /*contention lost*/
           curr = prev;
-          goto do_wait;      
-        }        
+          goto do_wait;
+        }
       }
       while(
         !atomic_u32_weak_cas (&s->sem, &prev, curr, mo_acquire, mo_relaxed)
@@ -165,7 +165,7 @@ BL_EXPORT bl_err bl_tm_sem_destroy (bl_tm_sem* s)
   word woken = futex_wake (&s->sem, itype_max (word));
   bl_assert (woken == 0);
   /*if this returns an error there still are waiters -> wrong user shutdown*/
-  return (woken == 0) ? bl_ok : bl_error;                                   
+  return (woken == 0) ? bl_ok : bl_error;
 }
 /*----------------------------------------------------------------------------*/
 #ifdef __cplusplus

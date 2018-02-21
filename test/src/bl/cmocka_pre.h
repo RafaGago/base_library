@@ -25,7 +25,7 @@ extern "C" {
     defined (__cplusplus) &&\
     defined (inline) && \
     defined (BL_DIDNT_HAVE_INLINE_MACRO)
-/*cmocka tries to define the inline keyword as a macro, AFAIK "inline" is a 
+/*cmocka tries to define the inline keyword as a macro, AFAIK "inline" is a
   keyword on C99. I'm not sure what they are trying to workaround.*/
 # undef inline
 # undef BL_DIDNT_HAVE_INLINE_MACRO

@@ -39,17 +39,17 @@
 /* manpage copy (remember that we use lower case)
 
 DESCRIPTION
-  These macros define data structures for different types of trees: splay 
+  These macros define data structures for different types of trees: splay
   trees and red-black trees.
 
   In the macro definitions, TYPE is the name tag of a user defined structure
-  that must contain a field of type SPLAY_ENTRY, or RB_ENTRY, named ENTRYNAME. 
+  that must contain a field of type SPLAY_ENTRY, or RB_ENTRY, named ENTRYNAME.
   The argument HEADNAME is the name tag of a user defined structure that must be
-  declared using the macros SPLAY_HEAD(), or RB_HEAD(). The argument NAME has 
+  declared using the macros SPLAY_HEAD(), or RB_HEAD(). The argument NAME has
   to be a unique name prefix for every tree that is defined.
 
   The function prototypes are declared with SPLAY_PROTOTYPE(), RB_PROTOTYPE(), or
-  RB_PROTOTYPE_STATIC().  The function bodies are generated with 
+  RB_PROTOTYPE_STATIC().  The function bodies are generated with
   SPLAY_GENERATE(), RB_GENERATE(), or RB_GENERATE_STATIC().  See the examples
   below for further explanation ofhow these macros are used.
 
@@ -62,7 +62,7 @@ SPLAY TREES
   requested nodes move to the top of the tree.  On the other hand, every lookup
   causes memory writes.
 
-  The Balance Theorem bounds the total access time for m operations and n 
+  The Balance Theorem bounds the total access time for m operations and n
   inserts on an initially empty tree as O((m + n)lg n).  The amortized cost for
   a sequence of m accesses to a splay tree is O(lg n).
 
@@ -77,7 +77,7 @@ SPLAY TREES
   The SPLAY_ENTRY() macro declares a structure that allows elements to be
   connected in the tree.
 
-  In order to use the functions that manipulate the tree structure, their 
+  In order to use the functions that manipulate the tree structure, their
   prototypes need to be declared with the SPLAY_PROTOTYPE() macro, where NAME is
   a unique identifier for this particular tree.  The TYPE argument is the type
   of the structure that is being managed by the tree.	The FIELD argument is the
@@ -89,14 +89,14 @@ SPLAY TREES
 
   Finally, the CMP argument is the name of a function used to compare tree nodes
   with each other.  The function takes two arguments of type struct TYPE *.  If
-  the first argument is smaller than the second, the function returns a value 
+  the first argument is smaller than the second, the function returns a value
   smaller than zero. If they are equal, the function returns zero.  Otherwise,
   it should return a value greater than zero.  The compare function defines the
   order of the tree elements.
 
   The SPLAY_INIT() macro initializes the tree referenced by head.
 
-  The splay tree can also be initialized statically by using the 
+  The splay tree can also be initialized statically by using the
   SPLAY_INITIALIZER() macro like this:
 
 	   SPLAY_HEAD(HEADNAME, TYPE) head = SPLAY_INITIALIZER(&head);
@@ -112,12 +112,12 @@ SPLAY TREES
 	   find.key = 30;
 	   res = SPLAY_FIND(NAME, head, &find);
 
-  The SPLAY_ROOT(), SPLAY_MIN(), SPLAY_MAX(), and SPLAY_NEXT() macros can be 
+  The SPLAY_ROOT(), SPLAY_MIN(), SPLAY_MAX(), and SPLAY_NEXT() macros can be
   used to traverse the tree:
 
 	   for(
-      np = SPLAY_MIN(NAME, &head); 
-      np != NULL; np = 
+      np = SPLAY_MIN(NAME, &head);
+      np != NULL; np =
       SPLAY_NEXT(NAME, &head, np)
       )
 
@@ -128,7 +128,7 @@ SPLAY TREES
   The SPLAY_EMPTY() macro should be used to check whether a splay tree is empty.
 
 RED-BLACK TREES
-  A red-black tree is a binary search tree with the node color as an extra 
+  A red-black tree is a binary search tree with the node color as an extra
   attribute.  It fulfills a set of conditions:
 
 	   1.	Every search path from the root to a leaf consists of the same number of
@@ -152,25 +152,25 @@ RED-BLACK TREES
   The RB_ENTRY() macro declares a structure that allows elements to be connected
   in the tree.
 
-  In order to use the functions that manipulate the tree structure, their 
-  prototypes need to be declared with the RB_PROTOTYPE() or 
-  RB_PROTOTYPE_STATIC() macro, where NAME is a unique identifier for this 
+  In order to use the functions that manipulate the tree structure, their
+  prototypes need to be declared with the RB_PROTOTYPE() or
+  RB_PROTOTYPE_STATIC() macro, where NAME is a unique identifier for this
   particular tree.  The TYPE argument is the type of the structure that is
-  being managed by the tree.  The FIELD argument is the name of the element 
-  defined by RB_ENTRY().  Individual prototypes can be declared with 
+  being managed by the tree.  The FIELD argument is the name of the element
+  defined by RB_ENTRY().  Individual prototypes can be declared with
   RB_PROTOTYPE_INSERT(), RB_PROTOTYPE_INSERT_COLOR(), RB_PROTOTYPE_REMOVE(),
-  RB_PROTOTYPE_REMOVE_COLOR(), RB_PROTOTYPE_FIND(), RB_PROTOTYPE_NFIND(), 
-  RB_PROTOTYPE_NEXT(), RB_PROTOTYPE_PREV(), and RB_PROTOTYPE_MINMAX() in case 
-  not all functions are required.  The individual prototype macros expect NAME, 
-  TYPE, and ATTR arguments.  The ATTR argument must be empty for global 
+  RB_PROTOTYPE_REMOVE_COLOR(), RB_PROTOTYPE_FIND(), RB_PROTOTYPE_NFIND(),
+  RB_PROTOTYPE_NEXT(), RB_PROTOTYPE_PREV(), and RB_PROTOTYPE_MINMAX() in case
+  not all functions are required.  The individual prototype macros expect NAME,
+  TYPE, and ATTR arguments.  The ATTR argument must be empty for global
   functions or static for static functions.
 
-  The function bodies are generated with the RB_GENERATE() or 
-  RB_GENERATE_STATIC() macro. These macros take the same arguments as the 
+  The function bodies are generated with the RB_GENERATE() or
+  RB_GENERATE_STATIC() macro. These macros take the same arguments as the
   RB_PROTOTYPE() and RB_PROTOTYPE_STATIC() macros, but should be used only once.
   As an alternative individual function bodies are generated with the
   RB_GENERATE_INSERT(), RB_GENERATE_INSERT_COLOR(), RB_GENERATE_REMOVE(),
-  RB_GENERATE_REMOVE_COLOR(), RB_GENERATE_FIND(), RB_GENERATE_NFIND(), 
+  RB_GENERATE_REMOVE_COLOR(), RB_GENERATE_FIND(), RB_GENERATE_NFIND(),
   RB_GENERATE_NEXT(), RB_GENERATE_PREV(), and RB_GENERATE_MINMAX() macros.
 
   Finally, the CMP argument is the name of a function used to compare tree nodes
@@ -182,7 +182,7 @@ RED-BLACK TREES
 
   The RB_INIT() macro initializes the tree referenced by head.
 
-  The red-black tree can also be initialized statically by using the 
+  The red-black tree can also be initialized statically by using the
   RB_INITIALIZER() macro like this:
 
 	   RB_HEAD(HEADNAME, TYPE) head = RB_INITIALIZER(&head);
@@ -191,7 +191,7 @@ RED-BLACK TREES
 
   The RB_REMOVE() macro removes the element elm from the tree pointed by head.
 
-  The RB_FIND() and RB_NFIND() macros can be used to find a particular element 
+  The RB_FIND() and RB_NFIND() macros can be used to find a particular element
   in the tree.
 
 	   struct TYPE find, *res;
@@ -203,15 +203,15 @@ RED-BLACK TREES
 
 	   for (np = RB_MIN(NAME, &head); np != NULL; np = RB_NEXT(NAME, &head, np))
 
-  Or, for simplicity, one can use the RB_FOREACH() or RB_FOREACH_REVERSE() 
+  Or, for simplicity, one can use the RB_FOREACH() or RB_FOREACH_REVERSE()
   macro:
 
 	   RB_FOREACH(np, NAME, head)
 
-  The macros RB_FOREACH_SAFE() and RB_FOREACH_REVERSE_SAFE() traverse the tree 
-  referenced by head in a forward or reverse direction respectively, assigning 
+  The macros RB_FOREACH_SAFE() and RB_FOREACH_REVERSE_SAFE() traverse the tree
+  referenced by head in a forward or reverse direction respectively, assigning
   each element in turn to np. However, unlike their unsafe counterparts, they
-  permit both the removal of np as well as freeing it from within the loop 
+  permit both the removal of np as well as freeing it from within the loop
   safely without interfering with the traversal.
 
   Both RB_FOREACH_FROM() and RB_FOREACH_REVERSE_FROM() may be used to continue

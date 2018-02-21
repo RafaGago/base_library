@@ -43,7 +43,7 @@
 /*---------------------------------------------------------------------------*/
 /* Man page copy. Remember that we use lower case
 DESCRIPTION
-  These macros define and operate on four types of data structures: 
+  These macros define and operate on four types of data structures:
   singly-linked lists, singly-linked tail queues, lists, and tail queues.  All
   four structures support the following functionality:
   1. Insertion of a new entry at the head of the list.
@@ -65,26 +65,26 @@ DESCRIPTION
   However:
   1. All list insertions must specify the head of the list.
   2. Each head entry requires two pointers rather than one.
-  3. Code size is about 15% greater and operations run about 20% slower than 
+  3. Code size is about 15% greater and operations run about 20% slower than
     singly-linked lists.
 
-  Singly-linked tail queues are ideal for applications with large datasets and 
+  Singly-linked tail queues are ideal for applications with large datasets and
   few or no removals, or for implementing a FIFO queue.
 
-  All doubly linked types of data structures (lists and tail queues) 
+  All doubly linked types of data structures (lists and tail queues)
   additionally allow:
   1. Insertion of a new entry before any element in the list.
   2. O(1) removal of any entry in the list.
   However:
   1. Each element requires two pointers rather than one.
-  2. Code size and execution time of operations (except for removal) is about 
+  2. Code size and execution time of operations (except for removal) is about
      twice that of the singly-linked data-structures.
 
   Linked lists are the simplest of the doubly linked data structures.  They add
   the following functionality over the above:
   1. They may be traversed backwards.
   However:
-  1. To traverse backwards, an entry to begin the traversal and the list in 
+  1. To traverse backwards, an entry to begin the traversal and the list in
      which it is contained must be specified.
 
   Tail queues add the following functionality:
@@ -94,19 +94,19 @@ DESCRIPTION
   However:
   1. All list insertions and removals must specify the head of the list.
   2. Each head entry requires two pointers rather than one.
-  3. Code size is about 15% greater and operations run about 20% slower than 
+  3. Code size is about 15% greater and operations run about 20% slower than
     singly-linked lists.
 
-  In the macro definitions, TYPE is the name of a user defined structure, that 
-  must contain a field of type SLIST_ENTRY, STAILQ_ENTRY, LIST_ENTRY, or 
+  In the macro definitions, TYPE is the name of a user defined structure, that
+  must contain a field of type SLIST_ENTRY, STAILQ_ENTRY, LIST_ENTRY, or
   TAILQ_ENTRY, named NAME.  The argument HEADNAME is the name of a user defined
-  structure that must be declared using the macros SLIST_HEAD, STAILQ_HEAD, 
+  structure that must be declared using the macros SLIST_HEAD, STAILQ_HEAD,
   LIST_HEAD, or TAILQ_HEAD.  See the examples below for further explanation of
   how these macros are used.
 
 SINGLY-LINKED LISTS
   A singly-linked list is headed by a structure defined by the SLIST_HEAD macro.
-  This structure contains a single pointer to the first element on the list. 
+  This structure contains a single pointer to the first element on the list.
   The elements are singly linked for minimum space and pointer manipulation
   overhead at the expense of O(n) removal for arbitrary elements.  New elements
   can be added to the list after an existing element or at the head of the list.
@@ -114,7 +114,7 @@ SINGLY-LINKED LISTS
 
   SLIST_HEAD(HEADNAME, TYPE) head;
 
-  where HEADNAME is the name of the structure to be defined, and TYPE is the 
+  where HEADNAME is the name of the structure to be defined, and TYPE is the
   type of the elements to be linked into the list.  A pointer to the head of the
   list can later be declared as:
 
@@ -130,7 +130,7 @@ SINGLY-LINKED LISTS
   The macro SLIST_ENTRY declares a structure that connects the elements in the
   list.
 
-  The macro SLIST_FIRST returns the first element in the list or NULL if the 
+  The macro SLIST_FIRST returns the first element in the list or NULL if the
   list is empty.
 
   The macro SLIST_FOREACH traverses the list referenced by head in the forward
@@ -141,13 +141,13 @@ SINGLY-LINKED LISTS
   loop at var instead of the first element in the SLIST referenced by head.
 
   The macro SLIST_FOREACH_SAFE traverses the list referenced by head in the
-  forward direction, assigning each element in turn to var.  However, unlike 
-  SLIST_FOREACH() here it is permitted to both remove var as well as free it 
+  forward direction, assigning each element in turn to var.  However, unlike
+  SLIST_FOREACH() here it is permitted to both remove var as well as free it
   from within the loop safely without interfering with the traversal.
 
-  The macro SLIST_FOREACH_FROM_SAFE behaves identically to SLIST_FOREACH_SAFE 
+  The macro SLIST_FOREACH_FROM_SAFE behaves identically to SLIST_FOREACH_SAFE
   when var is NULL, else it treats var as a previously found SLIST element and
-  begins the loop at var instead of the first element in the SLIST referenced 
+  begins the loop at var instead of the first element in the SLIST referenced
   by head.
 
   The macro SLIST_INIT initializes the list referenced by head.
@@ -155,7 +155,7 @@ SINGLY-LINKED LISTS
   The macro SLIST_INSERT_HEAD inserts the new element elm at the head of the
   list.
 
-  The macro SLIST_INSERT_AFTER inserts the new element elm after the element 
+  The macro SLIST_INSERT_AFTER inserts the new element elm after the element
   listelm.
 
   The macro SLIST_NEXT returns the next element in the list.
@@ -164,7 +164,7 @@ SINGLY-LINKED LISTS
   Unlike SLIST_REMOVE, this macro does not traverse the entire list.
 
   The macro SLIST_REMOVE_HEAD removes the element elm from the head of the list.
-  For optimum efficiency, elements being removed from the head of the list 
+  For optimum efficiency, elements being removed from the head of the list
   should explicitly use this macro instead of the generic SLIST_REMOVE macro.
 
   The macro SLIST_REMOVE removes the element elm from the list.
@@ -213,13 +213,13 @@ SINGLY-LINKED LIST EXAMPLE
   }
 
 SINGLY-LINKED TAIL QUEUES
-  A singly-linked tail queue is headed by a structure defined by the 
+  A singly-linked tail queue is headed by a structure defined by the
   STAILQ_HEAD macro.  This structure contains a pair of pointers, one to the
   first element in the tail queue and the other to the last element in the tail
-  queue. The elements are singly linked for minimum space and pointer 
+  queue. The elements are singly linked for minimum space and pointer
   manipulation overhead at the expense of O(n) removal for arbitrary elements.
   New elements can be added to the tail queue after an existing element, at the
-  head of the tail queue, or at the end of the tail queue.  A STAILQ_HEAD 
+  head of the tail queue, or at the end of the tail queue.  A STAILQ_HEAD
   structure is declared as follows:
 
   STAILQ_HEAD(HEADNAME, TYPE) head;
@@ -251,10 +251,10 @@ SINGLY-LINKED TAIL QUEUES
   forward direction, assigning each element in turn to var.
 
   The macro STAILQ_FOREACH_FROM behaves identically to STAILQ_FOREACH when var
-  is NULL, else it treats var as a previously found STAILQ element and begins 
+  is NULL, else it treats var as a previously found STAILQ element and begins
   the loop at var instead of the first element in the STAILQ referenced by head.
 
-  The macro STAILQ_FOREACH_SAFE traverses the tail queue referenced by head in 
+  The macro STAILQ_FOREACH_SAFE traverses the tail queue referenced by head in
   the forward direction, assigning each element in turn to var.  However, unlike
   STAILQ_FOREACH() here it is permitted to both remove var as well as free it
   from within the loop safely without interfering with the traversal.
@@ -282,12 +282,12 @@ SINGLY-LINKED TAIL QUEUES
   item is the last.
 
   The macro STAILQ_REMOVE_AFTER removes the element after elm from the tail
-  queue. Unlike STAILQ_REMOVE, this macro does not traverse the entire tail 
+  queue. Unlike STAILQ_REMOVE, this macro does not traverse the entire tail
   queue.
 
   The macro STAILQ_REMOVE_HEAD removes the element at the head of the tail
   queue.  For optimum efficiency, elements being removed from the head of the
-  tail queue should use this macro explicitly rather than the generic 
+  tail queue should use this macro explicitly rather than the generic
   STAILQ_REMOVE macro.
 
   The macro STAILQ_REMOVE removes the element elm from the tail queue.
@@ -347,7 +347,7 @@ SINGLY-LINKED TAIL QUEUE EXAMPLE
   STAILQ_INIT(&head);
 
 LISTS
-  A list is headed by a structure defined by the LIST_HEAD macro.  This 
+  A list is headed by a structure defined by the LIST_HEAD macro.  This
   structure contains a single pointer to the first element on the list.  The
   elements are doubly linked so that an arbitrary element can be removed without
   traversing the list. New elements can be added to the list after an existing
@@ -374,7 +374,7 @@ LISTS
   The macro LIST_FIRST returns the first element in the list or NULL if the list
   is empty.
 
-  The macro LIST_FOREACH traverses the list referenced by head in the forward 
+  The macro LIST_FOREACH traverses the list referenced by head in the forward
   direction, assigning each element in turn to var.
 
   The macro LIST_FOREACH_FROM behaves identically to LIST_FOREACH when var is
@@ -694,12 +694,12 @@ struct name {\
 
 #define slist_head_initializer(head)\
   { nullptr }
- 
+
 #define slist_entry(type)\
 struct {\
   struct type *sle_next;  /* next element */\
 }
- 
+
 /*
  * singly-linked list functions.
  */

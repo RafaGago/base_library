@@ -8,7 +8,7 @@
 #define static_assert_ns(cond) static_assert (cond, "")
 
 /*
- Use these two when out of a function, so we will be able to fallback to 
+ Use these two when out of a function, so we will be able to fallback to
  compilers without static_assert. Place static_asserts inside functions
  whenever it's possible. The over-verbose name is to encourage this.
 */

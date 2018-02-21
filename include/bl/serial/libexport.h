@@ -26,11 +26,11 @@
     !defined (BL_SERIAL_SHAREDLIB_USING_DEF)) ||\
     (defined (BL_ALL_LIBS_SHAREDLIB) &&\
     !defined (BL_ALL_LIBS_SHAREDLIB_USING_DEF))
-    
-    #undef BL_SERIAL_EXPORT  
+
+    #undef BL_SERIAL_EXPORT
     #define BL_SERIAL_EXPORT __declspec (dllimport)
 
-  #endif  
+  #endif
 #endif
 
 #endif /* __BL_LIBEXPORT_H__ */

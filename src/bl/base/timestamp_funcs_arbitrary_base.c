@@ -30,7 +30,7 @@ BL_EXPORT toffset bl_tstamp_to_private (tstamp ts, u32 factor)
 {
   u64 f   = bl_tstamp_get_freq();
   u64 sec = ts / f;
-  u64 rem = ts % f;    
+  u64 rem = ts % f;
   return (toffset) (sec * factor) + ((rem * factor) / f);
 }
 /*---------------------------------------------------------------------------*/
@@ -38,8 +38,8 @@ BL_EXPORT toffset bl_tstamp_to_ceil_private (tstamp ts, u32 factor)
 {
   u64 f   = bl_tstamp_get_freq();
   u64 sec = ts / f;
-  u64 rem = ts % f;     
-  return (toffset) (sec * factor) + div_ceil (rem * factor, f);  
+  u64 rem = ts % f;
+  return (toffset) (sec * factor) + div_ceil (rem * factor, f);
 }
 /*---------------------------------------------------------------------------*/
 BL_EXPORT tstamp bl_to_tstamp_private (toffset amt, u32 factor)

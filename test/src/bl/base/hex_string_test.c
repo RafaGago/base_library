@@ -5,7 +5,7 @@
 #include <bl/base/hex_string.c>
 /*---------------------------------------------------------------------------*/
 static void hex_string_to_bytes_even_string (void** s)
-{  
+{
   static const char str[] = "000f0e101499";
   static const u8   exp[] = {0x00, 0x0f, 0x0e, 0x10, 0x14, 0x99 };
   u8 buff[arr_elems (exp)];
@@ -15,7 +15,7 @@ static void hex_string_to_bytes_even_string (void** s)
 }
 /*---------------------------------------------------------------------------*/
 static void hex_string_to_bytes_odd_string (void** s)
-{  
+{
   static const char str[] = "000f0e1014994";
   static const u8   exp[] = {0x00, 0x0f, 0x0e, 0x10, 0x14, 0x99, 0x40 };
   u8 buff[arr_elems (exp)];
@@ -25,7 +25,7 @@ static void hex_string_to_bytes_odd_string (void** s)
 }
 /*---------------------------------------------------------------------------*/
 static void hex_string_to_bytes_invalid_char (void** s)
-{  
+{
   static const char str[] = "000f0eX014994";
   static const u8   exp[] = {0x00, 0x0f, 0x0e, 0x10, 0x14, 0x99, 0x40 };
   u8 buff[arr_elems (exp)];
@@ -34,7 +34,7 @@ static void hex_string_to_bytes_invalid_char (void** s)
 }
 /*---------------------------------------------------------------------------*/
 static void hex_string_to_bytes_not_enough_buffer (void** s)
-{  
+{
   static const char str[] = "000f0eX014994";
   static const u8   exp[] = {0x00, 0x0f, 0x0e, 0x10, 0x14, 0x99, 0x40 };
   u8 buff[arr_elems (exp)];
@@ -43,7 +43,7 @@ static void hex_string_to_bytes_not_enough_buffer (void** s)
 }
 /*---------------------------------------------------------------------------*/
 static void bytes_to_hex_string_normal (void** s)
-{  
+{
   static const char exp[] = "000f0e101499";
   static const u8   bytes[] = {0x00, 0x0f, 0x0e, 0x10, 0x14, 0x99 };
   char buff[arr_elems (exp)];
@@ -55,7 +55,7 @@ static void bytes_to_hex_string_normal (void** s)
 }
 /*---------------------------------------------------------------------------*/
 static void bytes_to_hex_string_not_enough_buffer (void** s)
-{  
+{
   static const char exp[] = "000f0e101499";
   static const u8   bytes[] = {0x00, 0x0f, 0x0e, 0x10, 0x14, 0x99 };
   char buff[arr_elems (exp)];

@@ -4,19 +4,19 @@
 #include <bl/base/to_type_containing.h>
 
 /*---------------------------------------------------------------------------*/
-/* 
+/*
   This header is a way of declaring the intentions of using "offsetoff"
-  between two structs. 
-  
+  between two structs.
+
   It just defines a join struct containing two other structs with the name
   "base" and "xtra" and automates the macros to switch between members
   by having fixed names (for offsetoff).
-  
+
   Note that the naming "base" and "xtra" is arbitrary, they could be named
   struct1 and struct2 perfectly, the point is that most often one of the
   structs is "more important" than the other, so placing base on top
   yields 0 offset (less code).
-  
+
   This simple method doesn't escalate to big structs with complex hierarchies,
   so use it wisely.
 */

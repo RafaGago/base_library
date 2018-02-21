@@ -22,29 +22,29 @@
 #endif
 /*---------------------------------------------------------------------------*/
 #if BL_WORDSIZE == 8
-  typedef u8 uword; 
+  typedef u8 uword;
   typedef i8 word;
 /*----------------------------------------------------------------------------*/
 #elif BL_WORDSIZE == 16
-  typedef u16 uword; 
+  typedef u16 uword;
   typedef i16 word;
-  typedef u8  uword_d2; 
+  typedef u8  uword_d2;
   typedef i8  word_d2;
   /*----------------------------------------------------------------------------*/
 #elif BL_WORDSIZE == 32
-  typedef u32 uword; 
+  typedef u32 uword;
   typedef i32 word;
-  typedef u16 uword_d2; 
+  typedef u16 uword_d2;
   typedef i16 word_d2;
-  typedef u8  uword_d4; 
+  typedef u8  uword_d4;
   typedef i8  word_d4;
 /*----------------------------------------------------------------------------*/
 #elif BL_WORDSIZE == 64
-  typedef u64 uword; 
+  typedef u64 uword;
   typedef i64 word;
-  typedef u32 uword_d2; 
+  typedef u32 uword_d2;
   typedef i32 word_d2;
-  typedef u16 uword_d4; 
+  typedef u16 uword_d4;
   typedef i16 word_d4;
 /*----------------------------------------------------------------------------*/
 #else

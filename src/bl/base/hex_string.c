@@ -10,7 +10,7 @@ BL_EXPORT word bl_hex_string_to_bytes(
   bl_assert (str && bytes);
   bl_assert (bytes_capacity > 0);
 
-  while (*str != '\0') {    
+  while (*str != '\0') {
     char c = *str;
     u8 nibble;
     if (c >= '0' && c <= '9') {
@@ -36,7 +36,7 @@ BL_EXPORT word bl_hex_string_to_bytes(
     else {
       *bytes |= nibble;
       ++bytes;
-    }   
+    }
   }
   return (char_count / 2) + (char_count & 1);
 }
@@ -53,9 +53,9 @@ BL_EXPORT word bl_bytes_to_hex_string(
   if ((str_capacity == 0 && bytes_size > 0) ||
     str_capacity - 1 < bytes_size * 2) {
     return -1;
-  }  
+  }
   uword i;
-  for (i = 0; i < bytes_size; ++i, ++bytes, str += 2) {  
+  for (i = 0; i < bytes_size; ++i, ++bytes, str += 2) {
     str[0] = hex_lut[*bytes >> 4];
     str[1] = hex_lut[*bytes & 15];
   }

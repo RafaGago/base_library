@@ -26,11 +26,11 @@
     !defined (BL_TASKQ_SHAREDLIB_USING_DEF)) ||\
     (defined (BL_ALL_LIBS_SHAREDLIB) &&\
     !defined (BL_ALL_LIBS_SHAREDLIB_USING_DEF))
-    
-    #undef BL_TASKQ_EXPORT  
+
+    #undef BL_TASKQ_EXPORT
     #define BL_TASKQ_EXPORT __declspec (dllimport)
 
-  #endif  
+  #endif
 #endif
 
 #endif /* __BL_LIBEXPORT_H__ */

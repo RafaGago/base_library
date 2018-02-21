@@ -30,7 +30,7 @@ struct align_anonymous_priv_join {
 #elif defined (__cplusplus)
   /*TODO alignof might be available depending on the compiler version*/
   #include <type_traits>
-  #define bl_alignof(type) std::alignment_of<type>::value  
+  #define bl_alignof(type) std::alignment_of<type>::value
 #elif defined (BL_GCC)
   #define bl_alignof(type) __alignof__(type)
 #else
