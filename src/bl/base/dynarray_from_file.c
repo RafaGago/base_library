@@ -17,10 +17,7 @@
 static inline int is_fifo (FILE* fp)
 {
   struct stat st;
-  int fd = fileno (fp);
-
-  (void) fstat (fd, &st); /*no check for invalid FD here, we'll bail out later*/
-  return  S_ISFIFO (st.st_mode);
+  return fstat (fileno (fp), &st) == 0 ? S_ISFIFO (st.st_mode) : -errno;
 }
 
 #else
@@ -81,6 +78,10 @@ bl_err dynarray_from_file(
     return bl_range;
   }
   int fifo = is_fifo (fp);
+  if (fifo < 0) {
+    /* errno already set */
+    return bl_file;
+  }
   if (!fifo) {
     /* ftell/fseek will work */
     uword start = ftell (fp);
