@@ -24,12 +24,16 @@
 #if BL_WORDSIZE == 8
   typedef u8 uword;
   typedef i8 word;
+  #define BL_HAS_WORD_D2 0
+  #define BL_HAS_WORD_D4 0
 /*----------------------------------------------------------------------------*/
 #elif BL_WORDSIZE == 16
   typedef u16 uword;
   typedef i16 word;
   typedef u8  uword_d2;
   typedef i8  word_d2;
+  #define BL_HAS_WORD_D2 1
+  #define BL_HAS_WORD_D4 0
   /*----------------------------------------------------------------------------*/
 #elif BL_WORDSIZE == 32
   typedef u32 uword;
@@ -38,6 +42,8 @@
   typedef i16 word_d2;
   typedef u8  uword_d4;
   typedef i8  word_d4;
+  #define BL_HAS_WORD_D2 1
+  #define BL_HAS_WORD_D4 1
 /*----------------------------------------------------------------------------*/
 #elif BL_WORDSIZE == 64
   typedef u64 uword;
@@ -46,6 +52,8 @@
   typedef i32 word_d2;
   typedef u16 uword_d4;
   typedef i16 word_d4;
+  #define BL_HAS_WORD_D2 1
+  #define BL_HAS_WORD_D4 1
 /*----------------------------------------------------------------------------*/
 #else
   #error "unknown word size on this platform"
@@ -58,6 +66,8 @@
   typedef i32 ibig_d2;
   typedef u16 ubig_d4;
   typedef i16 ibig_d4;
+  #define BL_HAS_BIG_D2 1
+  #define BL_HAS_BIG_D4 1
 #elif BL_WORDSIZE_MAX >= 32
   typedef u32 ubig;
   typedef i32 ibig;
@@ -65,14 +75,20 @@
   typedef i16 ibig_d2;
   typedef u8  ubig_d4;
   typedef i8  ibig_d4;
+  #define BL_HAS_BIG_D2 1
+  #define BL_HAS_BIG_D4 1
 #elif BL_WORDSIZE_MAX >= 16
   typedef u16 ubig;
   typedef i16 ibig;
   typedef u8  ubig_d2;
   typedef i8  ibig_d2;
+  #define BL_HAS_BIG_D2 1
+  #define BL_HAS_BIG_D4 0
 #else
   typedef u8 ubig;
   typedef i8 ibig;
+  #define BL_HAS_BIG_D2 0
+  #define BL_HAS_BIG_D4 0
 #endif
 /*---------------------------------------------------------------------------*/
 #else
