@@ -17,11 +17,11 @@ static inline bl_err deadline_init_explicit(
   bl_assert (d);
   if (usec <= bl_usec_to_tstamp_max ()) {
     *d = now + bl_usec_to_tstamp (usec);
-    return bl_ok;
+    return bl_mkok();
   }
   else {
     *d = 0;
-    return bl_invalid;
+    return bl_mkerr (bl_invalid);
   }
 }
 /*---------------------------------------------------------------------------*/

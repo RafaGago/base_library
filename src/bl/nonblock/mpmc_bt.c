@@ -23,7 +23,7 @@ BL_NONBLOCK_EXPORT bl_err mpmc_bt_produce_sig_fallback(
   bl_err err = mpmc_b_produce_prepare_sig_fallback(
     &q->q, ticket, &slot, replace_sig, sig, sig_fmask, sig_fmatch
     );
-  if (likely (!err)) {
+  if (likely (!err.bl)) {
     memcpy (slot, data, q->sizeof_type);
     mpmc_b_produce_commit (&q->q, *ticket);
   }
@@ -36,7 +36,7 @@ BL_NONBLOCK_EXPORT bl_err mpmc_bt_produce_sp(
 {
   u8* slot;
   bl_err err = mpmc_b_produce_prepare_sp (&q->q, ticket, &slot);
-  if (likely (!err)) {
+  if (likely (!err.bl)) {
     memcpy (slot, data, q->sizeof_type);
     mpmc_b_produce_commit (&q->q, *ticket);
   }
@@ -57,7 +57,7 @@ BL_NONBLOCK_EXPORT bl_err mpmc_bt_consume_sig_fallback(
   bl_err err = mpmc_b_consume_prepare_sig_fallback(
     &q->q, ticket, &slot, replace_sig, sig, sig_fmask, sig_fmatch
     );
-  if (likely (!err)) {
+  if (likely (!err.bl)) {
     memcpy (data, slot, q->sizeof_type);
     mpmc_b_consume_commit (&q->q, *ticket);
   }
@@ -70,7 +70,7 @@ BL_NONBLOCK_EXPORT bl_err mpmc_bt_consume_sc(
 {
   u8* slot;
   bl_err err = mpmc_b_consume_prepare_sc (&q->q, ticket, &slot);
-  if (likely (!err)) {
+  if (likely (!err.bl)) {
     memcpy (data, slot, q->sizeof_type);
     mpmc_b_consume_commit (&q->q, *ticket);
   }

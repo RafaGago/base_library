@@ -32,7 +32,7 @@ static inline bl_err dstr_replace_replace_le_match(
     }
     uword advanced = f - scan_start;
     if (scan_start != offset) {
-    	memmove (wptr, s->da.str + scan_start, advanced);
+      memmove (wptr, s->da.str + scan_start, advanced);
     }
     wptr += advanced;
     memcpy (wptr, replace, replace_len);
@@ -47,7 +47,7 @@ static inline bl_err dstr_replace_replace_le_match(
     s->len            = wptr - s->da.str;
     s->da.str[s->len] = 0;
   }
-  return bl_ok;
+  return bl_mkok();
 }
 /*---------------------------------------------------------------------------*/
 static inline bl_err dstr_replace_replace_gt_match_no_alloc(
@@ -82,12 +82,12 @@ static inline bl_err dstr_replace_replace_gt_match_no_alloc(
     ++found;
   }
   if (found == 0) {
-    return bl_ok;
+    return bl_mkok();
   }
   uword diff  = replace_len - match_len;
   uword bytes = dstr_len (s) + (found * diff);
   bl_err err  = dstr_set_capacity (s, bl_max (bytes, dstr_get_capacity (s)));
-  if (err) {
+  if (err.bl) {
     dstr_destroy (s); /* the string was modified */
     return err;
   }
@@ -110,7 +110,7 @@ static inline bl_err dstr_replace_replace_gt_match_no_alloc(
     rptr_prev = rptr;
   }
   while (--found);
-  return bl_ok;
+  return bl_mkok();
 }
 /*---------------------------------------------------------------------------*/
 define_ac_dynarray_types (u32arr, u32)
@@ -133,7 +133,7 @@ static inline bl_err dstr_replace_replace_gt_match(
   u32arr matches;
 
   u32arr_init (&matches, stack_matches, arr_elems (stack_matches));
-  bl_err err       = bl_ok;
+  bl_err err       = bl_mkok();
   uword scan_start = offset;
   uword found      = 0;
 
@@ -144,7 +144,7 @@ static inline bl_err dstr_replace_replace_gt_match(
     }
     if (u32arr_size (&matches) <= found) {
       bl_err err = u32arr_grow (&matches, 32, s->alloc);
-      if (err) {
+      if (err.bl) {
         goto destroy_dynarray;
       }
     }
@@ -158,7 +158,7 @@ static inline bl_err dstr_replace_replace_gt_match(
   uword diff  = replace_len - match_len;
   uword bytes = dstr_len (s) + (found * diff);
   err         = dstr_set_capacity (s, bl_max (bytes, dstr_get_capacity (s)));
-  if (err) {
+  if (err.bl) {
     goto destroy_dynarray;
   }
   char* rptr_prev   = s->da.str + dstr_len (s);
@@ -191,11 +191,11 @@ BL_EXPORT bl_err dstr_replace_l(
   )
 {
   if (unlikely (dstr_len (s) == 0 || match_len == 0)) {
-    return bl_ok;
+    return bl_mkok();
   }
   if (unlikely (!match || !replace || offset >= dstr_len (s))) {
     bl_assert (false);
-    return bl_invalid;
+    return bl_mkerr (bl_invalid);
   }
   uword max = max_replace ? max_replace : (uword) -1;
   if (match_len >= replace_len) {
@@ -214,6 +214,6 @@ BL_EXPORT bl_err dstr_replace_l(
       s, match, match_len, replace, replace_len, offset, max
       );
   }
-  return bl_ok;
+  return bl_mkok();
 }
 /*---------------------------------------------------------------------------*/

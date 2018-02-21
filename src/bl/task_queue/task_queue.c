@@ -77,7 +77,7 @@ static inline bool taskq_handle_cmd (taskq* tq, cmd_elem* cmd, taskq_id tid)
 {
   switch (cmd->type) {
   case cmd_task: {
-    taskq_task_run (cmd->data.e.task, bl_ok, tid);
+    taskq_task_run (cmd->data.e.task, bl_mkok(), tid);
     return true;
   }
   case cmd_delayed: {
@@ -88,7 +88,7 @@ static inline bool taskq_handle_cmd (taskq* tq, cmd_elem* cmd, taskq_id tid)
     d.task = cmd->data.d.task;
     d.id   = tid;
     bl_err err = taskq_delayed_insert (&tq->delayed, &d);
-    if (unlikely (err)) {
+    if (unlikely (err.bl)) {
       taskq_task_run (cmd->data.d.task, err, tid);
       return true;
     }
@@ -100,7 +100,7 @@ static inline bool taskq_handle_cmd (taskq* tq, cmd_elem* cmd, taskq_id tid)
     match.time = cmd->data.dcancel.tp;
     match.id   = cmd->data.dcancel.id;
     if (taskq_delayed_try_get_and_drop (&tq->delayed, &task, &match)) {
-      taskq_task_run (task.task, bl_cancelled, cmd->data.dcancel.id);
+      taskq_task_run (task.task, bl_mkerr (bl_cancelled), cmd->data.dcancel.id);
       return true;
     }
     return false;
@@ -119,14 +119,14 @@ static inline bl_err taskq_post_impl(
   bl_err err = mpmc_bt_produce_sig_fallback(
     &tq->queue, &op, cmd, true, taskq_q_ok, taskq_q_blocked, taskq_q_blocked
     );
-  if (likely (err == bl_ok)) {
+  if (likely (err.bl == bl_ok)) {
     if (unlikely (mpmc_b_sig_decode (op) == taskq_q_waiting_sem)) {
       bl_tm_sem_signal (&tq->sem);
     }
     *id = mpmc_b_ticket_decode (op);
   }
   else {
-    err = (err != bl_preconditions) ? err : bl_locked;
+    err = (err.bl != bl_preconditions) ? err : bl_mkerr (bl_locked);
   }
   return err;
 }
@@ -141,18 +141,18 @@ BL_TASKQ_EXPORT bl_err taskq_try_run_one (taskq* tq)
     retry   = false;
     expired = taskq_delayed_get_head_if_expired (&tq->delayed, false, 0);
     if (expired) {
-      taskq_task_run (expired->task, bl_ok, expired->id);
+      taskq_task_run (expired->task, bl_mkok(), expired->id);
       taskq_delayed_drop_head (&tq->delayed);
-      return bl_ok;
+      return bl_mkok();
     }
     err = mpmc_bt_consume_sc (&tq->queue, &tq->last_consumed, &cmd);
-    if (likely (!err)) {
+    if (likely (!err.bl)) {
       retry = !taskq_handle_cmd(
         tq, &cmd, mpmc_b_ticket_decode (tq->last_consumed)
         );
     }
-    else if (unlikely (err = bl_empty)) {
-      err = bl_nothing_to_do;
+    else if (unlikely (err.bl == bl_empty)) {
+      err = bl_mkerr (bl_nothing_to_do);
     }
   }
   while (retry);
@@ -162,7 +162,7 @@ BL_TASKQ_EXPORT bl_err taskq_try_run_one (taskq* tq)
 BL_TASKQ_EXPORT bl_err taskq_run_one (taskq* tq, u32 timeout_us)
 {
   bl_err err = taskq_try_run_one (tq);
-  if (!err || err != bl_nothing_to_do) {
+  if (!err.bl || err.bl != bl_nothing_to_do) {
     return err;
   }
   /*slow path*/
@@ -170,13 +170,13 @@ BL_TASKQ_EXPORT bl_err taskq_run_one (taskq* tq, u32 timeout_us)
   tstamp deadline     = 0;
   if (has_deadline) {
     err = deadline_init (&deadline, timeout_us);
-    if (unlikely (err)) {
+    if (unlikely (err.bl)) {
       return err;
     }
   }
   while (true) {
     mpmc_b_op expect = tq->last_consumed;
-    bl_err    ierr   = bl_ok;
+    bl_err    ierr   = bl_mkok();
 
     taskq_delayed_entry const* dhead;
     dhead = taskq_delayed_get_head (&tq->delayed);
@@ -197,7 +197,7 @@ BL_TASKQ_EXPORT bl_err taskq_run_one (taskq* tq, u32 timeout_us)
         sem_us = bl_tstamp_to_usec_ceil (deadline - now);
       }
       else {
-        ierr = bl_timeout;
+        ierr = bl_mkerr (bl_timeout);
         goto try_again;
       }
     }
@@ -209,7 +209,7 @@ BL_TASKQ_EXPORT bl_err taskq_run_one (taskq* tq, u32 timeout_us)
       ierr = mpmc_bt_producer_signal_try_set_tmatch(
         &tq->queue, &expect, taskq_q_waiting_sem
         );
-      if (ierr == bl_ok || mpmc_b_sig_decode (expect) == taskq_q_waiting_sem) {
+      if (ierr.bl == bl_ok || mpmc_b_sig_decode (expect) == taskq_q_waiting_sem) {
         ierr = bl_tm_sem_wait (&tq->sem, sem_us);
       }
     }
@@ -222,23 +222,23 @@ BL_TASKQ_EXPORT bl_err taskq_run_one (taskq* tq, u32 timeout_us)
         processor_pause();
       }
       expect = mpmc_b_op_encode (expect, taskq_q_ok);
-      ierr = bl_ok;
+      ierr = bl_mkok();
     }
 
 try_again:
     err = taskq_try_run_one (tq);
 
-    if (err != bl_nothing_to_do) {
+    if (err.bl != bl_nothing_to_do) {
       break;
     }
     else {
       if (unlikely (mpmc_b_sig_decode (expect) == taskq_q_blocked)) {
         /*no long blocking behavior on termination contexts*/
-        return bl_nothing_to_do;
+        return bl_mkerr (bl_nothing_to_do);
       }
-      else if (unlikely (ierr == bl_timeout)) {
+      else if (unlikely (ierr.bl == bl_timeout)) {
         bl_assert (timeout_us != taskq_no_timeout);
-        return bl_timeout;
+        return bl_mkerr (bl_timeout);
       }
       /* else: keep going...*/
     }
@@ -251,11 +251,11 @@ BL_TASKQ_EXPORT bl_err taskq_block (taskq* tq)
   mpmc_b_op expected = mpmc_b_op_encode (tq->last_consumed, taskq_q_ok);
   while(
     mpmc_bt_producer_signal_try_set_tmatch(
-	    &tq->queue, &expected, taskq_q_blocked
-	    ) == bl_preconditions
+      &tq->queue, &expected, taskq_q_blocked
+      ).bl == bl_preconditions
     );
   bl_tm_sem_signal (&tq->sem);
-  return bl_ok;
+  return bl_mkok();
 }
 /*---------------------------------------------------------------------------*/
 BL_TASKQ_EXPORT bl_err taskq_try_cancel_one (taskq* tq)
@@ -264,19 +264,23 @@ BL_TASKQ_EXPORT bl_err taskq_try_cancel_one (taskq* tq)
 retry:
   if (mpmc_bt_consume_sc(
        &tq->queue, &tq->last_consumed, &cmd
-       ) == bl_ok) {
+       ).bl == bl_ok) {
     switch (cmd.type) {
     case cmd_task: {
       taskq_task_run(
-        cmd.data.e.task, bl_cancelled, mpmc_b_ticket_decode (tq->last_consumed)
+        cmd.data.e.task,
+        bl_mkerr (bl_cancelled),
+        mpmc_b_ticket_decode (tq->last_consumed)
         );
-      return bl_ok;
+      return bl_mkok();
     }
     case cmd_delayed: {
       taskq_task_run(
-        cmd.data.d.task, bl_cancelled, mpmc_b_ticket_decode (tq->last_consumed)
+        cmd.data.d.task,
+        bl_mkerr (bl_cancelled),
+        mpmc_b_ticket_decode (tq->last_consumed)
         );
-      return bl_ok;
+      return bl_mkok();
     }
     default: {
       goto retry;
@@ -286,11 +290,11 @@ retry:
   taskq_delayed_entry const* dhead;
   dhead = taskq_delayed_get_head (&tq->delayed);
   if (!dhead) {
-    return bl_nothing_to_do;
+    return bl_mkerr (bl_nothing_to_do);
   }
-  taskq_task_run (dhead->task, bl_cancelled, dhead->id);
+  taskq_task_run (dhead->task, bl_mkerr (bl_cancelled), dhead->id);
   taskq_delayed_drop_head (&tq->delayed);
-  return bl_ok;
+  return bl_mkok();
 }
 /*---------------------------------------------------------------------------*/
 BL_TASKQ_EXPORT bl_err taskq_post (taskq* tq, taskq_id* id, taskq_task task)
@@ -336,7 +340,7 @@ BL_TASKQ_EXPORT bl_err taskq_destroy (taskq* tq, alloc_tbl const* alloc)
   mpmc_bt_destroy (&tq->queue, alloc);
   taskq_delayed_destroy (&tq->delayed, alloc);
   bl_err err = bl_tm_sem_destroy (&tq->sem);
-  bl_assert (!err);
+  bl_assert (!err.bl);
   bl_dealloc (alloc, tq);
   return err;
 }
@@ -357,7 +361,7 @@ BL_TASKQ_EXPORT bl_err taskq_init(
 
   taskq* tq = (taskq*) bl_alloc (alloc, sizeof *tq);
   if (!tq) {
-    return bl_alloc;
+    return bl_mkerr (bl_alloc);
   }
   bl_err err;
   err = mpmc_bt_init(
@@ -367,7 +371,7 @@ BL_TASKQ_EXPORT bl_err taskq_init(
     sizeof (cmd_elem),
     bl_alignof (cmd_elem)
     );
-  if (err) {
+  if (err.bl) {
     goto taskq_free;
   }
   /*NOTE the delay list could be easily placed adjacently with the
@@ -376,16 +380,16 @@ BL_TASKQ_EXPORT bl_err taskq_init(
   err = taskq_delayed_init(
     &tq->delayed, bl_get_tstamp(), delayed_capacity, alloc
     );
-  if (err) {
+  if (err.bl) {
     goto taskq_queue_destroy;
   }
   err = bl_tm_sem_init (&tq->sem);
-  if (err) {
+  if (err.bl) {
     goto do_taskq_delayed_destroy;
   }
   *tqueue = tq;
   tq->last_consumed = mpmc_b_first_op;
-  return bl_ok;
+  return bl_mkok();
 
 do_taskq_delayed_destroy:
   taskq_delayed_destroy (&tq->delayed, alloc);

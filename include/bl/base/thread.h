@@ -94,14 +94,14 @@ static inline bl_err bl_set_thread_affinity(
   )
 {
   int e = pthread_setaffinity_np (bl_thread_native_handle (t), sizeof *m, m);
-  return !e ? bl_ok : bl_error;
+  return !e ? bl_mkok() : bl_mkerr (bl_error);
 }
 /*---------------------------------------------------------------------------*/
 static inline bl_err bl_get_thread_affinity (bl_thread t, bl_affinity_mask* m)
 {
   bl_assert (m);
   int e = pthread_getaffinity_np (bl_thread_native_handle (t), sizeof *m, m);
-  return !e ? bl_ok : bl_error;
+  return !e ? bl_mkok() : bl_mkerr (bl_error);
 }
 /*---------------------------------------------------------------------------*/
 
@@ -158,7 +158,7 @@ static inline bl_err bl_set_thread_affinity(
 {
   bl_assert (m);
   bl_affinity_mask e = SetThreadAffinityMask (bl_thread_native_handle (t), *m);
-  return e ? bl_ok : bl_error;
+  return e ? bl_mkok() : bl_mkerr (bl_error);
 }
 /*---------------------------------------------------------------------------*/
 static inline bl_err bl_get_thread_affinity (bl_thread t, bl_affinity_mask* m)
@@ -170,7 +170,7 @@ static inline bl_err bl_get_thread_affinity (bl_thread t, bl_affinity_mask* m)
     /* error ignored: impossible to recover*/
     (void) SetThreadAffinityMask (bl_thread_native_handle (t), *m);
   }
-  return bl_ok;
+  return bl_mkok();
 }
 /*---------------------------------------------------------------------------*/
 #else

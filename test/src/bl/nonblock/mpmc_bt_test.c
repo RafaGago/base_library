@@ -69,7 +69,7 @@ static void mpmc_bt_init_test (void **state)
     sizeof (mpmc_bt_type),
     bl_alignof (mpmc_bt_type)
     );
-  assert_true (!err);
+  assert_true (!err.bl);
   mpmc_bt_destroy (&c->q, &c->alloc);
 }
 /*---------------------------------------------------------------------------*/
@@ -84,7 +84,7 @@ static void mpmc_bt_init_alloc_fail_test (void **state)
     sizeof (mpmc_bt_type),
     bl_alignof (mpmc_bt_type)
     );
-  assert_true (err == bl_alloc);
+  assert_true (err.bl == bl_alloc);
 }
 /*---------------------------------------------------------------------------*/
 static void mpmc_bt_init_too_small_test (void **state)
@@ -97,7 +97,7 @@ static void mpmc_bt_init_too_small_test (void **state)
     sizeof (mpmc_bt_type),
     bl_alignof (mpmc_bt_type)
     );
-  assert_true (err == bl_invalid);
+  assert_true (err.bl == bl_invalid);
 }
 /*---------------------------------------------------------------------------*/
 static void mpmc_bt_init_too_big_test (void **state)
@@ -110,7 +110,7 @@ static void mpmc_bt_init_too_big_test (void **state)
     sizeof (mpmc_bt_type),
     bl_alignof (mpmc_bt_type)
     );
-  assert_true (err == bl_invalid);
+  assert_true (err.bl == bl_invalid);
 }
 /*---------------------------------------------------------------------------*/
 static void mpmc_bt_mpw_mpr (void **state)
@@ -119,21 +119,21 @@ static void mpmc_bt_mpw_mpr (void **state)
   mpmc_b_op op;
   mpmc_bt_type v;
   for (mpmc_bt_type i = 0; i < arr_elems (c->buff); ++i) {
-     assert_true (mpmc_bt_produce (&c->q, &op, &i) == bl_ok);
+     assert_true (mpmc_bt_produce (&c->q, &op, &i).bl == bl_ok);
      assert_true (mpmc_b_ticket_decode (op) == i);
      assert_true (mpmc_b_sig_decode (op) == 0);
   }
   assert_true(
-    mpmc_bt_produce (&c->q, &op, &v) == bl_would_overflow
+    mpmc_bt_produce (&c->q, &op, &v).bl == bl_would_overflow
     );
   for (mpmc_bt_type i = 0; i < arr_elems (c->buff); ++i) {
-    assert_true (mpmc_bt_consume(&c->q, &op, &v) == bl_ok);
+    assert_true (mpmc_bt_consume(&c->q, &op, &v).bl == bl_ok);
     assert_true (v == i);
     assert_true (mpmc_b_ticket_decode (op) == i);
     assert_true (mpmc_b_sig_decode (op) == 0);
   }
   assert_true(
-    mpmc_bt_consume (&c->q, &op, &v) == bl_empty
+    mpmc_bt_consume (&c->q, &op, &v).bl == bl_empty
   );
 }
 /*---------------------------------------------------------------------------*/
@@ -149,21 +149,21 @@ static void mpmc_bt_mpw_mpr_wrap (void **state)
        j += arr_elems (c->buff)
      ) {
     for (mpmc_bt_type i = 0; i < arr_elems (c->buff); ++i) {
-       assert_true (mpmc_bt_produce (&c->q, &op, &i) == bl_ok);
+       assert_true (mpmc_bt_produce (&c->q, &op, &i).bl == bl_ok);
        assert_true (mpmc_b_ticket_decode (op) == i + j);
        assert_true (mpmc_b_sig_decode (op) == 0);
     }
     assert_true(
-      mpmc_bt_produce (&c->q, &op, &v) == bl_would_overflow
+      mpmc_bt_produce (&c->q, &op, &v).bl == bl_would_overflow
       );
     for (mpmc_bt_type i = 0; i < arr_elems (c->buff); ++i) {
-      assert_true (mpmc_bt_consume (&c->q, &op, &v) == bl_ok);
+      assert_true (mpmc_bt_consume (&c->q, &op, &v).bl == bl_ok);
       assert_true (v == i);
       assert_true (mpmc_b_ticket_decode (op) == i + j);
       assert_true (mpmc_b_sig_decode (op) == 0);
     }
     assert_true(
-      mpmc_bt_consume (&c->q, &op, &v) == bl_empty
+      mpmc_bt_consume (&c->q, &op, &v).bl == bl_empty
     );
   }
 }
@@ -175,21 +175,21 @@ static void mpmc_bt_spw_spr (void **state)
   mpmc_b_op op;
   mpmc_bt_type  v;
   for (mpmc_bt_type i = 0; i < arr_elems (c->buff); ++i) {
-     assert_true (mpmc_bt_produce_sp (&c->q, &op, &i) == bl_ok);
+     assert_true (mpmc_bt_produce_sp (&c->q, &op, &i).bl == bl_ok);
      assert_true (mpmc_b_ticket_decode (op) == i);
      assert_true (mpmc_b_sig_decode (op) == 0);
   }
   assert_true(
-    mpmc_bt_produce_sp (&c->q, &op, &v) == bl_would_overflow
+    mpmc_bt_produce_sp (&c->q, &op, &v).bl == bl_would_overflow
     );
   for (mpmc_bt_type i = 0; i < arr_elems (c->buff); ++i) {
-    assert_true (mpmc_bt_consume_sc (&c->q, &op, &v) == bl_ok);
+    assert_true (mpmc_bt_consume_sc (&c->q, &op, &v).bl == bl_ok);
     assert_true (v == i);
     assert_true (mpmc_b_ticket_decode (op) == i);
     assert_true (mpmc_b_sig_decode (op) == 0);
   }
   assert_true(
-    mpmc_bt_consume_sc (&c->q, &op, &v) == bl_empty
+    mpmc_bt_consume_sc (&c->q, &op, &v).bl == bl_empty
   );
 }
 /*---------------------------------------------------------------------------*/
@@ -204,21 +204,21 @@ static void mpmc_bt_spw_spr_wrap (void **state)
        j += arr_elems (c->buff)
      ) {
     for (mpmc_bt_type i = 0; i < arr_elems (c->buff); ++i) {
-       assert_true (mpmc_bt_produce_sp (&c->q, &op, &i) == bl_ok);
+       assert_true (mpmc_bt_produce_sp (&c->q, &op, &i).bl == bl_ok);
        assert_true (mpmc_b_ticket_decode (op) == i + j);
        assert_true (mpmc_b_sig_decode (op) == 0);
     }
     assert_true(
-      mpmc_bt_produce_sp (&c->q, &op, &v) == bl_would_overflow
+      mpmc_bt_produce_sp (&c->q, &op, &v).bl == bl_would_overflow
       );
     for (mpmc_bt_type i = 0; i < arr_elems (c->buff); ++i) {
-      assert_true (mpmc_bt_consume_sc (&c->q, &op, &v) == bl_ok);
+      assert_true (mpmc_bt_consume_sc (&c->q, &op, &v).bl == bl_ok);
       assert_true (v == i);
       assert_true (mpmc_b_ticket_decode (op) == i + j);
       assert_true (mpmc_b_sig_decode (op) == 0);
     }
     assert_true(
-      mpmc_bt_consume_sc (&c->q, &op, &v) == bl_empty
+      mpmc_bt_consume_sc (&c->q, &op, &v).bl == bl_empty
     );
   }
 }
@@ -234,24 +234,24 @@ static void mpmc_bt_producer_signals_set (void **state)
 
   exp = 0;
   err = mpmc_bt_producer_signal_try_set (&c->q, &exp, 1);
-  assert_true (err == bl_ok);
+  assert_true (err.bl == bl_ok);
   assert_true (exp == 0);
 
   exp = 0;
   err = mpmc_bt_producer_signal_try_set (&c->q, &exp, 2);
-  assert_true (err == bl_preconditions);
+  assert_true (err.bl == bl_preconditions);
   assert_true (exp == 1);
 
   exp = 1;
   err = mpmc_bt_producer_signal_try_set (&c->q, &exp, 2);
-  assert_true (err == bl_ok);
+  assert_true (err.bl == bl_ok);
   assert_true (exp == 1);
 
-  assert_true (mpmc_bt_produce (&c->q, &op, &v) == bl_ok);
+  assert_true (mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
   assert_true (mpmc_b_sig_decode (op) == 2);
   assert_true (mpmc_b_ticket_decode (op) == 0);
 
-  assert_true (mpmc_bt_produce (&c->q, &op, &v) == bl_ok);
+  assert_true (mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
   assert_true (mpmc_b_sig_decode (op) == 2);
   assert_true (mpmc_b_ticket_decode (op) == 1);
 }
@@ -264,29 +264,29 @@ static void mpmc_bt_consumer_signals_set (void **state)
   mpmc_b_sig   exp;
   bl_err       err;
 
-  assert_true (mpmc_bt_produce (&c->q, &op, &v) == bl_ok);
-  assert_true (mpmc_bt_produce (&c->q, &op, &v) == bl_ok);
+  assert_true (mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
+  assert_true (mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
 
   exp = 0;
   err = mpmc_bt_consumer_signal_try_set (&c->q, &exp, 1);
-  assert_true (err == bl_ok);
+  assert_true (err.bl == bl_ok);
   assert_true (exp == 0);
 
   exp = 0;
   err = mpmc_bt_consumer_signal_try_set (&c->q, &exp, 2);
-  assert_true (err == bl_preconditions);
+  assert_true (err.bl == bl_preconditions);
   assert_true (exp == 1);
 
   exp = 1;
   err = mpmc_bt_consumer_signal_try_set (&c->q, &exp, 2);
-  assert_true (err == bl_ok);
+  assert_true (err.bl == bl_ok);
   assert_true (exp == 1);
 
-  assert_true (mpmc_bt_consume (&c->q, &op, &v) == bl_ok);
+  assert_true (mpmc_bt_consume (&c->q, &op, &v).bl == bl_ok);
   assert_true (mpmc_b_sig_decode (op) == 2);
   assert_true (mpmc_b_ticket_decode (op) == 0);
 
-  assert_true (mpmc_bt_consume (&c->q, &op, &v) == bl_ok);
+  assert_true (mpmc_bt_consume (&c->q, &op, &v).bl == bl_ok);
   assert_true (mpmc_b_sig_decode (op) == 2);
   assert_true (mpmc_b_ticket_decode (op) == 1);
 }
@@ -300,32 +300,32 @@ static void mpmc_bt_producer_signals_set_tmatch (void **state)
 
   exp = mpmc_b_op_encode (mpmc_b_first_op, 0);
   err = mpmc_bt_producer_signal_try_set_tmatch (&c->q, &exp, 1);
-  assert_true (err == bl_ok);
+  assert_true (err.bl == bl_ok);
   assert_true (mpmc_b_ticket_decode (exp) == mpmc_b_first_op);
   assert_true (mpmc_b_sig_decode (exp) == 0);
 
   exp = mpmc_b_op_encode (mpmc_b_first_op, 0); /*incorrect signal*/
   err = mpmc_bt_producer_signal_try_set_tmatch (&c->q, &exp, 2);
-  assert_true (err == bl_preconditions);
+  assert_true (err.bl == bl_preconditions);
   assert_true (mpmc_b_ticket_decode (exp) == mpmc_b_first_op);
   assert_true (mpmc_b_sig_decode (exp) == 1);
 
   exp = mpmc_b_op_encode (1, 1); /*incorrect transaction*/
   err = mpmc_bt_producer_signal_try_set_tmatch (&c->q, &exp, 2);
-  assert_true (err == bl_preconditions);
+  assert_true (err.bl == bl_preconditions);
   assert_true (mpmc_b_ticket_decode (exp) == mpmc_b_first_op);
   assert_true (mpmc_b_sig_decode (exp) == 1);
 
   err = mpmc_bt_producer_signal_try_set_tmatch (&c->q, &exp, 2);
-  assert_true (err == bl_ok);
+  assert_true (err.bl == bl_ok);
   assert_true (mpmc_b_ticket_decode (exp) == mpmc_b_first_op);
   assert_true (mpmc_b_sig_decode (exp) == 1);
 
-  assert_true (mpmc_bt_produce (&c->q, &op, &v) == bl_ok);
+  assert_true (mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
   assert_true (mpmc_b_sig_decode (op) == 2);
   assert_true (mpmc_b_ticket_decode (op) == 0);
 
-  assert_true (mpmc_bt_produce (&c->q, &op, &v) == bl_ok);
+  assert_true (mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
   assert_true (mpmc_b_sig_decode (op) == 2);
   assert_true (mpmc_b_ticket_decode (op) == 1);
 }
@@ -337,37 +337,37 @@ static void mpmc_bt_consumer_signals_set_tmatch (void **state)
   mpmc_bt_type v = 0;
   bl_err       err;
 
-  assert_true (mpmc_bt_produce (&c->q, &op, &v) == bl_ok);
-  assert_true (mpmc_bt_produce (&c->q, &op, &v) == bl_ok);
+  assert_true (mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
+  assert_true (mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
 
   exp = mpmc_b_op_encode (mpmc_b_first_op, 0);
   err = mpmc_bt_consumer_signal_try_set_tmatch (&c->q, &exp, 1);
-  assert_true (err == bl_ok);
+  assert_true (err.bl == bl_ok);
   assert_true (mpmc_b_ticket_decode (exp) == mpmc_b_first_op);
   assert_true (mpmc_b_sig_decode (exp) == 0);
 
   exp = mpmc_b_op_encode (mpmc_b_first_op, 0); /*incorrect signal*/
   err = mpmc_bt_consumer_signal_try_set_tmatch (&c->q, &exp, 2);
-  assert_true (err == bl_preconditions);
+  assert_true (err.bl == bl_preconditions);
   assert_true (mpmc_b_ticket_decode (exp) == mpmc_b_first_op);
   assert_true (mpmc_b_sig_decode (exp) == 1);
 
   exp = mpmc_b_op_encode (1, 1); /*incorrect transaction*/
   err = mpmc_bt_consumer_signal_try_set_tmatch (&c->q, &exp, 2);
-  assert_true (err == bl_preconditions);
+  assert_true (err.bl == bl_preconditions);
   assert_true (mpmc_b_ticket_decode (exp) == mpmc_b_first_op);
   assert_true (mpmc_b_sig_decode (exp) == 1);
 
   err = mpmc_bt_consumer_signal_try_set_tmatch (&c->q, &exp, 2);
-  assert_true (err == bl_ok);
+  assert_true (err.bl == bl_ok);
   assert_true (mpmc_b_ticket_decode (exp) == mpmc_b_first_op);
   assert_true (mpmc_b_sig_decode (exp) == 1);
 
-  assert_true (mpmc_bt_consume (&c->q, &op, &v) == bl_ok);
+  assert_true (mpmc_bt_consume (&c->q, &op, &v).bl == bl_ok);
   assert_true (mpmc_b_sig_decode (op) == 2);
   assert_true (mpmc_b_ticket_decode (op) == 0);
 
-  assert_true (mpmc_bt_consume (&c->q, &op, &v) == bl_ok);
+  assert_true (mpmc_bt_consume (&c->q, &op, &v).bl == bl_ok);
   assert_true (mpmc_b_sig_decode (op) == 2);
   assert_true (mpmc_b_ticket_decode (op) == 1);
 }
@@ -382,19 +382,19 @@ static void mpmc_bt_producer_fallback (void **state)
 
   exp = 0;
   err = mpmc_bt_producer_signal_try_set (&c->q, &exp, 1);
-  assert_true (err == bl_ok);
+  assert_true (err.bl == bl_ok);
 
   err = mpmc_bt_produce_fallback (&c->q, &op, &v, (mpmc_b_sig) -1, 1);
-  assert_true (err == bl_preconditions);
+  assert_true (err.bl == bl_preconditions);
   assert_true (mpmc_b_sig_decode (op) == 1);
 
   err = mpmc_bt_produce_fallback (&c->q, &op, &v, (mpmc_b_sig) -1, 2);
-  assert_true (err == bl_ok);
+  assert_true (err.bl == bl_ok);
   assert_true (mpmc_b_sig_decode (op) == 1);
   assert_true (mpmc_b_ticket_decode (op) == 0);
 
   err = mpmc_bt_produce_fallback (&c->q, &op, &v, (mpmc_b_sig) -1, 2);
-  assert_true (err == bl_ok);
+  assert_true (err.bl == bl_ok);
   assert_true (mpmc_b_sig_decode (op) == 1);
   assert_true (mpmc_b_ticket_decode (op) == 1);
 }
@@ -407,24 +407,24 @@ static void mpmc_bt_consumer_fallback (void **state)
   mpmc_b_sig   exp;
   bl_err       err;
 
-  assert_true (mpmc_bt_produce (&c->q, &op, &v) == bl_ok);
-  assert_true (mpmc_bt_produce (&c->q, &op, &v) == bl_ok);
+  assert_true (mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
+  assert_true (mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
 
   exp = 0;
   err = mpmc_bt_consumer_signal_try_set (&c->q, &exp, 1);
-  assert_true (err == bl_ok);
+  assert_true (err.bl == bl_ok);
 
   err = mpmc_bt_consume_fallback (&c->q, &op, &v, (mpmc_b_sig) -1, 1);
-  assert_true (err == bl_preconditions);
+  assert_true (err.bl == bl_preconditions);
   assert_true (mpmc_b_sig_decode (op) == 1);
 
   err = mpmc_bt_consume_fallback (&c->q, &op, &v, (mpmc_b_sig) -1, 2);
-  assert_true (err == bl_ok);
+  assert_true (err.bl == bl_ok);
   assert_true (mpmc_b_sig_decode (op) == 1);
   assert_true (mpmc_b_ticket_decode (op) == 0);
 
   err = mpmc_bt_consume_fallback (&c->q, &op, &v, (mpmc_b_sig) -1, 2);
-  assert_true (err == bl_ok);
+  assert_true (err.bl == bl_ok);
   assert_true (mpmc_b_sig_decode (op) == 1);
   assert_true (mpmc_b_ticket_decode (op) == 1);
 }
@@ -439,14 +439,14 @@ static void mpmc_bt_producer_signal_change (void **state)
 
   exp = 0;
   err = mpmc_bt_producer_signal_try_set (&c->q, &exp, 1);
-  assert_true (err == bl_ok);
+  assert_true (err.bl == bl_ok);
 
   err = mpmc_bt_produce_sig (&c->q, &op, &v, 2);
-  assert_true (err == bl_ok);
+  assert_true (err.bl == bl_ok);
   assert_true (mpmc_b_sig_decode (op) == 1);
 
   err = mpmc_bt_produce_sig (&c->q, &op, &v, 3);
-  assert_true (err == bl_ok);
+  assert_true (err.bl == bl_ok);
   assert_true (mpmc_b_sig_decode (op) == 2);
 }
 /*---------------------------------------------------------------------------*/
@@ -458,19 +458,19 @@ static void mpmc_bt_consumer_signal_change (void **state)
   mpmc_b_sig   exp;
   bl_err       err;
 
-  assert_true (mpmc_bt_produce (&c->q, &op, &v) == bl_ok);
-  assert_true (mpmc_bt_produce (&c->q, &op, &v) == bl_ok);
+  assert_true (mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
+  assert_true (mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
 
   exp = 0;
   err = mpmc_bt_consumer_signal_try_set (&c->q, &exp, 1);
-  assert_true (err == bl_ok);
+  assert_true (err.bl == bl_ok);
 
   err = mpmc_bt_consume_sig (&c->q, &op, &v, 2);
-  assert_true (err == bl_ok);
+  assert_true (err.bl == bl_ok);
   assert_true (mpmc_b_sig_decode (op) == 1);
 
   err = mpmc_bt_consume_sig (&c->q, &op, &v, 3);
-  assert_true (err == bl_ok);
+  assert_true (err.bl == bl_ok);
   assert_true (mpmc_b_sig_decode (op) == 2);
 }
 /*---------------------------------------------------------------------------*/

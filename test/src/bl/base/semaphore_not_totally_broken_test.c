@@ -27,14 +27,14 @@ static int sem_ntb_test_setup (void **state)
 {
   static sem_ntb_context c;
   *state = (void*) &c;
-  assert_true (bl_tm_sem_init (&c.sem) == bl_ok);
+  assert_true (bl_tm_sem_init (&c.sem).bl == bl_ok);
   return 0;
 }
 /*---------------------------------------------------------------------------*/
 static int sem_ntb_test_teardown (void **state)
 {
   sem_ntb_context* c = (sem_ntb_context*) *state;
-  assert_true (bl_tm_sem_destroy (&c->sem) == bl_ok);
+  assert_true (bl_tm_sem_destroy (&c->sem).bl == bl_ok);
   return 0;
 }
 /*---------------------------------------------------------------------------*/
@@ -48,11 +48,11 @@ static int sem_ntb_do_waiting (void* context)
 static void sem_ntb_signal_then_wait (void **state)
 {
   sem_ntb_context* c = (sem_ntb_context*) *state;
-  assert_true (bl_tm_sem_signal (&c->sem) == bl_ok);
+  assert_true (bl_tm_sem_signal (&c->sem).bl == bl_ok);
   assert_true (tm_sem_futex_get_sig (c->sem.sem) == 1);
   assert_true (tm_sem_futex_get_wait (c->sem.sem) == 0);
 
-  assert_true (bl_tm_sem_wait (&c->sem, 1000) == bl_ok);
+  assert_true (bl_tm_sem_wait (&c->sem, 1000).bl == bl_ok);
   assert_true (tm_sem_futex_get_sig (c->sem.sem) == 0);
   assert_true (tm_sem_futex_get_wait (c->sem.sem) == 0);
 }
@@ -61,20 +61,20 @@ static void sem_ntb_wait_then_signal (void **state)
 {
   sem_ntb_context* c = (sem_ntb_context*) *state;
   assert_true(
-    bl_thread_init (&c->thr, sem_ntb_do_waiting, c) == bl_ok
+    bl_thread_init (&c->thr, sem_ntb_do_waiting, c).bl == bl_ok
     );
   while ((tm_sem_futex_get_wait (c->sem.sem) == 0)) {
     bl_thread_yield(); /*poor-man's synchronization*/
   }
-  assert_true (bl_tm_sem_signal (&c->sem) == bl_ok);
+  assert_true (bl_tm_sem_signal (&c->sem).bl == bl_ok);
   bl_thread_join (&c->thr);
-  assert_true (c->thr_err == bl_ok);
+  assert_true (c->thr_err.bl == bl_ok);
 }
 /*---------------------------------------------------------------------------*/
 static void sem_ntb_wait_timeout (void **state)
 {
   sem_ntb_context* c = (sem_ntb_context*) *state;
-  assert_true (bl_tm_sem_wait (&c->sem, 10000) == bl_timeout);
+  assert_true (bl_tm_sem_wait (&c->sem, 10000).bl == bl_timeout);
   assert_true (tm_sem_futex_get_sig (c->sem.sem) == 0);
   assert_true (tm_sem_futex_get_wait (c->sem.sem) == 0);
 }

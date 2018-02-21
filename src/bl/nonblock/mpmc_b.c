@@ -32,11 +32,11 @@ BL_NONBLOCK_EXPORT bl_err mpmc_b_init(
   u32 offset    = slot_size - data_size;
   slot_size     = mpmc_b_round_slot_size (slot_size, data_alignment);
   if (slot_count < 2 || slot_count > mpmc_b_max_slots) {
-    return bl_invalid;
+    return bl_mkerr (bl_invalid);
   }
   q->buffer = (u8*) bl_alloc (alloc, slot_count * slot_size);
   if (!q->buffer) {
-    return bl_alloc;
+    return bl_mkerr (bl_alloc);
   }
   q->slot_count  = slot_count;
   q->slot_size   = slot_size;
@@ -51,7 +51,7 @@ BL_NONBLOCK_EXPORT bl_err mpmc_b_init(
   atomic_u32_store_rlx (&q->push_slot, 0);
   atomic_u32_store_rlx (&q->pop_slot, 0);
   atomic_u32_store_rlx (&q->flags, 0);
-  return bl_ok;
+  return bl_mkok();
 }
 /*----------------------------------------------------------------------------*/
 BL_NONBLOCK_EXPORT void mpmc_b_destroy (mpmc_b* q, alloc_tbl const* alloc)
@@ -89,12 +89,13 @@ static bl_err mpmc_b_prepare_m_check_ver(
   i32 status = (i32) (mpmc_b_ticket_decode (ver) - mpmc_b_ticket_decode (op));
   if (status == 0) {
     *data  = slot + q->data_offset;
-    return bl_ok;
+    return bl_mkok();
   }
   if (status > 0) {
-    return bl_busy;
+    return bl_mkerr (bl_busy);
   }
-  return (status > -(2 * q->slot_count)) ? full_or_empty : bl_locked;
+  return (status > -(2 * q->slot_count)) ?
+    full_or_empty : bl_mkerr (bl_locked);
 }
 /*----------------------------------------------------------------------------*/
 static bl_err mpmc_b_prepare_sig_fallback_m(
@@ -116,19 +117,19 @@ static bl_err mpmc_b_prepare_sig_fallback_m(
     mpmc_b_sig signow = mpmc_b_sig_decode (now);
     if (unlikely ((signow & sig_fmask) == sig_fmatch)) {
       *op = now;
-      return bl_preconditions;
+      return bl_mkerr (bl_preconditions);
     }
     bl_err err = mpmc_b_prepare_m_check_ver(
       q, now, data, op_cmp_offset, nodata_error
       );
-    if (err == bl_ok) {
+    if (err.bl == bl_ok) {
       mpmc_b_op next = mpmc_b_op_encode (now + 1, replace_sig ? sig : signow);
       if (atomic_u32_weak_cas_rlx (op_var, &now, next)) {
         *op = now;
         return err;
       }
     }
-    else if (err == bl_busy){
+    else if (err.bl == bl_busy){
       now = atomic_u32_load_rlx (op_var);
     }
     else {
@@ -153,12 +154,12 @@ static bl_err mpmc_b_prepare_s(
   bl_err err = mpmc_b_prepare_m_check_ver(
     q, now, data, op_cmp_offset, nodata_error
     );
-  if (err == bl_ok) {
+  if (err.bl == bl_ok) {
     *op = now;
     atomic_u32_store_rlx (op_var, mpmc_b_op_encode (now + 1, 0));
     return err;
   }
-  bl_assert (err == nodata_error);
+  bl_assert (err.bl == nodata_error.bl);
   return err;
 }
 /*----------------------------------------------------------------------------*/
@@ -178,8 +179,10 @@ BL_NONBLOCK_EXPORT bl_err mpmc_b_fifo_produce_prepare_is_ready(
   mpmc_b* q, mpmc_b_op op, u8** data
   )
 {
-  bl_err err = mpmc_b_prepare_m_check_ver (q, op, data, 0, bl_would_overflow);
-  if (likely (err != bl_would_overflow)) {
+  bl_err err = mpmc_b_prepare_m_check_ver(
+    q, op, data, 0, bl_mkerr (bl_would_overflow)
+    );
+  if (likely (err.bl != bl_would_overflow)) {
     return err;
   }
   /* if the counter has advanced more than the slot count either:
@@ -188,7 +191,7 @@ BL_NONBLOCK_EXPORT bl_err mpmc_b_fifo_produce_prepare_is_ready(
        "mpmc_b_fifo_produce_prepare" => user bug */
   mpmc_b_op now = atomic_u32_load_rlx (&q->push_slot);
   i32 status = (i32) (mpmc_b_ticket_decode (now) - mpmc_b_ticket_decode (op));
-  return status < q->slot_count ? bl_would_overflow : bl_locked;
+  return bl_mkerr (status < q->slot_count ? bl_would_overflow : bl_locked);
 }
 /*----------------------------------------------------------------------------*/
 BL_NONBLOCK_EXPORT bl_err mpmc_b_produce_prepare_sig_fallback(
@@ -211,7 +214,7 @@ BL_NONBLOCK_EXPORT bl_err mpmc_b_produce_prepare_sig_fallback(
     sig_fmatch,
     &q->push_slot,
     0,
-    bl_would_overflow
+    bl_mkerr (bl_would_overflow)
     );
 }
 /*----------------------------------------------------------------------------*/
@@ -219,7 +222,9 @@ BL_NONBLOCK_EXPORT bl_err mpmc_b_produce_prepare_sp(
     mpmc_b* q, mpmc_b_op* op, u8** data
     )
 {
-  return mpmc_b_prepare_s (q, op, data, &q->push_slot, 0, bl_would_overflow);
+  return mpmc_b_prepare_s(
+    q, op, data, &q->push_slot, 0, bl_mkerr (bl_would_overflow)
+    );
 }
 /*----------------------------------------------------------------------------*/
 BL_NONBLOCK_EXPORT void mpmc_b_produce_commit (mpmc_b* q, mpmc_b_op op)
@@ -247,7 +252,7 @@ BL_NONBLOCK_EXPORT bl_err mpmc_b_consume_prepare_sig_fallback(
     sig_fmatch,
     &q->pop_slot,
     1,
-    bl_empty
+    bl_mkerr (bl_empty)
     );
 }
 /*----------------------------------------------------------------------------*/
@@ -255,7 +260,7 @@ BL_NONBLOCK_EXPORT bl_err mpmc_b_consume_prepare_sc(
   mpmc_b* q, mpmc_b_op* op, u8** data
   )
 {
-  return mpmc_b_prepare_s (q, op, data, &q->pop_slot, 1, bl_empty);
+  return mpmc_b_prepare_s (q, op, data, &q->pop_slot, 1, bl_mkerr (bl_empty));
 }
 /*----------------------------------------------------------------------------*/
 BL_NONBLOCK_EXPORT void mpmc_b_consume_commit (mpmc_b *q, mpmc_b_op op)

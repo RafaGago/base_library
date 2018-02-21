@@ -56,7 +56,7 @@ BL_NONBLOCK_EXPORT bl_err mpsc_i_consume(
           second  = mpsc_i_node_get_next (second, tag_bits);
       }
       else {
-        return bl_empty;
+        return bl_mkerr (bl_empty);
       }
   }
   if (second) {
@@ -64,7 +64,7 @@ BL_NONBLOCK_EXPORT bl_err mpsc_i_consume(
        producer tail. */
     *n      = first;
     q->head = second;
-    return bl_ok;
+    return bl_mkok();
   }
   /* visible pushes <= 1, consuming collides with the producers  */
   mpsc_i_node* tail = (mpsc_i_node*) atomic_uword_load_rlx (&q->tail);
@@ -72,7 +72,7 @@ BL_NONBLOCK_EXPORT bl_err mpsc_i_consume(
     /* if the first node isn't the tail the memory snapshot that we see shows
        that someone is pushing just now. The snapshot is at the window of
        unconsistence of the produce function.*/
-    return bl_busy;
+    return bl_mkerr (bl_busy);
   }
   /* insert the stable node, so we can consume the last queue element without
      breaking the producers xchg (old will return the stable node for them)*/
@@ -85,13 +85,13 @@ BL_NONBLOCK_EXPORT bl_err mpsc_i_consume(
        pushed in between.*/
     *n      = first;
     q->head = second;
-    return bl_ok;
+    return bl_mkok();
   }
   else {
     /* we see a nullptr at ""first.next" next from a produce call that came
        before ours. The stable node ended up after this new node. The snapshot
        that we see is at the produce function window of insconsistency.*/
-    return bl_busy;
+    return bl_mkerr (bl_busy);
   }
 }
 /*----------------------------------------------------------------------------*/

@@ -68,14 +68,14 @@ void task_callback (bl_err err, taskq_id id, void* context)
 {
   work_data* wd= (work_data*) context;
   ++wd->received;
-  wd->error_count += (err != 0);
+  wd->error_count += (err.bl != bl_ok);
 }
 /*----------------------------------------------------------------------------*/
 void task_callback_delayed (bl_err err, taskq_id id, void* context)
 {
   work_data* wd= (work_data*) context;
   ++wd->received;
-  wd->error_count += (err != 0);
+  wd->error_count += (err.bl != bl_ok);
   /*"would oveflow" errors because of trying to use too many timers are
      expected,  as this test is "an attack" to the queue with an unrealistic
      load
@@ -84,7 +84,7 @@ void task_callback_delayed (bl_err err, taskq_id id, void* context)
     shutdown or explicitly cancelled
   */
   wd->expected_error_count +=
-    ((err == bl_would_overflow) || (err == bl_cancelled));
+    ((err.bl == bl_would_overflow) || (err.bl == bl_cancelled));
 }
 /*----------------------------------------------------------------------------*/
 int producer_thread_regular (producer_thread_data* td)
@@ -94,11 +94,11 @@ int producer_thread_regular (producer_thread_data* td)
 
   while (td->remaining) {
     err = taskq_post (td->tq, &id, taskq_task_rv (task_callback, td->wd));
-    if (!err) {
+    if (!err.bl) {
       --td->remaining;
       continue;
     }
-    else if (err == bl_would_overflow) {
+    else if (err.bl == bl_would_overflow) {
       for (uword i = 0; i < 5; ++i) {
         processor_pause();
       }
@@ -106,7 +106,7 @@ int producer_thread_regular (producer_thread_data* td)
     }
     else {
       td->last_err = err;
-      printf ("error on producer, code: %"FMT_ERR"\n", err);
+      printf ("error on producer, code: %"FMT_ERR"\n", err.bl);
       return 1;
     }
   }
@@ -127,11 +127,11 @@ int producer_thread_delayed (producer_thread_data* td, u32 timeout_us)
             taskq_task_rv (task_callback_delayed, td->wd),
             timeout_us
             );
-    if (!err) {
+    if (!err.bl) {
       --td->remaining;
       continue;
     }
-    else if (err == bl_would_overflow) {
+    else if (err.bl == bl_would_overflow) {
       for (uword i = 0; i < 5; ++i) {
         processor_pause();
       }
@@ -152,10 +152,10 @@ static inline bool producer_thread_post_delayed_cancel(
   bl_err err;
   while (1) {
     err = taskq_post_try_cancel_delayed (td->tq, id, tp_cancel);
-    if (!err) {
+    if (!err.bl) {
       return true;
     }
-    else if (err == bl_would_overflow) {
+    else if (err.bl == bl_would_overflow) {
       for (uword i = 0; i < 5; ++i) {
         processor_pause();
       }
@@ -185,7 +185,7 @@ int producer_thread_delayed_cancel(
             taskq_task_rv (task_callback_delayed, td->wd),
             timeout_us
             );
-    if (!err) {
+    if (!err.bl) {
       --td->remaining;
       if (td->remaining & 1) {
         if (!producer_thread_post_delayed_cancel (td, id, tp_cancel)) {
@@ -194,7 +194,7 @@ int producer_thread_delayed_cancel(
       }
       continue;
     }
-    else if (err == bl_would_overflow) {
+    else if (err.bl == bl_would_overflow) {
       for (uword i = 0; i < 5; ++i) {
         processor_pause();
       }
@@ -239,15 +239,15 @@ int consumer_thread (void* context)
   do {
     err = taskq_run_one_no_timeout (cd->tq);
   }
-  while (!err);
-  if (err != bl_nothing_to_do) {
-    printf ("consumer exit with error:%"FMT_ERR"\n", err);
+  while (!err.bl);
+  if (err.bl != bl_nothing_to_do) {
+    printf ("consumer exit with error:%"FMT_ERR"\n", err.bl);
   }
   /*cancel all timed tasks planned for the future*/
   do {
     err = taskq_try_cancel_one (cd->tq);
   }
-  while (!err);
+  while (!err.bl);
   return 0;
 }
 /*----------------------------------------------------------------------------*/
@@ -294,17 +294,17 @@ int main (int argc, char* argv[])
     printf ("iteration count: %"FMT_UWORD"\n", iterations);
   }
   bl_err err = bl_sem_init (&sem);
-  if (err) {
-    printf ("bl_sem_init err: %"FMT_ERR"\n", err);
-    return (int) err;
+  if (err.bl) {
+    printf ("bl_sem_init err: %"FMT_ERR"\n", err.bl);
+    return (int) err.bl;
   }
 
   for (uword itnum = 0; infinite_iterations || itnum < iterations; ++itnum) {
     printf ("iteration %"FMT_UWORD"\n", itnum);
 
     err = taskq_init (&tq, &alloc, tq_list_size, tq_delayed_size);
-    if (err) {
-      printf ("taskq_init err: %"FMT_ERR"\n", err);
+    if (err.bl) {
+      printf ("taskq_init err: %"FMT_ERR"\n", err.bl);
       goto do_sem_destroy;
     }
     memset (pd, 0, sizeof pd);
@@ -324,9 +324,9 @@ int main (int argc, char* argv[])
     printf (" init ok |");
 
     for (uword i = 0; i < arr_elems (pd); ++i) {
-      int r = bl_thread_init (&producer_th[i], producer_thread, &pd[i].dat);
+      int r = bl_thread_init (&producer_th[i], producer_thread, &pd[i].dat).bl;
       if (r != bl_ok) {
-        printf ("bl_thread_init err: %"FMT_ERR"\n", err);
+        printf ("bl_thread_init err: %d\n", r);
         if (i != bl_ok) {
           taskq_block (tq);
           join_threads (producer_th, i - 1);
@@ -335,9 +335,9 @@ int main (int argc, char* argv[])
         goto do_sem_destroy;
       }
     }
-    int r = bl_thread_init (&consumer_th, consumer_thread, &cd);
+    int r = bl_thread_init (&consumer_th, consumer_thread, &cd).bl;
     if (r != bl_ok) {
-      printf ("bl_thread_init err: %"FMT_ERR"\n", err);
+      printf ("bl_thread_init err: %d\n", r);
       taskq_block (tq);
       join_threads (producer_th, thread_count);
       taskq_destroy (tq, &alloc);
@@ -353,10 +353,10 @@ int main (int argc, char* argv[])
 
     uword overflow = 0;
     for (uword i = 0; i < arr_elems (pd); ++i) {
-      if (pd[i].dat.last_err) {
+      if (pd[i].dat.last_err.bl) {
         printf(
          "error: thread %"FMT_UWORD" has exited because of error %"FMT_ERR"\n",
-          i, pd[i].dat.last_err
+          i, pd[i].dat.last_err.bl
           );
         err = pd[i].dat.last_err;
       }
@@ -366,7 +366,7 @@ int main (int argc, char* argv[])
            i,
            pd[i].dat.remaining
           );
-        err = 2;
+        err.bl = 2;
       }
       if (wd[i].error_count > wd[i].expected_error_count) {
         printf(
@@ -374,7 +374,7 @@ int main (int argc, char* argv[])
           FMT_UWORD" times\n",
            i, wd[i].error_count - wd[i].expected_error_count
           );
-        err = 3;
+        err.bl = 3;
       }
       if (wd[i].received != iteration_elements) {
         printf(
@@ -383,8 +383,10 @@ int main (int argc, char* argv[])
            i, iteration_elements - wd[i].received
           );
         bl_err ntd = taskq_try_run_one (tq);
-        if (ntd != bl_nothing_to_do) {
-          printf ("taskq_try_run_one unexpected error code: %"FMT_ERR"\n", ntd);
+        if (ntd.bl != bl_nothing_to_do) {
+          printf(
+            "taskq_try_run_one unexpected error code: %"FMT_ERR"\n", ntd.bl
+            );
         }
         if (taskq_delayed_size (&tq->delayed) != 0) {
           printf(
@@ -402,22 +404,22 @@ int main (int argc, char* argv[])
               );
           }
         }
-        err = 4;
+        err.bl = 4;
       }
       overflow += pd[i].dat.overflow;
     }
     printf (" %"FMT_UWORD" overflows\n", overflow);
     bl_err errd = taskq_destroy (tq, &alloc);
-    if (errd) {
-      printf ("taskq_destroy err: %"FMT_ERR"\n", errd);
+    if (errd.bl) {
+      printf ("taskq_destroy err: %"FMT_ERR"\n", errd.bl);
     }
-    if (err || errd) {
+    if (err.bl || errd.bl) {
       goto do_sem_destroy;
     }
   }
-  printf ("ending, err: %"FMT_ERR"\n", err);
+  printf ("ending, err: %"FMT_ERR"\n", err.bl);
 do_sem_destroy:
   bl_sem_destroy (&sem);
-  return (int) err;
+  return (int) err.bl;
 }
 /*----------------------------------------------------------------------------*/

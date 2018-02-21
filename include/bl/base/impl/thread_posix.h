@@ -21,7 +21,7 @@ static inline bl_err bl_thread_init(
 {
   bl_assert (t);
   return pthread_create (t, 0, (void* (*) (void*)) f, context) == 0 ?
-    bl_ok : bl_error;
+    bl_mkok() : bl_mkerr (bl_error);
 }
 /*---------------------------------------------------------------------------*/
 static inline void bl_thread_yield (void)
@@ -32,7 +32,7 @@ static inline void bl_thread_yield (void)
 static inline bl_err bl_thread_join (bl_thread* t)
 {
   bl_assert (t);
-  return pthread_join (*t, nullptr) == 0 ? bl_ok : bl_error;
+  return pthread_join (*t, nullptr) == 0 ? bl_mkok() : bl_mkerr (bl_error);
 }
 /*----------------------------------------------------------------------------*/
 static inline bl_thread bl_thread_native_handle (bl_thread t)

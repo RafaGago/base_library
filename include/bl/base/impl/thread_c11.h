@@ -17,11 +17,11 @@ typedef thrd_start_t bl_thread_func;
 static inline bl_err bl_thread_error_convert (int err)
 {
   switch (err) {
-  case thrd_success:    return bl_ok;
-  case thrd_timedout:   return bl_timeout;
-  case thrd_busy:       return bl_busy;
-  case thrd_nomem:      return bl_alloc;
-  default:              return bl_error;
+  case thrd_success:    return bl_mkok();
+  case thrd_timedout:   return bl_mkerr (bl_timeout);
+  case thrd_busy:       return bl_mkerr (bl_busy);
+  case thrd_nomem:      return bl_mkerr (bl_alloc);
+  default:              return bl_mkerr (bl_error);
   }
 }
 /*----------------------------------------------------------------------------*/

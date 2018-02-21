@@ -32,13 +32,13 @@ BL_EXPORT bl_err bl_tm_sem_wait (bl_sem* s, u32 usec)
   }
 
   switch (WaitForSingleObject (*s, ms)) {
-  case 0: return bl_ok;
+  case 0: return bl_mkok();
   case WAIT_TIMEOUT: {
     LARGE_INTEGER now;
     while (true) {
       bl_assert_side_effect (QueryPerformanceCounter (&now) != 0);
       if (now.QuadPart - deadline.QuadPart >= 0) {
-        return bl_timeout;
+        return bl_mkerr (bl_timeout);
       }
       /*an assert (false) has triggered here on release builds. It did it very
       infrequently but it unveiled  that "WaitForSingleObject" might have the
@@ -71,7 +71,7 @@ BL_EXPORT bl_err bl_tm_sem_wait (bl_sem* s, u32 usec)
       }
     }
   }
-  default: return bl_error;
+  default: return bl_mkerr (bl_error);
   }
 }
 /*----------------------------------------------------------------------------*/

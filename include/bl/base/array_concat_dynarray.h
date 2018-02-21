@@ -45,7 +45,7 @@ bl_err prefix##_resize (prefix* d, uword new_size, alloc_tbl const* alloc)\
 {\
   if (new_size <= d->size) {\
     prefix##_da_resize (&d->da, 0, alloc);\
-    return bl_ok;\
+    return bl_mkok();\
   }\
   return prefix##_da_resize (&d->da, new_size - d->size, alloc);\
 }\

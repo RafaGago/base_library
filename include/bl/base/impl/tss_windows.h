@@ -17,7 +17,7 @@ typedef PFLS_CALLBACK_FUNCTION bl_tss_dtor_callconv;
 static inline bl_err bl_tss_init (bl_tss* key, bl_tss_cleanup_func cleanup)
 {
   *key = FlsAlloc (cleanup);
-  return (*key != FLS_OUT_OF_INDEXES) ? bl_ok : bl_alloc;
+  return bl_mkerr ((*key != FLS_OUT_OF_INDEXES) ? bl_ok : bl_alloc);
 }
 /*----------------------------------------------------------------------------*/
 static inline void bl_tss_destroy (bl_tss key)
@@ -27,7 +27,7 @@ static inline void bl_tss_destroy (bl_tss key)
 /*----------------------------------------------------------------------------*/
 static inline bl_err bl_tss_set (bl_tss key, void const* val)
 {
-  return FlsSetValue (key, val) ? bl_ok : bl_error;
+  return bl_mkerr (FlsSetValue (key, val) ? bl_ok : bl_error);
 }
 /*----------------------------------------------------------------------------*/
 static inline void* bl_tss_get (bl_tss key)

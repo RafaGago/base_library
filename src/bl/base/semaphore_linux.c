@@ -67,7 +67,7 @@ BL_EXPORT bl_err bl_tm_sem_signal (bl_tm_sem* s)
     curr = tm_sem_futex_set (sig + 1, wait);
 
     if (unlikely (tm_sem_futex_get_sig (curr) < sig)) {
-      return bl_would_overflow;
+      return bl_mkerr (bl_would_overflow);
     }
   }
   while (!atomic_u32_weak_cas (&s->sem, &prev, curr, mo_release, mo_relaxed));
@@ -75,7 +75,7 @@ BL_EXPORT bl_err bl_tm_sem_signal (bl_tm_sem* s)
   if (unlikely (wait != 0)) {
     (void) futex_wake (&s->sem, 1);
   }
-  return bl_ok;
+  return bl_mkok();
 }
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err bl_tm_sem_wait (bl_tm_sem* s, u32 usec)
@@ -86,7 +86,7 @@ BL_EXPORT bl_err bl_tm_sem_wait (bl_tm_sem* s, u32 usec)
   u32    prev;
   bl_err err;
 
-  err  = bl_ok;
+  err  = bl_mkok();
   prev = atomic_u32_load_rlx (&s->sem);
   do {
     sig  = tm_sem_futex_get_sig (prev);
@@ -99,7 +99,7 @@ BL_EXPORT bl_err bl_tm_sem_wait (bl_tm_sem* s, u32 usec)
       curr = tm_sem_futex_set (sig, wait + 1);
       if (unlikely (tm_sem_futex_get_wait (curr) < wait)) {
         bl_assert (false && "too many waiter threads");
-        return bl_would_overflow;
+        return bl_mkerr (bl_would_overflow);
       }
     }
   }
@@ -140,13 +140,20 @@ BL_EXPORT bl_err bl_tm_sem_wait (bl_tm_sem* s, u32 usec)
     }
     else {
       switch (errno) {
-      case ETIMEDOUT: err = bl_timeout;     break;
+      case ETIMEDOUT:
+        err = bl_mkerr_sys (bl_timeout, ETIMEDOUT);
+        break;
 #if !defined (BL_TM_SEM_LINUX_WAKE_ON_EINTR)
-      case EINTR:     goto do_wait;
+      case EINTR:
+        goto do_wait;
 #else
-      case EINTR:     err = bl_interrupted; break;
+      case EINTR:
+        err = bl_mkerr_sys (bl_interrupted, EINTR);
+        break;
 #endif
-      default:        err = bl_error;       break;
+      default:
+        err = bl_mkerr_sys (bl_error, errno);
+        break;
       }
       atomic_u32_fetch_sub_rlx (&s->sem, (1 << tm_sem_futex_sig_bits));
     }
@@ -157,7 +164,7 @@ BL_EXPORT bl_err bl_tm_sem_wait (bl_tm_sem* s, u32 usec)
 BL_EXPORT bl_err bl_tm_sem_init (bl_tm_sem* s)
 {
   atomic_u32_store_rlx (&s->sem, 0);
-  return bl_ok;
+  return bl_mkok();
 }
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err bl_tm_sem_destroy (bl_tm_sem* s)
@@ -165,7 +172,7 @@ BL_EXPORT bl_err bl_tm_sem_destroy (bl_tm_sem* s)
   word woken = futex_wake (&s->sem, itype_max (word));
   bl_assert (woken == 0);
   /*if this returns an error there still are waiters -> wrong user shutdown*/
-  return (woken == 0) ? bl_ok : bl_error;
+  return bl_mkerr ((woken == 0) ? bl_ok : bl_error);
 }
 /*----------------------------------------------------------------------------*/
 #ifdef __cplusplus

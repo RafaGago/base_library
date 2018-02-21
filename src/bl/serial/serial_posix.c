@@ -82,11 +82,11 @@ BL_SERIAL_EXPORT bl_err bl_serial_init(
   bl_assert (s_out && alloc);
   read_buffer_min_size = round_next_pow2_u (read_buffer_min_size);
   if (read_buffer_min_size == 0 || !alloc || !s_out) {
-    return bl_invalid;
+    return bl_mkerr (bl_invalid);
   }
   bl_serial* s = bl_alloc (alloc, sizeof *s + read_buffer_min_size);
   if (!s) {
-    return bl_alloc;
+    return bl_mkerr (bl_alloc);
   }
   memset (s, 0, sizeof *s);
   s->fd  = -1;
@@ -96,7 +96,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_init(
     read_buffer_min_size
     );
   *s_out = s;
-  return bl_ok;
+  return bl_mkok();
 }
 /*----------------------------------------------------------------------------*/
 BL_SERIAL_EXPORT void bl_serial_destroy (bl_serial* s, alloc_tbl const* alloc)
@@ -250,7 +250,9 @@ static inline void set_standard_baudrate(
 static inline bl_err try_set_nonstandard_baudrate (bl_serial* s, uword baudrate)
 {
   speed_t bauds = (speed_t) baudrate;
-  return ioctl (s->fd, IOSSIOSPEED, &bauds, 1) >= 0) ? bk_ok : bl_invalid;
+  return bk_mkerr_sys(
+    (ioctl (s->fd, IOSSIOSPEED, &bauds, 1) >= 0) ? bl_ok : bl_invalid, errno
+    );
 }
 /*----------------------------------------------------------------------------*/
 #elif defined (BL_LINUX) && defined (TIOCSSERIAL)
@@ -258,19 +260,21 @@ static inline bl_err try_set_nonstandard_baudrate (bl_serial* s, uword baudrate)
 {
   struct serial_struct ser;
   if (ioctl (s->fd, TIOCGSERIAL, &ser) < 0) {
-    return bl_file;
+    return bl_mkerr_sys (bl_file, errno);
   }
   ser.custom_divisor = ser.baud_base / baudrate;
   ser.flags         &= ~ASYNC_SPD_MASK;
   ser.flags         |= ASYNC_SPD_CUST;
 
-  return ioctl (s->fd, TIOCSSERIAL, &ser) >= 0 ? bl_ok : bl_invalid;
+  return bl_mkerr_sys(
+    ioctl (s->fd, TIOCSSERIAL, &ser) >= 0 ? bl_ok : bl_invalid, errno
+    );
 }
 /*----------------------------------------------------------------------------*/
 #else
 static inline bl_err try_set_nonstandard_baudrate (bl_serial* s, uword baudrate)
 {
-  return bl_invalid;
+  return bl_mkerr (bl_invalid);
 }
 /*----------------------------------------------------------------------------*/
 #endif
@@ -312,14 +316,12 @@ BL_SERIAL_EXPORT bl_err bl_serial_start(
   bl_serial* s, bl_serial_cfg const* cfg
   )
 {
-  int errnoval = 0;
-
   bl_assert (s && cfg);
   if (s->fd) {
-    return bl_preconditions;
+    return bl_mkerr (bl_preconditions);
   }
   if (!cfg->device_name) {
-    return bl_invalid;
+    return bl_mkerr (bl_invalid);
   }
 
   /*open*/
@@ -329,14 +331,15 @@ try_again:
     if (errno != EINTR) {
       goto try_again; /*interrupted by a signal: recoverable*/
     }
-    return bl_file;
+    return bl_mkerr_sys (bl_file, errno);
   }
 
   /*fixed attributes*/
   struct termios options;
-  bl_err err = tcgetattr (s->fd, &options) >= 0 ? bl_ok : bl_file;
-  if (err) {
-    errnoval = errno;
+  bl_err err = bl_mkerr_sys(
+    tcgetattr (s->fd, &options) >= 0 ? bl_ok : bl_file, errno
+    );
+  if (err.bl) {
     goto close;
   }
     /*raw mode / no echo / binary */
@@ -353,7 +356,7 @@ try_again:
   }
   else {
     err = try_set_nonstandard_baudrate (s, cfg->baudrate);
-    if (err) {
+    if (err.bl) {
       goto close;
     }
   }
@@ -366,7 +369,7 @@ try_again:
   case 7: options.c_cflag |= CS7; break;
   case 8: options.c_cflag |= CS8; break;
   default:
-    err = bl_invalid;
+    err = bl_mkerr (bl_invalid);
     goto close;
   }
 
@@ -377,14 +380,14 @@ try_again:
    break;
   }
   case bl_stop_bits_one_point_five:
-    err = bl_invalid;
+    err = bl_mkerr (bl_invalid);
     goto close;
   case bl_stop_bits_two: {
     options.c_cflag |=  (CSTOPB);
     break;
   }
   default:
-    err = bl_invalid;
+    err = bl_mkerr (bl_invalid);
     goto close;
   }
 
@@ -410,7 +413,7 @@ try_again:
     break;
 #endif /*CMSPAR*/
   default:
-    err = bl_invalid;
+    err = bl_mkerr (bl_invalid);
     goto close;
   }
 
@@ -429,7 +432,7 @@ try_again:
     set_rts_cts (&options, true);
     break;
   default:
-    err = bl_invalid;
+    err = bl_mkerr (bl_invalid);
     goto close;
   }
 
@@ -437,15 +440,16 @@ try_again:
   options.c_cc[VMIN]  = 0;
   options.c_cc[VTIME] = 0;
 
-  err = tcsetattr (s->fd, TCSANOW, &options) >= 0 ? bl_ok : bl_invalid;
-  if (err) {
+  err = bl_mkerr_sys(
+    tcsetattr (s->fd, TCSANOW, &options) >= 0 ? bl_ok : bl_invalid, errno
+    );
+  if (err.bl) {
     goto close;
   }
-  return bl_ok;
+  return bl_mkok();
 
 close:
   bl_serial_stop (s);
-  errno = errnoval;
   return err;
 
 }
@@ -467,7 +471,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_read(
   bl_assert (timeout_us >= 0);
 
   if (!memr_is_valid (rbuff) || memr_size (rbuff) > u8_dq_capacity (&s->rq)) {
-    return bl_invalid;
+    return bl_mkerr (bl_invalid);
   }
   /*leftovers from previous reads*/
   uword copied = bl_min (memr_size (rbuff), u8_dq_size (&s->rq));
@@ -484,14 +488,14 @@ BL_SERIAL_EXPORT bl_err bl_serial_read(
     u8_dq_drop_head_n (&s->rq, copied);
   }
   if (copied == memr_size (rbuff)) {
-    return bl_ok;
+    return bl_mkok();
   }
 
   tstamp deadline = 0;
-  bl_err err      = bl_ok;
+  bl_err err      = bl_mkok();
   if (timeout_us != 0) {
     err =  deadline_init (&deadline, timeout_us);
-    if (err) {
+    if (err.bl) {
       goto rollback;
     }
   }
@@ -508,7 +512,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_read(
       deadline_compare (deadline, bl_get_tstamp()) : -1;
       /*context switches from here to the pselect will be suboptimal*/
     if (diff <= 0) {
-      err = bl_timeout;
+      err = bl_mkerr (bl_timeout);
       goto rollback;
     }
     uword us_pending = bl_tstamp_to_usec_ceil ((tstamp) diff);
@@ -523,11 +527,11 @@ BL_SERIAL_EXPORT bl_err bl_serial_read(
 
     int r = pselect (s->fd + 1, &fds, nullptr, nullptr, &t, nullptr);
     if (r < 0 && errno != EINTR) {
-      err = bl_error;
+      err = bl_mkerr_sys (bl_error, errno);
       goto rollback;
     }
   }
-  return bl_ok;
+  return bl_mkok();
 
 rollback:
   /*unsucessful read*/
@@ -548,15 +552,15 @@ BL_SERIAL_EXPORT bl_err bl_serial_write(
   bl_assert (timeout_us >= 0);
 
   if (!memr_is_valid (wbuff) || !written) {
-    return bl_invalid;
+    return bl_mkerr (bl_invalid);
   }
 
   *written        = 0;
   tstamp deadline = 0;
-  bl_err err      = bl_ok;
+  bl_err err      = bl_mkok();
   if (timeout_us != 0) {
     err = deadline_init (&deadline, timeout_us);
-    if (err) {
+    if (err.bl) {
       return err;
     }
   }
@@ -572,7 +576,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_write(
     if (timeout_us != 0) {
       tstampdiff diff = deadline_compare (deadline, bl_get_tstamp());
       if (diff <= 0) {
-        err = bl_timeout;
+        err = bl_mkerr (bl_timeout);
         goto end;
       }
       uword us_pending = bl_tstamp_to_usec_ceil ((tstamp) diff);
@@ -586,7 +590,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_write(
       bl_assert (now <= memr_size (wbuff) - wr);
       if (unlikely (now == 0)) {
         /*device disconnected on Linux*/
-        err = bl_error;
+        err = bl_mkerr (bl_error);
         goto end;
       }
       wr += now;
@@ -603,26 +607,26 @@ BL_SERIAL_EXPORT bl_err bl_serial_ioctl_get(
 {
   bl_assert (s);
   if (s->fd < 0 || !val) {
-    return bl_invalid;
+    return bl_mkerr (bl_invalid);
   }
   int mask;
   switch (op) {
   case bl_cts:        mask = TIOCM_CTS; break;
-  case bl_rts:        return bl_invalid;
-  case bl_dtr:        return bl_invalid;
+  case bl_rts:        return bl_mkerr (bl_invalid);
+  case bl_dtr:        return bl_mkerr (bl_invalid);
   case bl_dsr:        mask = TIOCM_DSR; break;
   case bl_ri:         mask = TIOCM_RI; break;
   case bl_cd:         mask = TIOCM_CD; break;
-  case bl_send_break: return bl_invalid;
-  case bl_set_break:  return bl_invalid;
-  default:            return bl_invalid;
+  case bl_send_break: return bl_mkerr (bl_invalid);
+  case bl_set_break:  return bl_mkerr (bl_invalid);
+  default:            return bl_mkerr (bl_invalid);
   }
   int status;
   if (ioctl (s->fd, TIOCMGET, &status) >= 0) {
     *val = (status & mask) != 0;
-    return bl_ok;
+    return bl_mkok();
   }
-  return bl_error;
+  return bl_mkerr_sys (bl_error, errno);
 }
 /*----------------------------------------------------------------------------*/
 BL_SERIAL_EXPORT bl_err bl_serial_ioctl_set(
@@ -631,12 +635,12 @@ BL_SERIAL_EXPORT bl_err bl_serial_ioctl_set(
 {
   bl_assert (s);
   if (s->fd < 0) {
-    return bl_invalid;
+    return bl_mkerr (bl_invalid);
   }
   int ioctlv;
   int cmd;
   switch (op) {
-  case bl_cts:        return bl_invalid;
+  case bl_cts:        return bl_mkerr (bl_invalid);
   case bl_rts:
     cmd    = TIOCM_RTS;
     ioctlv = (val) ? TIOCMBIS : TIOCMBIC;
@@ -645,18 +649,20 @@ BL_SERIAL_EXPORT bl_err bl_serial_ioctl_set(
     cmd    = TIOCM_DTR;
     ioctlv = (val) ? TIOCMBIS : TIOCMBIC;
     break;
-  case bl_dsr:        return bl_invalid;
-  case bl_ri:         return bl_invalid;
-  case bl_cd:         return bl_invalid;
+  case bl_dsr:        return bl_mkerr (bl_invalid);
+  case bl_ri:         return bl_mkerr (bl_invalid);
+  case bl_cd:         return bl_mkerr (bl_invalid);
   case bl_send_break:
     tcsendbreak (s->fd, 0);
-    return bl_ok;
+    return bl_mkok();
   case bl_set_break:
     ioctlv = (val) ? TIOCSBRK : TIOCCBRK;
-    return ioctl (s->fd, ioctlv) >= 0 ? bl_ok : bl_error;
-  default:            return bl_invalid;
+    return bl_mkerr_sys (ioctl (s->fd, ioctlv) >= 0 ? bl_ok : bl_error, errno);
+  default:            return bl_mkerr (bl_invalid);
   }
-  return ioctl (s->fd, ioctlv, &cmd) >= 0 ? bl_ok : bl_error;
+  return bl_mkerr_sys(
+    ioctl (s->fd, ioctlv, &cmd) >= 0 ? bl_ok : bl_error, errno
+    );
 }
 /*----------------------------------------------------------------------------*/
 BL_SERIAL_EXPORT uword bl_serial_get_bit_time_ns (bl_serial_cfg const* cfg)

@@ -23,10 +23,10 @@ typedef void (bl_tss_dtor_callconv *bl_tss_cleanup_func)(void*);
 static inline bl_err bl_tss_init (bl_tss* key, bl_tss_cleanup_func cleanup)
 {
   switch (pthread_key_create (key, cleanup)) {
-  case 0:      return bl_ok;
-  case EAGAIN: return bl_busy;
-  case ENOMEM: return bl_alloc;
-  default:     return bl_error;
+  case 0:      return bl_mkok();
+  case EAGAIN: return bl_mkerr (bl_busy);
+  case ENOMEM: return bl_mkerr (bl_alloc);
+  default:     return bl_mkerr (bl_error);
   }
 }
 /*----------------------------------------------------------------------------*/
@@ -38,10 +38,10 @@ static inline void bl_tss_destroy (bl_tss key)
 static inline bl_err bl_tss_set (bl_tss key, void const* val)
 {
   switch (pthread_setspecific (key, val)) {
-  case 0:      return bl_ok;
-  case ENOMEM: return bl_alloc;
-  case EINVAL: return bl_invalid;
-  default:     return bl_error;
+  case 0:      return bl_mkok();
+  case ENOMEM: return bl_mkerr (bl_alloc);
+  case EINVAL: return bl_mkerr (bl_invalid);
+  default:     return bl_mkerr (bl_error);
   }
 }
 /*----------------------------------------------------------------------------*/

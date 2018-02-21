@@ -9,7 +9,7 @@ bl_err dynarray_resize(
   )
 {
   bl_assert (d && alloc);
-  bl_err err = bl_ok;
+  bl_err err = bl_mkok();
   void* new_ptr;
 
   if (new_size != 0) {
@@ -17,7 +17,7 @@ bl_err dynarray_resize(
     if (unlikely (!new_ptr)) {
       new_size = d->size;
       new_ptr  = d->arr;
-      err      = bl_alloc;
+      err      = bl_mkerr (bl_alloc);
     }
   }
   else {

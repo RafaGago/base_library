@@ -33,7 +33,7 @@ static int flat_deadlines_test_setup (void **state)
   *state = (void*) &c;
   c.alloc    = get_default_alloc();
   bl_err err = fdl_init (&c.dl, 0, 2, &c.alloc);
-  assert_true (!err);
+  assert_true (!err.bl);
   return 0;
 }
 /*---------------------------------------------------------------------------*/
@@ -58,11 +58,11 @@ static void flat_deadlines_o1_regular_insertion (void **state)
   e[1].id = 1;
 
   bl_err err = fdl_insert (&c->dl, &e[1]);
-  assert_true (!err);
+  assert_true (!err.bl);
   err = fdl_insert (&c->dl, &e[0]);
-  assert_true (!err);
+  assert_true (!err.bl);
   err = fdl_insert (&c->dl, &e[0]);
-  assert_true (err == bl_would_overflow);
+  assert_true (err.bl == bl_would_overflow);
 
   const flat_deadlines_content* v =
     fdl_get_head_if_expired (&c->dl, true, bl_usec_to_tstamp (999));
@@ -100,11 +100,11 @@ static void flat_deadlines_o1_regular_insertion_wrap (void **state)
   e[1].id = 1;
 
   bl_err err = fdl_insert (&c->dl, &e[1]);
-  assert_true (!err);
+  assert_true (!err.bl);
   err = fdl_insert (&c->dl, &e[0]);
-  assert_true (!err);
+  assert_true (!err.bl);
   err = fdl_insert (&c->dl, &e[0]);
-  assert_true (err == bl_would_overflow);
+  assert_true (err.bl == bl_would_overflow);
 
   const flat_deadlines_content* v =
     fdl_get_head_if_expired (&c->dl, true, near_wrap + bl_usec_to_tstamp (999));
@@ -146,9 +146,9 @@ static void flat_deadlines_cancellation (void **state)
   e[1].id = 1;
 
   bl_err err = fdl_insert (&c->dl, &e[1]);
-  assert_true (!err);
+  assert_true (!err.bl);
   err = fdl_insert (&c->dl, &e[0]);
-  assert_true (!err);
+  assert_true (!err.bl);
 
   flat_deadlines_content cancel = { 0 };
   bool                   res;
@@ -179,11 +179,11 @@ static void flat_deadlines_duplicate_deadline (void **state)
   e[1].id = 1;
 
   bl_err err = fdl_insert (&c->dl, &e[0]);
-  assert_true (!err);
+  assert_true (!err.bl);
   err = fdl_insert (&c->dl, &e[1]);
-  assert_true (!err);
+  assert_true (!err.bl);
   err = fdl_insert (&c->dl, &e[1]);
-  assert_true (err == bl_would_overflow);
+  assert_true (err.bl == bl_would_overflow);
 
   const flat_deadlines_content* v =
     fdl_get_head_if_expired (&c->dl, true, bl_usec_to_tstamp (999));
@@ -214,11 +214,11 @@ static void flat_deadlines_duplicate_deadline_deletion (void **state)
   e[1].id = 1;
 
   bl_err err = fdl_insert (&c->dl, &e[1]);
-  assert_true (!err);
+  assert_true (!err.bl);
   err = fdl_insert (&c->dl, &e[0]);
-  assert_true (!err);
+  assert_true (!err.bl);
   err = fdl_insert (&c->dl, &e[0]);
-  assert_true (err == bl_would_overflow);
+  assert_true (err.bl == bl_would_overflow);
 
   const flat_deadlines_content* v = fdl_get_head_if_expired(
     &c->dl, true, bl_usec_to_tstamp (999)

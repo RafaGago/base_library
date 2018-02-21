@@ -58,12 +58,12 @@ BL_SERIAL_EXPORT bl_err bl_serial_init(
   bl_assert (s_out && alloc);
   read_buffer_min_size = round_next_pow2_u (read_buffer_min_size);
   if (read_buffer_min_size == 0 || !alloc || !s_out) {
-    return bl_invalid;
+    return bl_mkerr (bl_invalid);
   }
   bl_serial* s;
   s = (bl_serial*) bl_alloc (alloc, sizeof *s + read_buffer_min_size);
   if (!s) {
-    return bl_alloc;
+    return bl_mkerr (bl_alloc);
   }
   memset (s, 0, sizeof *s);
   s->fd = INVALID_HANDLE_VALUE;
@@ -73,7 +73,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_init(
     read_buffer_min_size
     );
   *s_out = s;
-  return bl_ok;
+  return bl_mkok();
 }
 /*----------------------------------------------------------------------------*/
 BL_SERIAL_EXPORT void bl_serial_destroy (bl_serial* s, alloc_tbl const* alloc)
@@ -183,10 +183,10 @@ BL_SERIAL_EXPORT bl_err bl_serial_start(
 {
   bl_assert (s && cfg);
   if (s->fd != INVALID_HANDLE_VALUE) {
-    return bl_not_allowed;
+    return bl_mkerr (bl_not_allowed);
   }
   if (!s || !cfg || !cfg->device_name) {
-    return bl_invalid;
+    return bl_mkerr (bl_invalid);
   }
   s->fd = CreateFile(
     prefix_port (std::string (cfg->device_name)).c_str(),
@@ -198,14 +198,14 @@ BL_SERIAL_EXPORT bl_err bl_serial_start(
     0
     );
   if (s->fd == INVALID_HANDLE_VALUE) {
-    return bl_file;
+    return bl_mkerr (bl_file);
   }
 
   DCB options;
   memset (&options, 0, sizeof options);
   options.DCBlength = sizeof options;
 
-  bl_err err = bl_ok;
+  bl_err err = bl_mkok();
 
   /*baudrate*/
   int br_enum;
@@ -215,7 +215,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_start(
   /*char length*/
   options.ByteSize = cfg->byte_size;
   if (cfg->byte_size < 5 || cfg->byte_size > 8) {
-    err = bl_invalid;
+    err = bl_mkerr (bl_invalid);
     goto close;
   }
 
@@ -228,7 +228,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_start(
   case bl_stop_bits_two:
     options.StopBits = TWOSTOPBITS; break;
   default:
-    err = bl_invalid;
+    err = bl_mkerr (bl_invalid);
     goto close;
   }
 
@@ -245,7 +245,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_start(
   case bl_parity_space:
     options.Parity = SPACEPARITY; break;
   default:
-    err = bl_invalid;
+    err = bl_mkerr (bl_invalid);
     goto close;
   }
 
@@ -270,13 +270,13 @@ BL_SERIAL_EXPORT bl_err bl_serial_start(
     options.fInX         = false;
     break;
   default:
-    err = bl_invalid;
+    err = bl_mkerr (bl_invalid);
     goto close;
   }
 
   /* activate settings*/
   if (!SetCommState (s->fd, &options)){
-    err = bl_error;
+    err = bl_mkerr (bl_error);
     goto close;
   }
 
@@ -291,10 +291,10 @@ BL_SERIAL_EXPORT bl_err bl_serial_start(
   timeouts.WriteTotalTimeoutMultiplier = 0;
   timeouts.WriteTotalTimeoutConstant   = s->wtimeout_ms;
   if (!SetCommTimeouts (s->fd, &timeouts)) {
-    err = bl_error;
+    err = bl_mkerr (bl_error);
     goto close;
   }
-  return bl_ok;
+  return bl_mkok();
 
 close:
   bl_serial_stop (s);
@@ -319,7 +319,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_read(
   bl_assert (timeout_us >= 0);
 
   if (!memr_is_valid (rbuff) || memr_size (rbuff) > u8_dq_capacity (&s->rq)) {
-    return bl_invalid;
+    return bl_mkerr (bl_invalid);
   }
   /*leftovers from previous reads*/
   uword copied = bl_min (memr_size (rbuff), u8_dq_size (&s->rq));
@@ -336,20 +336,20 @@ BL_SERIAL_EXPORT bl_err bl_serial_read(
     u8_dq_drop_head_n (&s->rq, copied);
   }
   if (copied == memr_size (rbuff)) {
-    return bl_ok;
+    return bl_mkok();
   }
 
-  bl_err err = bl_ok;
+  bl_err err = bl_mkok();
   uword t_ms = div_ceil (timeout_us, usec_in_msec);
   if (t_ms != s->rtimeout_ms) {
     COMMTIMEOUTS timeouts;
     if (!GetCommTimeouts (s->fd, &timeouts)) {
-      err = bl_error;
+      err = bl_mkerr (bl_error);
       goto roll_back;
     }
     timeouts.ReadTotalTimeoutConstant = t_ms;
     if (!SetCommTimeouts (s->fd, &timeouts)) {
-      err = bl_error;
+      err = bl_mkerr (bl_error);
       goto roll_back;
     }
     s->rtimeout_ms = t_ms;
@@ -360,14 +360,14 @@ BL_SERIAL_EXPORT bl_err bl_serial_read(
   bool rf = ReadFile (s->fd, memr_at (rbuff, copied), toread, &read, nullptr);
   copied += read;
   if (!rf) {
-    err = bl_error;
+    err = bl_mkerr (bl_error);
     goto roll_back;
   }
   else if (copied != memr_size (rbuff)) {
-    err = bl_timeout;
+    err = bl_mkerr (bl_timeout);
     goto roll_back;
   }
-  return bl_ok;
+  return bl_mkok();
 roll_back:
   /*unsucessful read*/
   bl_assert (u8_dq_size (&s->rq) == 0);
@@ -388,17 +388,17 @@ BL_SERIAL_EXPORT bl_err bl_serial_write(
 
   *written = 0;
   if (!memr_is_valid (wbuff) || !written) {
-    return bl_invalid;
+    return bl_mkerr (bl_invalid);
   }
   uword t_ms = (timeout_us != 0) ? div_ceil (timeout_us, usec_in_msec) : 1;
   if (t_ms != s->wtimeout_ms) {
     COMMTIMEOUTS timeouts;
     if (!GetCommTimeouts (s->fd, &timeouts)) {
-      return bl_error;
+      return bl_mkerr (bl_error);
     }
     timeouts.WriteTotalTimeoutConstant = t_ms;
     if (!SetCommTimeouts (s->fd, &timeouts)) {
-      return bl_error;
+      return bl_mkerr (bl_error);
     }
     s->wtimeout_ms = t_ms;
   }
@@ -409,13 +409,13 @@ BL_SERIAL_EXPORT bl_err bl_serial_write(
     );
   *written = wr;
   if (!wf) {
-    return bl_error;
+    return bl_mkerr (bl_error);
   }
   else if (memr_size (wbuff) != wr) {
-    return bl_timeout;
+    return bl_mkerr (bl_timeout);
   }
   else {
-    return bl_ok;
+    return bl_mkok();
   }
 }
 /*----------------------------------------------------------------------------*/
@@ -425,26 +425,26 @@ BL_SERIAL_EXPORT bl_err bl_serial_ioctl_get(
 {
   bl_assert (s);
   if (s->fd == INVALID_HANDLE_VALUE || !val) {
-    return bl_invalid;
+    return bl_mkerr (bl_invalid);
   }
   DWORD mask;
   switch (op) {
   case bl_cts:        mask = MS_CTS_ON; break;
-  case bl_rts:        return bl_invalid;
-  case bl_dtr:        return bl_invalid;
+  case bl_rts:        return bl_mkerr (bl_invalid);
+  case bl_dtr:        return bl_mkerr (bl_invalid);
   case bl_dsr:        mask = MS_DSR_ON; break;
   case bl_ri:         mask = MS_RING_ON; break;
   case bl_cd:         mask = MS_RLSD_ON; break;
-  case bl_send_break: return bl_invalid;
-  case bl_set_break:  return bl_invalid;
-  default:            return bl_invalid;
+  case bl_send_break: return bl_mkerr (bl_invalid);
+  case bl_set_break:  return bl_mkerr (bl_invalid);
+  default:            return bl_mkerr (bl_invalid);
   }
   DWORD stat;
   if (GetCommModemStatus(s->fd, &stat)) {
     *val = (stat & mask) != 0;
-    return bl_ok;
+    return bl_mkok();
   }
-  return bl_error;
+  return bl_mkerr (bl_error);
 }
 /*----------------------------------------------------------------------------*/
 BL_SERIAL_EXPORT bl_err bl_serial_ioctl_set(
@@ -453,19 +453,19 @@ BL_SERIAL_EXPORT bl_err bl_serial_ioctl_set(
 {
   bl_assert (s);
   if (s->fd == INVALID_HANDLE_VALUE) {
-    return bl_invalid;
+    return bl_mkerr (bl_invalid);
   }
   DWORD fn;
   switch (op) {
-  case bl_cts:        return bl_invalid;
+  case bl_cts:        return bl_mkerr (bl_invalid);
   case bl_rts:        fn = (val) ? SETRTS : CLRRTS; break;
   case bl_dtr:        fn = (val) ? SETDTR : CLRDTR; break;
-  case bl_dsr:        return bl_invalid;
-  case bl_ri:         return bl_invalid;
-  case bl_cd:         return bl_invalid;
+  case bl_dsr:        return bl_mkerr (bl_invalid);
+  case bl_ri:         return bl_mkerr (bl_invalid);
+  case bl_cd:         return bl_mkerr (bl_invalid);
   case bl_send_break: return bl_unsupported;
   case bl_set_break:  fn = (val) ? SETBREAK : CLRBREAK; break;
-  default:            return bl_invalid;
+  default:            return bl_mkerr (bl_invalid);
   }
   return EscapeCommFunction (s->fd, fn) ? bl_ok : bl_error;
 }

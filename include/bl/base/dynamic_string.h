@@ -141,11 +141,11 @@ static inline bl_err dstr_set (dstr *s, char const *str)
 }
 static inline bl_err dstr_append (dstr *s, char const *str)
 {
-  return str ? dstr_append_l (s, str, strlen (str)) : bl_ok;
+  return str ? dstr_append_l (s, str, strlen (str)) : bl_mkok();
 }
 static inline bl_err dstr_insert (dstr *s, uword idx, char const *str)
 {
-  return str ? dstr_insert_l (s, idx, str, strlen (str)) : bl_ok;
+  return str ? dstr_insert_l (s, idx, str, strlen (str)) : bl_mkok();
 }
 static inline bl_err dstr_replace(
   dstr *s, char const *match, char const *replace, uword offset, uword count

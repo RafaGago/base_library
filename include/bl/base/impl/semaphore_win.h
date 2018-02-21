@@ -17,22 +17,24 @@ typedef HANDLE bl_sem;
 static inline bl_err bl_sem_init (bl_sem* s)
 {
   *s = CreateSemaphore (nullptr, 0, MAXLONG, nullptr);
-  return *s ? bl_ok : bl_error;
+  return *s ? bl_mkok() : bl_mkerr_sys (bl_error, errno);
 }
 /*----------------------------------------------------------------------------*/
 static inline bl_err bl_sem_destroy (bl_sem* s)
 {
-  return CloseHandle (*s) ? bl_ok : bl_error;
+  return CloseHandle (*s) ? bl_mkok() : bl_mkerr_sys (bl_error, errno);
 }
 /*----------------------------------------------------------------------------*/
 static inline bl_err bl_sem_wait (bl_sem* s)
 {
-  return WaitForSingleObject (*s, INFINITE) ? bl_error : bl_ok;
+  return WaitForSingleObject (*s, INFINITE) ?
+    bl_mkok() : bl_mkerr_sys (bl_error, errno);
 }
 /*----------------------------------------------------------------------------*/
 static inline bl_err bl_sem_signal (bl_sem* s)
 {
-  return ReleaseSemaphore (*s, 1, NULL) ? bl_ok : bl_error;
+  return ReleaseSemaphore (*s, 1, NULL) ?
+    bl_mkok() : bl_mkerr_sys (bl_error, errno);
 }
 /*----------------------------------------------------------------------------*/
 typedef bl_sem bl_tm_sem;

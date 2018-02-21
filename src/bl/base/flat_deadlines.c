@@ -41,12 +41,12 @@ BL_EXPORT bl_err flat_deadlines_insert(
   )
 {
   if (unlikely (!ringb_can_insert (&dl->list))) {
-    return bl_would_overflow;
+    return bl_mkerr (bl_would_overflow);
   }
   oringb_insert_fifo_duplicates(
     &dl->list, elem_size, flat_deadlines_ordering_func, e, dl
     );
-  return bl_ok;
+  return bl_mkok();
 }
 /*--------------------------------------------------------------------------*/
 BL_EXPORT bool flat_deadlines_try_get_and_drop(

@@ -32,10 +32,10 @@ static inline bl_err bl_thread_init(
   bl_assert (t);
   try {
     new ((std::thread*) t) std::thread (f, context);
-    return bl_ok;
+    return bl_mkok();
   }
   catch (...) {
-    return bl_error;
+    return bl_mkerr (bl_error);
   }
 }
 /*---------------------------------------------------------------------------*/
@@ -49,10 +49,10 @@ static inline bl_err bl_thread_join (bl_thread* t)
   bl_assert (t);
   try {
     ((std::thread*) t)->join();
-    return bl_ok;
+    return bl_mkok();
   }
   catch (...) {
-    return bl_error;
+    return bl_mkerr (bl_error);
   }
 }
 /*----------------------------------------------------------------------------*/

@@ -101,7 +101,7 @@ bl_err prefix##_set_capacity(\
   assert (d && alloc);\
   return (new_capacity >= d->size) ?\
     dynarray_resize ((dynarray_stub*) d, new_capacity, sizeof *d->arr, alloc) :\
-    bl_preconditions;\
+    bl_mkerr (bl_preconditions);\
 }\
 /*--------------------------------------------------------------------------*/\
 static inline \
@@ -173,13 +173,13 @@ bl_err prefix##_insert_tail(\
   )\
 {\
   assert (d && c && alloc);\
-  bl_err err = bl_ok;\
+  bl_err err = bl_mkok();\
   if (d->size + 1 > d->capacity) {\
     err = autoarray_set_rounded_capacity(\
       (autoarray_stub*) d, d->size + 1, sizeof *d->arr, alloc\
       );\
   }\
-  if (!err) {\
+  if (!err.bl) {\
     *prefix##_end (d) = *c;\
     ++d->size;\
   }\

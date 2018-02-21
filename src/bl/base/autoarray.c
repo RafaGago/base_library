@@ -29,12 +29,12 @@ BL_EXPORT bl_err autoarray_insert_n(
   assert (d && (c || c_count == 0) && alloc);
   assert (idx <= d->size);
   assert (elem_size != 0);
-  bl_err err     = bl_ok;
+  bl_err err     = bl_mkok();
   uword required = d->size + c_count;
   if (required > d->capacity) {
     err = autoarray_set_rounded_capacity (d, required, elem_size, alloc);
   }
-  if (!err) {
+  if (!err.bl) {
     u8* arr = (u8*) d->arr;
     memmove(
       arr + ((idx + c_count) * elem_size),

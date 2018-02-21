@@ -34,13 +34,13 @@ BL_NONBLOCK_EXPORT bl_err mpmc_bpm_init(
       slot_alignment < sizeof (u32) ||
       slot_count >= mpmc_b_max_slots
     ) {
-    return bl_invalid;
+    return bl_mkerr (bl_invalid);
   }
   uword alloc_size = (slot_count + slot_max - 1) * slot_size;
   alloc_size      += slot_alignment + sizeof (atomic_u32);
   q->mem_unaligned = (u8*) bl_alloc (alloc, alloc_size);
   if (!q->mem_unaligned) {
-    return bl_alloc;
+    return bl_mkerr (bl_alloc);
   }
   uword alignaddr = (uword) q->mem_unaligned;
   alignaddr      += slot_alignment + sizeof (atomic_u32);
@@ -70,7 +70,7 @@ BL_NONBLOCK_EXPORT bl_err mpmc_bpm_init(
     ptr += slot_size;
   }
 #endif
-  return bl_ok;
+  return bl_mkok();
 }
 /*----------------------------------------------------------------------------*/
 BL_NONBLOCK_EXPORT void mpmc_bpm_destroy (mpmc_bpm* q, alloc_tbl const* alloc)
@@ -94,14 +94,14 @@ BL_NONBLOCK_EXPORT bl_err mpmc_bpm_produce_prepare_sig_fallback(
 {
   bl_assert (q && op && mem && slots);
   if (unlikely (slots > q->slot_max)) {
-    return bl_invalid;
+    return bl_mkerr (bl_invalid);
   }
   mpmc_b_op now = atomic_u32_load_rlx (&q->push_slot);
 resync:;
   mpmc_b_sig signow = mpmc_b_sig_decode (now);
   if (unlikely ((signow & sig_fmask) == sig_fmatch)) {
     *op = now;
-    return bl_preconditions;
+    return bl_mkerr (bl_preconditions);
   }
   uword idx     = now & (q->slots - 1);
   u8* slot      = &q->mem[idx * q->slot_size];
@@ -109,7 +109,7 @@ resync:;
 
   i32 diff = (i32) (mpmc_b_ticket_decode (ver) - mpmc_b_ticket_decode (now));
   if (unlikely (diff < 0)) {
-    return bl_would_overflow;
+    return bl_mkerr (bl_would_overflow);
   }
   else if (unlikely (diff > 0)) {
       now = atomic_u32_load_rlx (&q->push_slot);
@@ -132,7 +132,7 @@ resync:;
       now = atomic_u32_fetch_add_rlx (&q->push_slot, 0);
       if (now == old) {
         /* no collision with producer: not enough space */
-        return bl_would_overflow;
+        return bl_mkerr (bl_would_overflow);
       }
       /* collision with producer */
       goto resync;
@@ -168,7 +168,7 @@ resync:;
   if (likely (atomic_u32_weak_cas_rlx (&q->push_slot, &now, next))) {
     *mem = slot + sizeof (atomic_u32);
     *op  = now;
-    return bl_ok;
+    return bl_mkok();
   }
   goto resync;
 }
@@ -183,8 +183,8 @@ BL_NONBLOCK_EXPORT void mpmc_bpm_produce_commit(
   op += slots;
   atomic_u32_store(
     (atomic_u32*) (mem - sizeof (atomic_u32)),
-	mpmc_b_op_encode (op, 0),
-	mo_release
+    mpmc_b_op_encode (op, 0),
+    mo_release
     );
 }
 /*----------------------------------------------------------------------------*/
@@ -205,7 +205,7 @@ resync:;
   mpmc_b_sig signow = mpmc_b_sig_decode (now);
   if (unlikely ((signow & sig_fmask) == sig_fmatch)) {
     *op = now;
-    return bl_preconditions;
+    return bl_mkerr (bl_preconditions);
   }
   uword idx     = now & (q->slots - 1);
   u8* slot      = &q->mem[idx * q->slot_size];
@@ -213,7 +213,7 @@ resync:;
 
   i32 diff = (i32) (mpmc_b_ticket_decode (ver) - mpmc_b_ticket_decode (now));
   if (unlikely (diff <= 0)) {
-    return bl_empty;
+    return bl_mkerr (bl_empty);
   }
   else if (unlikely ((u32) diff >= q->slots)) {
     now = atomic_u32_load_rlx (&q->pop_slot);
@@ -227,7 +227,7 @@ resync:;
     *mem   = slot + sizeof (atomic_u32);
     *op    = now;
     *slots = (u32) diff;
-    return bl_ok;
+    return bl_mkok();
   }
   goto resync;
 }
@@ -284,7 +284,7 @@ BL_NONBLOCK_EXPORT u8* mpmc_bpm_alloc (mpmc_bpm* q, uword slots)
   u8*       mem;
   mpmc_b_op op;
   bl_err err = mpmc_bpm_produce_prepare (q, &op, &mem, slots);
-  if (unlikely (err)) {
+  if (unlikely (err.bl)) {
     return nullptr;
   }
   mpmc_bpm_produce_commit (q, op, mem, slots);

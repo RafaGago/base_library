@@ -20,7 +20,7 @@ static void dynarray_init (void **state)
 {
   u32_darr  d;
   alloc_tbl t = get_default_alloc();
-  assert_true (u32_darr_init (&d, 0, &t) == bl_ok);
+  assert_true (u32_darr_init (&d, 0, &t).bl == bl_ok);
   assert_true (u32_darr_size (&d) == 0);
   u32_darr_destroy (&d, &t);
 }
@@ -29,7 +29,7 @@ static void dynarray_init_non_0 (void **state)
 {
   u32_darr  d;
   alloc_tbl t = get_default_alloc();
-  assert_true (u32_darr_init (&d, 4, &t) == bl_ok);
+  assert_true (u32_darr_init (&d, 4, &t).bl == bl_ok);
   assert_true (u32_darr_size (&d) == 4);
   u32_darr_destroy (&d, &t);
 }
@@ -39,13 +39,13 @@ static void dynarray_resize_test (void **state)
   const uword sz = 4;
   u32_darr    d;
   alloc_tbl t = get_default_alloc();
-  assert_true (u32_darr_init (&d, sz, &t) == bl_ok);
+  assert_true (u32_darr_init (&d, sz, &t).bl == bl_ok);
   assert_true (u32_darr_size (&d) == sz);
 
   for (u32 i = 0; i < sz; ++i) {
     *u32_darr_at (&d, i) = i;
   }
-  assert_true (u32_darr_resize (&d, sz + 1, &t) == bl_ok);
+  assert_true (u32_darr_resize (&d, sz + 1, &t).bl == bl_ok);
   assert_true (u32_darr_size (&d) == sz + 1);
   for (u32 i = 0; i < sz; ++i) {
     assert_true (*u32_darr_at (&d, i) == i);
@@ -59,7 +59,7 @@ static void dynarray_from_file_test (void **state)
   const uword sz = 4;
   u8_darr d;
   alloc_tbl t = get_default_alloc();
-  assert_true (u8_darr_init (&d, sz, &t) == bl_ok);
+  assert_true (u8_darr_init (&d, sz, &t).bl == bl_ok);
   memset (u8_darr_at (&d, 0), 0, sz);
 
   FILE* f = fopen (fname, "w");
@@ -72,7 +72,7 @@ static void dynarray_from_file_test (void **state)
   uword wr;
   assert_int_equal(
     bl_ok,
-    u8_darr_from_file (&d, &wr, sz - 1, 7, f, 0, &t)
+    u8_darr_from_file (&d, &wr, sz - 1, 7, f, 0, &t).bl
     );
   fclose (f);
   remove(fname);

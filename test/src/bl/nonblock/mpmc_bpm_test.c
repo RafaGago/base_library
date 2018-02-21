@@ -56,7 +56,7 @@ static int mpmc_bpm_test_setup (void **state)
     sizeof (mpmc_bpm_container),
     bl_alignof (mpmc_bpm_container),
     false
-    ) == bl_ok);
+    ).bl == bl_ok);
   c.debug = (mpmc_bpm_container*) c.q.mem;
   return 0;
 }
@@ -77,7 +77,7 @@ static int mpmc_bpm_test_setup_fair (void **state)
     sizeof (mpmc_bpm_container),
     bl_alignof (mpmc_bpm_container),
     true
-    ) == bl_ok);
+    ).bl == bl_ok);
   c.debug = (mpmc_bpm_container*) c.q.mem;
   return 0;
 }
@@ -91,8 +91,8 @@ static void mpmc_bpm_test_produce(
   )
 {
   bl_err err = mpmc_bpm_produce_prepare (&c->q, op, mem, slots);
-  assert_int_equal (err, err_expected);
-  if (err_expected) {
+  assert_int_equal (err.bl, err_expected.bl);
+  if (err_expected.bl) {
     return;
   }
   uword u32s = mpmc_bpm_slot_payload (&c->q, slots) / sizeof (u32);
@@ -127,12 +127,12 @@ static void mpmc_bpm_one (void **state)
   mpmc_b_op op;
   mpmc_b_op opc;
 
-  mpmc_bpm_test_produce (c, &op, &mem, 1, bl_ok);
+  mpmc_bpm_test_produce (c, &op, &mem, 1, bl_mkok());
   bl_err err = mpmc_bpm_consume_prepare (&c->q, &opc, &mem, &slots);
-  assert_int_equal (err, bl_empty);
+  assert_int_equal (err.bl, bl_empty);
   mpmc_bpm_produce_commit (&c->q, op, mem, 1);
   err = mpmc_bpm_consume_prepare (&c->q, &opc, &mem, &slots);
-  assert_int_equal (err, bl_ok);
+  assert_int_equal (err.bl, bl_ok);
   assert_int_equal (opc, 0);
   assert_int_equal (slots, 1);
   mpmc_bpm_test_verify_produced (c, mem, 1);
@@ -146,12 +146,12 @@ static void mpmc_bpm_max (void **state)
   mpmc_b_op op;
   mpmc_b_op opc;
 
-  mpmc_bpm_test_produce (c, &op, &mem, mpmc_bpm_slots - 1, bl_ok);
+  mpmc_bpm_test_produce (c, &op, &mem, mpmc_bpm_slots - 1, bl_mkok());
   bl_err err = mpmc_bpm_consume_prepare (&c->q, &opc, &mem, &slots);
-  assert_int_equal (err, bl_empty);
+  assert_int_equal (err.bl, bl_empty);
   mpmc_bpm_produce_commit (&c->q, op, mem, mpmc_bpm_slots - 1);
   err = mpmc_bpm_consume_prepare (&c->q, &opc, &mem, &slots);
-  assert_int_equal (err, bl_ok);
+  assert_int_equal (err.bl, bl_ok);
   assert_int_equal (opc, 0);
   assert_int_equal (slots, mpmc_bpm_slots - 1);
   mpmc_bpm_test_verify_produced (c, mem, mpmc_bpm_slots - 1);
@@ -168,32 +168,32 @@ static void mpmc_bpm_full (void **state)
   mpmc_b_op op2;
   mpmc_b_op opc;
 
-  mpmc_bpm_test_produce (c, &op1, &mem1, 1, bl_ok);
-  mpmc_bpm_test_produce (c, &op2, &mem2, mpmc_bpm_slots - 1, bl_ok);
+  mpmc_bpm_test_produce (c, &op1, &mem1, 1, bl_mkok());
+  mpmc_bpm_test_produce (c, &op2, &mem2, mpmc_bpm_slots - 1, bl_mkok());
 
-  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_would_overflow);
+  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_mkerr (bl_would_overflow));
   bl_err err = mpmc_bpm_consume_prepare (&c->q, &opc, &mem, &slots);
-  assert_int_equal (err, bl_empty);
-  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_would_overflow);
+  assert_int_equal (err.bl, bl_empty);
+  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_mkerr (bl_would_overflow));
 
   mpmc_bpm_produce_commit (&c->q, op1, mem1, 1);
   mpmc_bpm_produce_commit (&c->q, op2, mem2, mpmc_bpm_slots - 1);
 
-  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_would_overflow);
+  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_mkerr (bl_would_overflow));
 
   err = mpmc_bpm_consume_prepare (&c->q, &opc, &mem, &slots);
-  assert_int_equal (err, bl_ok);
+  assert_int_equal (err.bl, bl_ok);
   assert_int_equal (slots, 1);
   mpmc_bpm_test_verify_produced (c, mem, 1);
 
   err = mpmc_bpm_consume_prepare (&c->q, &opc, &mem, &slots);
-  assert_int_equal (err, bl_ok);
+  assert_int_equal (err.bl, bl_ok);
   assert_int_equal (slots, mpmc_bpm_slots - 1);
   mpmc_bpm_test_verify_produced (c, mem, mpmc_bpm_slots - 1);
 
   err = mpmc_bpm_consume_prepare (&c->q, &opc, &mem, &slots);
-  assert_int_equal (err, bl_empty);
-  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_would_overflow);
+  assert_int_equal (err.bl, bl_empty);
+  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_mkerr (bl_would_overflow));
 }
 /*---------------------------------------------------------------------------*/
 static void mpmc_bpm_wrap (void **state)
@@ -207,44 +207,44 @@ static void mpmc_bpm_wrap (void **state)
   mpmc_b_op op2;
   mpmc_b_op opc;
 
-  mpmc_bpm_test_produce (c, &op1, &mem1, 1, bl_ok);
-  mpmc_bpm_test_produce (c, &op2, &mem2, mpmc_bpm_slots - 1, bl_ok);
+  mpmc_bpm_test_produce (c, &op1, &mem1, 1, bl_mkok());
+  mpmc_bpm_test_produce (c, &op2, &mem2, mpmc_bpm_slots - 1, bl_mkok());
 
-  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_would_overflow);
+  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_mkerr (bl_would_overflow));
   bl_err err = mpmc_bpm_consume_prepare (&c->q, &opc, &mem, &slots);
-  assert_int_equal (err, bl_empty);
-  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_would_overflow);
+  assert_int_equal (err.bl, bl_empty);
+  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_mkerr (bl_would_overflow));
 
   mpmc_bpm_produce_commit (&c->q, op1, mem1, 1);
   mpmc_bpm_produce_commit (&c->q, op2, mem2, mpmc_bpm_slots - 1);
 
-  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_would_overflow);
+  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_mkerr (bl_would_overflow));
 
   err = mpmc_bpm_consume_prepare (&c->q, &op1, &mem1, &slots);
-  assert_int_equal (err, bl_ok);
+  assert_int_equal (err.bl, bl_ok);
   assert_int_equal (slots, 1);
   mpmc_bpm_test_verify_produced (c, mem1, 1);
 
   err = mpmc_bpm_consume_prepare (&c->q, &op2, &mem2, &slots);
-  assert_int_equal (err, bl_ok);
+  assert_int_equal (err.bl, bl_ok);
   assert_int_equal (slots, mpmc_bpm_slots - 1);
   mpmc_bpm_test_verify_produced (c, mem2, mpmc_bpm_slots - 1);
 
   err = mpmc_bpm_consume_prepare (&c->q, &opc, &mem, &slots);
-  assert_int_equal (err, bl_empty);
-  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_would_overflow);
+  assert_int_equal (err.bl, bl_empty);
+  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_mkerr (bl_would_overflow));
   /*wrapping*/
   mpmc_bpm_consume_commit (&c->q, op2, mem2, mpmc_bpm_slots - 1);
 
-  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_would_overflow);
+  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_mkerr (bl_would_overflow));
 
   mpmc_bpm_consume_commit (&c->q, op1, mem1, 1);
 
-  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_ok);
+  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_mkok());
   mpmc_bpm_produce_commit (&c->q, opc, mem, 1);
 
   err = mpmc_bpm_consume_prepare (&c->q, &opc, &mem, &slots);
-  assert_int_equal (err, bl_ok);
+  assert_int_equal (err.bl, bl_ok);
   assert_int_equal (slots, 1);
   mpmc_bpm_test_verify_produced (c, mem, 1);
 }
@@ -260,44 +260,44 @@ static void mpmc_bpm_wrap_using_extra_tail_space (void **state)
   mpmc_b_op opc;
   u32       slots;
 
-  mpmc_bpm_test_produce (c, &op1, &mem1, mpmc_bpm_slots - 1, bl_ok);
-  mpmc_bpm_test_produce (c, &op2, &mem2, mpmc_bpm_slots - 1, bl_ok);
-  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_would_overflow);
+  mpmc_bpm_test_produce (c, &op1, &mem1, mpmc_bpm_slots - 1, bl_mkok());
+  mpmc_bpm_test_produce (c, &op2, &mem2, mpmc_bpm_slots - 1, bl_mkok());
+  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_mkerr (bl_would_overflow));
 
   bl_err err = mpmc_bpm_consume_prepare (&c->q, &opc, &mem, &slots);
-  assert_int_equal (err, bl_empty);
-  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_would_overflow);
+  assert_int_equal (err.bl, bl_empty);
+  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_mkerr (bl_would_overflow));
 
   mpmc_bpm_produce_commit (&c->q, op1, mem1, mpmc_bpm_slots - 1);
   mpmc_bpm_produce_commit (&c->q, op2, mem2, mpmc_bpm_slots - 1);
 
-  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_would_overflow);
+  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_mkerr (bl_would_overflow));
 
   err = mpmc_bpm_consume_prepare (&c->q, &op1, &mem1, &slots);
-  assert_int_equal (err, bl_ok);
+  assert_int_equal (err.bl, bl_ok);
   assert_int_equal (slots, mpmc_bpm_slots - 1);
   mpmc_bpm_test_verify_produced (c, mem1, mpmc_bpm_slots - 1);
 
   err = mpmc_bpm_consume_prepare (&c->q, &op2, &mem2, &slots);
-  assert_int_equal (err, bl_ok);
+  assert_int_equal (err.bl, bl_ok);
   assert_int_equal (slots, mpmc_bpm_slots - 1);
   mpmc_bpm_test_verify_produced (c, mem2, mpmc_bpm_slots - 1);
 
   err = mpmc_bpm_consume_prepare (&c->q, &opc, &mem, &slots);
-  assert_int_equal (err, bl_empty);
-  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_would_overflow);
+  assert_int_equal (err.bl, bl_empty);
+  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_mkerr (bl_would_overflow));
   /*wrapping*/
   mpmc_bpm_consume_commit (&c->q, op2, mem2, mpmc_bpm_slots - 1);
 
-  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_would_overflow);
+  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_mkerr (bl_would_overflow));
 
   mpmc_bpm_consume_commit (&c->q, op1, mem1, 1);
 
-  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_ok);
+  mpmc_bpm_test_produce (c, &opc, &mem, 1, bl_mkok());
   mpmc_bpm_produce_commit (&c->q, opc, mem, 1);
 
   err = mpmc_bpm_consume_prepare (&c->q, &opc, &mem, &slots);
-  assert_int_equal (err, bl_ok);
+  assert_int_equal (err.bl, bl_ok);
   assert_int_equal (slots, 1);
   mpmc_bpm_test_verify_produced (c, mem, 1);
 }

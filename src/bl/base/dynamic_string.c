@@ -18,12 +18,11 @@ BL_EXPORT bl_err dstr_set_capacity (dstr* s, uword newlen)
       (dynarray_stub*) &s->da, newlen, sizeof (char), s->alloc
       );
   }
-  return bl_invalid;
+  return bl_mkerr (bl_invalid);
 }
 /*----------------------------------------------------------------------------*/
 static bl_err dstr_resize_if (dstr *s, uword newlen)
 {
-  bl_err err = bl_ok;
   if (dstr_get_capacity (s) < newlen) {
     uword overalloc = round_to_next_multiple (newlen, dstr_minalloc);
     overalloc      += bl_max (next_pow2_u (newlen) / 32, dstr_minalloc);
@@ -31,7 +30,7 @@ static bl_err dstr_resize_if (dstr *s, uword newlen)
       (dynarray_stub*) &s->da, overalloc, sizeof (char), s->alloc
       );
   }
-  return err;
+  return bl_mkok();
 }
 /*----------------------------------------------------------------------------*/
 static bl_err dstr_append_impl (dstr *s, char const *str, uword len)
@@ -44,7 +43,7 @@ static bl_err dstr_append_impl (dstr *s, char const *str, uword len)
   uword oldlen = dstr_len (s);
   uword newlen = oldlen + len;
   bl_err err   = dstr_resize_if (s, newlen);
-  if (!err) {
+  if (!err.bl) {
     memcpy (s->da.str + oldlen, str, len);
     s->da.str[newlen] = 0;
     s->len = newlen;
@@ -59,7 +58,7 @@ BL_EXPORT bl_err dstr_set_l (dstr *s, char const *str, uword len)
   if (len > 0 && str) {
     return dstr_append_impl (s, str, len);
   }
-  return ((!str && len == 0) || len == 0) ? bl_ok : bl_invalid;
+  return bl_mkerr (((!str && len == 0) || len == 0) ? bl_ok : bl_invalid);
 }
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err dstr_append_l (dstr *s, char const *str, uword len)
@@ -68,7 +67,7 @@ BL_EXPORT bl_err dstr_append_l (dstr *s, char const *str, uword len)
   if (len > 0 && str) {
     return dstr_append_impl (s, str, len);
   }
-  return (str && len == 0) ? bl_ok : bl_invalid;
+  return bl_mkerr ((str && len == 0) ? bl_ok : bl_invalid);
 }
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err dstr_insert_l(
@@ -77,7 +76,7 @@ BL_EXPORT bl_err dstr_insert_l(
 {
   bl_assert (strnlen (str, len) >= len);
   if (unlikely (len == 0 || !str)) {
-    return (len == 0 && !str) ? bl_ok : bl_invalid;
+    return bl_mkerr ((len == 0 && !str) ? bl_ok : bl_invalid);
   }
   if (unlikely (dstr_len (s) == 0)) {
     return dstr_set_l (s, str, len);
@@ -98,7 +97,7 @@ BL_EXPORT bl_err dstr_insert_l(
   else {
     char* newstr = (char*) bl_alloc (s->alloc, newlen + 1);
     if (unlikely (!newstr)) {
-      return bl_alloc;
+      return bl_mkerr (bl_alloc);
     }
     memcpy (newstr, s->da.str, idx);
     memcpy (newstr + idx, str, len);
@@ -109,7 +108,7 @@ BL_EXPORT bl_err dstr_insert_l(
   }
   s->len = newlen;
   s->da.str[s->len] = 0;
-  return bl_ok;
+  return bl_mkok();
 }
 /*----------------------------------------------------------------------------*/
 static bl_err dstr_append_va_priv(
@@ -121,12 +120,12 @@ static bl_err dstr_append_va_priv(
     &str, str ? s->da.size : dstr_minalloc, s->len, 1, s->alloc, fmt, list
     );
   if (unlikely (len < 0)) {
-    return -len;
+    return bl_mkerr (-len);
   }
   s->da.str  = str;
   s->len    += len;
   s->da.size = bl_max (s->da.size, s->len + 1);
-  return bl_ok;
+  return bl_mkok();
 }
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err dstr_append_va (dstr *s, char const *fmt, ...)
@@ -152,11 +151,11 @@ BL_EXPORT bl_err dstr_insert_va (dstr *s, uword idx, char const *fmt, ...)
 {
   va_list list;
   va_start (list, fmt);
-  bl_err err = 0;
+  bl_err err = bl_mkok();
   if (dstr_len (s) != 0 && idx < dstr_len (s) - 1) {
     dstr newstr = dstr_init_rv (s->alloc);
     err = dstr_append_va_priv (&newstr, fmt, list);
-    if (err) {
+    if (err.bl) {
       goto done;
     }
     err = dstr_insert_o (s, idx, &newstr);
@@ -174,43 +173,43 @@ BL_EXPORT bl_err dstr_erase (dstr *s, uword idx, uword char_count)
 {
   uword newlen = dstr_len (s) - char_count;
   if ((newlen - idx) > dstr_len (s)) {
-    return bl_range;
+    return bl_mkerr (bl_range);
   }
   if (newlen != 0) {
     memmove (s->da.str + idx, s->da.str + idx + char_count, newlen - idx);
     s->len            = newlen;
     s->da.str[newlen] = 0;
-    return bl_ok;
+    return bl_mkok();
   }
   dstr_clear (s);
-  return bl_ok;
+  return bl_mkok();
 }
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err dstr_erase_tail (dstr *s, uword char_count)
 {
   uword newlen = dstr_len (s) - char_count;
   if (newlen > dstr_len (s)) {
-    return bl_range;
+    return bl_mkerr (bl_range);
   }
   if (newlen != 0) {
     s->len            = newlen;
     s->da.str[newlen] = 0;
-    return bl_ok;
+    return bl_mkok();
   }
   dstr_clear (s);
-  return bl_ok;
+  return bl_mkok();
 }
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err dstr_erase_head_while (dstr *s, bl_ctype_func fn, int fnres)
 {
   if (!fn) {
-    return bl_invalid;
+    return bl_mkerr (bl_invalid);
   }
   fnres = !!fnres;
   uword i;
   for (i = 0; (i < dstr_len (s)) && (!!fn (s->da.str[i]) == fnres); ++i) {}
   if (i == 0) {
-    return bl_ok;
+    return bl_mkok();
   }
   return dstr_erase_head (s, i);
 }
@@ -218,14 +217,14 @@ BL_EXPORT bl_err dstr_erase_head_while (dstr *s, bl_ctype_func fn, int fnres)
 BL_EXPORT bl_err dstr_erase_tail_while (dstr *s, bl_ctype_func fn, int fnres)
 {
   if (!fn) {
-    return bl_invalid;
+    return bl_mkerr (bl_invalid);
   }
   fnres = !!fnres;
   uword i;
   for (i = dstr_len (s); (i-- > 0) && (!!fn (s->da.str[i]) == fnres); ) {}
   uword trim = dstr_len (s) - (i + 1);
   if (trim == 0) {
-    return bl_ok;
+    return bl_mkok();
   }
   return dstr_erase_tail (s, trim);
 }
@@ -235,7 +234,7 @@ BL_EXPORT bl_err dstr_erase_head_tail_while(
   )
 {
   bl_err err = dstr_erase_head_while(s, fn, fnres);
-  if (err) {
+  if (err.bl) {
     return err;
   }
   return dstr_erase_tail_while(s, fn, fnres);
@@ -246,15 +245,15 @@ BL_EXPORT bl_err dstr_apply(
   )
 {
   if (!fn) {
-    return bl_invalid;
+    return bl_mkerr (bl_invalid);
   }
   if (start > end || end >= s->da.size) {
-    return bl_range;
+    return bl_mkerr (bl_range);
   }
   for (uword i = start; i < end; ++i) {
     s->da.str[i] = (char) fn (s->da.str[i]);
   }
-  return bl_ok;
+  return bl_mkok();
 }
 /*---------------------------------------------------------------------------*/
 BL_EXPORT char* dstr_steal_ownership (dstr *s)
@@ -322,7 +321,7 @@ bl_err dstr_append_file (dstr *s, FILE* file, uword file_read_limit)
   bl_err err = dynarray_from_file(
     da, &written, s->len, 1, 1, file, file_read_limit, s->alloc
     );
-  if (!err && written) {
+  if (!err.bl && written) {
     s->len += written;
     s->da.str[s->len] = 0;
   }
