@@ -312,6 +312,8 @@ BL_SERIAL_EXPORT bl_err bl_serial_start(
   bl_serial* s, bl_serial_cfg const* cfg
   )
 {
+  int errnoval = 0;
+
   bl_assert (s && cfg);
   if (s->fd) {
     return bl_preconditions;
@@ -334,6 +336,7 @@ try_again:
   struct termios options;
   bl_err err = tcgetattr (s->fd, &options) >= 0 ? bl_ok : bl_file;
   if (err) {
+    errnoval = errno;
     goto close;
   }
     /*raw mode / no echo / binary */
@@ -442,6 +445,7 @@ try_again:
 
 close:
   bl_serial_stop (s);
+  errno = errnoval;
   return err;
 
 }

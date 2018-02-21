@@ -71,7 +71,9 @@ bl_err dynarray_from_file(
   alloc_tbl const* alloc
   )
 {
-  bl_err err = 0;
+  int errnoval = 0;
+  bl_err err   = 0;
+
   bl_assert (d && d_written && fp && alloc);
 
   *d_written = 0;
@@ -102,7 +104,10 @@ bl_err dynarray_from_file(
       return err;
     }
     *d_written = fread (((u8*) d->arr) + d_offset, 1, total, fp);
-    return ferror (fp) == 0 ? bl_ok : bl_file;
+    errnoval = errno;
+    err = ferror (fp) == 0 ? bl_ok : bl_file;
+    errno = errnoval;
+    return err;
   }
   else {
     uword alloc_size   = 0;
@@ -128,6 +133,7 @@ bl_err dynarray_from_file(
       }
       read_bytes = read (fd, b + total, next_read);
       if (unlikely (read_bytes < 0)) {
+        errnoval = errno;
         err = bl_file;
         goto dealloc;
       }
@@ -145,6 +151,7 @@ bl_err dynarray_from_file(
     *d_written = total;
   dealloc:
     free (b);
+    errno = errnoval;
     return err;
   }
 }

@@ -20,8 +20,9 @@ typedef enum bl_err_e {
   bl_timeout = ETIME,
   /*resource is locked.*/
   bl_locked = ENOLCK,
-  /*file related error (open, close or IO)*/
-  bl_file = EACCES,
+  /*file related error (open, close or IO), the platform specific error is left
+  on the errno variable */
+  bl_file = EEXIST,
     /* bl_not_allowed, DEPRECATED: use bl_precondtions*/
   /*the preconditions to run an operation weren't met. typically returned when a
    function specifies that will backoff under certain conditions*/
