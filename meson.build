@@ -163,7 +163,7 @@ base_lib = build_target(
     install             : true
     )
 pkg_mod.generate(
-    libraries   : base_lib,
+    base_lib,
     version     : '0.0.1',
     name        : 'libbl-base',
     filebase    : 'bl-base',
@@ -220,7 +220,7 @@ nonblock_lib = build_target(
     install             : true
     )
 pkg_mod.generate(
-    libraries   : nonblock_lib,
+    nonblock_lib,
     version     : '0.0.1',
     name        : 'libbl-nonblock',
     filebase    : 'bl-nonblock',
@@ -270,7 +270,7 @@ taskqueue_lib = build_target(
     install             : true
     )
 pkg_mod.generate(
-    libraries   : taskqueue_lib,
+    taskqueue_lib,
     version     : '0.0.1',
     name        : 'libbl-taskqueue',
     filebase    : 'bl-taskqueue',
@@ -313,7 +313,7 @@ serial_lib = build_target(
     install             : true
     )
 pkg_mod.generate(
-    libraries   : serial_lib,
+    serial_lib,
     version     : '0.0.1',
     name        : 'libbl-serial',
     filebase    : 'bl-serial',
@@ -340,7 +340,7 @@ getopt_lib = build_target(
     install             : true
     )
 pkg_mod.generate(
-    libraries   : getopt_lib,
+    getopt_lib,
     version     : '0.0.1',
     name        : 'libbl-getopt',
     filebase    : 'bl-getopt',
