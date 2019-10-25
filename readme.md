@@ -112,10 +112,14 @@ avoids some segfaults found in some (major) POSIX implementations.
 6. (time-extras) Additional time functions
 ------------------------------------------
 
-Additional time functions that make no sense as header-only. Only enabled when
-the "timestamp_64bit" meson option is true.
+Additional time functions that make no sense as header-only because they require
+logic and state. Only enabled when the "timestamp_64bit" meson option is true.
+It adds:
 
-Depends on: base headers.
+- Conversion from monotonic to calendar time.
+- A CPU specific high performance monotonic clock implementation.
+
+Depends on: base.
 
 Current status
 ==============

@@ -390,7 +390,7 @@ if get_option ('timestamp_64bit')
                 t_extras_test_srcs,
                 c_args              : cflags,
                 include_directories : test_include_dirs,
-                link_with           : [ t_extras_lib ] ,
+                link_with           : [ base_lib , t_extras_lib ] ,
                 link_args           : test_link_args,
             ))
     endif
