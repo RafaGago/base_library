@@ -17,6 +17,7 @@ static_assert_outside_func_ns(
 static_assert_outside_func_ns(
   bl_alignof (atomic_uword) == bl_alignof (uword)
   );
+static_assert_outside_func_ns (ATOMIC_POINTER_LOCK_FREE == 2);
 /*---------------------------------------------------------------------------*/
 typedef atomic_intptr_t atomic_word;
 static_assert_outside_func_ns(
@@ -25,6 +26,7 @@ static_assert_outside_func_ns(
 static_assert_outside_func_ns(
   bl_alignof (atomic_word) == bl_alignof (word)
   );
+static_assert_outside_func_ns (ATOMIC_POINTER_LOCK_FREE == 2);
 /*---------------------------------------------------------------------------*/
 typedef atomic_uint atomic_u32;
 static_assert_outside_func_ns(
@@ -33,6 +35,7 @@ static_assert_outside_func_ns(
 static_assert_outside_func_ns(
   bl_alignof (atomic_u32) == bl_alignof (u32)
   );
+static_assert_outside_func_ns (ATOMIC_INT_LOCK_FREE == 2);
 /*---------------------------------------------------------------------------*/
 typedef atomic_ulong atomic_u64;
 static_assert_outside_func_ns(
@@ -41,6 +44,7 @@ static_assert_outside_func_ns(
 static_assert_outside_func_ns(
   bl_alignof (atomic_ulong) == bl_alignof (u64)
   );
+static_assert_outside_func_ns (ATOMIC_LONG_LOCK_FREE == 2);
 /*---------------------------------------------------------------------------*/
 #define mo_relaxed  memory_order_relaxed
 #define mo_consume  memory_order_consume
