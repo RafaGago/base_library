@@ -357,3 +357,41 @@ if not get_option ('bare')
             link_args           : test_link_args,
         ))
 endif
+
+# - time_extras-----------------------------------------------------------------
+if get_option ('timestamp_64bit')
+    t_extras_srcs = [
+        'src/bl/time_extras/time_extras.c',
+    ]
+    t_extras_test_srcs = [
+        'test/src/bl/time_extras/time_extras_test.c',
+        'test/src/bl/time_extras/tests_main.c',
+    ]
+    t_extras_lib = build_target(
+        'bl-time-extras',
+        t_extras_srcs,
+        target_type         : libtype,
+        include_directories : include_dirs,
+        c_args              : cflags + lib_cflags,
+        install             : true
+        )
+    pkg_mod.generate(
+        t_extras_lib,
+        version     : '0.0.1',
+        name        : 'libbl-time-extras',
+        filebase    : 'bl-time-extras',
+        description : 'additional time functions'
+        )
+    if not get_option ('bare')
+        test(
+            'bl-time-extras-test',
+            executable(
+                'bl-t_extras-test',
+                t_extras_test_srcs,
+                c_args              : cflags,
+                include_directories : test_include_dirs,
+                link_with           : [ t_extras_lib ] ,
+                link_args           : test_link_args,
+            ))
+    endif
+endif

@@ -109,6 +109,14 @@ Depends on: base headers.
 A non-standard implementation of "getopt" that removes the global variables and
 avoids some segfaults found in some (major) POSIX implementations.
 
+6. (time-extras) Additional time functions
+------------------------------------------
+
+Additional time functions that make no sense as header-only. Only enabled when
+the "timestamp_64bit" meson option is true.
+
+Depends on: base headers.
+
 Current status
 ==============
 
@@ -122,14 +130,13 @@ Under development.
 
 -Windows:
 
- All the tests pass on Windows.
-
- Buildsystem recently moved to meson, I have no Windows machines to test the
- builds at the moment.
+ Buildsystem moved to meson, untested.
 
  Serial is untested.
 
  Getopt is untested (but it contanins no platform specific code...)
+
+ time_extras is untested
 
 Credits and Used resources
 ==========================
