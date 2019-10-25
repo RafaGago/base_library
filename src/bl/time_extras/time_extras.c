@@ -26,15 +26,29 @@
   ((double)(BL_TIME_QMAXDRIFT_AVG_NS * BL_TIME_QMAXDRIFT_AVG_NS))
 #define QSAMPLES BL_TIME_QSAMPLES
 
+/*----------------------------------------------------------------------------*/
+static tstamp t_get_noinline (void)
+{
+  return bl_get_tstamp();
+}
+/*----------------------------------------------------------------------------*/
+typedef struct sysclockdiff {
+  atomic_u64 to_sys_ns;
+  tstamp (*tstamp_get) (void);
+}
+sysclockdiff;
+/*----------------------------------------------------------------------------*/
 /* atomics on this lib won't compile for non lock free implementations of
 and atomic types of different sizes than the basic type size */
-static atomic_u64 ts_to_sys_ns = (atomic_u64) TIME_UNSET;
+static sysclockdiff timestamp_sysdata = {
+  (atomic_u64) TIME_UNSET, &t_get_noinline
+};
 /*----------------------------------------------------------------------------*/
 BL_TIME_EXTRAS_EXPORT bl_err bl_time_extras_init (void)
 {
   uword attempts = 0;
   while(
-    IS_TIME_UNSET (atomic_u64_load_rlx (&ts_to_sys_ns)) &&
+    IS_TIME_UNSET (atomic_u64_load_rlx (&timestamp_sysdata.to_sys_ns)) &&
     attempts < BL_TIME_INIT_QROUNDS
     )
   {
@@ -42,7 +56,7 @@ BL_TIME_EXTRAS_EXPORT bl_err bl_time_extras_init (void)
     bl_tstamp_to_sysclock_diff_ns();
     ++attempts;
   }
-  if (IS_TIME_UNSET (atomic_u64_load_rlx (&ts_to_sys_ns))) {
+  if (IS_TIME_UNSET (atomic_u64_load_rlx (&timestamp_sysdata.to_sys_ns))) {
     /*insane clock. unable to proceed */
     return bl_mkerr (bl_error);
   }
@@ -56,7 +70,7 @@ BL_TIME_EXTRAS_EXPORT void bl_time_extras_destroy (void)
   */
 }
 /*----------------------------------------------------------------------------*/
-BL_TIME_EXTRAS_EXPORT toffset bl_tstamp_to_sysclock_diff_ns (void)
+static toffset bl_tstamp_to_sysclock_diff_ns_impl (sysclockdiff* s)
 {
   double best_avg    = (double) TIME_UNSET;
   double best_stddev = (double) TIME_UNSET;
@@ -70,7 +84,7 @@ next:
     avg = 0.;
     for (uword i = 0; i < QSAMPLES; ++i) {
       bl_thread_yield(); /* context switching in-between minimization attempt.*/
-      tstamp t = bl_get_tstamp();
+      tstamp t = s->tstamp_get();
       tstamp s = bl_get_sysclock_tstamp();
       diff[i]  = (((double) s) * sys_to_ns) - (double) bl_tstamp_to_nsec (t);
       avg     += diff[i];
@@ -107,8 +121,13 @@ next:
   Unfortunately this function is not enough motivation for me to implement and
   support that mutex between platforms.*/
   if (!IS_TIME_UNSET (best_avg)) {
-    atomic_u64_store_rlx (&ts_to_sys_ns, (u64) best_avg);
+    atomic_u64_store_rlx (&s->to_sys_ns, (u64) best_avg);
   }
-  return (toffset) (double) atomic_u64_load_rlx (&ts_to_sys_ns);
+  return (toffset) (double) atomic_u64_load_rlx (&s->to_sys_ns);
+}
+/*----------------------------------------------------------------------------*/
+BL_TIME_EXTRAS_EXPORT toffset bl_tstamp_to_sysclock_diff_ns (void)
+{
+  return bl_tstamp_to_sysclock_diff_ns_impl (&timestamp_sysdata);
 }
 /*----------------------------------------------------------------------------*/
