@@ -13,7 +13,7 @@ option(
 option(
     'timestamp_64bit',
      type        : 'boolean',
-     value       : false,
+     value       : true,
      description : 'timestamps are 64 bit long instead of 32'
      )
 option(
