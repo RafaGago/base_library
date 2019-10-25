@@ -122,5 +122,38 @@
 #define atomic_u32_fetch_and_rlx(a, v)\
   atomic_u32_fetch_and (a, v, mo_relaxed)
 /*---------------------------------------------------------------------------*/
+#define atomic_u64_load_rlx(a) atomic_u64_load ((a), mo_relaxed)
+
+#define atomic_u64_store_rlx(a, v) atomic_u64_store ((a), (v), mo_relaxed)
+
+#define atomic_u64_exchange_rlx(a, v) atomic_u64_exchange ((a), (v), mo_relaxed)
+
+#define atomic_u64_strong_cas_rlx(a, e, d)\
+  atomic_u64_strong_cas ((a), (e), (d), mo_relaxed, mo_relaxed)
+
+#define atomic_u64_weak_cas_rlx(a, e, d)\
+  atomic_u64_weak_cas ((a), (e), (d), mo_relaxed, mo_relaxed)
+
+#define atomic_u64_weak_cas_rlx(a, e, d)\
+  atomic_u64_weak_cas ((a), (e), (d), mo_relaxed, mo_relaxed)
+
+#define atomic_u64_weak_cas_rlx(a, e, d)\
+  atomic_u64_weak_cas ((a), (e), (d), mo_relaxed, mo_relaxed)
+
+#define atomic_u64_fetch_add_rlx(a, v)\
+  atomic_u64_fetch_add (a, v, mo_relaxed)
+
+#define atomic_u64_fetch_sub_rlx(a, v)\
+  atomic_u64_fetch_sub (a, v, mo_relaxed)
+
+#define atomic_u64_fetch_or_rlx(a, v)\
+  atomic_u64_fetch_or (a, v, mo_relaxed)
+
+#define atomic_u64_fetch_xor_rlx(a, v)\
+  atomic_u64_fetch_xor (a, v, mo_relaxed)
+
+#define atomic_u64_fetch_and_rlx(a, v)\
+  atomic_u64_fetch_and (a, v, mo_relaxed)
+/*---------------------------------------------------------------------------*/
 #endif /* __BL_ATOMIC_H__ */
 

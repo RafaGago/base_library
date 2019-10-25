@@ -11,6 +11,7 @@
 typedef uword atomic_uword;
 typedef word  atomic_word;
 typedef u32   atomic_u32;
+typedef u64   atomic_u64;
 typedef int   memory_order;
 typedef memory_order mem_order;
 /*---------------------------------------------------------------------------*/
@@ -257,6 +258,81 @@ static inline u32 atomic_u32_fetch_or(
 /*---------------------------------------------------------------------------*/
 static inline u32 atomic_u32_fetch_xor(
   volatile atomic_u32* a, u32 v, mem_order o
+  )
+{
+  return __atomic_fetch_xor (a, v, o);
+}
+/*---------------------------------------------------------------------------*/
+/* u64 */
+/*---------------------------------------------------------------------------*/
+static inline void atomic_u64_store(
+  volatile atomic_u64* a, u64 v, mem_order mo
+  )
+{
+  __atomic_store_n (a, v, mo);
+}
+/*---------------------------------------------------------------------------*/
+static inline u64 atomic_u64_load (volatile atomic_u64* a, mem_order mo)
+{
+  return __atomic_load_n (a, mo);
+}
+/*---------------------------------------------------------------------------*/
+static inline u64 atomic_uword_exchange(
+  volatile atomic_u64* a, u64 v, mem_order mo
+  )
+{
+  return __atomic_exchange_n (a, v, mo);
+}
+/*---------------------------------------------------------------------------*/
+static inline bool atomic_u64_strong_cas(
+  volatile atomic_u64* a,
+  u64*                 expected,
+  u64                  desired,
+  mem_order            success,
+  mem_order            failure
+  )
+{
+  return __atomic_compare_exchange_n(
+    a, expected, desired, false, success, failure
+    );
+}
+/*---------------------------------------------------------------------------*/
+static inline bool atomic_u64_weak_cas(
+  volatile atomic_u64* a,
+  u64*                 expected,
+  u64                  desired,
+  mem_order            success,
+  mem_order            failure
+  )
+{
+  return __atomic_compare_exchange_n(
+    a, expected, desired, true, success, failure
+    );
+}
+/*---------------------------------------------------------------------------*/
+static inline u64 atomic_u64_fetch_add(
+  volatile atomic_u64* a, u64 v, mem_order o
+  )
+{
+  return __atomic_fetch_add (a, v, o);
+}
+/*---------------------------------------------------------------------------*/
+static inline u64 atomic_u64_fetch_sub(
+  volatile atomic_u64* a, u64 v, mem_order o
+  )
+{
+  return __atomic_fetch_sub (a, v, o);
+}
+/*---------------------------------------------------------------------------*/
+static inline u64 atomic_u64_fetch_or(
+  volatile atomic_u64* a, u64 v, mem_order o
+  )
+{
+  return __atomic_fetch_or (a, v, o);
+}
+/*---------------------------------------------------------------------------*/
+static inline u64 atomic_u64_fetch_xor(
+  volatile atomic_u64* a, u64 v, mem_order o
   )
 {
   return __atomic_fetch_xor (a, v, o);

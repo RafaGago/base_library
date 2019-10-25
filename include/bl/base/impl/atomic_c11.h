@@ -34,6 +34,14 @@ static_assert_outside_func_ns(
   bl_alignof (atomic_u32) == bl_alignof (u32)
   );
 /*---------------------------------------------------------------------------*/
+typedef atomic_ulong atomic_u64;
+static_assert_outside_func_ns(
+  sizeof (atomic_ulong) == sizeof (u64)
+  );
+static_assert_outside_func_ns(
+  bl_alignof (atomic_ulong) == bl_alignof (u64)
+  );
+/*---------------------------------------------------------------------------*/
 #define mo_relaxed  memory_order_relaxed
 #define mo_consume  memory_order_consume
 #define mo_acquire  memory_order_acquire
@@ -286,6 +294,88 @@ static inline u32 atomic_u32_fetch_xor(
 /*---------------------------------------------------------------------------*/
 static inline u32 atomic_u32_fetch_and(
   volatile atomic_u32* a, u32 v, mem_order o
+  )
+{
+  return atomic_fetch_and_explicit (a, v, o);
+}
+/*---------------------------------------------------------------------------*/
+/* u64 */
+/*---------------------------------------------------------------------------*/
+static inline void atomic_u64_store(
+  volatile atomic_u64* a, u64 v, mem_order mo
+  )
+{
+  atomic_store_explicit (a, v, mo);
+}
+/*---------------------------------------------------------------------------*/
+static inline u64 atomic_u64_load (volatile atomic_u64* a, mem_order mo)
+{
+  return atomic_load_explicit (a, mo);
+}
+/*---------------------------------------------------------------------------*/
+static inline u64 atomic_u64_exchange(
+  volatile atomic_u64* a, u64 v, mem_order mo
+  )
+{
+  return atomic_exchange_explicit (a, v, mo);
+}
+/*---------------------------------------------------------------------------*/
+static inline bool atomic_u64_strong_cas(
+  volatile atomic_u64* a,
+  u64*                 expected,
+  u64                  desired,
+  mem_order            success,
+  mem_order            failure
+  )
+{
+  return atomic_compare_exchange_strong_explicit(
+    a, expected, desired, success, failure
+    );
+}
+/*---------------------------------------------------------------------------*/
+static inline bool atomic_u64_weak_cas(
+  volatile atomic_u64* a,
+  u64*                 expected,
+  u64                  desired,
+  mem_order            success,
+  mem_order            failure
+  )
+{
+  return atomic_compare_exchange_weak_explicit(
+    a, expected, desired, success, failure
+    );
+}
+/*---------------------------------------------------------------------------*/
+static inline u64 atomic_u64_fetch_add(
+  volatile atomic_u64* a, u64 v, mem_order o
+  )
+{
+  return atomic_fetch_add_explicit (a, v, o);
+}
+/*---------------------------------------------------------------------------*/
+static inline u64 atomic_u64_fetch_sub(
+  volatile atomic_u64* a, u64 v, mem_order o
+  )
+{
+  return atomic_fetch_sub_explicit (a, v, o);
+}
+/*---------------------------------------------------------------------------*/
+static inline u64 atomic_u64_fetch_or(
+  volatile atomic_u64* a, u64 v, mem_order o
+  )
+{
+  return atomic_fetch_or_explicit (a, v, o);
+}
+/*---------------------------------------------------------------------------*/
+static inline u64 atomic_u64_fetch_xor(
+  volatile atomic_u64* a, u64 v, mem_order o
+  )
+{
+  return atomic_fetch_xor_explicit (a, v, o);
+}
+/*---------------------------------------------------------------------------*/
+static inline u64 atomic_u64_fetch_and(
+  volatile atomic_u64* a, u64 v, mem_order o
   )
 {
   return atomic_fetch_and_explicit (a, v, o);

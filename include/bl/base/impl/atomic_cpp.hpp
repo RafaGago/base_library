@@ -39,6 +39,7 @@ extern "C" {
 typedef word  atomic_word;
 typedef uword atomic_uword;
 typedef u32   atomic_u32;
+typedef u64   atomic_u64;
 /*---------------------------------------------------------------------------*/
 typedef enum mem_order_e {
   mo_relaxed = (uword) std::memory_order_relaxed,
@@ -296,6 +297,88 @@ static inline u32 atomic_u32_fetch_and(
   )
 {
   return ((std::atomic<u32>*) a)->fetch_and(v, (std::memory_order) o);
+}
+/*---------------------------------------------------------------------------*/
+/* u64 */
+/*---------------------------------------------------------------------------*/
+static_assert_outside_func_ns(cpp_atomic_size_align_checker<u64>::ok);
+/*---------------------------------------------------------------------------*/
+static inline void atomic_u64_store(volatile atomic_u64* a, u64 v, mem_order o)
+{
+  ((std::atomic<u64>*) a)->store(v, (std::memory_order) o);
+}
+/*---------------------------------------------------------------------------*/
+static inline u64 atomic_u64_load(volatile atomic_u64* a, mem_order o)
+{
+  return ((std::atomic<u64>*) a)->load((std::memory_order) o);
+}
+/*---------------------------------------------------------------------------*/
+static inline u64 atomic_u64_exchange(
+  volatile atomic_u64* a, u64 v, mem_order o
+  )
+{
+  return ((std::atomic<u64>*) a)->exchange (v, (std::memory_order) o);
+}
+/*---------------------------------------------------------------------------*/
+static inline bool atomic_u64_strong_cas(
+  volatile atomic_u64* a,
+  u64*                 expected,
+  u64                  desired,
+  mem_order            success,
+  mem_order            failure
+  )
+{
+  return ((std::atomic<u64>*) a)->compare_exchange_strong(
+    *expected, desired, (std::memory_order) success, (std::memory_order) failure
+    );
+}
+/*---------------------------------------------------------------------------*/
+static inline bool atomic_u64_weak_cas(
+  volatile atomic_u64* a,
+  u64*                 expected,
+  u64                  desired,
+  mem_order            success,
+  mem_order            failure
+  )
+{
+  return ((std::atomic<u64>*) a)->compare_exchange_weak(
+    *expected, desired, (std::memory_order) success, (std::memory_order) failure
+    );
+}
+/*---------------------------------------------------------------------------*/
+static inline u64 atomic_u64_fetch_add(
+  volatile atomic_u64* a, u64 v, mem_order o
+  )
+{
+  return ((std::atomic<u64>*) a)->fetch_add(v, (std::memory_order) o);
+}
+/*---------------------------------------------------------------------------*/
+static inline u64 atomic_u64_fetch_sub(
+  volatile atomic_u64* a, u64 v, mem_order o
+  )
+{
+  return ((std::atomic<u64>*) a)->fetch_sub(v, (std::memory_order) o);
+}
+/*---------------------------------------------------------------------------*/
+static inline u64 atomic_u64_fetch_or(
+  volatile atomic_u64* a, u64 v, mem_order o
+  )
+{
+  return ((std::atomic<u64>*) a)->fetch_or(v, (std::memory_order) o);
+}
+/*---------------------------------------------------------------------------*/
+static inline u64 atomic_u64_fetch_xor(
+  volatile atomic_u64* a, u64 v, mem_order o
+  )
+{
+  return ((std::atomic<u64>*) a)->fetch_xor(v, (std::memory_order) o);
+}
+/*---------------------------------------------------------------------------*/
+static inline u64 atomic_u64_fetch_and(
+  volatile atomic_u64* a, u64 v, mem_order o
+  )
+{
+  return ((std::atomic<u64>*) a)->fetch_and(v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
 /* Fences */
