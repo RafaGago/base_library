@@ -31,6 +31,16 @@
 #define pp_plus() +
 #define pp_zero() 0
 #define pp_one() 1
+#define pp_colon() :
+#define pp_semicolon() ;
+#define pp_minus() -
+#define pp_asterisk() *
+#define pp_slash() /
+#define pp_ampersand() &
+#define pp_pipe() |
+#define pp_lt() <
+#define pp_gt() >
+#define pp_equal() =
 /*---------------------------------------------------------------------------*/
 /**
  Get the first argument and ignore the rest.
