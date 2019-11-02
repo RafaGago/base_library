@@ -28,7 +28,7 @@
 #include <bl/base/integer.h>
 /*---------------------------------------------------------------------------*/
 template <class T>
-struct cpp_atomic_size_align_checker {
+struct bl_cbl_pp_atomic_size_align_checker {
   static const bool ok =
     sizeof (std::atomic<T>) == sizeof (T) &&
     bl_alignof (std::atomic<T>) == bl_alignof (T);
@@ -36,359 +36,375 @@ struct cpp_atomic_size_align_checker {
 /*---------------------------------------------------------------------------*/
 extern "C" {
 /*---------------------------------------------------------------------------*/
-typedef word  atomic_word;
-typedef uword atomic_uword;
-typedef u32   atomic_u32;
-typedef u64   atomic_u64;
+typedef bl_word  bl_atomic_word;
+typedef bl_uword bl_atomic_uword;
+typedef bl_u32   bl_atomic_u32;
+typedef bl_u64   bl_atomic_u64;
 /*---------------------------------------------------------------------------*/
-typedef enum mem_order_e {
-  mo_relaxed = (uword) std::memory_order_relaxed,
-  mo_consume = (uword) std::memory_order_consume,
-  mo_acquire = (uword) std::memory_order_acquire,
-  mo_release = (uword) std::memory_order_release,
-  mo_acq_rel = (uword) std::memory_order_acq_rel,
-  mo_seq_cst = (uword) std::memory_order_seq_cst
+typedef enum bl_mem_order_e {
+  bl_mo_relaxed = (bl_uword) std::memory_order_relaxed,
+  bl_mo_consume = (bl_uword) std::memory_order_consume,
+  bl_mo_acquire = (bl_uword) std::memory_order_acquire,
+  bl_mo_release = (bl_uword) std::memory_order_release,
+  bl_mo_acq_rel = (bl_uword) std::memory_order_acq_rel,
+  bl_mo_seq_cst = (bl_uword) std::memory_order_seq_cst
 }
-mem_order;
+bl_mem_order;
 /*---------------------------------------------------------------------------*/
-/* uword */
+/* bl_uword */
 /*---------------------------------------------------------------------------*/
-static_assert_outside_func_ns (cpp_atomic_size_align_checker<uword>::ok);
+bl_static_assert_outside_func_ns(
+  bl_cbl_pp_atomic_size_align_checker<bl_uword>::ok
+  );
 /*---------------------------------------------------------------------------*/
-static inline void atomic_uword_store(
-  volatile atomic_uword* a, uword v, mem_order o
+static inline void bl_atomic_uword_store(
+  volatile bl_atomic_uword* a, bl_uword v, bl_mem_order o
   )
 {
-  ((std::atomic<uword>*) a)->store (v, (std::memory_order) o);
+  ((std::atomic<bl_uword>*) a)->store (v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline uword atomic_uword_load (volatile atomic_uword* a, mem_order o)
-{
-  return ((std::atomic<uword>*) a)->load ((std::memory_order) o);
-}
-/*---------------------------------------------------------------------------*/
-static inline uword atomic_uword_exchange(
-  volatile atomic_uword* a, uword v, mem_order o
+static inline bl_uword bl_atomic_uword_load(
+  volatile bl_atomic_uword* a, bl_mem_order o
   )
 {
-  return ((std::atomic<uword>*) a)->exchange (v, (std::memory_order) o);
+  return ((std::atomic<bl_uword>*) a)->load ((std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline bool atomic_uword_strong_cas(
-  volatile atomic_uword* a,
-  uword*                 expected,
-  uword                  desired,
-  mem_order              success,
-  mem_order              failure
+static inline bl_uword bl_atomic_uword_exchange(
+  volatile bl_atomic_uword* a, bl_uword v, bl_mem_order o
   )
 {
-  return ((std::atomic<uword>*) a)->compare_exchange_strong(
+  return ((std::atomic<bl_uword>*) a)->exchange (v, (std::memory_order) o);
+}
+/*---------------------------------------------------------------------------*/
+static inline bool bl_atomic_uword_strong_cas(
+  volatile bl_atomic_uword* a,
+  bl_uword*                 expected,
+  bl_uword                  desired,
+  bl_mem_order              success,
+  bl_mem_order              failure
+  )
+{
+  return ((std::atomic<bl_uword>*) a)->compare_exchange_strong(
     *expected, desired, (std::memory_order) success, (std::memory_order) failure
     );
 }
 /*---------------------------------------------------------------------------*/
-static inline bool atomic_uword_weak_cas(
-  volatile atomic_uword* a,
-  uword*                 expected,
-  uword                  desired,
-  mem_order              success,
-  mem_order              failure
+static inline bool bl_atomic_uword_weak_cas(
+  volatile bl_atomic_uword* a,
+  bl_uword*                 expected,
+  bl_uword                  desired,
+  bl_mem_order              success,
+  bl_mem_order              failure
   )
 {
-  return ((std::atomic<uword>*) a)->compare_exchange_weak(
+  return ((std::atomic<bl_uword>*) a)->compare_exchange_weak(
     *expected, desired, (std::memory_order) success, (std::memory_order) failure
     );
 }
 /*---------------------------------------------------------------------------*/
-static inline uword atomic_uword_fetch_add(
-  volatile atomic_uword* a, uword v, mem_order o
+static inline bl_uword bl_atomic_uword_fetch_add(
+  volatile bl_atomic_uword* a, bl_uword v, bl_mem_order o
   )
 {
-  return ((std::atomic<uword>*) a)->fetch_add (v, (std::memory_order) o);
+  return ((std::atomic<bl_uword>*) a)->fetch_add (v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline uword atomic_uword_fetch_sub(
-  volatile atomic_uword* a, uword v, mem_order o
+static inline bl_uword bl_atomic_uword_fetch_sub(
+  volatile bl_atomic_uword* a, bl_uword v, bl_mem_order o
   )
 {
-  return ((std::atomic<uword>*) a)->fetch_sub (v, (std::memory_order) o);
+  return ((std::atomic<bl_uword>*) a)->fetch_sub (v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline uword atomic_uword_fetch_or(
-  volatile atomic_uword* a, uword v, mem_order o
+static inline bl_uword bl_atomic_uword_fetch_or(
+  volatile bl_atomic_uword* a, bl_uword v, bl_mem_order o
   )
 {
-  return ((std::atomic<uword>*) a)->fetch_or (v, (std::memory_order) o);
+  return ((std::atomic<bl_uword>*) a)->fetch_or (v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline uword atomic_uword_fetch_xor(
-  volatile atomic_uword* a, uword v, mem_order o
+static inline bl_uword bl_atomic_uword_fetch_xor(
+  volatile bl_atomic_uword* a, bl_uword v, bl_mem_order o
   )
 {
-  return ((std::atomic<uword>*) a)->fetch_xor (v, (std::memory_order) o);
+  return ((std::atomic<bl_uword>*) a)->fetch_xor (v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline uword atomic_uword_fetch_and(
-  volatile atomic_uword* a, uword v, mem_order o
+static inline bl_uword bl_atomic_uword_fetch_and(
+  volatile bl_atomic_uword* a, bl_uword v, bl_mem_order o
   )
 {
-  return ((std::atomic<uword>*) a)->fetch_and (v, (std::memory_order) o);
+  return ((std::atomic<bl_uword>*) a)->fetch_and (v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-/* word */
+/* bl_word */
 /*---------------------------------------------------------------------------*/
-static_assert_outside_func_ns (cpp_atomic_size_align_checker<word>::ok);
+bl_static_assert_outside_func_ns(
+  bl_cbl_pp_atomic_size_align_checker<bl_word>::ok
+  );
 /*---------------------------------------------------------------------------*/
-static inline void atomic_word_store (volatile atomic_word* a, word v, mem_order o)
-{
-  ((std::atomic<word>*) a)->store (v, (std::memory_order) o);
-}
-/*---------------------------------------------------------------------------*/
-static inline word atomic_word_load (volatile atomic_word* a, mem_order o)
-{
-  return ((std::atomic<word>*) a)->load ((std::memory_order) o);
-}
-/*---------------------------------------------------------------------------*/
-static inline word atomic_word_exchange(
-  volatile atomic_word* a, word v, mem_order o
+static inline void bl_atomic_word_store(
+  volatile bl_atomic_word* a, bl_word v, bl_mem_order o
   )
 {
-  return ((std::atomic<word>*) a)->exchange (v, (std::memory_order) o);
+  ((std::atomic<bl_word>*) a)->store (v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline bool atomic_word_strong_cas(
-  volatile atomic_word* a,
-  word*                 expected,
-  word                  desired,
-  mem_order             success,
-  mem_order             failure
+static inline bl_word bl_atomic_word_load(
+  volatile bl_atomic_word* a, bl_mem_order o
   )
 {
-  return ((std::atomic<word>*) a)->compare_exchange_strong(
+  return ((std::atomic<bl_word>*) a)->load ((std::memory_order) o);
+}
+/*---------------------------------------------------------------------------*/
+static inline bl_word bl_atomic_word_exchange(
+  volatile bl_atomic_word* a, bl_word v, bl_mem_order o
+  )
+{
+  return ((std::atomic<bl_word>*) a)->exchange (v, (std::memory_order) o);
+}
+/*---------------------------------------------------------------------------*/
+static inline bool bl_atomic_word_strong_cas(
+  volatile bl_atomic_word* a,
+  bl_word*                 expected,
+  bl_word                  desired,
+  bl_mem_order             success,
+  bl_mem_order             failure
+  )
+{
+  return ((std::atomic<bl_word>*) a)->compare_exchange_strong(
     *expected, desired, (std::memory_order) success, (std::memory_order) failure
     );
 }
 /*---------------------------------------------------------------------------*/
-static inline bool atomic_word_weak_cas(
-  volatile atomic_word* a,
-  word*                 expected,
-  word                  desired,
-  mem_order             success,
-  mem_order             failure
+static inline bool bl_atomic_word_weak_cas(
+  volatile bl_atomic_word* a,
+  bl_word*                 expected,
+  bl_word                  desired,
+  bl_mem_order             success,
+  bl_mem_order             failure
   )
 {
-  return ((std::atomic<word>*) a)->compare_exchange_weak(
+  return ((std::atomic<bl_word>*) a)->compare_exchange_weak(
     *expected, desired, (std::memory_order) success, (std::memory_order) failure
     );
 }
 /*---------------------------------------------------------------------------*/
-static inline word atomic_word_fetch_add(
-  volatile atomic_word* a, word v, mem_order o
+static inline bl_word bl_atomic_word_fetch_add(
+  volatile bl_atomic_word* a, bl_word v, bl_mem_order o
   )
 {
-  return ((std::atomic<word>*) a)->fetch_add (v, (std::memory_order) o);
+  return ((std::atomic<bl_word>*) a)->fetch_add (v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline word atomic_word_fetch_sub(
-  volatile atomic_word* a, word v, mem_order o
+static inline bl_word bl_atomic_word_fetch_sub(
+  volatile bl_atomic_word* a, bl_word v, bl_mem_order o
   )
 {
-  return ((std::atomic<word>*) a)->fetch_sub (v, (std::memory_order) o);
+  return ((std::atomic<bl_word>*) a)->fetch_sub (v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline word atomic_word_fetch_or(
-  volatile atomic_word* a, word v, mem_order o
+static inline bl_word bl_atomic_word_fetch_or(
+  volatile bl_atomic_word* a, bl_word v, bl_mem_order o
   )
 {
-  return ((std::atomic<word>*) a)->fetch_or (v, (std::memory_order) o);
+  return ((std::atomic<bl_word>*) a)->fetch_or (v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline word atomic_word_fetch_xor(
-  volatile atomic_word* a, word v, mem_order o
+static inline bl_word bl_atomic_word_fetch_xor(
+  volatile bl_atomic_word* a, bl_word v, bl_mem_order o
   )
 {
-  return ((std::atomic<word>*) a)->fetch_xor (v, (std::memory_order) o);
+  return ((std::atomic<bl_word>*) a)->fetch_xor (v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline word atomic_word_fetch_and(
-  volatile atomic_word* a, word v, mem_order o
+static inline bl_word bl_atomic_word_fetch_and(
+  volatile bl_atomic_word* a, bl_word v, bl_mem_order o
   )
 {
-  return ((std::atomic<word>*) a)->fetch_and (v, (std::memory_order) o);
+  return ((std::atomic<bl_word>*) a)->fetch_and (v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-/* u32 */
+/* bl_u32 */
 /*---------------------------------------------------------------------------*/
-static_assert_outside_func_ns(cpp_atomic_size_align_checker<u32>::ok);
+bl_static_assert_outside_func_ns (bl_cbl_pp_atomic_size_align_checker<bl_u32>::ok);
 /*---------------------------------------------------------------------------*/
-static inline void atomic_u32_store(volatile atomic_u32* a, u32 v, mem_order o)
-{
-  ((std::atomic<u32>*) a)->store(v, (std::memory_order) o);
-}
-/*---------------------------------------------------------------------------*/
-static inline u32 atomic_u32_load(volatile atomic_u32* a, mem_order o)
-{
-  return ((std::atomic<u32>*) a)->load((std::memory_order) o);
-}
-/*---------------------------------------------------------------------------*/
-static inline u32 atomic_u32_exchange(
-  volatile atomic_u32* a, u32 v, mem_order o
+static inline void bl_atomic_u32_store(
+  volatile bl_atomic_u32* a, bl_u32 v, bl_mem_order o
   )
 {
-  return ((std::atomic<u32>*) a)->exchange (v, (std::memory_order) o);
+  ((std::atomic<bl_u32>*) a)->store(v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline bool atomic_u32_strong_cas(
-  volatile atomic_u32* a,
-  u32*                 expected,
-  u32                  desired,
-  mem_order            success,
-  mem_order            failure
+static inline bl_u32 bl_atomic_u32_load(
+  volatile bl_atomic_u32* a, bl_mem_order o
   )
 {
-  return ((std::atomic<u32>*) a)->compare_exchange_strong(
+  return ((std::atomic<bl_u32>*) a)->load((std::memory_order) o);
+}
+/*---------------------------------------------------------------------------*/
+static inline bl_u32 bl_atomic_u32_exchange(
+  volatile bl_atomic_u32* a, bl_u32 v, bl_mem_order o
+  )
+{
+  return ((std::atomic<bl_u32>*) a)->exchange (v, (std::memory_order) o);
+}
+/*---------------------------------------------------------------------------*/
+static inline bool bl_atomic_u32_strong_cas(
+  volatile bl_atomic_u32* a,
+  bl_u32*                 expected,
+  bl_u32                  desired,
+  bl_mem_order            success,
+  bl_mem_order            failure
+  )
+{
+  return ((std::atomic<bl_u32>*) a)->compare_exchange_strong(
     *expected, desired, (std::memory_order) success, (std::memory_order) failure
     );
 }
 /*---------------------------------------------------------------------------*/
-static inline bool atomic_u32_weak_cas(
-  volatile atomic_u32* a,
-  u32*                 expected,
-  u32                  desired,
-  mem_order            success,
-  mem_order            failure
+static inline bool bl_atomic_u32_weak_cas(
+  volatile bl_atomic_u32* a,
+  bl_u32*                    expected,
+  bl_u32                     desired,
+  bl_mem_order            success,
+  bl_mem_order            failure
   )
 {
-  return ((std::atomic<u32>*) a)->compare_exchange_weak(
+  return ((std::atomic<bl_u32>*) a)->compare_exchange_weak(
     *expected, desired, (std::memory_order) success, (std::memory_order) failure
     );
 }
 /*---------------------------------------------------------------------------*/
-static inline u32 atomic_u32_fetch_add(
-  volatile atomic_u32* a, u32 v, mem_order o
+static inline bl_u32 bl_atomic_u32_fetch_add(
+  volatile bl_atomic_u32* a, bl_u32 v, bl_mem_order o
   )
 {
-  return ((std::atomic<u32>*) a)->fetch_add(v, (std::memory_order) o);
+  return ((std::atomic<bl_u32>*) a)->fetch_add(v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline u32 atomic_u32_fetch_sub(
-  volatile atomic_u32* a, u32 v, mem_order o
+static inline bl_u32 bl_atomic_u32_fetch_sub(
+  volatile bl_atomic_u32* a, bl_u32 v, bl_mem_order o
   )
 {
-  return ((std::atomic<u32>*) a)->fetch_sub(v, (std::memory_order) o);
+  return ((std::atomic<bl_u32>*) a)->fetch_sub(v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline u32 atomic_u32_fetch_or(
-  volatile atomic_u32* a, u32 v, mem_order o
+static inline bl_u32 bl_atomic_u32_fetch_or(
+  volatile bl_atomic_u32* a, bl_u32 v, bl_mem_order o
   )
 {
-  return ((std::atomic<u32>*) a)->fetch_or(v, (std::memory_order) o);
+  return ((std::atomic<bl_u32>*) a)->fetch_or(v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline u32 atomic_u32_fetch_xor(
-  volatile atomic_u32* a, u32 v, mem_order o
+static inline bl_u32 bl_atomic_u32_fetch_xor(
+  volatile bl_atomic_u32* a, bl_u32 v, bl_mem_order o
   )
 {
-  return ((std::atomic<u32>*) a)->fetch_xor(v, (std::memory_order) o);
+  return ((std::atomic<bl_u32>*) a)->fetch_xor(v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline u32 atomic_u32_fetch_and(
-  volatile atomic_u32* a, u32 v, mem_order o
+static inline bl_u32 bl_atomic_u32_fetch_and(
+  volatile bl_atomic_u32* a, bl_u32 v, bl_mem_order o
   )
 {
-  return ((std::atomic<u32>*) a)->fetch_and(v, (std::memory_order) o);
+  return ((std::atomic<bl_u32>*) a)->fetch_and(v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-/* u64 */
+/* bl_u64 */
 /*---------------------------------------------------------------------------*/
-static_assert_outside_func_ns(cpp_atomic_size_align_checker<u64>::ok);
+bl_static_assert_outside_func_ns(bl_cbl_pp_atomic_size_align_checker<bl_u64>::ok);
 /*---------------------------------------------------------------------------*/
-static inline void atomic_u64_store(volatile atomic_u64* a, u64 v, mem_order o)
-{
-  ((std::atomic<u64>*) a)->store(v, (std::memory_order) o);
-}
-/*---------------------------------------------------------------------------*/
-static inline u64 atomic_u64_load(volatile atomic_u64* a, mem_order o)
-{
-  return ((std::atomic<u64>*) a)->load((std::memory_order) o);
-}
-/*---------------------------------------------------------------------------*/
-static inline u64 atomic_u64_exchange(
-  volatile atomic_u64* a, u64 v, mem_order o
+static inline void bl_atomic_u64_store(
+  volatile bl_atomic_u64* a, bl_u64 v, bl_mem_order o
   )
 {
-  return ((std::atomic<u64>*) a)->exchange (v, (std::memory_order) o);
+  ((std::atomic<bl_u64>*) a)->store(v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline bool atomic_u64_strong_cas(
-  volatile atomic_u64* a,
-  u64*                 expected,
-  u64                  desired,
-  mem_order            success,
-  mem_order            failure
+static inline bl_u64 bl_atomic_u64_load (volatile bl_atomic_u64* a, bl_mem_order o)
+{
+  return ((std::atomic<bl_u64>*) a)->load((std::memory_order) o);
+}
+/*---------------------------------------------------------------------------*/
+static inline bl_u64 bl_atomic_u64_exchange(
+  volatile bl_atomic_u64* a, bl_u64 v, bl_mem_order o
   )
 {
-  return ((std::atomic<u64>*) a)->compare_exchange_strong(
+  return ((std::atomic<bl_u64>*) a)->exchange (v, (std::memory_order) o);
+}
+/*---------------------------------------------------------------------------*/
+static inline bool bl_atomic_u64_strong_cas(
+  volatile bl_atomic_u64* a,
+  bl_u64*                 expected,
+  bl_u64                  desired,
+  bl_mem_order            success,
+  bl_mem_order            failure
+  )
+{
+  return ((std::atomic<bl_u64>*) a)->compare_exchange_strong(
     *expected, desired, (std::memory_order) success, (std::memory_order) failure
     );
 }
 /*---------------------------------------------------------------------------*/
-static inline bool atomic_u64_weak_cas(
-  volatile atomic_u64* a,
-  u64*                 expected,
-  u64                  desired,
-  mem_order            success,
-  mem_order            failure
+static inline bool bl_atomic_u64_weak_cas(
+  volatile bl_atomic_u64* a,
+  bl_u64*                 expected,
+  bl_u64                  desired,
+  bl_mem_order            success,
+  bl_mem_order            failure
   )
 {
-  return ((std::atomic<u64>*) a)->compare_exchange_weak(
+  return ((std::atomic<bl_u64>*) a)->compare_exchange_weak(
     *expected, desired, (std::memory_order) success, (std::memory_order) failure
     );
 }
 /*---------------------------------------------------------------------------*/
-static inline u64 atomic_u64_fetch_add(
-  volatile atomic_u64* a, u64 v, mem_order o
+static inline bl_u64 bl_atomic_u64_fetch_add(
+  volatile bl_atomic_u64* a, bl_u64 v, bl_mem_order o
   )
 {
-  return ((std::atomic<u64>*) a)->fetch_add(v, (std::memory_order) o);
+  return ((std::atomic<bl_u64>*) a)->fetch_add(v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline u64 atomic_u64_fetch_sub(
-  volatile atomic_u64* a, u64 v, mem_order o
+static inline bl_u64 bl_atomic_u64_fetch_sub(
+  volatile bl_atomic_u64* a, bl_u64 v, bl_mem_order o
   )
 {
-  return ((std::atomic<u64>*) a)->fetch_sub(v, (std::memory_order) o);
+  return ((std::atomic<bl_u64>*) a)->fetch_sub(v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline u64 atomic_u64_fetch_or(
-  volatile atomic_u64* a, u64 v, mem_order o
+static inline bl_u64 bl_atomic_u64_fetch_or(
+  volatile bl_atomic_u64* a, bl_u64 v, bl_mem_order o
   )
 {
-  return ((std::atomic<u64>*) a)->fetch_or(v, (std::memory_order) o);
+  return ((std::atomic<bl_u64>*) a)->fetch_or(v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline u64 atomic_u64_fetch_xor(
-  volatile atomic_u64* a, u64 v, mem_order o
+static inline bl_u64 bl_atomic_u64_fetch_xor(
+  volatile bl_atomic_u64* a, bl_u64 v, bl_mem_order o
   )
 {
-  return ((std::atomic<u64>*) a)->fetch_xor(v, (std::memory_order) o);
+  return ((std::atomic<bl_u64>*) a)->fetch_xor(v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline u64 atomic_u64_fetch_and(
-  volatile atomic_u64* a, u64 v, mem_order o
+static inline bl_u64 bl_atomic_u64_fetch_and(
+  volatile bl_atomic_u64* a, bl_u64 v, bl_mem_order o
   )
 {
-  return ((std::atomic<u64>*) a)->fetch_and(v, (std::memory_order) o);
+  return ((std::atomic<bl_u64>*) a)->fetch_and(v, (std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
 /* Fences */
 /*---------------------------------------------------------------------------*/
-static inline void atomic_fence (mem_order o)
+static inline void atomic_fence (bl_mem_order o)
 {
   std::atomic_thread_fence ((std::memory_order) o);
 }
 /*---------------------------------------------------------------------------*/
-static inline void atomic_sigfence (mem_order o)
+static inline void atomic_sigfence (bl_mem_order o)
 {
   std::atomic_signal_fence ((std::memory_order) o);
 }

@@ -6,22 +6,22 @@
 
 #ifndef __cplusplus
 /*---------------------------------------------------------------------------*/
-#define align_anonymous_priv(type1, type2)\
+#define bl_align_anonymous_priv(type1, type2)\
   struct { type1 a; type2 b; }
 #else
 template <class A, class B>
-struct align_anonymous_priv_join {
+struct bl_align_anonymous_priv_join {
   A a; B b;
 };
-#define align_anonymous_priv(type1, type2)\
-  align_anonymous_priv_join<type1, type2>
+#define bl_align_anonymous_priv(type1, type2)\
+  bl_align_anonymous_priv_join<type1, type2>
 #endif
 /*---------------------------------------------------------------------------*/
 #define align_combined_size(type1, type2)\
-  sizeof (align_anonymous_priv (type1, type2))
+  sizeof (bl_align_anonymous_priv (type1, type2))
 /*---------------------------------------------------------------------------*/
 #define align_combined_type2_offset(type1, type2)\
-  offsetof (align_anonymous_priv (type1, type2), b)
+  offsetof (bl_align_anonymous_priv (type1, type2), b)
 /*---------------------------------------------------------------------------*/
 #include <bl/base/platform.h>
 #if BL_HAS_C11_STDALIGN (BL_COMPILER)
@@ -37,7 +37,7 @@ struct align_anonymous_priv_join {
   /*let the compiler generate errors just if the macro is used*/
 #endif
 /*---------------------------------------------------------------------------*/
-#define next_offset_aligned_to_type(offset_to_max_align_addr, type)\
+#define bl_next_offset_aligned_to_type(offset_to_max_align_addr, type)\
   (((offset_to_max_align_addr) + bl_alignof (type) - 1) &\
    ~(bl_alignof (type) - 1))
 /*---------------------------------------------------------------------------*/

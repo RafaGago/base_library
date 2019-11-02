@@ -8,7 +8,7 @@
   #if WINVER < 0x0600
     #error "Update this code. YieldProcessor may not be available"
   #endif
-  #define processor_pause() YieldProcessor()
+  #define bl_processor_pause() YieldProcessor()
 #endif
 /*---------------------------------------------------------------------------*/
 #if defined (__GNUC__) || defined (GCC)
@@ -17,20 +17,20 @@
     the Linux Kernel tree for hints.*/
   #if defined (BL_INTEL_AMD_PC)
     /*same opcode than PAUSE (_mm_pause): F3 90*/
-    #define processor_pause()  __asm__ __volatile__ ("rep;nop": : :"memory")
+    #define bl_processor_pause()  __asm__ __volatile__ ("rep;nop": : :"memory")
   #endif
 
   #if defined (BL_ARM)
-    /*will execute as NOP on processor that doesn't support it:
+    /*will execute as NOP on processors that don't support the instruction:
        http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0489f/CIHEGBBF.html
      */
-    #define processor_pause() __asm__ __volatile__ ("yield": : :"memory")
+    #define bl_processor_pause() __asm__ __volatile__ ("yield": : :"memory")
   #endif
 #endif
 /*---------------------------------------------------------------------------*/
-#if !defined (processor_pause)
+#if !defined (bl_processor_pause)
   #error
-    "processor_pause() unavailable (minimal impl is a compiler barrier)"
+    "bl_processor_pause() unavailable (minimal impl is a compiler barrier)"
 #if 0
   /*defined (__GNUC__) || defined (GCC)*/
   #define compiler_barrier() __asm__ __volatile__ ("" : : : "memory")

@@ -25,19 +25,19 @@ enum cmd_type_e {
 };
 /*---------------------------------------------------------------------------*/
 typedef struct task_cmd {
-  taskq_task task;
+  bl_taskq_task task;
 }
 task_cmd;
 /*---------------------------------------------------------------------------*/
 typedef struct delayed_cmd {
-  taskq_task task;
-  tstamp     tp;
+  bl_taskq_task task;
+  bl_tstamp     tp;
 }
 delayed_cmd;
 /*---------------------------------------------------------------------------*/
 typedef struct delayed_cancel_cmd {
-  taskq_id id;
-  tstamp   tp;
+  bl_taskq_id id;
+  bl_tstamp   tp;
 }
 delayed_cancel_cmd;
 /*---------------------------------------------------------------------------*/
@@ -50,57 +50,61 @@ all_cmds;
 /*---------------------------------------------------------------------------*/
 typedef struct cmd_elem {
   all_cmds data;
-  u8       type;
+  bl_u8       type;
 }
 cmd_elem;
 /*---------------------------------------------------------------------------*/
-enum taskq_signals_e {
-  taskq_q_ok          = 0,
-  taskq_q_waiting_sem = 1,
-  taskq_q_blocked     = 2,
+enum bl_taskq_signals_e {
+  bl_taskq_q_ok          = 0,
+  bl_taskq_q_waiting_sem = 1,
+  bl_taskq_q_blocked     = 2,
 };
 /*---------------------------------------------------------------------------*/
-typedef struct taskq {
-  mpmc_bt       queue;
-  mpmc_b_op     last_consumed;
+typedef struct bl_taskq {
+  bl_mpmc_bt       queue;
+  bl_mpmc_b_op     last_consumed;
   bl_tm_sem     sem;
-  taskq_delayed delayed;
+  bl_taskq_delayed delayed;
 }
-taskq;
+bl_taskq;
 /*---------------------------------------------------------------------------*/
-static inline void taskq_task_run (taskq_task tq, bl_err err, taskq_id tid)
+static inline void
+  bl_taskq_task_run (bl_taskq_task tq, bl_err err, bl_taskq_id tid)
 {
   tq.func (err, tid, tq.context);
 }
 /*---------------------------------------------------------------------------*/
-static inline bool taskq_handle_cmd (taskq* tq, cmd_elem* cmd, taskq_id tid)
+static inline bool
+  bl_taskq_handle_cmd (bl_taskq* tq, cmd_elem* cmd, bl_taskq_id tid)
 {
   switch (cmd->type) {
   case cmd_task: {
-    taskq_task_run (cmd->data.e.task, bl_mkok(), tid);
+    bl_taskq_task_run (cmd->data.e.task, bl_mkok(), tid);
     return true;
   }
   case cmd_delayed: {
     /*no check for expiration here, as we might have expired events on the queue
       and we want to guarantee that they are called on expiration order*/
-    taskq_delayed_entry d;
+    bl_taskq_delayed_entry d;
     d.time = cmd->data.d.tp;
     d.task = cmd->data.d.task;
     d.id   = tid;
-    bl_err err = taskq_delayed_insert (&tq->delayed, &d);
-    if (unlikely (err.bl)) {
-      taskq_task_run (cmd->data.d.task, err, tid);
+    bl_err err = bl_taskq_delayed_insert (&tq->delayed, &d);
+    if (bl_unlikely (err.bl)) {
+      bl_taskq_task_run (cmd->data.d.task, err, tid);
       return true;
     }
     return false;
   }
   case cmd_delayed_cancel: {
-    taskq_delayed_entry task;
-    taskq_delayed_entry match;
+    bl_taskq_delayed_entry task;
+    bl_taskq_delayed_entry match;
     match.time = cmd->data.dcancel.tp;
     match.id   = cmd->data.dcancel.id;
-    if (taskq_delayed_try_get_and_drop (&tq->delayed, &task, &match)) {
-      taskq_task_run (task.task, bl_mkerr (bl_cancelled), cmd->data.dcancel.id);
+    if (bl_taskq_delayed_try_get_and_drop (&tq->delayed, &task, &match)) {
+      bl_taskq_task_run(
+        task.task, bl_mkerr (bl_cancelled), cmd->data.dcancel.id
+        );
       return true;
     }
     return false;
@@ -111,19 +115,25 @@ static inline bool taskq_handle_cmd (taskq* tq, cmd_elem* cmd, taskq_id tid)
   } /*switch*/
 }
 /*---------------------------------------------------------------------------*/
-static inline bl_err taskq_post_impl(
-  taskq* tq, cmd_elem* cmd, taskq_id* id
+static inline bl_err bl_taskq_post_impl(
+  bl_taskq* tq, cmd_elem* cmd, bl_taskq_id* id
   )
 {
-  mpmc_b_op op;
-  bl_err err = mpmc_bt_produce_sig_fallback(
-    &tq->queue, &op, cmd, true, taskq_q_ok, taskq_q_blocked, taskq_q_blocked
+  bl_mpmc_b_op op;
+  bl_err err = bl_mpmc_bt_produce_sig_fallback(
+    &tq->queue,
+    &op,
+    cmd,
+    true,
+    bl_taskq_q_ok,
+    bl_taskq_q_blocked,
+    bl_taskq_q_blocked
     );
-  if (likely (err.bl == bl_ok)) {
-    if (unlikely (mpmc_b_sig_decode (op) == taskq_q_waiting_sem)) {
+  if (bl_likely (err.bl == bl_ok)) {
+    if (bl_unlikely (bl_mpmc_b_sig_decode (op) == bl_taskq_q_waiting_sem)) {
       bl_tm_sem_signal (&tq->sem);
     }
-    *id = mpmc_b_ticket_decode (op);
+    *id = bl_mpmc_b_ticket_decode (op);
   }
   else {
     err = (err.bl != bl_preconditions) ? err : bl_mkerr (bl_locked);
@@ -131,27 +141,27 @@ static inline bl_err taskq_post_impl(
   return err;
 }
 /*---------------------------------------------------------------------------*/
-BL_TASKQ_EXPORT bl_err taskq_try_run_one (taskq* tq)
+BL_TASKQ_EXPORT bl_err bl_taskq_try_run_one (bl_taskq* tq)
 {
-  taskq_delayed_entry const* expired;
+  bl_taskq_delayed_entry const* expired;
   cmd_elem cmd;
   bl_err   err;
   bool     retry;
   do {
     retry   = false;
-    expired = taskq_delayed_get_head_if_expired (&tq->delayed, false, 0);
+    expired = bl_taskq_delayed_get_head_if_expired (&tq->delayed, false, 0);
     if (expired) {
-      taskq_task_run (expired->task, bl_mkok(), expired->id);
-      taskq_delayed_drop_head (&tq->delayed);
+      bl_taskq_task_run (expired->task, bl_mkok(), expired->id);
+      bl_taskq_delayed_drop_head (&tq->delayed);
       return bl_mkok();
     }
-    err = mpmc_bt_consume_sc (&tq->queue, &tq->last_consumed, &cmd);
-    if (likely (!err.bl)) {
-      retry = !taskq_handle_cmd(
-        tq, &cmd, mpmc_b_ticket_decode (tq->last_consumed)
+    err = bl_mpmc_bt_consume_sc (&tq->queue, &tq->last_consumed, &cmd);
+    if (bl_likely (!err.bl)) {
+      retry = !bl_taskq_handle_cmd(
+        tq, &cmd, bl_mpmc_b_ticket_decode (tq->last_consumed)
         );
     }
-    else if (unlikely (err.bl == bl_empty)) {
+    else if (bl_unlikely (err.bl == bl_empty)) {
       err = bl_mkerr (bl_nothing_to_do);
     }
   }
@@ -159,41 +169,41 @@ BL_TASKQ_EXPORT bl_err taskq_try_run_one (taskq* tq)
   return err;
 }
 /*---------------------------------------------------------------------------*/
-BL_TASKQ_EXPORT bl_err taskq_run_one (taskq* tq, u32 timeout_us)
+BL_TASKQ_EXPORT bl_err bl_taskq_run_one (bl_taskq* tq, bl_u32 timeout_us)
 {
-  bl_err err = taskq_try_run_one (tq);
+  bl_err err = bl_taskq_try_run_one (tq);
   if (!err.bl || err.bl != bl_nothing_to_do) {
     return err;
   }
   /*slow path*/
-  bool   has_deadline = timeout_us != taskq_no_timeout;
-  tstamp deadline     = 0;
+  bool   has_deadline = timeout_us != bl_taskq_no_timeout;
+  bl_tstamp deadline     = 0;
   if (has_deadline) {
-    err = deadline_init (&deadline, timeout_us);
-    if (unlikely (err.bl)) {
+    err = bl_deadline_init (&deadline, timeout_us);
+    if (bl_unlikely (err.bl)) {
       return err;
     }
   }
   while (true) {
-    mpmc_b_op expect = tq->last_consumed;
+    bl_mpmc_b_op expect = tq->last_consumed;
     bl_err    ierr   = bl_mkok();
 
-    taskq_delayed_entry const* dhead;
-    dhead = taskq_delayed_get_head (&tq->delayed);
+    bl_taskq_delayed_entry const* dhead;
+    dhead = bl_taskq_delayed_get_head (&tq->delayed);
 
     if (dhead) {
       if (has_deadline) {
-        deadline = deadline_min (deadline, dhead->time);
+        deadline = bl_deadline_min (deadline, dhead->time);
       }
       else {
         has_deadline = true;
         deadline     = dhead->time;
       }
     }
-    u32 sem_us;
+    bl_u32 sem_us;
     if (has_deadline) {
-      tstamp now = bl_get_tstamp();
-      if (!deadline_expired_explicit (deadline, now)) {
+      bl_tstamp now = bl_get_tstamp();
+      if (!bl_deadline_expired_explicit (deadline, now)) {
         sem_us = bl_tstamp_to_usec_ceil (deadline - now);
       }
       else {
@@ -206,38 +216,40 @@ BL_TASKQ_EXPORT bl_err taskq_run_one (taskq* tq, u32 timeout_us)
     }
 
     if (sem_us > BL_SCHED_TMIN_US || sem_us == bl_tm_sem_infinity) {
-      ierr = mpmc_bt_producer_signal_try_set_tmatch(
-        &tq->queue, &expect, taskq_q_waiting_sem
+      ierr = bl_mpmc_bt_producer_signal_try_set_tmatch(
+        &tq->queue, &expect, bl_taskq_q_waiting_sem
         );
-      if (ierr.bl == bl_ok || mpmc_b_sig_decode (expect) == taskq_q_waiting_sem) {
+      if (ierr.bl == bl_ok
+        || bl_mpmc_b_sig_decode (expect) == bl_taskq_q_waiting_sem
+        ) {
         ierr = bl_tm_sem_wait (&tq->sem, sem_us);
       }
     }
     else {
       /* greedy usage of the timeslice */
-      for (uword i = 0; i < 8; ++i) {
-        processor_pause();
-        processor_pause();
-        processor_pause();
-        processor_pause();
+      for (bl_uword i = 0; i < 8; ++i) {
+        bl_processor_pause();
+        bl_processor_pause();
+        bl_processor_pause();
+        bl_processor_pause();
       }
-      expect = mpmc_b_op_encode (expect, taskq_q_ok);
+      expect = bl_mpmc_b_op_encode (expect, bl_taskq_q_ok);
       ierr = bl_mkok();
     }
 
 try_again:
-    err = taskq_try_run_one (tq);
+    err = bl_taskq_try_run_one (tq);
 
     if (err.bl != bl_nothing_to_do) {
       break;
     }
     else {
-      if (unlikely (mpmc_b_sig_decode (expect) == taskq_q_blocked)) {
+      if (bl_unlikely (bl_mpmc_b_sig_decode (expect) == bl_taskq_q_blocked)) {
         /*no long blocking behavior on termination contexts*/
         return bl_mkerr (bl_nothing_to_do);
       }
-      else if (unlikely (ierr.bl == bl_timeout)) {
-        bl_assert (timeout_us != taskq_no_timeout);
+      else if (bl_unlikely (ierr.bl == bl_timeout)) {
+        bl_assert (timeout_us != bl_taskq_no_timeout);
         return bl_mkerr (bl_timeout);
       }
       /* else: keep going...*/
@@ -246,39 +258,40 @@ try_again:
   return err;
 }
 /*---------------------------------------------------------------------------*/
-BL_TASKQ_EXPORT bl_err taskq_block (taskq* tq)
+BL_TASKQ_EXPORT bl_err bl_taskq_block (bl_taskq* tq)
 {
-  mpmc_b_op expected = mpmc_b_op_encode (tq->last_consumed, taskq_q_ok);
+  bl_mpmc_b_op expected =
+    bl_mpmc_b_op_encode (tq->last_consumed, bl_taskq_q_ok);
   while(
-    mpmc_bt_producer_signal_try_set_tmatch(
-      &tq->queue, &expected, taskq_q_blocked
+    bl_mpmc_bt_producer_signal_try_set_tmatch(
+      &tq->queue, &expected, bl_taskq_q_blocked
       ).bl == bl_preconditions
     );
   bl_tm_sem_signal (&tq->sem);
   return bl_mkok();
 }
 /*---------------------------------------------------------------------------*/
-BL_TASKQ_EXPORT bl_err taskq_try_cancel_one (taskq* tq)
+BL_TASKQ_EXPORT bl_err bl_taskq_try_cancel_one (bl_taskq* tq)
 {
   cmd_elem cmd;
 retry:
-  if (mpmc_bt_consume_sc(
+  if (bl_mpmc_bt_consume_sc(
        &tq->queue, &tq->last_consumed, &cmd
        ).bl == bl_ok) {
     switch (cmd.type) {
     case cmd_task: {
-      taskq_task_run(
+      bl_taskq_task_run(
         cmd.data.e.task,
         bl_mkerr (bl_cancelled),
-        mpmc_b_ticket_decode (tq->last_consumed)
+        bl_mpmc_b_ticket_decode (tq->last_consumed)
         );
       return bl_mkok();
     }
     case cmd_delayed: {
-      taskq_task_run(
+      bl_taskq_task_run(
         cmd.data.d.task,
         bl_mkerr (bl_cancelled),
-        mpmc_b_ticket_decode (tq->last_consumed)
+        bl_mpmc_b_ticket_decode (tq->last_consumed)
         );
       return bl_mkok();
     }
@@ -287,30 +300,31 @@ retry:
     }
     } /*switch*/
   }
-  taskq_delayed_entry const* dhead;
-  dhead = taskq_delayed_get_head (&tq->delayed);
+  bl_taskq_delayed_entry const* dhead;
+  dhead = bl_taskq_delayed_get_head (&tq->delayed);
   if (!dhead) {
     return bl_mkerr (bl_nothing_to_do);
   }
-  taskq_task_run (dhead->task, bl_mkerr (bl_cancelled), dhead->id);
-  taskq_delayed_drop_head (&tq->delayed);
+  bl_taskq_task_run (dhead->task, bl_mkerr (bl_cancelled), dhead->id);
+  bl_taskq_delayed_drop_head (&tq->delayed);
   return bl_mkok();
 }
 /*---------------------------------------------------------------------------*/
-BL_TASKQ_EXPORT bl_err taskq_post (taskq* tq, taskq_id* id, taskq_task task)
+BL_TASKQ_EXPORT bl_err
+  bl_taskq_post (bl_taskq* tq, bl_taskq_id* id, bl_taskq_task task)
 {
   bl_assert (tq && id);
   cmd_elem cmd;
   cmd.type        = cmd_task;
   cmd.data.e.task = task;
-  return taskq_post_impl (tq, &cmd, id);
+  return bl_taskq_post_impl (tq, &cmd, id);
 }
 /*---------------------------------------------------------------------------*/
-BL_TASKQ_EXPORT bl_err taskq_post_delayed_abs(
-  taskq*     tq,
-  taskq_id*  id,
-  tstamp     abs_time_point,
-  taskq_task task
+BL_TASKQ_EXPORT bl_err bl_taskq_post_delayed_abs(
+  bl_taskq*     tq,
+  bl_taskq_id*  id,
+  bl_tstamp     abs_time_point,
+  bl_taskq_task task
   )
 {
   bl_assert (tq && id);
@@ -318,11 +332,11 @@ BL_TASKQ_EXPORT bl_err taskq_post_delayed_abs(
   cmd.type        = cmd_delayed;
   cmd.data.d.task = task;
   cmd.data.d.tp   = abs_time_point;
-  return taskq_post_impl (tq, &cmd, id);
+  return bl_taskq_post_impl (tq, &cmd, id);
 }
 /*---------------------------------------------------------------------------*/
-BL_TASKQ_EXPORT bl_err taskq_post_try_cancel_delayed(
-  taskq* tq, taskq_id id, tstamp abs_time_point
+BL_TASKQ_EXPORT bl_err bl_taskq_post_try_cancel_delayed(
+  bl_taskq* tq, bl_taskq_id id, bl_tstamp abs_time_point
   )
 {
   bl_assert (tq);
@@ -330,41 +344,42 @@ BL_TASKQ_EXPORT bl_err taskq_post_try_cancel_delayed(
   cmd.type            = cmd_delayed_cancel;
   cmd.data.dcancel.id = id;
   cmd.data.dcancel.tp = abs_time_point;
-  taskq_id dummy;
-  return taskq_post_impl (tq, &cmd, &dummy);
+  bl_taskq_id dummy;
+  return bl_taskq_post_impl (tq, &cmd, &dummy);
 }
 /*---------------------------------------------------------------------------*/
-BL_TASKQ_EXPORT bl_err taskq_destroy (taskq* tq, alloc_tbl const* alloc)
+BL_TASKQ_EXPORT bl_err
+  bl_taskq_destroy (bl_taskq* tq, bl_alloc_tbl const* alloc)
 {
   bl_assert (tq && alloc);
-  mpmc_bt_destroy (&tq->queue, alloc);
-  taskq_delayed_destroy (&tq->delayed, alloc);
+  bl_mpmc_bt_destroy (&tq->queue, alloc);
+  bl_taskq_delayed_destroy (&tq->delayed, alloc);
   bl_err err = bl_tm_sem_destroy (&tq->sem);
   bl_assert (!err.bl);
   bl_dealloc (alloc, tq);
   return err;
 }
 /*---------------------------------------------------------------------------*/
-BL_TASKQ_EXPORT bl_err taskq_init(
-  taskq**          tqueue,
-  alloc_tbl const* alloc,
-  uword            regular_capacity,
-  uword            delayed_capacity
+BL_TASKQ_EXPORT bl_err bl_taskq_init(
+  bl_taskq**          tqueue,
+  bl_alloc_tbl const* alloc,
+  bl_uword            regular_capacity,
+  bl_uword            delayed_capacity
   )
 {
   bl_assert (tqueue && alloc);
-  regular_capacity = round_next_pow2_u (regular_capacity);
-  delayed_capacity = round_next_pow2_u (delayed_capacity);
+  regular_capacity = bl_round_next_pow2_u (regular_capacity);
+  delayed_capacity = bl_round_next_pow2_u (delayed_capacity);
 
   regular_capacity = bl_max (regular_capacity, 2);
   delayed_capacity = bl_max (delayed_capacity, 2);
 
-  taskq* tq = (taskq*) bl_alloc (alloc, sizeof *tq);
+  bl_taskq* tq = (bl_taskq*) bl_alloc (alloc, sizeof *tq);
   if (!tq) {
     return bl_mkerr (bl_alloc);
   }
   bl_err err;
-  err = mpmc_bt_init(
+  err = bl_mpmc_bt_init(
     &tq->queue,
     alloc,
     regular_capacity,
@@ -372,32 +387,32 @@ BL_TASKQ_EXPORT bl_err taskq_init(
     bl_alignof (cmd_elem)
     );
   if (err.bl) {
-    goto taskq_free;
+    goto bl_taskq_free;
   }
   /*NOTE the delay list could be easily placed adjacently with the
-    taskq struct using just one allocator call, oringb has the "init_extern"
-    call in which the user externally provides the buffer */
-  err = taskq_delayed_init(
+    bl_taskq struct using just one allocator call, bl_oringb has the
+    "init_extern" call in which the user externally provides the buffer */
+  err = bl_taskq_delayed_init(
     &tq->delayed, bl_get_tstamp(), delayed_capacity, alloc
     );
   if (err.bl) {
-    goto taskq_queue_destroy;
+    goto bl_taskq_queue_destroy;
   }
   err = bl_tm_sem_init (&tq->sem);
   if (err.bl) {
-    goto do_taskq_delayed_destroy;
+    goto do_bl_taskq_delayed_destroy;
   }
   *tqueue = tq;
-  tq->last_consumed = mpmc_b_first_op;
+  tq->last_consumed = bl_mpmc_b_first_op;
   return bl_mkok();
 
-do_taskq_delayed_destroy:
-  taskq_delayed_destroy (&tq->delayed, alloc);
+do_bl_taskq_delayed_destroy:
+  bl_taskq_delayed_destroy (&tq->delayed, alloc);
 
-taskq_queue_destroy:
-  mpmc_bt_destroy (&tq->queue, alloc);
+bl_taskq_queue_destroy:
+  bl_mpmc_bt_destroy (&tq->queue, alloc);
 
-taskq_free:
+bl_taskq_free:
   bl_dealloc (alloc, tq);
   *tqueue = nullptr;
   return err;

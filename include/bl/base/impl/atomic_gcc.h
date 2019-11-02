@@ -8,49 +8,49 @@
 #include <bl/base/platform.h>
 #include <bl/base/integer.h>
 /*---------------------------------------------------------------------------*/
-typedef uword atomic_uword;
-typedef word  atomic_word;
-typedef u32   atomic_u32;
-typedef u64   atomic_u64;
-typedef int   memory_order;
-typedef memory_order mem_order;
+typedef bl_uword bl_atomic_uword;
+typedef bl_word  bl_atomic_word;
+typedef bl_u32   bl_atomic_u32;
+typedef bl_u64   bl_atomic_u64;
+typedef int   bl_memory_order;
+typedef bl_memory_order bl_mem_order;
 /*---------------------------------------------------------------------------*/
-#define mo_relaxed  __ATOMIC_RELAXED
-#define mo_consume  __ATOMIC_CONSUME
-#define mo_acquire  __ATOMIC_ACQUIRE
-#define mo_release  __ATOMIC_RELEASE
-#define mo_acq_rel  __ATOMIC_ACQ_REL
-#define mo_seq_cst  __ATOMIC_SEQ_CST
+#define bl_mo_relaxed  __ATOMIC_RELAXED
+#define bl_mo_consume  __ATOMIC_CONSUME
+#define bl_mo_acquire  __ATOMIC_ACQUIRE
+#define bl_mo_release  __ATOMIC_RELEASE
+#define bl_mo_acq_rel  __ATOMIC_ACQ_REL
+#define bl_mo_seq_cst  __ATOMIC_SEQ_CST
 /*---------------------------------------------------------------------------*/
-/* uword */
+/* bl_uword */
 /*---------------------------------------------------------------------------*/
-static inline void atomic_uword_store(
-  volatile atomic_uword* a, uword v, mem_order mo
+static inline void bl_atomic_uword_store(
+  volatile bl_atomic_uword* a, bl_uword v, bl_mem_order mo
   )
 {
   __atomic_store_n (a, v, mo);
 }
 /*---------------------------------------------------------------------------*/
-static inline uword atomic_uword_load(
-  volatile atomic_uword* a, mem_order mo
+static inline bl_uword bl_atomic_uword_load(
+  volatile bl_atomic_uword* a, bl_mem_order mo
   )
 {
   return __atomic_load_n (a, mo);
 }
 /*---------------------------------------------------------------------------*/
-static inline uword atomic_uword_exchange(
-  volatile atomic_uword* a, uword v, mem_order mo
+static inline bl_uword bl_atomic_uword_exchange(
+  volatile bl_atomic_uword* a, bl_uword v, bl_mem_order mo
   )
 {
   return __atomic_exchange_n (a, v, mo);
 }
 /*---------------------------------------------------------------------------*/
-static inline bool atomic_uword_strong_cas(
-  volatile atomic_uword* a,
-  uword*                 expected,
-  uword                  desired,
-  mem_order              success,
-  mem_order              failure
+static inline bool bl_atomic_uword_strong_cas(
+  volatile bl_atomic_uword* a,
+  bl_uword*              expected,
+  bl_uword               desired,
+  bl_mem_order              success,
+  bl_mem_order              failure
   )
 {
   return __atomic_compare_exchange_n(
@@ -58,12 +58,12 @@ static inline bool atomic_uword_strong_cas(
     );
 }
 /*---------------------------------------------------------------------------*/
-static inline bool atomic_uword_weak_cas(
-  volatile atomic_uword* a,
-  uword*                 expected,
-  uword                  desired,
-  mem_order              success,
-  mem_order              failure
+static inline bool bl_atomic_uword_weak_cas(
+  volatile bl_atomic_uword* a,
+  bl_uword*              expected,
+  bl_uword               desired,
+  bl_mem_order              success,
+  bl_mem_order              failure
   )
 {
   return __atomic_compare_exchange_n(
@@ -71,68 +71,68 @@ static inline bool atomic_uword_weak_cas(
     );
 }
 /*---------------------------------------------------------------------------*/
-static inline uword atomic_uword_fetch_add(
-  volatile atomic_uword* a, uword v, mem_order o
+static inline bl_uword bl_atomic_uword_fetch_add(
+  volatile bl_atomic_uword* a, bl_uword v, bl_mem_order o
   )
 {
   return __atomic_fetch_add (a, v, o);
 }
 /*---------------------------------------------------------------------------*/
-static inline uword atomic_uword_fetch_sub(
-  volatile atomic_uword* a, uword v, mem_order o
+static inline bl_uword bl_atomic_uword_fetch_sub(
+  volatile bl_atomic_uword* a, bl_uword v, bl_mem_order o
   )
 {
   return __atomic_fetch_sub (a, v, o);
 }
 /*---------------------------------------------------------------------------*/
-static inline uword atomic_uword_fetch_or(
-  volatile atomic_uword* a, uword v, mem_order o
+static inline bl_uword bl_atomic_uword_fetch_or(
+  volatile bl_atomic_uword* a, bl_uword v, bl_mem_order o
   )
 {
   return __atomic_fetch_or (a, v, o);
 }
 /*---------------------------------------------------------------------------*/
-static inline uword atomic_uword_fetch_xor(
-  volatile atomic_uword* a, uword v, mem_order o
+static inline bl_uword bl_atomic_uword_fetch_xor(
+  volatile bl_atomic_uword* a, bl_uword v, bl_mem_order o
   )
 {
   return __atomic_fetch_xor (a, v, o);
 }
 /*---------------------------------------------------------------------------*/
-static inline uword atomic_uword_fetch_and(
-  volatile atomic_uword* a, uword v, mem_order o
+static inline bl_uword bl_atomic_uword_fetch_and(
+  volatile bl_atomic_uword* a, bl_uword v, bl_mem_order o
   )
 {
   return __atomic_fetch_and (a, v, o);
 }
 /*---------------------------------------------------------------------------*/
-/* word */
+/* bl_word */
 /*---------------------------------------------------------------------------*/
-static inline void atomic_word_store(
-  volatile atomic_word* a, word v, mem_order mo
+static inline void bl_atomic_word_store(
+  volatile bl_atomic_word* a, bl_word v, bl_mem_order mo
   )
 {
   __atomic_store_n (a, v, mo);
 }
 /*---------------------------------------------------------------------------*/
-static inline word atomic_word_load (volatile atomic_word* a, mem_order mo)
+static inline bl_word bl_atomic_word_load (volatile bl_atomic_word* a, bl_mem_order mo)
 {
   return __atomic_load_n (a, mo);
 }
 /*---------------------------------------------------------------------------*/
-static inline word atomic_word_exchange(
-  volatile atomic_word* a, word v, mem_order mo
+static inline bl_word bl_atomic_word_exchange(
+  volatile bl_atomic_word* a, bl_word v, bl_mem_order mo
   )
 {
   return __atomic_exchange_n (a, v, mo);
 }
 /*---------------------------------------------------------------------------*/
-static inline bool atomic_word_strong_cas(
-  volatile atomic_word* a,
-  word*                 expected,
-  word                  desired,
-  mem_order             success,
-  mem_order             failure
+static inline bool bl_atomic_word_strong_cas(
+  volatile bl_atomic_word* a,
+  bl_word*                 expected,
+  bl_word                  desired,
+  bl_mem_order             success,
+  bl_mem_order             failure
   )
 {
   return __atomic_compare_exchange_n(
@@ -140,12 +140,12 @@ static inline bool atomic_word_strong_cas(
     );
 }
 /*---------------------------------------------------------------------------*/
-static inline bool atomic_word_weak_cas(
-  volatile atomic_word* a,
-  word*                 expected,
-  word                  desired,
-  mem_order             success,
-  mem_order             failure
+static inline bool bl_atomic_word_weak_cas(
+  volatile bl_atomic_word* a,
+  bl_word*                 expected,
+  bl_word                  desired,
+  bl_mem_order             success,
+  bl_mem_order             failure
   )
 {
   return __atomic_compare_exchange_n(
@@ -153,68 +153,70 @@ static inline bool atomic_word_weak_cas(
     );
 }
 /*---------------------------------------------------------------------------*/
-static inline word atomic_word_fetch_add(
-  volatile atomic_word* a, word v, mem_order o
+static inline bl_word bl_atomic_word_fetch_add(
+  volatile bl_atomic_word* a, bl_word v, bl_mem_order o
   )
 {
   return __atomic_fetch_add (a, v, o);
 }
 /*---------------------------------------------------------------------------*/
-static inline word atomic_word_fetch_sub(
-  volatile atomic_word* a, word v, mem_order o
+static inline bl_word bl_atomic_word_fetch_sub(
+  volatile bl_atomic_word* a, bl_word v, bl_mem_order o
   )
 {
   return __atomic_fetch_sub (a, v, o);
 }
 /*---------------------------------------------------------------------------*/
-static inline word atomic_word_fetch_or(
-  volatile atomic_uword* a, uword v, mem_order o
+static inline bl_word bl_atomic_word_fetch_or(
+  volatile bl_atomic_uword* a, bl_uword v, bl_mem_order o
   )
 {
   return __atomic_fetch_or (a, v, o);
 }
 /*---------------------------------------------------------------------------*/
-static inline uword atomic_word_fetch_xor(
-  volatile atomic_word* a, word v, mem_order o
+static inline bl_uword bl_atomic_word_fetch_xor(
+  volatile bl_atomic_word* a, bl_word v, bl_mem_order o
   )
 {
   return __atomic_fetch_xor (a, v, o);
 }
 /*---------------------------------------------------------------------------*/
-static inline uword atomic_word_fetch_and(
-  volatile atomic_word* a, word v, mem_order o
+static inline bl_uword bl_atomic_word_fetch_and(
+  volatile bl_atomic_word* a, bl_word v, bl_mem_order o
   )
 {
   return __atomic_fetch_and (a, v, o);
 }
 /*---------------------------------------------------------------------------*/
-/* u32 */
+/* bl_u32 */
 /*---------------------------------------------------------------------------*/
-static inline void atomic_u32_store(
-  volatile atomic_u32* a, u32 v, mem_order mo
+static inline void bl_atomic_u32_store(
+  volatile bl_atomic_u32* a, bl_u32 v, bl_mem_order mo
   )
 {
   __atomic_store_n (a, v, mo);
 }
 /*---------------------------------------------------------------------------*/
-static inline u32 atomic_u32_load (volatile atomic_u32* a, mem_order mo)
+static inline bl_u32 bl_atomic_u32_load(
+  volatile bl_atomic_u32* a, bl_mem_order mo
+  )
 {
   return __atomic_load_n (a, mo);
 }
 /*---------------------------------------------------------------------------*/
-static inline u32 atomic_uword_exchange(
-  volatile atomic_u32* a, u32 v, mem_order mo
+static inline bl_u32 bl_atomic_uword_exchange(
+  volatile bl_atomic_u32* a, bl_u32 v, bl_mem_order mo
   )
 {
   return __atomic_exchange_n (a, v, mo);
 }
 /*---------------------------------------------------------------------------*/
-static inline bool atomic_u32_strong_cas(
-  volatile atomic_u32* a,
-  u32*                 expected,
-  u32                  desired,
-  mem_order            success,
-  mem_order            failure
+static inline bool bl_atomic_u32_strong_cas(
+  volatile bl_atomic_u32* a,
+  bl_u32*                 expected,
+  bl_u32                  desired,
+  bl_mem_order            success,
+  bl_mem_order            failure
   )
 {
   return __atomic_compare_exchange_n(
@@ -222,12 +224,12 @@ static inline bool atomic_u32_strong_cas(
     );
 }
 /*---------------------------------------------------------------------------*/
-static inline bool atomic_u32_weak_cas(
-  volatile atomic_u32* a,
-  u32*                 expected,
-  u32                  desired,
-  mem_order            success,
-  mem_order            failure
+static inline bool bl_atomic_u32_weak_cas(
+  volatile bl_atomic_u32* a,
+  bl_u32*                 expected,
+  bl_u32                  desired,
+  bl_mem_order            success,
+  bl_mem_order            failure
   )
 {
   return __atomic_compare_exchange_n(
@@ -235,61 +237,63 @@ static inline bool atomic_u32_weak_cas(
     );
 }
 /*---------------------------------------------------------------------------*/
-static inline u32 atomic_u32_fetch_add(
-  volatile atomic_u32* a, u32 v, mem_order o
+static inline bl_u32 bl_atomic_u32_fetch_add(
+  volatile bl_atomic_u32* a, bl_u32 v, bl_mem_order o
   )
 {
   return __atomic_fetch_add (a, v, o);
 }
 /*---------------------------------------------------------------------------*/
-static inline u32 atomic_u32_fetch_sub(
-  volatile atomic_u32* a, u32 v, mem_order o
+static inline bl_u32 bl_atomic_u32_fetch_sub(
+  volatile bl_atomic_u32* a, bl_u32 v, bl_mem_order o
   )
 {
   return __atomic_fetch_sub (a, v, o);
 }
 /*---------------------------------------------------------------------------*/
-static inline u32 atomic_u32_fetch_or(
-  volatile atomic_u32* a, u32 v, mem_order o
+static inline bl_u32 bl_atomic_u32_fetch_or(
+  volatile bl_atomic_u32* a, bl_u32 v, bl_mem_order o
   )
 {
   return __atomic_fetch_or (a, v, o);
 }
 /*---------------------------------------------------------------------------*/
-static inline u32 atomic_u32_fetch_xor(
-  volatile atomic_u32* a, u32 v, mem_order o
+static inline bl_u32 bl_atomic_u32_fetch_xor(
+  volatile bl_atomic_u32* a, bl_u32 v, bl_mem_order o
   )
 {
   return __atomic_fetch_xor (a, v, o);
 }
 /*---------------------------------------------------------------------------*/
-/* u64 */
+/* bl_u64 */
 /*---------------------------------------------------------------------------*/
-static inline void atomic_u64_store(
-  volatile atomic_u64* a, u64 v, mem_order mo
+static inline void bl_atomic_u64_store(
+  volatile bl_atomic_u64* a, bl_u64 v, bl_mem_order mo
   )
 {
   __atomic_store_n (a, v, mo);
 }
 /*---------------------------------------------------------------------------*/
-static inline u64 atomic_u64_load (volatile atomic_u64* a, mem_order mo)
+static inline bl_u64 bl_atomic_u64_load(
+  volatile bl_atomic_u64* a, bl_mem_order mo
+  )
 {
   return __atomic_load_n (a, mo);
 }
 /*---------------------------------------------------------------------------*/
-static inline u64 atomic_uword_exchange(
-  volatile atomic_u64* a, u64 v, mem_order mo
+static inline bl_u64 bl_atomic_uword_exchange(
+  volatile bl_atomic_u64* a, bl_u64 v, bl_mem_order mo
   )
 {
   return __atomic_exchange_n (a, v, mo);
 }
 /*---------------------------------------------------------------------------*/
-static inline bool atomic_u64_strong_cas(
-  volatile atomic_u64* a,
-  u64*                 expected,
-  u64                  desired,
-  mem_order            success,
-  mem_order            failure
+static inline bool bl_atomic_u64_strong_cas(
+  volatile bl_atomic_u64* a,
+  bl_u64*                 expected,
+  bl_u64                  desired,
+  bl_mem_order            success,
+  bl_mem_order            failure
   )
 {
   return __atomic_compare_exchange_n(
@@ -297,12 +301,12 @@ static inline bool atomic_u64_strong_cas(
     );
 }
 /*---------------------------------------------------------------------------*/
-static inline bool atomic_u64_weak_cas(
-  volatile atomic_u64* a,
-  u64*                 expected,
-  u64                  desired,
-  mem_order            success,
-  mem_order            failure
+static inline bool bl_atomic_u64_weak_cas(
+  volatile bl_atomic_u64* a,
+  bl_u64*                 expected,
+  bl_u64                  desired,
+  bl_mem_order            success,
+  bl_mem_order            failure
   )
 {
   return __atomic_compare_exchange_n(
@@ -310,29 +314,29 @@ static inline bool atomic_u64_weak_cas(
     );
 }
 /*---------------------------------------------------------------------------*/
-static inline u64 atomic_u64_fetch_add(
-  volatile atomic_u64* a, u64 v, mem_order o
+static inline bl_u64 bl_atomic_u64_fetch_add(
+  volatile bl_atomic_u64* a, bl_u64 v, bl_mem_order o
   )
 {
   return __atomic_fetch_add (a, v, o);
 }
 /*---------------------------------------------------------------------------*/
-static inline u64 atomic_u64_fetch_sub(
-  volatile atomic_u64* a, u64 v, mem_order o
+static inline bl_u64 bl_atomic_u64_fetch_sub(
+  volatile bl_atomic_u64* a, bl_u64 v, bl_mem_order o
   )
 {
   return __atomic_fetch_sub (a, v, o);
 }
 /*---------------------------------------------------------------------------*/
-static inline u64 atomic_u64_fetch_or(
-  volatile atomic_u64* a, u64 v, mem_order o
+static inline bl_u64 bl_atomic_u64_fetch_or(
+  volatile bl_atomic_u64* a, bl_u64 v, bl_mem_order o
   )
 {
   return __atomic_fetch_or (a, v, o);
 }
 /*---------------------------------------------------------------------------*/
-static inline u64 atomic_u64_fetch_xor(
-  volatile atomic_u64* a, u64 v, mem_order o
+static inline bl_u64 bl_atomic_u64_fetch_xor(
+  volatile bl_atomic_u64* a, bl_u64 v, bl_mem_order o
   )
 {
   return __atomic_fetch_xor (a, v, o);
@@ -340,12 +344,12 @@ static inline u64 atomic_u64_fetch_xor(
 /*---------------------------------------------------------------------------*/
 /* Fences */
 /*---------------------------------------------------------------------------*/
-static inline void atomic_fence (mem_order o)
+static inline void atomic_fence (bl_mem_order o)
 {
   __atomic_thread_fence (o);
 }
 /*---------------------------------------------------------------------------*/
-static inline void atomic_sigfence (mem_order o)
+static inline void atomic_sigfence (bl_mem_order o)
 {
   __atomic_signal_fence (o);
 }

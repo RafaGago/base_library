@@ -7,91 +7,91 @@
 #define BL_TIMESTAMP_HAS_NANOSECOND_BASE 1
 /*---------------------------------------------------------------------------*/
 #define bl_tstamp2sec_priv(ts)\
-  ((toffset) (ts / nsec_in_sec))
- 
-#define bl_tstamp2msec_priv(ts)\
-  ((toffset) (ts / nsec_in_msec))
- 
-#define bl_tstamp2usec_priv(ts)\
-  ((toffset) (ts / nsec_in_usec))
- 
-#define bl_tstamp2nsec_priv(ts)\
-  ((toffset) ts) 
-/*---------------------------------------------------------------------------*/
-#define bl_sec_to_tstamp_max()\
-  bl_tstamp2sec_priv (tstamp_max_safe_add_sub)
+  ((bl_toffset) (ts / bl_nsec_in_sec))
 
-#define bl_msec_to_tstamp_max()\
-  bl_tstamp2msec_priv (tstamp_max_safe_add_sub)
-  
-#define bl_nsec_to_tstamp_max()\
-  bl_tstamp2nsec_priv (tstamp_max_safe_add_sub)
-  
-#define bl_usec_to_tstamp_max()\
-  bl_tstamp2usec_priv (tstamp_max_safe_add_sub)
+#define bl_tstamp2msec_priv(ts)\
+  ((bl_toffset) (ts / bl_nsec_in_msec))
+
+#define bl_tstamp2usec_priv(ts)\
+  ((bl_toffset) (ts / bl_nsec_in_usec))
+
+#define bl_tstamp2nsec_priv(ts)\
+  ((bl_toffset) ts)
 /*---------------------------------------------------------------------------*/
-static inline toffset bl_tstamp_to_sec (tstamp ts)
+#define bl_sec_to_bl_tstamp_max()\
+  bl_tstamp2sec_priv (bl_tstamp_max_safe_add_sub)
+
+#define bl_msec_to_bl_tstamp_max()\
+  bl_tstamp2msec_priv (bl_tstamp_max_safe_add_sub)
+
+#define bl_nsec_to_bl_tstamp_max()\
+  bl_tstamp2nsec_priv (bl_tstamp_max_safe_add_sub)
+
+#define bl_usec_to_bl_tstamp_max()\
+  bl_tstamp2usec_priv (bl_tstamp_max_safe_add_sub)
+/*---------------------------------------------------------------------------*/
+static inline bl_toffset bl_tstamp_to_sec (bl_tstamp ts)
 {
   return bl_tstamp2sec_priv (ts);
 }
 
-static inline toffset bl_tstamp_to_msec (tstamp ts)
+static inline bl_toffset bl_tstamp_to_msec (bl_tstamp ts)
 {
   return bl_tstamp2msec_priv (ts);
 }
 
-static inline toffset bl_tstamp_to_usec (tstamp ts)
+static inline bl_toffset bl_tstamp_to_usec (bl_tstamp ts)
 {
   return bl_tstamp2usec_priv (ts);
 }
 
-static inline toffset bl_tstamp_to_nsec (tstamp ts)
+static inline bl_toffset bl_tstamp_to_nsec (bl_tstamp ts)
 {
   return bl_tstamp2nsec_priv (ts);
 }
 /*---------------------------------------------------------------------------*/
-static inline toffset bl_tstamp_to_sec_ceil (tstamp ts)
+static inline bl_toffset bl_tstamp_to_sec_ceil (bl_tstamp ts)
 {
-  return (toffset) div_ceil (ts, nsec_in_sec);
+  return (bl_toffset) bl_div_ceil (ts, bl_nsec_in_sec);
 }
 
-static inline toffset bl_tstamp_to_msec_ceil (tstamp ts)
+static inline bl_toffset bl_tstamp_to_msec_ceil (bl_tstamp ts)
 {
-  return (toffset) div_ceil (ts, nsec_in_msec);
+  return (bl_toffset) bl_div_ceil (ts, bl_nsec_in_msec);
 }
 
-static inline toffset bl_tstamp_to_usec_ceil (tstamp ts)
+static inline bl_toffset bl_tstamp_to_usec_ceil (bl_tstamp ts)
 {
-  return (toffset) div_ceil (ts, nsec_in_usec);
+  return (bl_toffset) bl_div_ceil (ts, bl_nsec_in_usec);
 }
 
-static inline toffset bl_tstamp_to_nsec_ceil (tstamp ts)
+static inline bl_toffset bl_tstamp_to_nsec_ceil (bl_tstamp ts)
 {
-  return (toffset) (ts);
+  return (bl_toffset) (ts);
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_sec_to_tstamp (toffset sec)
+static inline bl_tstamp bl_sec_to_bl_tstamp (bl_toffset sec)
 {
-  bl_assert (sec <= bl_sec_to_tstamp_max());
-  return ((tstamp) sec) * nsec_in_sec;
+  bl_assert (sec <= bl_sec_to_bl_tstamp_max());
+  return ((bl_tstamp) sec) * bl_nsec_in_sec;
 }
 
-static inline tstamp bl_msec_to_tstamp (toffset msec)
+static inline bl_tstamp bl_msec_to_bl_tstamp (bl_toffset msec)
 {
-  bl_assert (msec <= bl_msec_to_tstamp_max());
-  return ((tstamp) msec) * nsec_in_msec;
+  bl_assert (msec <= bl_msec_to_bl_tstamp_max());
+  return ((bl_tstamp) msec) * bl_nsec_in_msec;
 }
 
-static inline tstamp bl_usec_to_tstamp (toffset usec)
+static inline bl_tstamp bl_usec_to_bl_tstamp (bl_toffset usec)
 {
-  bl_assert (usec <= bl_usec_to_tstamp_max());
-  return ((tstamp) usec) * nsec_in_usec;
+  bl_assert (usec <= bl_usec_to_bl_tstamp_max());
+  return ((bl_tstamp) usec) * bl_nsec_in_usec;
 }
 
-static inline tstamp bl_nsec_to_tstamp (toffset nsec)
+static inline bl_tstamp bl_nsec_to_bl_tstamp (bl_toffset nsec)
 {
-  bl_assert (nsec <= bl_nsec_to_tstamp_max());
-  return (tstamp) nsec;
+  bl_assert (nsec <= bl_nsec_to_bl_tstamp_max());
+  return (bl_tstamp) nsec;
 }
 /*---------------------------------------------------------------------------*/
 

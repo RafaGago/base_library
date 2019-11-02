@@ -25,28 +25,31 @@ extern "C" {
 /*---------------------------------------------------------------------------*/
 /* Types and helpers                                                         */
 /*---------------------------------------------------------------------------*/
-typedef uword taskq_id;
-typedef u32   taskq_usec;
+typedef bl_uword bl_taskq_id;
+typedef bl_u32   bl_taskq_usec;
 /*---------------------------------------------------------------------------*/
-typedef void (*taskq_task_func) (bl_err error, taskq_id id, void* context);
+typedef void (*bl_taskq_task_func)(
+  bl_err error, bl_taskq_id id, void* context
+  );
 /*---------------------------------------------------------------------------*/
-typedef struct taskq_task {
-  taskq_task_func func;
+typedef struct bl_taskq_task {
+  bl_taskq_task_func func;
   void*           context;
 }
-taskq_task;
+bl_taskq_task;
 /*---------------------------------------------------------------------------*/
 /* rv suffix = r-value */
 /*---------------------------------------------------------------------------*/
-static inline taskq_task taskq_task_rv (taskq_task_func func, void* context)
+static inline bl_taskq_task
+  bl_taskq_task_rv (bl_taskq_task_func func, void* context)
 {
-  taskq_task tmp = { func, context };
+  bl_taskq_task tmp = { func, context };
   return tmp;
 }
 /*---------------------------------------------------------------------------*/
 /* Interface                                                                 */
 /*---------------------------------------------------------------------------*/
-typedef struct taskq taskq;
+typedef struct bl_taskq bl_taskq;
 /*---------------------------------------------------------------------------*/
 /*
   Single-threaded call.
@@ -57,27 +60,27 @@ typedef struct taskq taskq;
   delayed_task_capacity: maximum number of delayed tasks acknowledged on the
   system.
 
-  If receiving the "taskq_invalid" error code and everything looks right
+  If receiving the "bl_taskq_invalid" error code and everything looks right
   consider that both maximum "regular_task_queue_capacity" and "
   delayed_task_queue_capacity" may not be allowed to be as big as its data
   type allows.
 */
 /*---------------------------------------------------------------------------*/
 extern BL_TASKQ_EXPORT
-  bl_err taskq_init(
-    taskq**          tq,
-    alloc_tbl const* alloc,
-    uword            task_queue_capacity,
-    uword            delayed_task_capacity
+  bl_err bl_taskq_init(
+    bl_taskq**          tq,
+    bl_alloc_tbl const* alloc,
+    bl_uword            task_queue_capacity,
+    bl_uword            delayed_task_capacity
     );
 /*---------------------------------------------------------------------------*/
 /*
   Single-threaded call (to be run from the worker thread). Tries to run an
   element of the work queue. If no elements were available returns
-  "taskq_nothing_to_do".
+  "bl_taskq_nothing_to_do".
 */
 /*---------------------------------------------------------------------------*/
-extern BL_TASKQ_EXPORT bl_err taskq_try_run_one (taskq* tq);
+extern BL_TASKQ_EXPORT bl_err bl_taskq_try_run_one (bl_taskq* tq);
 /*---------------------------------------------------------------------------*/
 /*
   Single-threaded call (to be run from the worker thread). Tries to run an
@@ -85,24 +88,24 @@ extern BL_TASKQ_EXPORT bl_err taskq_try_run_one (taskq* tq);
   an error condition is found (e.g. timeout).
 */
 /*---------------------------------------------------------------------------*/
-#define taskq_no_timeout ((taskq_usec) 0)
+#define bl_taskq_no_timeout ((bl_taskq_usec) 0)
 extern BL_TASKQ_EXPORT
-  bl_err taskq_run_one (taskq* tq, taskq_usec timeout);
+  bl_err bl_taskq_run_one (bl_taskq* tq, bl_taskq_usec timeout);
 /*---------------------------------------------------------------------------*/
-static inline bl_err taskq_run_one_no_timeout (taskq* tq)
+static inline bl_err bl_taskq_run_one_no_timeout (bl_taskq* tq)
 {
-  return taskq_run_one (tq, taskq_no_timeout);
+  return bl_taskq_run_one (tq, bl_taskq_no_timeout);
 }
 /*---------------------------------------------------------------------------*/
 /*
   Multi-threaded call. Posts an event to the worker queue.
 
-  If this call returns "taskq_would_overflow" you need to increment the
+  If this call returns "bl_taskq_would_overflow" you need to increment the
   "task_queue_capacity" parameter.
 */
 /*---------------------------------------------------------------------------*/
 extern BL_TASKQ_EXPORT
-  bl_err taskq_post (taskq* tq, taskq_id* id, taskq_task task);
+  bl_err bl_taskq_post (bl_taskq* tq, bl_taskq_id* id, bl_taskq_task task);
 /*---------------------------------------------------------------------------*/
 /*
   Multi-threaded call. Posts an delayed/timed event to the worker queue.
@@ -110,40 +113,40 @@ extern BL_TASKQ_EXPORT
   The user is resposible of not overflowing the timer queue
   (delayed_task_capacity parameter on init). If the timer queue is overflowed it
   will only be known at dispatching time and it will be notified through the
-  callback by an "taskq_would_overflow" error code.
+  callback by an "bl_taskq_would_overflow" error code.
 
-  If this call returns "taskq_would_overflow" you need to increment the
+  If this call returns "bl_taskq_would_overflow" you need to increment the
   "task_queue_capacity" parameter.
 
-  Note that to cancel a task through the "taskq_post_try_cancel_delayed" you
+  Note that to cancel a task through the "bl_taskq_post_try_cancel_delayed" you
   need the value of "abs_time_point".
 */
 /*---------------------------------------------------------------------------*/
-extern BL_TASKQ_EXPORT bl_err taskq_post_delayed_abs(
-  taskq*     tq,
-  taskq_id*  id,
-  tstamp     abs_time_point,
-  taskq_task task
+extern BL_TASKQ_EXPORT bl_err bl_taskq_post_delayed_abs(
+  bl_taskq*     tq,
+  bl_taskq_id*  id,
+  bl_tstamp     abs_time_point,
+  bl_taskq_task task
   );
 /*---------------------------------------------------------------------------*/
-static inline bl_err taskq_post_delayed(
-  taskq*     tq,
-  taskq_id*  id,
-  tstamp*    abs_time_point_out,
-  taskq_task task,
-  u32        delay_us
+static inline bl_err bl_taskq_post_delayed(
+  bl_taskq*     tq,
+  bl_taskq_id*  id,
+  bl_tstamp*    abs_time_point_out,
+  bl_taskq_task task,
+  bl_u32        delay_us
   )
 {
   bl_assert (abs_time_point_out);
-  *abs_time_point_out = bl_get_tstamp() + bl_usec_to_tstamp (delay_us);
-  return taskq_post_delayed_abs (tq, id, *abs_time_point_out, task);
+  *abs_time_point_out = bl_get_tstamp() + bl_usec_to_bl_tstamp (delay_us);
+  return bl_taskq_post_delayed_abs (tq, id, *abs_time_point_out, task);
 }
 /*---------------------------------------------------------------------------*/
 /*
   Multi-threaded call. Tries to cancel the given delayed event id. If succeeding
-  the event callback will get invoked with the "taskq_cancelled" error code.
+  the event callback will get invoked with the "bl_taskq_cancelled" error code.
 
-  If this call returns "taskq_would_overflow" you need to increment the
+  If this call returns "bl_taskq_would_overflow" you need to increment the
   "task_queue_capacity" parameter.
 
   Note that when this function returns "bl_ok" it doesn't mean that the
@@ -153,42 +156,42 @@ static inline bl_err taskq_post_delayed(
   impossible to acknowledge at the producer call point without heavy-duty
   locking, which defeats the purpose of this queue.
 
-  With another wording, the delayed task (to be cancelled) resources should be
+  With another bl_wording, the delayed task (to be cancelled) resources should be
   released on or after the callback has run, not just after succeeding on this
   function call.
 */
 /*---------------------------------------------------------------------------*/
 extern BL_TASKQ_EXPORT
-   bl_err taskq_post_try_cancel_delayed(
-    taskq* tq, taskq_id id, tstamp abs_time_point
+   bl_err bl_taskq_post_try_cancel_delayed(
+    bl_taskq* tq, bl_taskq_id id, bl_tstamp abs_time_point
     );
 /*---------------------------------------------------------------------------*/
 /*
   Multi-threaded call. This function is to be used on shutdown.
 
-  This irreversible call makes all subsequent "taskq_post_*" and the
-  taskq_try_cancel_delayed to fail with the error code "taskq_blocked".
-  In other words, no more "commands" can be added to the internal queue.
+  This irreversible call makes all subsequent "bl_taskq_post_*" and the
+  bl_taskq_try_cancel_delayed to fail with the error code "bl_taskq_blocked".
+  In other bl_words, no more "commands" can be added to the internal queue.
 
-  After this call the "taskq_run_one" call (which has timeout) will become
-  equivalent to the non-blocking "taskq_try_run_one" function and hence can
-  return the "taskq_nothing_to_do" error code when empty.
+  After this call the "bl_taskq_run_one" call (which has timeout) will become
+  equivalent to the non-blocking "bl_taskq_try_run_one" function and hence can
+  return the "bl_taskq_nothing_to_do" error code when empty.
 */
 /*---------------------------------------------------------------------------*/
 extern BL_TASKQ_EXPORT
-  bl_err taskq_block (taskq* tq);
+  bl_err bl_taskq_block (bl_taskq* tq);
 /*---------------------------------------------------------------------------*/
 /*
   Single-threaded call (to be runned from the worker thread). This function is
   to be used on shutdown.
 
-  Equivalent to "taskq_try_run_one" but cancels one task (not ordered by time
-  of entrance to the system) and the callbacks get the "taskq_cancelled" error
+  Equivalent to "bl_taskq_try_run_one" but cancels one task (not ordered by time
+  of entrance to the system) and the callbacks get the "bl_taskq_cancelled" error
   code on its first parameter.
 */
 /*---------------------------------------------------------------------------*/
 extern BL_TASKQ_EXPORT
-  bl_err taskq_try_cancel_one (taskq* tq);
+  bl_err bl_taskq_try_cancel_one (bl_taskq* tq);
 /*---------------------------------------------------------------------------*/
 /*
   Single-threaded call. Destructs (deallocates) a correctly shat down
@@ -196,7 +199,7 @@ extern BL_TASKQ_EXPORT
 */
 /*---------------------------------------------------------------------------*/
 extern BL_TASKQ_EXPORT
-  bl_err taskq_destroy (taskq* taskq, alloc_tbl const* alloc);
+  bl_err bl_taskq_destroy (bl_taskq* bl_taskq, bl_alloc_tbl const* alloc);
 /*---------------------------------------------------------------------------*/
 /*
 shut down procedure example1. Will run every planned task (and wait for all
@@ -205,19 +208,19 @@ delayed tasks to be scheduled):
   void worker_thread_func (void* context)
   {
     ...
-    taskq* tq = ...;
+    bl_taskq* tq = ...;
     bl_err err = bl_mkok();
-    while (!err.bl || err.bl == taskq_timeout) {
-      err = taskq_run_one (tq, 1000000);
+    while (!err.bl || err.bl == bl_taskq_timeout) {
+      err = bl_taskq_run_one (tq, 1000000);
     }
-    ->taskq ready to destroy
+    ->bl_taskq ready to destroy
   }
 
   void some_other_thread_func (void* context)
   {
     ...
-    taskq* tq = ...;
-    taskq_block (tq);
+    bl_taskq* tq = ...;
+    bl_taskq_block (tq);
   }
 --------------------------------------------------------------------------------
 shut down procedure example2. Will cancel tasks when noticing the blocking:
@@ -225,24 +228,24 @@ shut down procedure example2. Will cancel tasks when noticing the blocking:
   void worker_thread_func (void* context)
   {
     ...
-    taskq* tq  = ...;
+    bl_taskq* tq  = ...;
     int* run = ...;
     err = bl_mkok();
-    while ((!err.bl || err.bl == taskq_timeout) && *run) {
-      err = taskq_run_one (tq, 1000000);
+    while ((!err.bl || err.bl == bl_taskq_timeout) && *run) {
+      err = bl_taskq_run_one (tq, 1000000);
     }
     while (!err.bl) {
-      err = taskq_try_cancel (tq);
+      err = bl_taskq_try_cancel (tq);
     }
-    ->taskq ready to destroy
+    ->bl_taskq ready to destroy
   }
 
   void some_other_thread_func (void* context)
   {
     ...
-    taskq* tq = ...;
+    bl_taskq* tq = ...;
     int*          run = ...;
-    taskq_block (tq);
+    bl_taskq_block (tq);
     *run = false; -> should be atomic
   }
 --------------------------------------------------------------------------------

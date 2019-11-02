@@ -11,14 +11,14 @@
 #include <bl/base/libexport.h>
 
 /*---------------------------------------------------------------------------*/
-#define dynarray_foreach(prefix, content_type, instance_ptr, varname)\
+#define bl_dynarray_foreach(prefix, content_type, instance_ptr, varname)\
   for(\
     content_type* varname = prefix##_beg (instance_ptr);\
     varname < prefix##_end (instance_ptr);\
     ++varname\
     )
 /*---------------------------------------------------------------------------*/
-#define dynarray_foreach_const(prefix, content_type, instance_ptr, varname)\
+#define bl_dynarray_foreach_const(prefix, content_type, instance_ptr, varname)\
   for(\
     content_type const* varname = prefix##_beg (instance_ptr);\
     varname < prefix##_end (instance_ptr);\
@@ -27,20 +27,20 @@
 /*---------------------------------------------------------------------------*/
 /* dynamic array (storing the size + realloc) syntax "sugar"                 */
 /*---------------------------------------------------------------------------*/
-typedef struct dynarray_stub {
+typedef struct bl_dynarray_stub {
   void* arr;
-  uword size;
+  bl_uword size;
 }
-dynarray_stub;
+bl_dynarray_stub;
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT bl_err dynarray_resize(
-  dynarray_stub*   d,
-  uword            new_size,
-  uword            elem_size,
-  alloc_tbl const* alloc
+extern BL_EXPORT bl_err bl_dynarray_resize(
+  bl_dynarray_stub*   d,
+  bl_uword               new_size,
+  bl_uword               elem_size,
+  bl_alloc_tbl const* alloc
   );
 /*---------------------------------------------------------------------------*/
-/* reads file contents to a dynarray.
+/* reads file contents to a bl_dynarray.
 
   If "fp_read_limit" isn't zero fp will be advanced at most "fp_read_limit"
   bytes.
@@ -51,38 +51,38 @@ extern BL_EXPORT bl_err dynarray_resize(
   On success the resulting array will always be at least
   "d_offset" + "(bytes read from file)" + "d_overalloc" bytes.
 
-  If d has not enough space, the new dynarray size will be a multiple of
+  If d has not enough space, the new bl_dynarray size will be a multiple of
   "d_realloc_multiple_of". "d_realloc_multiple_of" = 0 will be interpreted as 1.
 
   fp must contain a succesfully open file descriptor. It won't be closed.
 */
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT bl_err dynarray_from_file(
-  dynarray_stub*   d,
-  uword*           d_written,
-  uword            d_offset,
-  uword            d_overalloc,
-  uword            d_realloc_multiple_of,
-  FILE*            fp,
-  uword            fp_read_limit,
-  alloc_tbl const* alloc
+extern BL_EXPORT bl_err bl_dynarray_from_file(
+  bl_dynarray_stub*   d,
+  bl_uword*              d_written,
+  bl_uword               d_offset,
+  bl_uword               d_overalloc,
+  bl_uword               d_realloc_multiple_of,
+  FILE*               fp,
+  bl_uword               fp_read_limit,
+  bl_alloc_tbl const* alloc
   );
 /*---------------------------------------------------------------------------*/
-#define define_dynarray_types(prefix, content_type)\
+#define bl_define_dynarray_types(prefix, content_type)\
 \
 typedef struct prefix {\
   content_type* arr;\
-  uword         size;\
+  bl_uword         size;\
 }\
 prefix;
 /*---------------------------------------------------------------------------*/
-#define declare_dynarray_funcs(prefix, content_type)\
+#define bl_declare_dynarray_funcs(prefix, content_type)\
 /*--------------------------------------------------------------------------*/\
-static inline \
-bl_err prefix##_resize (prefix* d, uword new_size, alloc_tbl const* alloc)\
+static inline bl_err \
+  prefix##_resize (prefix* d, bl_uword new_size, bl_alloc_tbl const* alloc)\
 {\
-  return dynarray_resize(\
-    (dynarray_stub*) d, new_size, sizeof *d->arr, alloc\
+  return bl_dynarray_resize(\
+    (bl_dynarray_stub*) d, new_size, sizeof *d->arr, alloc\
     );\
 }\
 /*--------------------------------------------------------------------------*/\
@@ -94,14 +94,14 @@ void prefix##_init_empty (prefix* d)\
 }\
 /*--------------------------------------------------------------------------*/\
 static inline \
-bl_err prefix##_init (prefix* d, uword size, alloc_tbl const* alloc)\
+bl_err prefix##_init (prefix* d, bl_uword size, bl_alloc_tbl const* alloc)\
 {\
   prefix##_init_empty (d);\
   return prefix##_resize (d, size, alloc);\
 }\
 /*--------------------------------------------------------------------------*/\
 static inline \
-void prefix##_destroy (prefix* d, alloc_tbl const* alloc)\
+void prefix##_destroy (prefix* d, bl_alloc_tbl const* alloc)\
 {\
   prefix##_resize (d, 0, alloc);\
 }\
@@ -116,14 +116,14 @@ content_type* prefix##_get_array_ownership (prefix* d)\
 }\
 /*--------------------------------------------------------------------------*/\
 static inline \
-uword prefix##_size (prefix const* d)\
+bl_uword prefix##_size (prefix const* d)\
 {\
   bl_assert (d);\
   return d->size;\
 }\
 /*--------------------------------------------------------------------------*/\
 static inline \
-content_type* prefix##_at (prefix const* d, uword idx)\
+content_type* prefix##_at (prefix const* d, bl_uword idx)\
 {\
   bl_assert (idx < d->size);\
   return d->arr + idx;\
@@ -149,25 +149,25 @@ content_type* prefix##_end (prefix const* d)\
   return d->arr + prefix##_size (d);\
 }\
 /*--------------------------------------------------------------------------*/\
-static inline \
-bl_err prefix##_grow (prefix* d, uword elem_count, alloc_tbl const* alloc)\
+static inline bl_err \
+  prefix##_grow (prefix* d, bl_uword elem_count, bl_alloc_tbl const* alloc)\
 {\
   return prefix##_resize (d, prefix##_size (d) + elem_count, alloc);\
 }\
 /*--------------------------------------------------------------------------*/\
 static inline \
 bl_err prefix##_from_file(\
-  prefix*          d,\
-  uword*           d_elems_written,\
-  uword            d_elem_offset,\
-  uword            d_elem_overalloc,\
-  FILE*            fp,\
-  uword            fp_read_limit,\
-  alloc_tbl const* alloc\
+  prefix*             d,\
+  bl_uword*           d_elems_written,\
+  bl_uword            d_elem_offset,\
+  bl_uword            d_elem_overalloc,\
+  FILE*               fp,\
+  bl_uword            fp_read_limit,\
+  bl_alloc_tbl const* alloc\
   )\
 {\
-  bl_err err = dynarray_from_file(\
-    (dynarray_stub*) d,\
+  bl_err err = bl_dynarray_from_file(\
+    (bl_dynarray_stub*) d,\
     d_elems_written,\
     d_elem_offset * sizeof *d->arr,\
     d_elem_overalloc * sizeof *d->arr,\

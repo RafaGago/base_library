@@ -7,13 +7,16 @@
 
 /*---------------------------------------------------------------------------*/
 #if BL_WORDSIZE >= 32
-/*the FMT_ERR printf format macro requires including "integer_printf_format.h"
+/*the BL_FMT_ERR printf format macro requires including "integer_printf_format.h"
   for it to be correctly expanded*/
-  typedef uword_d2 bl_err_uint;
-  #define FMT_ERR FMT_UWORD_D2
+  typedef bl_uword_d2 bl_err_uint;
+  #define BL_FMT_ERR BL_FMT_UWORD_D2
 #else
-  typedef uword bl_err_uint;
-  #define FMT_ERR FMT_UWORD
+  typedef bl_uword bl_err_uint;
+  #define BL_FMT_ERR BL_FMT_UWORD
+#endif
+#ifdef BL_UNPREFIXED_PRINTF_FORMATS
+  #define FMT_ERR BL_FMT_ERR
 #endif
 /*---------------------------------------------------------------------------*/
 #if BL_POSIX || BL_WINDOWS
@@ -26,8 +29,8 @@
 typedef enum bl_err_e {
   BL_ENUMVAL (bl_ok, 0),
   /*generic error.
-  Hack, it has been given a very unlikely error value, but it still doesn't make
-  sense from a POSIX perspective*/
+  Hack, it has been given a very bl_unlikely error value, but it still doesn't
+  make sense from a POSIX perspective*/
   BL_ENUMVAL (bl_error, ELIBEXEC),
   /*it might be done in the future but not now (EAGAIN)*/
   BL_ENUMVAL (bl_busy, EAGAIN),
@@ -68,7 +71,7 @@ struct bl_err {
 };
 typedef struct bl_err bl_err;
 /*---------------------------------------------------------------------------*/
-static inline bl_err bl_mkerr_sys (uword bl, uword sys)
+static inline bl_err bl_mkerr_sys (bl_uword bl, bl_uword sys)
 {
   bl_err e;
   e.bl  = (bl_err_uint) bl;
@@ -76,7 +79,7 @@ static inline bl_err bl_mkerr_sys (uword bl, uword sys)
   return e;
 }
 /*---------------------------------------------------------------------------*/
-static inline bl_err bl_mkerr (uword bl)
+static inline bl_err bl_mkerr (bl_uword bl)
 {
   return bl_mkerr_sys (bl, 0);
 }

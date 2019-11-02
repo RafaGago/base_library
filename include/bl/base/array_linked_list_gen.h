@@ -3,7 +3,7 @@ This file is used for autogeneration and is invalid C. The extension is kept to
 make the code editor color the syntax.
 
 To regenerate use scripts/autogenerator.sh:
-autogenerator.sh -f <THIS_FILE> -r TYPE=u8 -r TYPE=u16 -r TYPE=u32 -r TYPE=u64
+autogenerator.sh -f <THIS_FILE> -r TYPE=bl_u8 -r TYPE=bl_u16 -r TYPE=bl_u32 -r TYPE=bl_u64
 
 This is BAD, but IMO it was worse to have criptic-macro based generic data
 structures. This library is designed to be statically linked, so some of the
@@ -22,107 +22,123 @@ linker.
 #include <bl/base/integer.h>
 #include <bl/base/utility.h>
 
-typedef {TYPE} alnls_{TYPE}_it;
+typedef bl_{TYPE} bl_alnls_{TYPE}_it;
 /*---------------------------------------------------------------------------*/
-typedef struct alnls_{TYPE} {
-  uword capacity;
-  uword size;
-  {TYPE} head;
-  {TYPE}* nodes;
+typedef struct bl_alnls_{TYPE} {
+  bl_uword capacity;
+  bl_uword size;
+  bl_{TYPE}  head;
+  bl_{TYPE}* nodes;
 }
-alnls_{TYPE};
+bl_alnls_{TYPE};
 /*---------------------------------------------------------------------------*/
-#define alnls_{TYPE}_foreach(type_ptr, it_var)\
-  for (alnls_{TYPE}_it alnls_{TYPE}_priv_curr_it = alnls_{TYPE}_it_begin ((type_ptr)),\
-         it_var = alnls_{TYPE}_priv_curr_it;\
-       alnls_{TYPE}_it_in_range ((type_ptr), alnls_{TYPE}_priv_curr_it) &&\
-         (alnls_{TYPE}_priv_curr_it =\
-            alnls_{TYPE}_it_next ((type_ptr), alnls_{TYPE}_priv_curr_it), 1);\
-       it_var = alnls_{TYPE}_priv_curr_it\
-       )
-/*---------------------------------------------------------------------------*/
-#define alnls_{TYPE}_foreach_read_only(type_ptr, it_var)\
-  for (it_var = alnls_{TYPE}_it_begin ((type_ptr));\
-       alnls_{TYPE}_it_in_range ((type_ptr), it_var);\
-       it_var = alnls_{TYPE}_it_next ((type_ptr), it_var)\
-       )
-/*---------------------------------------------------------------------------*/
-#define alnls_{TYPE}_init(list, backing_nodes_array)\
-  alnls_{TYPE}_init_impl(\
-    (list),\
-    (backing_nodes_array),\
-    arr_elems (backing_nodes_array)\
+#define bl_alnls_{TYPE}_foreach(type_ptr, it_var)\
+  for(\
+    bl_alnls_{TYPE}_it bl_alnls_{TYPE}_priv_curr_it =\
+        bl_alnls_{TYPE}_it_begin ((type_ptr)),\
+      it_var = bl_alnls_{TYPE}_priv_curr_it;\
+    bl_alnls_{TYPE}_it_in_range ((type_ptr), bl_alnls_{TYPE}_priv_curr_it) &&\
+      (bl_alnls_{TYPE}_priv_curr_it =\
+        bl_alnls_{TYPE}_it_next ((type_ptr), bl_alnls_{TYPE}_priv_curr_it), 1);\
+    it_var = bl_alnls_{TYPE}_priv_curr_it\
     )
 /*---------------------------------------------------------------------------*/
-static inline alnls_{TYPE}_it alnls_{TYPE}_it_end (alnls_{TYPE}* l)
+#define bl_alnls_{TYPE}_foreach_read_only(type_ptr, it_var)\
+  for(\
+    it_var = bl_alnls_{TYPE}_it_begin ((type_ptr));\
+    bl_alnls_{TYPE}_it_in_range ((type_ptr), it_var);\
+    it_var = bl_alnls_{TYPE}_it_next ((type_ptr), it_var)\
+    )
+/*---------------------------------------------------------------------------*/
+#define bl_alnls_{TYPE}_init(list, backing_nodes_array)\
+  bl_alnls_{TYPE}_init_impl(\
+    (list),\
+    (backing_nodes_array),\
+    bl_arr_elems (backing_nodes_array)\
+    )
+/*---------------------------------------------------------------------------*/
+static inline bl_alnls_{TYPE}_it bl_alnls_{TYPE}_it_end (bl_alnls_{TYPE}* l)
 {
   return l->capacity;
 }
 /*---------------------------------------------------------------------------*/
-static inline alnls_{TYPE}_it alnls_{TYPE}_it_begin (alnls_{TYPE}* l)
+static inline bl_alnls_{TYPE}_it bl_alnls_{TYPE}_it_begin (bl_alnls_{TYPE}* l)
 {
   return l->head;
 }
 /*---------------------------------------------------------------------------*/
-static inline alnls_{TYPE}_it alnls_{TYPE}_capacity (alnls_{TYPE}* l)
+static inline bl_alnls_{TYPE}_it bl_alnls_{TYPE}_capacity (bl_alnls_{TYPE}* l)
 {
   return l->capacity;
 }
 /*---------------------------------------------------------------------------*/
-static inline alnls_{TYPE}_it alnls_{TYPE}_size (alnls_{TYPE}* l)
+static inline bl_alnls_{TYPE}_it bl_alnls_{TYPE}_size (bl_alnls_{TYPE}* l)
 {
   return l->size;
 }
 /*---------------------------------------------------------------------------*/
-static inline alnls_{TYPE}_it alnls_{TYPE}_it_in_range (alnls_{TYPE}* l, alnls_{TYPE}_it it)
+static inline bl_alnls_{TYPE}_it
+  bl_alnls_{TYPE}_it_in_range (bl_alnls_{TYPE}* l, bl_alnls_{TYPE}_it it)
 {
   return it < l->capacity;
 }
 /*---------------------------------------------------------------------------*/
-static inline bool alnls_{TYPE}_is_empty (alnls_{TYPE}* l)
+static inline bool bl_alnls_{TYPE}_is_empty (bl_alnls_{TYPE}* l)
 {
-  return alnls_{TYPE}_it_begin (l) == alnls_{TYPE}_it_end (l);
+  return bl_alnls_{TYPE}_it_begin (l) == bl_alnls_{TYPE}_it_end (l);
 }
 /*---------------------------------------------------------------------------*/
-static inline alnls_{TYPE}_it alnls_{TYPE}_it_next (alnls_{TYPE}* l, alnls_{TYPE}_it it)
+static inline bl_alnls_{TYPE}_it
+  bl_alnls_{TYPE}_it_next (bl_alnls_{TYPE}* l, bl_alnls_{TYPE}_it it)
 {
   return l->nodes[it];
 }
 /*---------------------------------------------------------------------------*/
-static inline void alnls_{TYPE}_node_release (alnls_{TYPE}* l, alnls_{TYPE}_it it)
+static inline void
+  bl_alnls_{TYPE}_node_release (bl_alnls_{TYPE}* l, bl_alnls_{TYPE}_it it)
 {
   l->nodes[it] = it;
 }
 /*---------------------------------------------------------------------------*/
-static inline bool alnls_{TYPE}_node_is_free (alnls_{TYPE}* l, alnls_{TYPE}_it it)
+static inline bool
+  bl_alnls_{TYPE}_node_is_free (bl_alnls_{TYPE}* l, bl_alnls_{TYPE}_it it)
 {
   return l->nodes[it] == it;
 }
 /*---------------------------------------------------------------------------*/
-static inline void alnls_{TYPE}_acquire_node_unsafe (alnls_{TYPE}* l, alnls_{TYPE}_it it)
+static inline void bl_alnls_{TYPE}_acquire_node_unsafe(
+  bl_alnls_{TYPE}* l, bl_alnls_{TYPE}_it it
+  )
 {
-  bl_assert (it < alnls_{TYPE}_capacity (l));
-  bl_assert (alnls_{TYPE}_node_is_free (l, it));
-  l->nodes[it] = alnls_{TYPE}_it_end (l);
+  bl_assert (it < bl_alnls_{TYPE}_capacity (l));
+  bl_assert (bl_alnls_{TYPE}_node_is_free (l, it));
+  l->nodes[it] = bl_alnls_{TYPE}_it_end (l);
 }
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT void alnls_{TYPE}_init_impl(
-  alnls_{TYPE}* l, {TYPE}* nodes, uword nodes_capacity
+extern BL_EXPORT void bl_alnls_{TYPE}_init_impl(
+  bl_alnls_{TYPE}* l, bl_{TYPE}* nodes, bl_uword nodes_capacity
   );
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT alnls_{TYPE}_it alnls_{TYPE}_try_acquire_node (alnls_{TYPE}* l, alnls_{TYPE}_it n);
+extern BL_EXPORT bl_alnls_{TYPE}_it
+  bl_alnls_{TYPE}_try_acquire_node (bl_alnls_{TYPE}* l, bl_alnls_{TYPE}_it n);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT alnls_{TYPE}_it alnls_{TYPE}_try_acquire_a_node (alnls_{TYPE}* l);
+extern BL_EXPORT bl_alnls_{TYPE}_it
+  bl_alnls_{TYPE}_try_acquire_a_node (bl_alnls_{TYPE}* l);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT void alnls_{TYPE}_insert_head (alnls_{TYPE}* l, alnls_{TYPE}_it n);
+extern BL_EXPORT void
+  bl_alnls_{TYPE}_insert_head (bl_alnls_{TYPE}* l, bl_alnls_{TYPE}_it n);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT alnls_{TYPE}_it alnls_{TYPE}_drop_head (alnls_{TYPE}* l);
+extern BL_EXPORT bl_alnls_{TYPE}_it
+  bl_alnls_{TYPE}_drop_head (bl_alnls_{TYPE}* l);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT void alnls_{TYPE}_insert_tail (alnls_{TYPE}* l, alnls_{TYPE}_it n);
+extern BL_EXPORT void
+  bl_alnls_{TYPE}_insert_tail (bl_alnls_{TYPE}* l, bl_alnls_{TYPE}_it n);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT alnls_{TYPE}_it alnls_{TYPE}_drop (alnls_{TYPE}* l, alnls_{TYPE}_it n);
+extern BL_EXPORT bl_alnls_{TYPE}_it
+  bl_alnls_{TYPE}_drop (bl_alnls_{TYPE}* l, bl_alnls_{TYPE}_it n);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT alnls_{TYPE}_it alnls_{TYPE}_drop_tail (alnls_{TYPE}* l);
+extern BL_EXPORT bl_alnls_{TYPE}_it
+  bl_alnls_{TYPE}_drop_tail (bl_alnls_{TYPE}* l);
 
 #endif /* #define __BL_ARRAY_LINKED_LIST_{TYPE}_H__ */
 
@@ -132,57 +148,61 @@ extern BL_EXPORT alnls_{TYPE}_it alnls_{TYPE}_drop_tail (alnls_{TYPE}* l);
 
 #include <bl/base/impl/array_linked_list_{TYPE}.h>
 
-BL_EXPORT void alnls_{TYPE}_init_impl(
-  alnls_{TYPE}* l, {TYPE}* nodes, uword nodes_capacity
+BL_EXPORT void bl_alnls_{TYPE}_init_impl(
+  bl_alnls_{TYPE}* l, bl_{TYPE}* nodes, bl_uword nodes_capacity
   )
 {
   l->nodes    = nodes;
   l->capacity = nodes_capacity;
   l->head     = l->capacity;
-  for (alnls_{TYPE}_it it = 0; it < l->capacity; ++it) {
-    alnls_{TYPE}_node_release (l, it);
+  for (bl_alnls_{TYPE}_it it = 0; it < l->capacity; ++it) {
+    bl_alnls_{TYPE}_node_release (l, it);
   }
   l->size = 0;
 }
 /*---------------------------------------------------------------------------*/
-BL_EXPORT alnls_{TYPE}_it alnls_{TYPE}_try_acquire_node (alnls_{TYPE}* l, alnls_{TYPE}_it n)
+BL_EXPORT bl_alnls_{TYPE}_it
+  bl_alnls_{TYPE}_try_acquire_node (bl_alnls_{TYPE}* l, bl_alnls_{TYPE}_it n)
 {
-  if (alnls_{TYPE}_node_is_free (l, n)) {
-    alnls_{TYPE}_acquire_node_unsafe (l, n);
+  if (bl_alnls_{TYPE}_node_is_free (l, n)) {
+    bl_alnls_{TYPE}_acquire_node_unsafe (l, n);
     return n;
   }
-  return alnls_{TYPE}_it_end (l);
+  return bl_alnls_{TYPE}_it_end (l);
 }
 /*---------------------------------------------------------------------------*/
-BL_EXPORT alnls_{TYPE}_it alnls_{TYPE}_try_acquire_a_node (alnls_{TYPE}* l)
+BL_EXPORT bl_alnls_{TYPE}_it
+  bl_alnls_{TYPE}_try_acquire_a_node (bl_alnls_{TYPE}* l)
 {
-  alnls_{TYPE}_it i;
-  for (i = 0; i < alnls_{TYPE}_it_end (l); ++i) {
-    if (alnls_{TYPE}_node_is_free (l, i)) {
-      alnls_{TYPE}_acquire_node_unsafe (l, i);
+  bl_alnls_{TYPE}_it i;
+  for (i = 0; i < bl_alnls_{TYPE}_it_end (l); ++i) {
+    if (bl_alnls_{TYPE}_node_is_free (l, i)) {
+      bl_alnls_{TYPE}_acquire_node_unsafe (l, i);
       break;
     }
   }
   return i;
 }
 /*---------------------------------------------------------------------------*/
-BL_EXPORT void alnls_{TYPE}_insert_head (alnls_{TYPE}* l, alnls_{TYPE}_it n)
+BL_EXPORT void
+  bl_alnls_{TYPE}_insert_head (bl_alnls_{TYPE}* l, bl_alnls_{TYPE}_it n)
 {
-  bl_assert (alnls_{TYPE}_it_next (l, n) == alnls_{TYPE}_it_end (l));
+  bl_assert (bl_alnls_{TYPE}_it_next (l, n) == bl_alnls_{TYPE}_it_end (l));
   l->nodes[n] = l->head;
-  l->head     = ({TYPE}) n;
-  bl_assert (alnls_{TYPE}_it_begin (l) == n); /* oveflow check */
+  l->head     = (bl_{TYPE}) n;
+  bl_assert (bl_alnls_{TYPE}_it_begin (l) == n); /* oveflow check */
   ++l->size;
 }
 /*---------------------------------------------------------------------------*/
-BL_EXPORT alnls_{TYPE}_it alnls_{TYPE}_drop_head (alnls_{TYPE}* l)
+BL_EXPORT bl_alnls_{TYPE}_it
+  bl_alnls_{TYPE}_drop_head (bl_alnls_{TYPE}* l)
 {
-  if (alnls_{TYPE}_is_empty (l)) {
-    return alnls_{TYPE}_it_end (l);
+  if (bl_alnls_{TYPE}_is_empty (l)) {
+    return bl_alnls_{TYPE}_it_end (l);
   }
-  alnls_{TYPE}_it prev_head = alnls_{TYPE}_it_begin (l);
-  l->head             = alnls_{TYPE}_it_next (l, prev_head);
-  l->nodes[prev_head] = alnls_{TYPE}_it_end (l);
+  bl_alnls_{TYPE}_it prev_head = bl_alnls_{TYPE}_it_begin (l);
+  l->head             = bl_alnls_{TYPE}_it_next (l, prev_head);
+  l->nodes[prev_head] = bl_alnls_{TYPE}_it_end (l);
   --l->size;
   return prev_head;
 }
@@ -192,74 +212,85 @@ BL_EXPORT alnls_{TYPE}_it alnls_{TYPE}_drop_head (alnls_{TYPE}* l)
 
 #include <bl/base/impl/array_linked_list_{TYPE}.h>
 
-static void alnls_{TYPE}_find_two_previous_nodes(
-  alnls_{TYPE}* l, alnls_{TYPE}_it* prev, alnls_{TYPE}_it* prev2, alnls_{TYPE}_it val
+static void bl_alnls_{TYPE}_find_two_previous_nodes(
+  bl_alnls_{TYPE}*    l,
+  bl_alnls_{TYPE}_it* prev,
+  bl_alnls_{TYPE}_it* prev2,
+  bl_alnls_{TYPE}_it  val
   )
 {
-  bl_assert (!alnls_{TYPE}_is_empty (l));
-  *prev2       = alnls_{TYPE}_it_end (l);
-  *prev        = alnls_{TYPE}_it_end (l);
-  alnls_{TYPE}_it now = alnls_{TYPE}_it_begin (l);
+  bl_assert (!bl_alnls_{TYPE}_is_empty (l));
+  *prev2       = bl_alnls_{TYPE}_it_end (l);
+  *prev        = bl_alnls_{TYPE}_it_end (l);
+  bl_alnls_{TYPE}_it now = bl_alnls_{TYPE}_it_begin (l);
 
   while (now != val) {
     *prev2 = *prev;
     *prev  = now;
-    now    = alnls_{TYPE}_it_next (l, now);
+    now    = bl_alnls_{TYPE}_it_next (l, now);
   }
 }
 /* TODO: regular insert ? */
 /*---------------------------------------------------------------------------*/
-BL_EXPORT void alnls_{TYPE}_insert_tail (alnls_{TYPE}* l, alnls_{TYPE}_it n)
+BL_EXPORT void bl_alnls_{TYPE}_insert_tail(
+  bl_alnls_{TYPE}* l, bl_alnls_{TYPE}_it n
+  )
 {
-  bl_assert (alnls_{TYPE}_it_next (l, n) == alnls_{TYPE}_it_end (l));
-  if (!alnls_{TYPE}_is_empty (l)) {
-    alnls_{TYPE}_it tail, subtail;
-    alnls_{TYPE}_find_two_previous_nodes (l, &tail, &subtail, alnls_{TYPE}_it_end (l));
+  bl_assert (bl_alnls_{TYPE}_it_next (l, n) == bl_alnls_{TYPE}_it_end (l));
+  if (!bl_alnls_{TYPE}_is_empty (l)) {
+    bl_alnls_{TYPE}_it tail, subtail;
+    bl_alnls_{TYPE}_find_two_previous_nodes(
+      l, &tail, &subtail, bl_alnls_{TYPE}_it_end (l)
+      );
     l->nodes[tail] = n;
-    bl_assert (alnls_{TYPE}_it_next (l, tail) == n); /* overflow check */
+    bl_assert (bl_alnls_{TYPE}_it_next (l, tail) == n); /* overflow check */
   }
   else {
     l->head = n;
-    bl_assert (alnls_{TYPE}_it_begin (l) == n); /* overflow check */
+    bl_assert (bl_alnls_{TYPE}_it_begin (l) == n); /* overflow check */
   }
   ++l->size;
 }
 /*---------------------------------------------------------------------------*/
-BL_EXPORT alnls_{TYPE}_it alnls_{TYPE}_drop (alnls_{TYPE}* l, alnls_{TYPE}_it n)
+BL_EXPORT bl_alnls_{TYPE}_it
+  bl_alnls_{TYPE}_drop (bl_alnls_{TYPE}* l, bl_alnls_{TYPE}_it n)
 {
-  bl_assert (alnls_{TYPE}_it_in_range( l, n));
-  bl_assert (!alnls_{TYPE}_node_is_free (l, n));
+  bl_assert (bl_alnls_{TYPE}_it_in_range( l, n));
+  bl_assert (!bl_alnls_{TYPE}_node_is_free (l, n));
 
-  if (alnls_{TYPE}_is_empty (l)) {
-    return alnls_{TYPE}_it_end (l);
+  if (bl_alnls_{TYPE}_is_empty (l)) {
+    return bl_alnls_{TYPE}_it_end (l);
   }
-  alnls_{TYPE}_it should_be_n, prev, find;
-  find = alnls_{TYPE}_it_next (l, n);
-  alnls_{TYPE}_find_two_previous_nodes (l, &should_be_n, &prev, find);
+  bl_alnls_{TYPE}_it should_be_n, prev, find;
+  find = bl_alnls_{TYPE}_it_next (l, n);
+  bl_alnls_{TYPE}_find_two_previous_nodes (l, &should_be_n, &prev, find);
   bl_assert (should_be_n == n);
-  if (prev != alnls_{TYPE}_it_end (l)) {
+  if (prev != bl_alnls_{TYPE}_it_end (l)) {
     l->nodes[prev] = find;
   }
   else {
-    l->head = alnls_{TYPE}_it_end (l);
+    l->head = bl_alnls_{TYPE}_it_end (l);
   }
-  l->nodes[n] = alnls_{TYPE}_it_end (l);
+  l->nodes[n] = bl_alnls_{TYPE}_it_end (l);
   --l->size;
   return prev;
 }
 /*---------------------------------------------------------------------------*/
-BL_EXPORT alnls_{TYPE}_it alnls_{TYPE}_drop_tail (alnls_{TYPE}* l)
+BL_EXPORT bl_alnls_{TYPE}_it
+  bl_alnls_{TYPE}_drop_tail (bl_alnls_{TYPE}* l)
 {
-  if (alnls_{TYPE}_is_empty (l)) {
-    return alnls_{TYPE}_it_end (l);
+  if (bl_alnls_{TYPE}_is_empty (l)) {
+    return bl_alnls_{TYPE}_it_end (l);
   }
-  alnls_{TYPE}_it tail, subtail;
-  alnls_{TYPE}_find_two_previous_nodes (l, &tail, &subtail, alnls_{TYPE}_it_end (l));
-  if (subtail != alnls_{TYPE}_it_end (l)) {
-    l->nodes[subtail] = alnls_{TYPE}_it_end (l);
+  bl_alnls_{TYPE}_it tail, subtail;
+  bl_alnls_{TYPE}_find_two_previous_nodes(
+    l, &tail, &subtail, bl_alnls_{TYPE}_it_end (l)
+    );
+  if (subtail != bl_alnls_{TYPE}_it_end (l)) {
+    l->nodes[subtail] = bl_alnls_{TYPE}_it_end (l);
   }
   else {
-    l->head = alnls_{TYPE}_it_end (l);
+    l->head = bl_alnls_{TYPE}_it_end (l);
   }
   --l->size;
   return tail;

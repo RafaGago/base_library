@@ -42,46 +42,48 @@ This is the Dimitry Dyukov MPMC with added variations:
  has extra unfairness towards the producers trying to allocate more slots (they
  operate slowly).
 ------------------------------------------------------------------------------*/
-typedef struct mpmc_bpm {
-  u8*                       mem;
-  u8*                       mem_unaligned;
-  u32                       slots;
-  u32                       slot_max;
-  u32                       slot_size;
-  u32                       flags;
-  declare_cache_pad_member;
-  atomic_u32                push_slot;
-  declare_cache_pad_member;
-  atomic_u32                pop_slot;
-  declare_cache_pad_member;
+typedef struct bl_mpmc_bpm {
+  bl_u8*                       mem;
+  bl_u8*                       mem_unaligned;
+  bl_u32                       slots;
+  bl_u32                       slot_max;
+  bl_u32                       slot_size;
+  bl_u32                       flags;
+  bl_declare_cache_pad_member;
+  bl_atomic_u32                push_slot;
+  bl_declare_cache_pad_member;
+  bl_atomic_u32                pop_slot;
+  bl_declare_cache_pad_member;
 }
-mpmc_bpm;
+bl_mpmc_bpm;
 /*----------------------------------------------------------------------------*/
-static inline u32 mpmc_bpm_slot_size (mpmc_bpm const* q)
+static inline bl_u32 bl_mpmc_bpm_slot_size (bl_mpmc_bpm const* q)
 {
   return q->slot_size;
 }
 /*----------------------------------------------------------------------------*/
-static inline uword mpmc_bpm_required_slots (mpmc_bpm const* q, uword payload)
+static inline bl_uword
+  bl_mpmc_bpm_required_slots (bl_mpmc_bpm const* q, bl_uword payload)
 {
-  return round_to_next_multiple (payload + sizeof (u32), q->slot_size);
+  return bl_round_to_next_multiple (payload + sizeof (bl_u32), q->slot_size);
 }
 /*----------------------------------------------------------------------------*/
-static inline uword mpmc_bpm_slot_payload (mpmc_bpm const* q, uword slots)
+static inline bl_uword
+  bl_mpmc_bpm_slot_payload (bl_mpmc_bpm const* q, bl_uword slots)
 {
-  return (q->slot_size * slots) - sizeof (u32);
+  return (q->slot_size * slots) - sizeof (bl_u32);
 }
 /*----------------------------------------------------------------------------*/
-static inline u32 mpmc_bpm_slot_count (mpmc_bpm const* q)
+static inline bl_u32 bl_mpmc_bpm_slot_count (bl_mpmc_bpm const* q)
 {
   return q->slots;
 }
 /*------------------------------------------------------------------------------
-slot_count: number of queue slots. a power of two. max is "mpmc_bpm_max_slots".
+slot_count: number of queue slots. a power of two. max is "bl_mpmc_bpm_max_slots".
   The slot count must be bigger than the number of producer threads if you use
-  "mpmc_bpm_fifo_produce_prepare".
+  "bl_mpmc_bpm_fifo_produce_prepare".
 
-slot_size: Absolute size of the slot including a leading u32 variable.
+slot_size: Absolute size of the slot including a leading bl_u32 variable.
 
 slot_max: the maximum amount of slots to be reserved at once. This parameter
   causes the queue to a tail of free memory so the last slot of the queue can
@@ -98,28 +100,28 @@ enable_fairness: When disabled reserving higher "slot_count" values take
   without a big size differences.
 ------------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
-  bl_err mpmc_bpm_init(
-    mpmc_bpm*        q,
-    alloc_tbl const* alloc,
-    u32              slot_count,
-    u32              slot_max,
-    u32              slot_size,
-    u32              slot_alignment,
+  bl_err bl_mpmc_bpm_init(
+    bl_mpmc_bpm*        q,
+    bl_alloc_tbl const* alloc,
+    bl_u32              slot_count,
+    bl_u32              slot_max,
+    bl_u32              slot_size,
+    bl_u32              slot_alignment,
     bool             enable_fairness
     );
 /*----------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
-  void mpmc_bpm_destroy (mpmc_bpm* q, alloc_tbl const* alloc);
+  void bl_mpmc_bpm_destroy (bl_mpmc_bpm* q, bl_alloc_tbl const* alloc);
 /*------------------------------------------------------------------------------
-"mpmc_bpm_produce_prepare*" funtion call variants.
+"bl_mpmc_bpm_produce_prepare*" funtion call variants.
 
 "produce_prepare" Gets a FIFO memory chunk from the queue for producing. On a
 successful call the memory chunk can be written. The memory write is signaled
-by calling "mpmc_bpm_produce_commit".
+by calling "bl_mpmc_bpm_produce_commit".
 
 op: when there is no error will contain the current ticket id
   and the signal that was present on the producer's "channel". You unpack them
-  with "mpmc_b_sig_decode (op)" and "mpmc_b_ticket_decode (op)"
+  with "bl_mpmc_b_sig_decode (op)" and "bl_mpmc_b_ticket_decode (op)"
 
   On return of an error code the operation has been blocked and can't be
   commited.
@@ -161,112 +163,112 @@ Example usage snippet:
 
 ------------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
-  bl_err mpmc_bpm_produce_prepare_sig_fallback(
-   mpmc_bpm*  q,
-   mpmc_b_op* op,
-   u8**       mem,
-   u32        slots,
-   bool       replace_sig,
-   mpmc_b_sig sig_replacement,
-   mpmc_b_sig sig_fallback_mask,
-   mpmc_b_sig sig_fallback_match
+  bl_err bl_mpmc_bpm_produce_prepare_sig_fallback(
+   bl_mpmc_bpm*  q,
+   bl_mpmc_b_op* op,
+   bl_u8**       mem,
+   bl_u32        slots,
+   bool          replace_sig,
+   bl_mpmc_b_sig sig_replacement,
+   bl_mpmc_b_sig sig_fallback_mask,
+   bl_mpmc_b_sig sig_fallback_match
    );
 /*----------------------------------------------------------------------------*/
-static inline bl_err mpmc_bpm_produce_prepare_fallback(
-  mpmc_bpm*  q,
-  mpmc_b_op* op,
-  u8**       mem,
-  u32        slots,
-  mpmc_b_sig sig_fallback_mask,
-  mpmc_b_sig sig_fallback_match
+static inline bl_err bl_mpmc_bpm_produce_prepare_fallback(
+  bl_mpmc_bpm*  q,
+  bl_mpmc_b_op* op,
+  bl_u8**       mem,
+  bl_u32        slots,
+  bl_mpmc_b_sig sig_fallback_mask,
+  bl_mpmc_b_sig sig_fallback_match
   )
 {
-  return mpmc_bpm_produce_prepare_sig_fallback(
+  return bl_mpmc_bpm_produce_prepare_sig_fallback(
     q, op, mem, slots, false, 0, sig_fallback_mask, sig_fallback_match
     );
 }
 /*----------------------------------------------------------------------------*/
-static inline bl_err mpmc_bpm_produce_prepare_sig(
-  mpmc_bpm*  q,
-  mpmc_b_op* op,
-  u8**       mem,
-  u32        slots,
-  mpmc_b_sig sig_replacement
+static inline bl_err bl_mpmc_bpm_produce_prepare_sig(
+  bl_mpmc_bpm*  q,
+  bl_mpmc_b_op* op,
+  bl_u8**       mem,
+  bl_u32        slots,
+  bl_mpmc_b_sig sig_replacement
   )
 {
-  return mpmc_bpm_produce_prepare_sig_fallback(
+  return bl_mpmc_bpm_produce_prepare_sig_fallback(
     q, op, mem, slots, true, sig_replacement, 0, 1
     );
 }
 /*----------------------------------------------------------------------------*/
-static inline bl_err mpmc_bpm_produce_prepare(
-  mpmc_bpm* q, mpmc_b_op* op, u8** mem, u32 slots
+static inline bl_err bl_mpmc_bpm_produce_prepare(
+  bl_mpmc_bpm* q, bl_mpmc_b_op* op, bl_u8** mem, bl_u32 slots
   )
 {
-  return mpmc_bpm_produce_prepare_sig_fallback(
+  return bl_mpmc_bpm_produce_prepare_sig_fallback(
     q, op, mem, slots, false, 0, 0, 1
     );
 }
 /*----------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
-  void mpmc_bpm_produce_commit(
-    mpmc_bpm* q, mpmc_b_op op, u8* mem, u32 slots
+  void bl_mpmc_bpm_produce_commit(
+    bl_mpmc_bpm* q, bl_mpmc_b_op op, bl_u8* mem, bl_u32 slots
     );
 /*------------------------------------------------------------------------------
-The interface is exactly the same as on the "mpmc_bpm_produce_prepare*" funtion
+The interface is exactly the same as on the "bl_mpmc_bpm_produce_prepare*" funtion
 call variants but consuming instead.
 ------------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
-  bl_err mpmc_bpm_consume_prepare_sig_fallback(
-    mpmc_bpm*  q,
-    mpmc_b_op* op,
-    u8**       mem,
-    u32*       slots,
-    bool       replace_sig,
-    mpmc_b_sig sig_replacement,
-    mpmc_b_sig sig_fallback_mask,
-    mpmc_b_sig sig_fallback_match
+  bl_err bl_mpmc_bpm_consume_prepare_sig_fallback(
+    bl_mpmc_bpm*  q,
+    bl_mpmc_b_op* op,
+    bl_u8**       mem,
+    bl_u32*       slots,
+    bool          replace_sig,
+    bl_mpmc_b_sig sig_replacement,
+    bl_mpmc_b_sig sig_fallback_mask,
+    bl_mpmc_b_sig sig_fallback_match
     );
 /*----------------------------------------------------------------------------*/
-static inline bl_err mpmc_bpm_consume_prepare_fallback(
-  mpmc_bpm*  q,
-  mpmc_b_op* op,
-  u8**       mem,
-  u32*       slots,
-  mpmc_b_sig sig_fallback_mask,
-  mpmc_b_sig sig_fallback_match
+static inline bl_err bl_mpmc_bpm_consume_prepare_fallback(
+  bl_mpmc_bpm*  q,
+  bl_mpmc_b_op* op,
+  bl_u8**       mem,
+  bl_u32*       slots,
+  bl_mpmc_b_sig sig_fallback_mask,
+  bl_mpmc_b_sig sig_fallback_match
   )
 {
-  return mpmc_bpm_consume_prepare_sig_fallback(
+  return bl_mpmc_bpm_consume_prepare_sig_fallback(
     q, op, mem, slots, false, 0, sig_fallback_mask, sig_fallback_match
     );
 }
 /*----------------------------------------------------------------------------*/
-static inline bl_err mpmc_bpm_consume_prepare_sig(
-  mpmc_bpm*  q,
-  mpmc_b_op* op,
-  u8**       mem,
-  u32*       slots,
-  mpmc_b_sig sig_replacement
+static inline bl_err bl_mpmc_bpm_consume_prepare_sig(
+  bl_mpmc_bpm*  q,
+  bl_mpmc_b_op* op,
+  bl_u8**       mem,
+  bl_u32*       slots,
+  bl_mpmc_b_sig sig_replacement
   )
 {
-  return mpmc_bpm_consume_prepare_sig_fallback(
+  return bl_mpmc_bpm_consume_prepare_sig_fallback(
     q, op, mem, slots, true, sig_replacement, 0, 1
     );
 }
 /*----------------------------------------------------------------------------*/
-static inline bl_err mpmc_bpm_consume_prepare(
-  mpmc_bpm* q, mpmc_b_op* op, u8** mem, u32* slots
+static inline bl_err bl_mpmc_bpm_consume_prepare(
+  bl_mpmc_bpm* q, bl_mpmc_b_op* op, bl_u8** mem, bl_u32* slots
   )
 {
-  return mpmc_bpm_consume_prepare_sig_fallback(
+  return bl_mpmc_bpm_consume_prepare_sig_fallback(
     q, op, mem, slots, false, 0, 0, 1
     );
 }
 /*----------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
-  void mpmc_bpm_consume_commit(
-    mpmc_bpm* q, mpmc_b_op op, u8* mem, u32 slots
+  void bl_mpmc_bpm_consume_commit(
+    bl_mpmc_bpm* q, bl_mpmc_b_op op, bl_u8* mem, bl_u32 slots
     );
 /*------------------------------------------------------------------------------
   This queue can be used just as an allocator, but the underlying queue is the
@@ -279,49 +281,50 @@ extern BL_NONBLOCK_EXPORT
    chances to finish that those that request less slots unless the fairness is
    activated.
 ------------------------------------------------------------------------------*/
-extern BL_NONBLOCK_EXPORT u8* mpmc_bpm_alloc(
-  mpmc_bpm* q, uword slots
+extern BL_NONBLOCK_EXPORT bl_u8* bl_mpmc_bpm_alloc(
+  bl_mpmc_bpm* q, bl_uword slots
   );
 /*--------------------------- ------------------------------------------------*/
-extern BL_NONBLOCK_EXPORT void mpmc_bpm_dealloc(
-  mpmc_bpm* q, u8* mem, uword slots
+extern BL_NONBLOCK_EXPORT void bl_mpmc_bpm_dealloc(
+  bl_mpmc_bpm* q, bl_u8* mem, bl_uword slots
   );
 /*----------------------------------------------------------------------------*/
-static inline void mpmc_bpm_dealloc_unsafe (mpmc_bpm* q, u8* mem)
+static inline void bl_mpmc_bpm_dealloc_unsafe (bl_mpmc_bpm* q, bl_u8* mem)
 {
-  mpmc_bpm_dealloc (q, mem, 0);
+  bl_mpmc_bpm_dealloc (q, mem, 0);
 }
 /*----------------------------------------------------------------------------*/
-static inline bool mpmc_bpm_allocation_is_in_range (mpmc_bpm* q, u8* mem)
+static inline bool
+  bl_mpmc_bpm_allocation_is_in_range (bl_mpmc_bpm* q, bl_u8* mem)
 {
   return (mem >= q->mem) && (mem < (q->mem + (q->slots * q->slot_size)));
 }
 /*------------------------------------------------------------------------------
-  See mpmc_b.h for documentation on these functions, they work exactly the same
+  See bl_mpmc_b.h for documentation on these functions, they work exactly the same
 ------------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
-  bl_err mpmc_bpm_producer_signal_try_set(
-    mpmc_bpm* q, mpmc_b_sig* expected, mpmc_b_sig desired
+  bl_err bl_mpmc_bpm_producer_signal_try_set(
+    bl_mpmc_bpm* q, bl_mpmc_b_sig* expected, bl_mpmc_b_sig desired
     );
 /*-----------------------------------------------------------------------------
  Same as the above but the last successful ticket has to match too. If
  the queue is unitialized the last successful ticket is uint_max;
 -----------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
-  bl_err mpmc_bpm_producer_signal_try_set_tmatch(
-    mpmc_bpm* q, mpmc_b_ticket* expected, mpmc_b_sig desired
+  bl_err bl_mpmc_bpm_producer_signal_try_set_tmatch(
+    bl_mpmc_bpm* q, bl_mpmc_b_ticket* expected, bl_mpmc_b_sig desired
     );
 /*-----------------------------------------------------------------------------
   Same as above but for consumers. Can only be used on MPMC or SPMC mode
 -----------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
-  bl_err mpmc_bpm_consumer_signal_try_set(
-    mpmc_bpm* q, mpmc_b_sig* expected, mpmc_b_sig desired
+  bl_err bl_mpmc_bpm_consumer_signal_try_set(
+    bl_mpmc_bpm* q, bl_mpmc_b_sig* expected, bl_mpmc_b_sig desired
     );
 /*--------------------------- ------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
-  bl_err mpmc_bpm_consumer_signal_try_set_tmatch(
-    mpmc_bpm* q, mpmc_b_ticket* expected, mpmc_b_sig desired
+  bl_err bl_mpmc_bpm_consumer_signal_try_set_tmatch(
+    bl_mpmc_bpm* q, bl_mpmc_b_ticket* expected, bl_mpmc_b_sig desired
     );
 /*--------------------------- ------------------------------------------------*/
 #ifdef __cplusplus

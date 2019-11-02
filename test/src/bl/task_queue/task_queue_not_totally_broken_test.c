@@ -5,9 +5,9 @@
 /*---------------------------------------------------------------------------*/
 #define BL_TSTAMP_MOCK_FOR_TESTS 1
 #include <bl/base/time.h>
-static inline tstamp bl_get_tstamp (void)
+static inline bl_tstamp bl_get_tstamp (void)
 {
-  return (tstamp) mock();
+  return (bl_tstamp) mock();
 }
 /*---------------------------------------------------------------------------*/
 #include <bl/base/default_allocator.h>
@@ -24,318 +24,320 @@ static inline tstamp bl_get_tstamp (void)
   everything is right.
 */
 //-----------------------------------------------------------------------------
-typedef struct taskq_test_context {
-  taskq*    tq;
-  alloc_tbl alloc;
-  taskq_id  last_id;
+typedef struct bl_taskq_test_context {
+  bl_taskq*    tq;
+  bl_alloc_tbl alloc;
+  bl_taskq_id  last_id;
   bl_err    last_err;
 }
-taskq_test_context;
+bl_taskq_test_context;
 /*---------------------------------------------------------------------------*/
-void taskq_callback (bl_err err, taskq_id id, void* context)
+void bl_taskq_callback (bl_err err, bl_taskq_id id, void* context)
 {
-  taskq_test_context* c = (taskq_test_context*) context;
+  bl_taskq_test_context* c = (bl_taskq_test_context*) context;
   c->last_id            = id;
   c->last_err           = err;
 }
 /*---------------------------------------------------------------------------*/
-static const uword       queue_size   = 4;
-static const uword       delayed_size = 2;
-static const taskq_id    unset_id     = utype_max (taskq_id);
-static const bl_err_uint unset_err    = utype_max (bl_err_uint);
+static const bl_uword       queue_size   = 4;
+static const bl_uword       delayed_size = 2;
+static const bl_taskq_id    unset_id     = bl_utype_max (bl_taskq_id);
+static const bl_err_uint unset_err    = bl_utype_max (bl_err_uint);
 /*---------------------------------------------------------------------------*/
-static int taskq_test_setup (void **state)
+static int bl_taskq_test_setup (void **state)
 {
-  static taskq_test_context c;
+  static bl_taskq_test_context c;
   *state        = (void*) &c;
-  c.alloc       = get_default_alloc();
+  c.alloc       = bl_get_default_alloc();
   c.last_id     = unset_id;
   c.last_err.bl = unset_err;
   will_return (bl_get_tstamp, 0);
-  bl_err err = taskq_init (&c.tq, &c.alloc, queue_size, delayed_size);
+  bl_err err = bl_taskq_init (&c.tq, &c.alloc, queue_size, delayed_size);
   assert_true (err.bl == bl_ok);
   return 0;
 }
 /*---------------------------------------------------------------------------*/
-static int taskq_test_teardown (void **state)
+static int bl_taskq_test_teardown (void **state)
 {
-  taskq_test_context* c = (taskq_test_context*) *state;
-  taskq_destroy (c->tq, &c->alloc);
+  bl_taskq_test_context* c = (bl_taskq_test_context*) *state;
+  bl_taskq_destroy (c->tq, &c->alloc);
   return 0;
 }
 /*---------------------------------------------------------------------------*/
-static void taskq_test_try_run_nothing_to_do (void **state)
+static void bl_taskq_test_try_run_nothing_to_do (void **state)
 {
-  taskq_test_context* c = (taskq_test_context*) *state;
-  bl_err err = taskq_try_run_one (c->tq);
+  bl_taskq_test_context* c = (bl_taskq_test_context*) *state;
+  bl_err err = bl_taskq_try_run_one (c->tq);
   assert_true (err.bl == bl_nothing_to_do);
 }
 /*---------------------------------------------------------------------------*/
-static void taskq_test_simple (void **state)
+static void bl_taskq_test_simple (void **state)
 {
-  taskq_test_context* c = (taskq_test_context*) *state;
-  taskq_id id = 0;
-  taskq_task task = taskq_task_rv (taskq_callback, c);
-  bl_err      err = taskq_post (c->tq, &id, task);
+  bl_taskq_test_context* c = (bl_taskq_test_context*) *state;
+  bl_taskq_id id = 0;
+  bl_taskq_task task = bl_taskq_task_rv (bl_taskq_callback, c);
+  bl_err      err = bl_taskq_post (c->tq, &id, task);
   assert_true (!err.bl);
-  err = taskq_try_run_one (c->tq);
+  err = bl_taskq_try_run_one (c->tq);
   assert_true (!err.bl);
   assert_true (c->last_err.bl == bl_ok);
   assert_true (c->last_id == id);
 }
 /*---------------------------------------------------------------------------*/
-static void taskq_test_simple_delayed (void **state)
+static void bl_taskq_test_simple_delayed (void **state)
 {
-  taskq_id            id = 0;
-  tstamp              tp_cancel;
-  taskq_test_context* c;
-  taskq_task          task;
+  bl_taskq_id            id = 0;
+  bl_tstamp              tp_cancel;
+  bl_taskq_test_context* c;
+  bl_taskq_task          task;
   bl_err              err;
 
-  c   = (taskq_test_context*) *state;
-  task = taskq_task_rv (taskq_callback, c);
+  c   = (bl_taskq_test_context*) *state;
+  task = bl_taskq_task_rv (bl_taskq_callback, c);
   will_return (bl_get_tstamp, 0);
-  err = taskq_post_delayed (c->tq, &id, &tp_cancel, task, 2000);
+  err = bl_taskq_post_delayed (c->tq, &id, &tp_cancel, task, 2000);
   assert_true (!err.bl);
   will_return (bl_get_tstamp, 1000);
-  err = taskq_try_run_one (c->tq);
+  err = bl_taskq_try_run_one (c->tq);
   assert_true (err.bl == bl_nothing_to_do);
   assert_true (c->last_err.bl == unset_err);
   assert_true (c->last_id == unset_id);
   will_return (bl_get_tstamp, 1999);
-  err = taskq_try_run_one (c->tq);
+  err = bl_taskq_try_run_one (c->tq);
   assert_true (err.bl == bl_nothing_to_do);
   assert_true (c->last_err.bl == unset_err);
   assert_true (c->last_id == unset_id);
   will_return (bl_get_tstamp, 2000);
-  err = taskq_try_run_one (c->tq);
+  err = bl_taskq_try_run_one (c->tq);
   assert_true (!err.bl);
   assert_true (c->last_err.bl == bl_ok);
   assert_true (c->last_id == id);
 }
 /*---------------------------------------------------------------------------*/
-static void taskq_test_two_delayed (void **state)
+static void bl_taskq_test_two_delayed (void **state)
 {
-  taskq_id            id = 0, id2 = 0;
-  tstamp              tp_cancel;
-  taskq_test_context* c;
-  taskq_task          task;
+  bl_taskq_id            id = 0, id2 = 0;
+  bl_tstamp              tp_cancel;
+  bl_taskq_test_context* c;
+  bl_taskq_task          task;
   bl_err              err;
 
-  c   = (taskq_test_context*) *state;
-  task = taskq_task_rv (taskq_callback, c);
+  c   = (bl_taskq_test_context*) *state;
+  task = bl_taskq_task_rv (bl_taskq_callback, c);
   will_return (bl_get_tstamp, 0);
-  err = taskq_post_delayed (c->tq, &id, &tp_cancel, task, 2000);
+  err = bl_taskq_post_delayed (c->tq, &id, &tp_cancel, task, 2000);
   assert_true (!err.bl);
   will_return (bl_get_tstamp, 1);
-  err = taskq_try_run_one (c->tq);
+  err = bl_taskq_try_run_one (c->tq);
   assert_true (err.bl == bl_nothing_to_do);
   assert_true (c->last_err.bl == unset_err);
   assert_true (c->last_id == unset_id);
 
   will_return (bl_get_tstamp, 2);
-  err = taskq_post_delayed (c->tq, &id2, &tp_cancel, task, 1000);
+  err = bl_taskq_post_delayed (c->tq, &id2, &tp_cancel, task, 1000);
   assert_true (!err.bl);
   will_return (bl_get_tstamp, 3);
   will_return (bl_get_tstamp, 3);
-  err = taskq_try_run_one (c->tq);
+  err = bl_taskq_try_run_one (c->tq);
   assert_true (err.bl == bl_nothing_to_do);
   assert_true (c->last_err.bl == unset_err);
   assert_true (c->last_id == unset_id);
 
   will_return (bl_get_tstamp, 1999);
-  err = taskq_try_run_one (c->tq);
+  err = bl_taskq_try_run_one (c->tq);
   assert_true (!err.bl);
   assert_true (c->last_err.bl == bl_ok);
   assert_true (c->last_id == id2);
 
   will_return (bl_get_tstamp, 2000);
-  err = taskq_try_run_one (c->tq);
+  err = bl_taskq_try_run_one (c->tq);
   assert_true (!err.bl);
   assert_true (c->last_err.bl == bl_ok);
   assert_true (c->last_id == id);
 }
 /*---------------------------------------------------------------------------*/
-static void taskq_test_two_delayed_same_tp (void **state)
+static void bl_taskq_test_two_delayed_same_tp (void **state)
 {
-  taskq_id            id  = 0, id2 = 0;
-  tstamp              tp_cancel;
-  taskq_test_context* c;
-  taskq_task          task;
+  bl_taskq_id            id  = 0, id2 = 0;
+  bl_tstamp              tp_cancel;
+  bl_taskq_test_context* c;
+  bl_taskq_task          task;
   bl_err              err;
 
-  c   = (taskq_test_context*) *state;
-  task = taskq_task_rv (taskq_callback, c);
+  c   = (bl_taskq_test_context*) *state;
+  task = bl_taskq_task_rv (bl_taskq_callback, c);
   will_return (bl_get_tstamp, 0);
-  err = taskq_post_delayed (c->tq, &id, &tp_cancel, task, 2000);
+  err = bl_taskq_post_delayed (c->tq, &id, &tp_cancel, task, 2000);
   assert_true (!err.bl);
 
   will_return (bl_get_tstamp, 1);
-  err = taskq_post_delayed (c->tq, &id2, &tp_cancel, task, 1999);
+  err = bl_taskq_post_delayed (c->tq, &id2, &tp_cancel, task, 1999);
   assert_true (!err.bl);
 
   will_return (bl_get_tstamp, 1999);
   will_return (bl_get_tstamp, 1999);
-  err = taskq_try_run_one (c->tq);
+  err = bl_taskq_try_run_one (c->tq);
   assert_true (err.bl == bl_nothing_to_do);
   assert_true (c->last_err.bl == unset_err);
   assert_true (c->last_id == unset_id);
 
   will_return (bl_get_tstamp, 2000);
-  err = taskq_try_run_one (c->tq);
+  err = bl_taskq_try_run_one (c->tq);
   assert_true (!err.bl);
   assert_true (c->last_err.bl == bl_ok);
   assert_true (c->last_id == id);
 
-  err = taskq_try_run_one (c->tq);
+  err = bl_taskq_try_run_one (c->tq);
   assert_true (!err.bl);
   assert_true (c->last_err.bl == bl_ok);
   assert_true (c->last_id == id2);
 }
 /*---------------------------------------------------------------------------*/
-static void taskq_test_delayed_expired_on_first_run (void **state)
+static void bl_taskq_test_delayed_expired_on_first_run (void **state)
 {
-  taskq_id            id = 0;
-  tstamp              tp_cancel;
-  taskq_test_context* c;
-  taskq_task          task;
+  bl_taskq_id            id = 0;
+  bl_tstamp              tp_cancel;
+  bl_taskq_test_context* c;
+  bl_taskq_task          task;
   bl_err              err;
 
-  c   = (taskq_test_context*) *state;
-  task = taskq_task_rv (taskq_callback, c);
+  c   = (bl_taskq_test_context*) *state;
+  task = bl_taskq_task_rv (bl_taskq_callback, c);
   will_return (bl_get_tstamp, 0);
-  err = taskq_post_delayed (c->tq, &id, &tp_cancel, task, 2000);
+  err = bl_taskq_post_delayed (c->tq, &id, &tp_cancel, task, 2000);
   assert_true (!err.bl);
   will_return (bl_get_tstamp, 2000);
-  err = taskq_try_run_one (c->tq);
+  err = bl_taskq_try_run_one (c->tq);
   assert_true (!err.bl);
   assert_true (c->last_err.bl == bl_ok);
   assert_true (c->last_id == id);
 }
 /*---------------------------------------------------------------------------*/
-static void taskq_test_queue_overflow (void **state)
+static void bl_taskq_test_queue_overflow (void **state)
 {
-  taskq_test_context* c = (taskq_test_context*) *state;
-  taskq_task task = taskq_task_rv (taskq_callback, c);
-  taskq_id id;
-  for (uword i = 0; i < queue_size; ++i) {
-    bl_assert (taskq_post (c->tq, &id, task).bl == bl_ok);
+  bl_taskq_test_context* c = (bl_taskq_test_context*) *state;
+  bl_taskq_task task = bl_taskq_task_rv (bl_taskq_callback, c);
+  bl_taskq_id id;
+  for (bl_uword i = 0; i < queue_size; ++i) {
+    bl_assert (bl_taskq_post (c->tq, &id, task).bl == bl_ok);
   }
-  bl_assert (taskq_post (c->tq, &id, task).bl == bl_would_overflow);
+  bl_assert (bl_taskq_post (c->tq, &id, task).bl == bl_would_overflow);
 }
 /*---------------------------------------------------------------------------*/
-static void taskq_test_delayed_queue_overflow (void **state)
+static void bl_taskq_test_delayed_queue_overflow (void **state)
 {
-  taskq_id            id[delayed_size + 1];
-  tstamp              tp_cancel;
-  taskq_test_context* c;
-  taskq_task          task;
+  bl_taskq_id            id[delayed_size + 1];
+  bl_tstamp              tp_cancel;
+  bl_taskq_test_context* c;
+  bl_taskq_task          task;
   bl_err              err;
 
-  c   = (taskq_test_context*) *state;
-  task = taskq_task_rv (taskq_callback, c);
+  c   = (bl_taskq_test_context*) *state;
+  task = bl_taskq_task_rv (bl_taskq_callback, c);
   will_return (bl_get_tstamp, 0);
   will_return (bl_get_tstamp, 1);
   will_return (bl_get_tstamp, 2);
 
-  for (uword i = 0; i < arr_elems (id); ++i) {
-    err = taskq_post_delayed (c->tq, &id[i], &tp_cancel, task, 2000);
+  for (bl_uword i = 0; i < bl_arr_elems (id); ++i) {
+    err = bl_taskq_post_delayed (c->tq, &id[i], &tp_cancel, task, 2000);
     assert_true (!err.bl);
   }
   will_return (bl_get_tstamp, 3);
   will_return (bl_get_tstamp, 4);
-  err = taskq_try_run_one (c->tq);
+  err = bl_taskq_try_run_one (c->tq);
   assert_true (!err.bl);
   /*user is resposible of not overflowing the timer queue*/
   assert_true (c->last_err.bl == bl_would_overflow);
   assert_true (c->last_id == id[delayed_size]);
 }
 /*---------------------------------------------------------------------------*/
-static void taskq_test_post_try_cancel_delayed (void **state)
+static void bl_taskq_test_post_try_cancel_delayed (void **state)
 {
-  taskq_id            id = 0;
-  tstamp              tp_cancel;
-  taskq_test_context* c;
-  taskq_task          task;
+  bl_taskq_id            id = 0;
+  bl_tstamp              tp_cancel;
+  bl_taskq_test_context* c;
+  bl_taskq_task          task;
   bl_err              err;
 
   will_return (bl_get_tstamp, 0);
   will_return (bl_get_tstamp, 1);
 
-  c   = (taskq_test_context*) *state;
-  task = taskq_task_rv (taskq_callback, c);
-  err = taskq_post_delayed (c->tq, &id, &tp_cancel, task, 2000);
+  c   = (bl_taskq_test_context*) *state;
+  task = bl_taskq_task_rv (bl_taskq_callback, c);
+  err = bl_taskq_post_delayed (c->tq, &id, &tp_cancel, task, 2000);
   assert_true (!err.bl);
   assert_true (c->last_err.bl == unset_err);
   assert_true (c->last_id == unset_id);
 
-  taskq_post_try_cancel_delayed (c->tq, id, tp_cancel);
+  bl_taskq_post_try_cancel_delayed (c->tq, id, tp_cancel);
   assert_true (c->last_err.bl == unset_err);
   assert_true (c->last_id == unset_id);
 
-  err = taskq_try_run_one (c->tq);
+  err = bl_taskq_try_run_one (c->tq);
   assert_true (!err.bl);
   assert_true (c->last_err.bl == bl_cancelled);
   assert_true (c->last_id == id);
 }
 /*---------------------------------------------------------------------------*/
-static void taskq_run_one_timeout (void **state)
+static void bl_taskq_run_one_timeout (void **state)
 {
-  taskq_test_context* c = (taskq_test_context*) *state;
+  bl_taskq_test_context* c = (bl_taskq_test_context*) *state;
   will_return (bl_get_tstamp, 0);
   will_return (bl_get_tstamp, 0);
-  bl_err err = taskq_run_one (c->tq, BL_SCHED_TMIN_US + 1);
+  bl_err err = bl_taskq_run_one (c->tq, BL_SCHED_TMIN_US + 1);
   assert_true (err.bl == bl_timeout);
 }
 /*---------------------------------------------------------------------------*/
-static void taskq_run_one_timeout_under_sched (void **state)
+static void bl_taskq_run_one_timeout_under_sched (void **state)
 {
-  taskq_test_context* c = (taskq_test_context*) *state;
+  bl_taskq_test_context* c = (bl_taskq_test_context*) *state;
   will_return (bl_get_tstamp, 0);
   will_return (bl_get_tstamp, BL_SCHED_TMIN_US - 1);
   will_return (bl_get_tstamp, BL_SCHED_TMIN_US);
-  bl_err err = taskq_run_one (c->tq, BL_SCHED_TMIN_US);
+  bl_err err = bl_taskq_run_one (c->tq, BL_SCHED_TMIN_US);
   assert_true (err.bl == bl_timeout);
 }
 /*---------------------------------------------------------------------------*/
-static void taskq_run_one_pending_delayed (void **state)
+static void bl_taskq_run_one_pending_delayed (void **state)
 {
-  taskq_id            id;
-  tstamp              tp_cancel;
-  taskq_test_context* c;
-  taskq_task          task;
+  bl_taskq_id            id;
+  bl_tstamp              tp_cancel;
+  bl_taskq_test_context* c;
+  bl_taskq_task          task;
   bl_err              err;
 
-  c   = (taskq_test_context*) *state;
-  task = taskq_task_rv (taskq_callback, c);
+  c   = (bl_taskq_test_context*) *state;
+  task = bl_taskq_task_rv (bl_taskq_callback, c);
 
-  will_return (bl_get_tstamp, 0); /*taskq_post_delayed*/
-  will_return (bl_get_tstamp, 0); /*taskq_try_run_one*/
-  will_return (bl_get_tstamp, 0); /*taskq_run_one, init expiration*/
-  will_return (bl_get_tstamp, 1); /*taskq_run_one, calc sem timeout*/
-  will_return (bl_get_tstamp, (BL_SCHED_TMIN_US * 2) - 1); /*taskq_try_run_one
+  will_return (bl_get_tstamp, 0); /*bl_taskq_post_delayed*/
+  will_return (bl_get_tstamp, 0); /*bl_taskq_try_run_one*/
+  will_return (bl_get_tstamp, 0); /*bl_taskq_run_one, init expiration*/
+  will_return (bl_get_tstamp, 1); /*bl_taskq_run_one, calc sem timeout*/
+  will_return (bl_get_tstamp, (BL_SCHED_TMIN_US * 2) - 1); /*bl_taskq_try_run_one
                                                            after sem wake up*/
-  err = taskq_post_delayed (c->tq, &id, &tp_cancel, task, BL_SCHED_TMIN_US * 2);
+  err = bl_taskq_post_delayed(
+    c->tq, &id, &tp_cancel, task, BL_SCHED_TMIN_US * 2
+    );
 
-  err = taskq_run_one (c->tq, BL_SCHED_TMIN_US + 2);
+  err = bl_taskq_run_one (c->tq, BL_SCHED_TMIN_US + 2);
   assert_true (err.bl == bl_timeout);
 }
 /*---------------------------------------------------------------------------*/
-static void taskq_test_try_cancel_one_nothing_to_do (void **state)
+static void bl_taskq_test_try_cancel_one_nothing_to_do (void **state)
 {
-  taskq_test_context* c = (taskq_test_context*) *state;
-  bl_err err = taskq_try_cancel_one (c->tq);
+  bl_taskq_test_context* c = (bl_taskq_test_context*) *state;
+  bl_err err = bl_taskq_try_cancel_one (c->tq);
   assert_true (err.bl == bl_nothing_to_do);
 }
 /*---------------------------------------------------------------------------*/
-static void taskq_test_try_cancel_one (void **state)
+static void bl_taskq_test_try_cancel_one (void **state)
 {
-  taskq_test_context* c = (taskq_test_context*) *state;
-  taskq_id   id;
-  taskq_task task = taskq_task_rv (taskq_callback, c);
-  bl_err  err     = taskq_post (c->tq, &id, task);
+  bl_taskq_test_context* c = (bl_taskq_test_context*) *state;
+  bl_taskq_id   id;
+  bl_taskq_task task = bl_taskq_task_rv (bl_taskq_callback, c);
+  bl_err  err     = bl_taskq_post (c->tq, &id, task);
   bl_assert (!err.bl);
-  err = taskq_try_cancel_one (c->tq);
+  err = bl_taskq_try_cancel_one (c->tq);
   assert_true (!err.bl);
   assert_true (c->last_err.bl == bl_cancelled);
   assert_true (c->last_id == id);
@@ -343,52 +345,62 @@ static void taskq_test_try_cancel_one (void **state)
 /*---------------------------------------------------------------------------*/
 static const struct CMUnitTest tests[] = {
   cmocka_unit_test_setup_teardown(
-    taskq_test_try_run_nothing_to_do, taskq_test_setup, taskq_test_teardown
-	   ),
-  cmocka_unit_test_setup_teardown(
-	   taskq_test_simple, taskq_test_setup, taskq_test_teardown
+    bl_taskq_test_try_run_nothing_to_do,
+    bl_taskq_test_setup,
+    bl_taskq_test_teardown
     ),
   cmocka_unit_test_setup_teardown(
-	   taskq_test_simple_delayed, taskq_test_setup, taskq_test_teardown
-	   ),
-  cmocka_unit_test_setup_teardown(
-    taskq_test_two_delayed, taskq_test_setup, taskq_test_teardown
+    bl_taskq_test_simple, bl_taskq_test_setup, bl_taskq_test_teardown
     ),
   cmocka_unit_test_setup_teardown(
-    taskq_test_two_delayed_same_tp, taskq_test_setup, taskq_test_teardown
+    bl_taskq_test_simple_delayed, bl_taskq_test_setup, bl_taskq_test_teardown
     ),
   cmocka_unit_test_setup_teardown(
-    taskq_test_delayed_expired_on_first_run,
-    taskq_test_setup,
-    taskq_test_teardown
+    bl_taskq_test_two_delayed, bl_taskq_test_setup, bl_taskq_test_teardown
     ),
   cmocka_unit_test_setup_teardown(
-    taskq_test_queue_overflow, taskq_test_setup, taskq_test_teardown
+    bl_taskq_test_two_delayed_same_tp,
+    bl_taskq_test_setup,
+    bl_taskq_test_teardown
     ),
   cmocka_unit_test_setup_teardown(
-    taskq_test_delayed_queue_overflow, taskq_test_setup, taskq_test_teardown
+    bl_taskq_test_delayed_expired_on_first_run,
+    bl_taskq_test_setup,
+    bl_taskq_test_teardown
     ),
   cmocka_unit_test_setup_teardown(
-    taskq_test_post_try_cancel_delayed, taskq_test_setup, taskq_test_teardown
+    bl_taskq_test_queue_overflow, bl_taskq_test_setup, bl_taskq_test_teardown
     ),
   cmocka_unit_test_setup_teardown(
-    taskq_run_one_timeout, taskq_test_setup, taskq_test_teardown
+    bl_taskq_test_delayed_queue_overflow,
+    bl_taskq_test_setup,
+    bl_taskq_test_teardown
     ),
   cmocka_unit_test_setup_teardown(
-      taskq_run_one_timeout_under_sched,
-      taskq_test_setup,
-      taskq_test_teardown
+    bl_taskq_test_post_try_cancel_delayed,
+    bl_taskq_test_setup,
+    bl_taskq_test_teardown
     ),
   cmocka_unit_test_setup_teardown(
-    taskq_run_one_pending_delayed, taskq_test_setup, taskq_test_teardown
+    bl_taskq_run_one_timeout, bl_taskq_test_setup, bl_taskq_test_teardown
     ),
   cmocka_unit_test_setup_teardown(
-    taskq_test_try_cancel_one_nothing_to_do,
-    taskq_test_setup,
-    taskq_test_teardown
+    bl_taskq_run_one_timeout_under_sched,
+    bl_taskq_test_setup,
+    bl_taskq_test_teardown
     ),
   cmocka_unit_test_setup_teardown(
-    taskq_test_try_cancel_one, taskq_test_setup, taskq_test_teardown
+    bl_taskq_run_one_pending_delayed,
+    bl_taskq_test_setup,
+    bl_taskq_test_teardown
+    ),
+  cmocka_unit_test_setup_teardown(
+    bl_taskq_test_try_cancel_one_nothing_to_do,
+    bl_taskq_test_setup,
+    bl_taskq_test_teardown
+    ),
+  cmocka_unit_test_setup_teardown(
+    bl_taskq_test_try_cancel_one, bl_taskq_test_setup, bl_taskq_test_teardown
     ),
 };
 /*---------------------------------------------------------------------------*/

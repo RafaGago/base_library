@@ -30,8 +30,8 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef  _BSD_SYS_TREE_H_
-#define  _BSD_SYS_TREE_H_
+#ifndef  BL_BSD_SYS_TREE_H_
+#define  BL_BSD_SYS_TREE_H_
 
 #include <bl/base/platform.h>
 
@@ -248,80 +248,80 @@ NOTES
   element otherwise they return NULL to indicate an error.
 */
 /*---------------------------------------------------------------------------*/
-#define splay_head(name, type)\
+#define bl_splay_head(name, type)\
 struct name {\
   struct type *sph_root; /* root of the tree */\
 }
 
-#define splay_initializer(root)\
+#define bl_splay_initializer(root)\
   { nullptr }
 
-#define splay_init(root)\
+#define bl_splay_init(root)\
 do {\
   (root)->sph_root = nullptr;\
 } while (/*constcond*/ 0)
 
-#define splay_entry(type)\
+#define bl_splay_entry(type)\
 struct {\
   struct type *spe_left; /* left element */\
   struct type *spe_right; /* right element */\
 }
 
-#define splay_left(elm, field)    (elm)->field.spe_left
-#define splay_right(elm, field)    (elm)->field.spe_right
-#define splay_root(head)    (head)->sph_root
-#define splay_empty(head)    (splay_root(head) == nullptr)
+#define bl_splay_left(elm, field)    (elm)->field.spe_left
+#define bl_splay_right(elm, field)    (elm)->field.spe_right
+#define bl_splay_root(head)    (head)->sph_root
+#define bl_splay_empty(head)    (bl_splay_root(head) == nullptr)
 
 /* splay_rotate_{left,right} expect that tmp hold splay_{right,left} */
-#define splay_rotate_right(head, tmp, field)\
+#define bl_splay_rotate_right(head, tmp, field)\
 do {\
-  splay_left((head)->sph_root, field) = splay_right(tmp, field);\
-  splay_right(tmp, field) = (head)->sph_root;\
+  bl_splay_left((head)->sph_root, field) = bl_splay_right(tmp, field);\
+  bl_splay_right(tmp, field) = (head)->sph_root;\
   (head)->sph_root = tmp;\
 } while (/*constcond*/ 0)
 
-#define splay_rotate_left(head, tmp, field)\
+#define bl_splay_rotate_left(head, tmp, field)\
 do {\
-  splay_right((head)->sph_root, field) = splay_left(tmp, field);\
-  splay_left(tmp, field) = (head)->sph_root;\
+  bl_splay_right((head)->sph_root, field) = bl_splay_left(tmp, field);\
+  bl_splay_left(tmp, field) = (head)->sph_root;\
   (head)->sph_root = tmp;\
 } while (/*constcond*/ 0)
 
-#define splay_linkleft(head, tmp, field)\
+#define bl_splay_linkleft(head, tmp, field)\
 do {\
-  splay_left(tmp, field) = (head)->sph_root;\
+  bl_splay_left(tmp, field) = (head)->sph_root;\
   tmp = (head)->sph_root;\
-  (head)->sph_root = splay_left((head)->sph_root, field);\
+  (head)->sph_root = bl_splay_left((head)->sph_root, field);\
 } while (/*constcond*/ 0)
 
-#define splay_linkright(head, tmp, field)\
+#define bl_splay_linkright(head, tmp, field)\
 do {\
-  splay_right(tmp, field) = (head)->sph_root;\
+  bl_splay_right(tmp, field) = (head)->sph_root;\
   tmp = (head)->sph_root;\
-  (head)->sph_root = splay_right((head)->sph_root, field);\
+  (head)->sph_root = bl_splay_right((head)->sph_root, field);\
 } while (/*constcond*/ 0)
 
 #define splay_assemble(head, node, left, right, field)\
 do {\
-  splay_right(left, field) = splay_left((head)->sph_root, field);\
-  splay_left(right, field) = splay_right((head)->sph_root, field);\
-  splay_left((head)->sph_root, field) = splay_right(node, field);\
-  splay_right((head)->sph_root, field) = splay_left(node, field);\
+  bl_splay_right(left, field) = bl_splay_left((head)->sph_root, field);\
+  bl_splay_left(right, field) = bl_splay_right((head)->sph_root, field);\
+  bl_splay_left((head)->sph_root, field) = bl_splay_right(node, field);\
+  bl_splay_right((head)->sph_root, field) = bl_splay_left(node, field);\
 } while (/*constcond*/ 0)
 
 /* generates prototypes and inline functions */
 
-#define splay_prototype(name, type, field, cmp)\
+#define bl_splay_prototype(name, type, field, cmp)\
 void name##_splay(struct name *, struct type *);\
-void name##_splay_minmax(struct name *, int);\
-struct type *name##_splay_insert(struct name *, struct type *);\
-struct type *name##_splay_remove(struct name *, struct type *);\
+void name##_bl_splay_minmax(struct name *, int);\
+struct type *name##_bl_splay_insert(struct name *, struct type *);\
+struct type *name##_bl_splay_remove(struct name *, struct type *);\
 \
 /* finds the node with the same key as elm */\
 static inline struct type *\
-name##_splay_find(struct name *head, struct type *elm)\
+name##_bl_splay_find(struct name *head, struct type *elm)\
 {\
-  if (splay_empty(head))\
+  if (bl_splay_empty(head))\
     return(nullptr);\
   name##_splay(head, elm);\
   if ((cmp)(elm, (head)->sph_root) == 0)\
@@ -330,13 +330,13 @@ name##_splay_find(struct name *head, struct type *elm)\
 }\
 \
 static inline struct type *\
-name##_splay_next(struct name *head, struct type *elm)\
+name##_bl_splay_next(struct name *head, struct type *elm)\
 {\
   name##_splay(head, elm);\
-  if (splay_right(elm, field) != nullptr) {\
-    elm = splay_right(elm, field);\
-    while (splay_left(elm, field) != nullptr) {\
-   elm = splay_left(elm, field);\
+  if (bl_splay_right(elm, field) != nullptr) {\
+    elm = bl_splay_right(elm, field);\
+    while (bl_splay_left(elm, field) != nullptr) {\
+   elm = bl_splay_left(elm, field);\
     }\
   } else\
     elm = nullptr;\
@@ -344,33 +344,33 @@ name##_splay_next(struct name *head, struct type *elm)\
 }\
 \
 static inline struct type *\
-name##_splay_min_max(struct name *head, int val)\
+name##_bl_splay_min_max(struct name *head, int val)\
 {\
-  name##_splay_minmax(head, val);\
-     return (splay_root(head));\
+  name##_bl_splay_minmax(head, val);\
+     return (bl_splay_root(head));\
 }
 
 /* main splay operation.
  * moves node close to the key of elm to top
  */
-#define splay_generate(name, type, field, cmp)\
+#define bl_splay_generate(name, type, field, cmp)\
 struct type *\
-name##_splay_insert(struct name *head, struct type *elm)\
+name##_bl_splay_insert(struct name *head, struct type *elm)\
 {\
-    if (splay_empty(head)) {\
-   splay_left(elm, field) = splay_right(elm, field) = nullptr;\
+    if (bl_splay_empty(head)) {\
+   bl_splay_left(elm, field) = bl_splay_right(elm, field) = nullptr;\
     } else {\
    int __comp;\
    name##_splay(head, elm);\
    __comp = (cmp)(elm, (head)->sph_root);\
    if(__comp < 0) {\
-     splay_left(elm, field) = splay_left((head)->sph_root, field);\
-     splay_right(elm, field) = (head)->sph_root;\
-     splay_left((head)->sph_root, field) = nullptr;\
+     bl_splay_left(elm, field) = bl_splay_left((head)->sph_root, field);\
+     bl_splay_right(elm, field) = (head)->sph_root;\
+     bl_splay_left((head)->sph_root, field) = nullptr;\
    } else if (__comp > 0) {\
-     splay_right(elm, field) = splay_right((head)->sph_root, field);\
-     splay_left(elm, field) = (head)->sph_root;\
-     splay_right((head)->sph_root, field) = nullptr;\
+     bl_splay_right(elm, field) = bl_splay_right((head)->sph_root, field);\
+     bl_splay_left(elm, field) = (head)->sph_root;\
+     bl_splay_right((head)->sph_root, field) = nullptr;\
    } else\
      return ((head)->sph_root);\
     }\
@@ -379,20 +379,20 @@ name##_splay_insert(struct name *head, struct type *elm)\
 }\
 \
 struct type *\
-name##_splay_remove(struct name *head, struct type *elm)\
+name##_bl_splay_remove(struct name *head, struct type *elm)\
 {\
   struct type *__tmp;\
-  if (splay_empty(head))\
+  if (bl_splay_empty(head))\
     return (nullptr);\
   name##_splay(head, elm);\
   if ((cmp)(elm, (head)->sph_root) == 0) {\
-    if (splay_left((head)->sph_root, field) == nullptr) {\
-   (head)->sph_root = splay_right((head)->sph_root, field);\
+    if (bl_splay_left((head)->sph_root, field) == nullptr) {\
+   (head)->sph_root = bl_splay_right((head)->sph_root, field);\
     } else {\
-   __tmp = splay_right((head)->sph_root, field);\
-   (head)->sph_root = splay_left((head)->sph_root, field);\
+   __tmp = bl_splay_right((head)->sph_root, field);\
+   (head)->sph_root = bl_splay_left((head)->sph_root, field);\
    name##_splay(head, elm);\
-   splay_right((head)->sph_root, field) = __tmp;\
+   bl_splay_right((head)->sph_root, field) = __tmp;\
     }\
     return (elm);\
   }\
@@ -405,30 +405,30 @@ name##_splay(struct name *head, struct type *elm)\
   struct type __node, *__left, *__right, *__tmp;\
   int __comp;\
 \
-  splay_left(&__node, field) = splay_right(&__node, field) = nullptr;\
+  bl_splay_left(&__node, field) = bl_splay_right(&__node, field) = nullptr;\
   __left = __right = &__node;\
 \
   while ((__comp = (cmp)(elm, (head)->sph_root)) != 0) {\
     if (__comp < 0) {\
-   __tmp = splay_left((head)->sph_root, field);\
+   __tmp = bl_splay_left((head)->sph_root, field);\
    if (__tmp == nullptr)\
      break;\
    if ((cmp)(elm, __tmp) < 0){\
-     splay_rotate_right(head, __tmp, field);\
-     if (splay_left((head)->sph_root, field) == nullptr)\
+     bl_splay_rotate_right(head, __tmp, field);\
+     if (bl_splay_left((head)->sph_root, field) == nullptr)\
     break;\
    }\
-   splay_linkleft(head, __right, field);\
+   bl_splay_linkleft(head, __right, field);\
     } else if (__comp > 0) {\
-   __tmp = splay_right((head)->sph_root, field);\
+   __tmp = bl_splay_right((head)->sph_root, field);\
    if (__tmp == nullptr)\
      break;\
    if ((cmp)(elm, __tmp) > 0){\
-     splay_rotate_left(head, __tmp, field);\
-     if (splay_right((head)->sph_root, field) == nullptr)\
+     bl_splay_rotate_left(head, __tmp, field);\
+     if (bl_splay_right((head)->sph_root, field) == nullptr)\
     break;\
    }\
-   splay_linkright(head, __left, field);\
+   bl_splay_linkright(head, __left, field);\
     }\
   }\
   splay_assemble(head, &__node, __left, __right, field);\
@@ -437,73 +437,73 @@ name##_splay(struct name *head, struct type *elm)\
 /* splay with either the minimum or the maximum element\
  * used to find minimum or maximum element in tree.\
  */\
-void name##_splay_minmax(struct name *head, int __comp) \
+void name##_bl_splay_minmax(struct name *head, int __comp) \
 {\
   struct type __node, *__left, *__right, *__tmp;\
 \
-  splay_left(&__node, field) = splay_right(&__node, field) = nullptr;\
+  bl_splay_left(&__node, field) = bl_splay_right(&__node, field) = nullptr;\
   __left = __right = &__node;\
 \
   while (1) {\
     if (__comp < 0) {\
-   __tmp = splay_left((head)->sph_root, field);\
+   __tmp = bl_splay_left((head)->sph_root, field);\
    if (__tmp == nullptr)\
      break;\
    if (__comp < 0){\
-     splay_rotate_right(head, __tmp, field);\
-     if (splay_left((head)->sph_root, field) == nullptr)\
+     bl_splay_rotate_right(head, __tmp, field);\
+     if (bl_splay_left((head)->sph_root, field) == nullptr)\
     break;\
    }\
-   splay_linkleft(head, __right, field);\
+   bl_splay_linkleft(head, __right, field);\
     } else if (__comp > 0) {\
-   __tmp = splay_right((head)->sph_root, field);\
+   __tmp = bl_splay_right((head)->sph_root, field);\
    if (__tmp == nullptr)\
      break;\
    if (__comp > 0) {\
-     splay_rotate_left(head, __tmp, field);\
-     if (splay_right((head)->sph_root, field) == nullptr)\
+     bl_splay_rotate_left(head, __tmp, field);\
+     if (bl_splay_right((head)->sph_root, field) == nullptr)\
     break;\
    }\
-   splay_linkright(head, __left, field);\
+   bl_splay_linkright(head, __left, field);\
     }\
   }\
   splay_assemble(head, &__node, __left, __right, field);\
 }
 
-#define splay_neginf  -1
-#define splay_inf  1
+#define bl_splay_neginf  -1
+#define bl_splay_inf  1
 
-#define splay_insert(name, x, y)  name##_splay_insert(x, y)
-#define splay_remove(name, x, y)  name##_splay_remove(x, y)
-#define splay_find(name, x, y)    name##_splay_find(x, y)
-#define splay_next(name, x, y)    name##_splay_next(x, y)
-#define splay_min(name, x)    (splay_empty(x) ? nullptr\
-    : name##_splay_min_max(x, splay_neginf))
-#define splay_max(name, x)    (splay_empty(x) ? nullptr\
-    : name##_splay_min_max(x, splay_inf))
+#define bl_splay_insert(name, x, y)  name##_bl_splay_insert(x, y)
+#define bl_splay_remove(name, x, y)  name##_bl_splay_remove(x, y)
+#define bl_splay_find(name, x, y)    name##_bl_splay_find(x, y)
+#define bl_splay_next(name, x, y)    name##_bl_splay_next(x, y)
+#define bl_splay_min(name, x)    (bl_splay_empty(x) ? nullptr\
+    : name##_bl_splay_min_max(x, bl_splay_neginf))
+#define bl_splay_max(name, x)    (bl_splay_empty(x) ? nullptr\
+    : name##_bl_splay_min_max(x, bl_splay_inf))
 
-#define splay_foreach(x, name, head)\
-  for ((x) = splay_min(name, head);\
+#define bl_splay_foreach(x, name, head)\
+  for ((x) = bl_splay_min(name, head);\
        (x) != nullptr;\
-       (x) = splay_next(name, head, x))
+       (x) = bl_splay_next(name, head, x))
 
 /* macros that define a red-black tree */
-#define rb_head(name, type)\
+#define bl_rb_head(name, type)\
 struct name {\
   struct type *rbh_root; /* root of the tree */\
 }
 
-#define rb_initializer(root)\
+#define bl_rb_initializer(root)\
   { nullptr }
 
-#define rb_init(root)\
+#define bl_rb_init(root)\
 do {\
   (root)->rbh_root = nullptr;\
 } while (/*constcond*/ 0)
 
 #define rb_black  0
-#define rb_red    1
-#define rb_entry(type)\
+#define bl_rb_red    1
+#define bl_rb_entry(type)\
 struct {\
   struct type *rbe_left;    /* left element */\
   struct type *rbe_right;    /* right element */\
@@ -511,491 +511,495 @@ struct {\
   int rbe_color;   /* node color */\
 }
 
-#define rb_left(elm, field)    (elm)->field.rbe_left
-#define rb_right(elm, field)    (elm)->field.rbe_right
-#define rb_parent(elm, field)    (elm)->field.rbe_parent
-#define rb_color(elm, field)    (elm)->field.rbe_color
-#define rb_root(head)   (head)->rbh_root
-#define rb_empty(head)   (rb_root(head) == nullptr)
+#define bl_rb_left(elm, field)    (elm)->field.rbe_left
+#define bl_rb_right(elm, field)    (elm)->field.rbe_right
+#define bl_rb_parent(elm, field)    (elm)->field.rbe_parent
+#define bl_rb_color(elm, field)    (elm)->field.rbe_color
+#define bl_rb_root(head)   (head)->rbh_root
+#define bl_rb_empty(head)   (bl_rb_root(head) == nullptr)
 
-#define rb_set(elm, parent, field)\
+#define bl_rb_set(elm, parent, field)\
 do {\
-  rb_parent(elm, field) = parent;\
-  rb_left(elm, field) = rb_right(elm, field) = nullptr;\
-  rb_color(elm, field) = rb_red;\
+  bl_rb_parent(elm, field) = parent;\
+  bl_rb_left(elm, field) = bl_rb_right(elm, field) = nullptr;\
+  bl_rb_color(elm, field) = bl_rb_red;\
 } while (/*constcond*/ 0)
 
-#define rb_set_blackred(black, red, field)\
+#define bl_rb_set_blackred(black, red, field)\
 do {\
-  rb_color(black, field) = rb_black;\
-  rb_color(red, field) = rb_red;\
+  bl_rb_color(black, field) = rb_black;\
+  bl_rb_color(red, field) = bl_rb_red;\
 } while (/*constcond*/ 0)
 
-#ifndef rb_augment
-#define rb_augment(x)  do {} while (0)
+#ifndef bl_rb_augment
+#define bl_rb_augment(x)  do {} while (0)
 #endif
 
-#define rb_rotate_left(head, elm, tmp, field)\
+#define bl_rb_rotate_left(head, elm, tmp, field)\
 do {\
-  (tmp) = rb_right(elm, field);\
-  if ((rb_right(elm, field) = rb_left(tmp, field)) != nullptr) {\
-    rb_parent(rb_left(tmp, field), field) = (elm);\
+  (tmp) = bl_rb_right(elm, field);\
+  if ((bl_rb_right(elm, field) = bl_rb_left(tmp, field)) != nullptr) {\
+    bl_rb_parent(bl_rb_left(tmp, field), field) = (elm);\
   }\
-  rb_augment(elm);\
-  if ((rb_parent(tmp, field) = rb_parent(elm, field)) != nullptr) {\
-    if ((elm) == rb_left(rb_parent(elm, field), field))\
-   rb_left(rb_parent(elm, field), field) = (tmp);\
+  bl_rb_augment(elm);\
+  if ((bl_rb_parent(tmp, field) = bl_rb_parent(elm, field)) != nullptr) {\
+    if ((elm) == bl_rb_left(bl_rb_parent(elm, field), field))\
+   bl_rb_left(bl_rb_parent(elm, field), field) = (tmp);\
     else\
-   rb_right(rb_parent(elm, field), field) = (tmp);\
+   bl_rb_right(bl_rb_parent(elm, field), field) = (tmp);\
   } else\
     (head)->rbh_root = (tmp);\
-  rb_left(tmp, field) = (elm);\
-  rb_parent(elm, field) = (tmp);\
-  rb_augment(tmp);\
-  if ((rb_parent(tmp, field)))\
-    rb_augment(rb_parent(tmp, field));\
+  bl_rb_left(tmp, field) = (elm);\
+  bl_rb_parent(elm, field) = (tmp);\
+  bl_rb_augment(tmp);\
+  if ((bl_rb_parent(tmp, field)))\
+    bl_rb_augment(bl_rb_parent(tmp, field));\
 } while (/*constcond*/ 0)
 
-#define rb_rotate_right(head, elm, tmp, field)\
+#define bl_rb_rotate_right(head, elm, tmp, field)\
 do {\
-  (tmp) = rb_left(elm, field);\
-  if ((rb_left(elm, field) = rb_right(tmp, field)) != nullptr) {\
-    rb_parent(rb_right(tmp, field), field) = (elm);\
+  (tmp) = bl_rb_left(elm, field);\
+  if ((bl_rb_left(elm, field) = bl_rb_right(tmp, field)) != nullptr) {\
+    bl_rb_parent(bl_rb_right(tmp, field), field) = (elm);\
   }\
-  rb_augment(elm);\
-  if ((rb_parent(tmp, field) = rb_parent(elm, field)) != nullptr) {\
-    if ((elm) == rb_left(rb_parent(elm, field), field))\
-   rb_left(rb_parent(elm, field), field) = (tmp);\
+  bl_rb_augment(elm);\
+  if ((bl_rb_parent(tmp, field) = bl_rb_parent(elm, field)) != nullptr) {\
+    if ((elm) == bl_rb_left(bl_rb_parent(elm, field), field))\
+   bl_rb_left(bl_rb_parent(elm, field), field) = (tmp);\
     else\
-   rb_right(rb_parent(elm, field), field) = (tmp);\
+   bl_rb_right(bl_rb_parent(elm, field), field) = (tmp);\
   } else\
     (head)->rbh_root = (tmp);\
-  rb_right(tmp, field) = (elm);\
-  rb_parent(elm, field) = (tmp);\
-  rb_augment(tmp);\
-  if ((rb_parent(tmp, field)))\
-    rb_augment(rb_parent(tmp, field));\
+  bl_rb_right(tmp, field) = (elm);\
+  bl_rb_parent(elm, field) = (tmp);\
+  bl_rb_augment(tmp);\
+  if ((bl_rb_parent(tmp, field)))\
+    bl_rb_augment(bl_rb_parent(tmp, field));\
 } while (/*constcond*/ 0)
 
 /* generates prototypes and inline functions */
-#define  rb_prototype(name, type, field, cmp)\
-  rb_prototype_internal(name, type, field, cmp,)
-#define  rb_prototype_static(name, type, field, cmp)\
-  rb_prototype_internal(name, type, field, cmp, static)
-#define rb_prototype_internal(name, type, field, cmp, attr)\
-  rb_prototype_insert_color(name, type, attr);\
-  rb_prototype_remove_color(name, type, attr);\
-  rb_prototype_insert(name, type, attr);\
-  rb_prototype_remove(name, type, attr);\
-  rb_prototype_find(name, type, attr);\
-  rb_prototype_nfind(name, type, attr);\
-  rb_prototype_next(name, type, attr);\
-  rb_prototype_prev(name, type, attr);\
-  rb_prototype_minmax(name, type, attr);
-#define rb_prototype_insert_color(name, type, attr)\
-  attr void name##_rb_insert_color(struct name *, struct type *)
-#define rb_prototype_remove_color(name, type, attr)\
-  attr void name##_rb_remove_color(struct name *, struct type *, struct type *)
-#define rb_prototype_remove(name, type, attr)\
-  attr struct type *name##_rb_remove(struct name *, struct type *)
-#define rb_prototype_insert(name, type, attr)\
-  attr struct type *name##_rb_insert(struct name *, struct type *)
-#define rb_prototype_find(name, type, attr)\
-  attr struct type *name##_rb_find(struct name *, struct type *)
-#define rb_prototype_nfind(name, type, attr)\
-  attr struct type *name##_rb_nfind(struct name *, struct type *)
-#define rb_prototype_next(name, type, attr)\
-  attr struct type *name##_rb_next(struct type *)
-#define rb_prototype_prev(name, type, attr)\
-  attr struct type *name##_rb_prev(struct type *)
-#define rb_prototype_minmax(name, type, attr)\
-  attr struct type *name##_rb_minmax(struct name *, int)
+#define  bl_rb_prototype(name, type, field, cmp)\
+  bl_rb_prototype_internal(name, type, field, cmp,)
+#define  bl_rb_prototype_static(name, type, field, cmp)\
+  bl_rb_prototype_internal(name, type, field, cmp, static)
+#define bl_rb_prototype_internal(name, type, field, cmp, attr)\
+  bl_rb_prototype_insert_color(name, type, attr);\
+  bl_rb_prototype_remove_color(name, type, attr);\
+  bl_rb_prototype_insert(name, type, attr);\
+  bl_rb_prototype_remove(name, type, attr);\
+  bl_rb_prototype_find(name, type, attr);\
+  bl_rb_prototype_nfind(name, type, attr);\
+  bl_rb_prototype_next(name, type, attr);\
+  bl_rb_prototype_prev(name, type, attr);\
+  bl_rb_prototype_minmax(name, type, attr);
+#define bl_rb_prototype_insert_color(name, type, attr)\
+  attr void name##_bl_rb_insert_color(struct name *, struct type *)
+#define bl_rb_prototype_remove_color(name, type, attr)\
+  attr void name##_bl_rb_remove_color(\
+    struct name *, struct type *, struct type *+
+    )
+#define bl_rb_prototype_remove(name, type, attr)\
+  attr struct type *name##_bl_rb_remove(struct name *, struct type *)
+#define bl_rb_prototype_insert(name, type, attr)\
+  attr struct type *name##_bl_rb_insert(struct name *, struct type *)
+#define bl_rb_prototype_find(name, type, attr)\
+  attr struct type *name##_bl_rb_find(struct name *, struct type *)
+#define bl_rb_prototype_nfind(name, type, attr)\
+  attr struct type *name##_bl_rb_nfind(struct name *, struct type *)
+#define bl_rb_prototype_next(name, type, attr)\
+  attr struct type *name##_bl_rb_next(struct type *)
+#define bl_rb_prototype_prev(name, type, attr)\
+  attr struct type *name##_bl_rb_prev(struct type *)
+#define bl_rb_prototype_minmax(name, type, attr)\
+  attr struct type *name##_bl_rb_minmax(struct name *, int)
 
 /* main rb operation.
  * moves node close to the key of elm to top
  */
-#define  rb_generate(name, type, field, cmp)\
-  rb_generate_internal(name, type, field, cmp,)
-#define  rb_generate_static(name, type, field, cmp)\
-  rb_generate_internal(name, type, field, cmp, static)
-#define rb_generate_internal(name, type, field, cmp, attr)\
-  rb_generate_insert_color(name, type, field, attr)\
-  rb_generate_remove_color(name, type, field, attr)\
-  rb_generate_insert(name, type, field, cmp, attr)\
-  rb_generate_remove(name, type, field, attr)\
-  rb_generate_find(name, type, field, cmp, attr)\
-  rb_generate_nfind(name, type, field, cmp, attr)\
-  rb_generate_next(name, type, field, attr)\
-  rb_generate_prev(name, type, field, attr)\
-  rb_generate_minmax(name, type, field, attr)
+#define  bl_rb_generate(name, type, field, cmp)\
+  bl_rb_generate_internal(name, type, field, cmp,)
+#define  bl_rb_generate_static(name, type, field, cmp)\
+  bl_rb_generate_internal(name, type, field, cmp, static)
+#define bl_rb_generate_internal(name, type, field, cmp, attr)\
+  bl_rb_generate_insert_color(name, type, field, attr)\
+  bl_rb_generate_remove_color(name, type, field, attr)\
+  bl_rb_generate_insert(name, type, field, cmp, attr)\
+  bl_rb_generate_remove(name, type, field, attr)\
+  bl_rb_generate_find(name, type, field, cmp, attr)\
+  bl_rb_generate_nfind(name, type, field, cmp, attr)\
+  bl_rb_generate_next(name, type, field, attr)\
+  bl_rb_generate_prev(name, type, field, attr)\
+  bl_rb_generate_minmax(name, type, field, attr)
 
-#define rb_generate_insert_color(name, type, field, attr)\
+#define bl_rb_generate_insert_color(name, type, field, attr)\
 attr void \
-name##_rb_insert_color(struct name *head, struct type *elm)\
+name##_bl_rb_insert_color(struct name *head, struct type *elm)\
 {\
   struct type *parent, *gparent, *tmp;\
-  while ((parent = rb_parent(elm, field)) != nullptr &&\
-   rb_color(parent, field) == rb_red) {\
-    gparent = rb_parent(parent, field);\
-    if (parent == rb_left(gparent, field)) {\
-   tmp = rb_right(gparent, field);\
-   if (tmp && rb_color(tmp, field) == rb_red) {\
-     rb_color(tmp, field) = rb_black;\
-     rb_set_blackred(parent, gparent, field);\
+  while ((parent = bl_rb_parent(elm, field)) != nullptr &&\
+   bl_rb_color(parent, field) == bl_rb_red) {\
+    gparent = bl_rb_parent(parent, field);\
+    if (parent == bl_rb_left(gparent, field)) {\
+   tmp = bl_rb_right(gparent, field);\
+   if (tmp && bl_rb_color(tmp, field) == bl_rb_red) {\
+     bl_rb_color(tmp, field) = rb_black;\
+     bl_rb_set_blackred(parent, gparent, field);\
      elm = gparent;\
      continue;\
    }\
-   if (rb_right(parent, field) == elm) {\
-     rb_rotate_left(head, parent, tmp, field);\
+   if (bl_rb_right(parent, field) == elm) {\
+     bl_rb_rotate_left(head, parent, tmp, field);\
      tmp = parent;\
      parent = elm;\
      elm = tmp;\
    }\
-   rb_set_blackred(parent, gparent, field);\
-   rb_rotate_right(head, gparent, tmp, field);\
+   bl_rb_set_blackred(parent, gparent, field);\
+   bl_rb_rotate_right(head, gparent, tmp, field);\
     } else {\
-   tmp = rb_left(gparent, field);\
-   if (tmp && rb_color(tmp, field) == rb_red) {\
-     rb_color(tmp, field) = rb_black;\
-     rb_set_blackred(parent, gparent, field);\
+   tmp = bl_rb_left(gparent, field);\
+   if (tmp && bl_rb_color(tmp, field) == bl_rb_red) {\
+     bl_rb_color(tmp, field) = rb_black;\
+     bl_rb_set_blackred(parent, gparent, field);\
      elm = gparent;\
      continue;\
    }\
-   if (rb_left(parent, field) == elm) {\
-     rb_rotate_right(head, parent, tmp, field);\
+   if (bl_rb_left(parent, field) == elm) {\
+     bl_rb_rotate_right(head, parent, tmp, field);\
      tmp = parent;\
      parent = elm;\
      elm = tmp;\
    }\
-   rb_set_blackred(parent, gparent, field);\
-   rb_rotate_left(head, gparent, tmp, field);\
+   bl_rb_set_blackred(parent, gparent, field);\
+   bl_rb_rotate_left(head, gparent, tmp, field);\
     }\
   }\
-  rb_color(head->rbh_root, field) = rb_black;\
+  bl_rb_color(head->rbh_root, field) = rb_black;\
 }
 
-#define rb_generate_remove_color(name, type, field, attr)\
+#define bl_rb_generate_remove_color(name, type, field, attr)\
 attr void \
-name##_rb_remove_color(struct name *head, struct type *parent, struct type *elm) \
+name##_bl_rb_remove_color(\
+  struct name *head, struct type *parent, struct type *elm\
+  ) \
 {\
   struct type *tmp;\
-  while ((elm == nullptr || rb_color(elm, field) == rb_black) &&\
-   elm != rb_root(head)) {\
-    if (rb_left(parent, field) == elm) {\
-   tmp = rb_right(parent, field);\
-   if (rb_color(tmp, field) == rb_red) {\
-     rb_set_blackred(tmp, parent, field);\
-     rb_rotate_left(head, parent, tmp, field);\
-     tmp = rb_right(parent, field);\
+  while ((elm == nullptr || bl_rb_color(elm, field) == rb_black) &&\
+   elm != bl_rb_root(head)) {\
+    if (bl_rb_left(parent, field) == elm) {\
+   tmp = bl_rb_right(parent, field);\
+   if (bl_rb_color(tmp, field) == bl_rb_red) {\
+     bl_rb_set_blackred(tmp, parent, field);\
+     bl_rb_rotate_left(head, parent, tmp, field);\
+     tmp = bl_rb_right(parent, field);\
    }\
-   if ((rb_left(tmp, field) == nullptr ||\
-    rb_color(rb_left(tmp, field), field) == rb_black) &&\
-    (rb_right(tmp, field) == nullptr ||\
-    rb_color(rb_right(tmp, field), field) == rb_black)) {\
-     rb_color(tmp, field) = rb_red;\
+   if ((bl_rb_left(tmp, field) == nullptr ||\
+    bl_rb_color(bl_rb_left(tmp, field), field) == rb_black) &&\
+    (bl_rb_right(tmp, field) == nullptr ||\
+    bl_rb_color(bl_rb_right(tmp, field), field) == rb_black)) {\
+     bl_rb_color(tmp, field) = bl_rb_red;\
      elm = parent;\
-     parent = rb_parent(elm, field);\
+     parent = bl_rb_parent(elm, field);\
    } else {\
-     if (rb_right(tmp, field) == nullptr ||\
-      rb_color(rb_right(tmp, field), field) == rb_black) {\
+     if (bl_rb_right(tmp, field) == nullptr ||\
+      bl_rb_color(bl_rb_right(tmp, field), field) == rb_black) {\
     struct type *oleft;\
-    if ((oleft = rb_left(tmp, field)) \
+    if ((oleft = bl_rb_left(tmp, field)) \
         != nullptr)\
-      rb_color(oleft, field) = rb_black;\
-    rb_color(tmp, field) = rb_red;\
-    rb_rotate_right(head, tmp, oleft, field);\
-    tmp = rb_right(parent, field);\
+      bl_rb_color(oleft, field) = rb_black;\
+    bl_rb_color(tmp, field) = bl_rb_red;\
+    bl_rb_rotate_right(head, tmp, oleft, field);\
+    tmp = bl_rb_right(parent, field);\
      }\
-     rb_color(tmp, field) = rb_color(parent, field);\
-     rb_color(parent, field) = rb_black;\
-     if (rb_right(tmp, field))\
-    rb_color(rb_right(tmp, field), field) = rb_black;\
-     rb_rotate_left(head, parent, tmp, field);\
-     elm = rb_root(head);\
+     bl_rb_color(tmp, field) = bl_rb_color(parent, field);\
+     bl_rb_color(parent, field) = rb_black;\
+     if (bl_rb_right(tmp, field))\
+    bl_rb_color(bl_rb_right(tmp, field), field) = rb_black;\
+     bl_rb_rotate_left(head, parent, tmp, field);\
+     elm = bl_rb_root(head);\
      break;\
    }\
     } else {\
-   tmp = rb_left(parent, field);\
-   if (rb_color(tmp, field) == rb_red) {\
-     rb_set_blackred(tmp, parent, field);\
-     rb_rotate_right(head, parent, tmp, field);\
-     tmp = rb_left(parent, field);\
+   tmp = bl_rb_left(parent, field);\
+   if (bl_rb_color(tmp, field) == bl_rb_red) {\
+     bl_rb_set_blackred(tmp, parent, field);\
+     bl_rb_rotate_right(head, parent, tmp, field);\
+     tmp = bl_rb_left(parent, field);\
    }\
-   if ((rb_left(tmp, field) == nullptr ||\
-    rb_color(rb_left(tmp, field), field) == rb_black) &&\
-    (rb_right(tmp, field) == nullptr ||\
-    rb_color(rb_right(tmp, field), field) == rb_black)) {\
-     rb_color(tmp, field) = rb_red;\
+   if ((bl_rb_left(tmp, field) == nullptr ||\
+    bl_rb_color(bl_rb_left(tmp, field), field) == rb_black) &&\
+    (bl_rb_right(tmp, field) == nullptr ||\
+    bl_rb_color(bl_rb_right(tmp, field), field) == rb_black)) {\
+     bl_rb_color(tmp, field) = bl_rb_red;\
      elm = parent;\
-     parent = rb_parent(elm, field);\
+     parent = bl_rb_parent(elm, field);\
    } else {\
-     if (rb_left(tmp, field) == nullptr ||\
-      rb_color(rb_left(tmp, field), field) == rb_black) {\
+     if (bl_rb_left(tmp, field) == nullptr ||\
+      bl_rb_color(bl_rb_left(tmp, field), field) == rb_black) {\
     struct type *oright;\
-    if ((oright = rb_right(tmp, field)) \
+    if ((oright = bl_rb_right(tmp, field)) \
         != nullptr)\
-      rb_color(oright, field) = rb_black;\
-    rb_color(tmp, field) = rb_red;\
-    rb_rotate_left(head, tmp, oright, field);\
-    tmp = rb_left(parent, field);\
+      bl_rb_color(oright, field) = rb_black;\
+    bl_rb_color(tmp, field) = bl_rb_red;\
+    bl_rb_rotate_left(head, tmp, oright, field);\
+    tmp = bl_rb_left(parent, field);\
      }\
-     rb_color(tmp, field) = rb_color(parent, field);\
-     rb_color(parent, field) = rb_black;\
-     if (rb_left(tmp, field))\
-    rb_color(rb_left(tmp, field), field) = rb_black;\
-     rb_rotate_right(head, parent, tmp, field);\
-     elm = rb_root(head);\
+     bl_rb_color(tmp, field) = bl_rb_color(parent, field);\
+     bl_rb_color(parent, field) = rb_black;\
+     if (bl_rb_left(tmp, field))\
+    bl_rb_color(bl_rb_left(tmp, field), field) = rb_black;\
+     bl_rb_rotate_right(head, parent, tmp, field);\
+     elm = bl_rb_root(head);\
      break;\
    }\
     }\
   }\
   if (elm)\
-    rb_color(elm, field) = rb_black;\
+    bl_rb_color(elm, field) = rb_black;\
 }
 
-#define rb_generate_remove(name, type, field, attr)\
+#define bl_rb_generate_remove(name, type, field, attr)\
 attr struct type *\
-name##_rb_remove(struct name *head, struct type *elm)\
+name##_bl_rb_remove(struct name *head, struct type *elm)\
 {\
   struct type *child, *parent, *old = elm;\
   int color;\
-  if (rb_left(elm, field) == nullptr)\
-    child = rb_right(elm, field);\
-  else if (rb_right(elm, field) == nullptr)\
-    child = rb_left(elm, field);\
+  if (bl_rb_left(elm, field) == nullptr)\
+    child = bl_rb_right(elm, field);\
+  else if (bl_rb_right(elm, field) == nullptr)\
+    child = bl_rb_left(elm, field);\
   else {\
     struct type *left;\
-    elm = rb_right(elm, field);\
-    while ((left = rb_left(elm, field)) != nullptr)\
+    elm = bl_rb_right(elm, field);\
+    while ((left = bl_rb_left(elm, field)) != nullptr)\
    elm = left;\
-    child = rb_right(elm, field);\
-    parent = rb_parent(elm, field);\
-    color = rb_color(elm, field);\
+    child = bl_rb_right(elm, field);\
+    parent = bl_rb_parent(elm, field);\
+    color = bl_rb_color(elm, field);\
     if (child)\
-   rb_parent(child, field) = parent;\
+   bl_rb_parent(child, field) = parent;\
     if (parent) {\
-   if (rb_left(parent, field) == elm)\
-     rb_left(parent, field) = child;\
+   if (bl_rb_left(parent, field) == elm)\
+     bl_rb_left(parent, field) = child;\
    else\
-     rb_right(parent, field) = child;\
-   rb_augment(parent);\
+     bl_rb_right(parent, field) = child;\
+   bl_rb_augment(parent);\
     } else\
-   rb_root(head) = child;\
-    if (rb_parent(elm, field) == old)\
+   bl_rb_root(head) = child;\
+    if (bl_rb_parent(elm, field) == old)\
    parent = elm;\
     (elm)->field = (old)->field;\
-    if (rb_parent(old, field)) {\
-   if (rb_left(rb_parent(old, field), field) == old)\
-     rb_left(rb_parent(old, field), field) = elm;\
+    if (bl_rb_parent(old, field)) {\
+   if (bl_rb_left(bl_rb_parent(old, field), field) == old)\
+     bl_rb_left(bl_rb_parent(old, field), field) = elm;\
    else\
-     rb_right(rb_parent(old, field), field) = elm;\
-   rb_augment(rb_parent(old, field));\
+     bl_rb_right(bl_rb_parent(old, field), field) = elm;\
+   bl_rb_augment(bl_rb_parent(old, field));\
     } else\
-   rb_root(head) = elm;\
-    rb_parent(rb_left(old, field), field) = elm;\
-    if (rb_right(old, field))\
-   rb_parent(rb_right(old, field), field) = elm;\
+   bl_rb_root(head) = elm;\
+    bl_rb_parent(bl_rb_left(old, field), field) = elm;\
+    if (bl_rb_right(old, field))\
+   bl_rb_parent(bl_rb_right(old, field), field) = elm;\
     if (parent) {\
    left = parent;\
    do {\
-     rb_augment(left);\
-   } while ((left = rb_parent(left, field)) != nullptr); \
+     bl_rb_augment(left);\
+   } while ((left = bl_rb_parent(left, field)) != nullptr); \
     }\
     goto color;\
   }\
-  parent = rb_parent(elm, field);\
-  color = rb_color(elm, field);\
+  parent = bl_rb_parent(elm, field);\
+  color = bl_rb_color(elm, field);\
   if (child)\
-    rb_parent(child, field) = parent;\
+    bl_rb_parent(child, field) = parent;\
   if (parent) {\
-    if (rb_left(parent, field) == elm)\
-   rb_left(parent, field) = child;\
+    if (bl_rb_left(parent, field) == elm)\
+   bl_rb_left(parent, field) = child;\
     else\
-   rb_right(parent, field) = child;\
-    rb_augment(parent);\
+   bl_rb_right(parent, field) = child;\
+    bl_rb_augment(parent);\
   } else\
-    rb_root(head) = child;\
+    bl_rb_root(head) = child;\
 color:\
   if (color == rb_black)\
-    name##_rb_remove_color(head, parent, child);\
+    name##_bl_rb_remove_color(head, parent, child);\
   return (old);\
 }\
 
-#define rb_generate_insert(name, type, field, cmp, attr)\
+#define bl_rb_generate_insert(name, type, field, cmp, attr)\
 /* inserts a node into the rb tree */\
 attr struct type *\
-name##_rb_insert(struct name *head, struct type *elm)\
+name##_bl_rb_insert(struct name *head, struct type *elm)\
 {\
   struct type *tmp;\
   struct type *parent = nullptr;\
   int comp = 0;\
-  tmp = rb_root(head);\
+  tmp = bl_rb_root(head);\
   while (tmp) {\
     parent = tmp;\
     comp = (cmp)(elm, parent);\
     if (comp < 0)\
-   tmp = rb_left(tmp, field);\
+   tmp = bl_rb_left(tmp, field);\
     else if (comp > 0)\
-   tmp = rb_right(tmp, field);\
+   tmp = bl_rb_right(tmp, field);\
     else\
    return (tmp);\
   }\
-  rb_set(elm, parent, field);\
+  bl_rb_set(elm, parent, field);\
   if (parent != nullptr) {\
     if (comp < 0)\
-   rb_left(parent, field) = elm;\
+   bl_rb_left(parent, field) = elm;\
     else\
-   rb_right(parent, field) = elm;\
-    rb_augment(parent);\
+   bl_rb_right(parent, field) = elm;\
+    bl_rb_augment(parent);\
   } else\
-    rb_root(head) = elm;\
-  name##_rb_insert_color(head, elm);\
+    bl_rb_root(head) = elm;\
+  name##_bl_rb_insert_color(head, elm);\
   return (nullptr);\
 }
 
-#define rb_generate_find(name, type, field, cmp, attr)\
+#define bl_rb_generate_find(name, type, field, cmp, attr)\
 /* finds the node with the same key as elm */\
 attr struct type *\
-name##_rb_find(struct name *head, struct type *elm)\
+name##_bl_rb_find(struct name *head, struct type *elm)\
 {\
-  struct type *tmp = rb_root(head);\
+  struct type *tmp = bl_rb_root(head);\
   int comp;\
   while (tmp) {\
     comp = cmp(elm, tmp);\
     if (comp < 0)\
-   tmp = rb_left(tmp, field);\
+   tmp = bl_rb_left(tmp, field);\
     else if (comp > 0)\
-   tmp = rb_right(tmp, field);\
+   tmp = bl_rb_right(tmp, field);\
     else\
    return (tmp);\
   }\
   return (nullptr);\
 }
 
-#define rb_generate_nfind(name, type, field, cmp, attr)\
+#define bl_rb_generate_nfind(name, type, field, cmp, attr)\
 /* finds the first node greater than or equal to the search key */\
 attr struct type *\
-name##_rb_nfind(struct name *head, struct type *elm)\
+name##_bl_rb_nfind(struct name *head, struct type *elm)\
 {\
-  struct type *tmp = rb_root(head);\
+  struct type *tmp = bl_rb_root(head);\
   struct type *res = nullptr;\
   int comp;\
   while (tmp) {\
     comp = cmp(elm, tmp);\
     if (comp < 0) {\
    res = tmp;\
-   tmp = rb_left(tmp, field);\
+   tmp = bl_rb_left(tmp, field);\
     }\
     else if (comp > 0)\
-   tmp = rb_right(tmp, field);\
+   tmp = bl_rb_right(tmp, field);\
     else\
    return (tmp);\
   }\
   return (res);\
 }
 
-#define rb_generate_next(name, type, field, attr)\
+#define bl_rb_generate_next(name, type, field, attr)\
 /* argsused */\
 attr struct type *\
-name##_rb_next(struct type *elm)\
+name##_bl_rb_next(struct type *elm)\
 {\
-  if (rb_right(elm, field)) {\
-    elm = rb_right(elm, field);\
-    while (rb_left(elm, field))\
-   elm = rb_left(elm, field);\
+  if (bl_rb_right(elm, field)) {\
+    elm = bl_rb_right(elm, field);\
+    while (bl_rb_left(elm, field))\
+   elm = bl_rb_left(elm, field);\
   } else {\
-    if (rb_parent(elm, field) &&\
-     (elm == rb_left(rb_parent(elm, field), field)))\
-   elm = rb_parent(elm, field);\
+    if (bl_rb_parent(elm, field) &&\
+     (elm == bl_rb_left(bl_rb_parent(elm, field), field)))\
+   elm = bl_rb_parent(elm, field);\
     else {\
-   while (rb_parent(elm, field) &&\
-    (elm == rb_right(rb_parent(elm, field), field)))\
-     elm = rb_parent(elm, field);\
-   elm = rb_parent(elm, field);\
+   while (bl_rb_parent(elm, field) &&\
+    (elm == bl_rb_right(bl_rb_parent(elm, field), field)))\
+     elm = bl_rb_parent(elm, field);\
+   elm = bl_rb_parent(elm, field);\
     }\
   }\
   return (elm);\
 }
 
-#define rb_generate_prev(name, type, field, attr)\
+#define bl_rb_generate_prev(name, type, field, attr)\
 /* argsused */\
 attr struct type *\
-name##_rb_prev(struct type *elm)\
+name##_bl_rb_prev(struct type *elm)\
 {\
-  if (rb_left(elm, field)) {\
-    elm = rb_left(elm, field);\
-    while (rb_right(elm, field))\
-   elm = rb_right(elm, field);\
+  if (bl_rb_left(elm, field)) {\
+    elm = bl_rb_left(elm, field);\
+    while (bl_rb_right(elm, field))\
+   elm = bl_rb_right(elm, field);\
   } else {\
-    if (rb_parent(elm, field) &&\
-     (elm == rb_right(rb_parent(elm, field), field)))\
-   elm = rb_parent(elm, field);\
+    if (bl_rb_parent(elm, field) &&\
+     (elm == bl_rb_right(bl_rb_parent(elm, field), field)))\
+   elm = bl_rb_parent(elm, field);\
     else {\
-   while (rb_parent(elm, field) &&\
-    (elm == rb_left(rb_parent(elm, field), field)))\
-     elm = rb_parent(elm, field);\
-   elm = rb_parent(elm, field);\
+   while (bl_rb_parent(elm, field) &&\
+    (elm == bl_rb_left(bl_rb_parent(elm, field), field)))\
+     elm = bl_rb_parent(elm, field);\
+   elm = bl_rb_parent(elm, field);\
     }\
   }\
   return (elm);\
 }
 
-#define rb_generate_minmax(name, type, field, attr)\
+#define bl_rb_generate_minmax(name, type, field, attr)\
 attr struct type *\
-name##_rb_minmax(struct name *head, int val)\
+name##_bl_rb_minmax(struct name *head, int val)\
 {\
-  struct type *tmp = rb_root(head);\
+  struct type *tmp = bl_rb_root(head);\
   struct type *parent = nullptr;\
   while (tmp) {\
     parent = tmp;\
     if (val < 0)\
-   tmp = rb_left(tmp, field);\
+   tmp = bl_rb_left(tmp, field);\
     else\
-   tmp = rb_right(tmp, field);\
+   tmp = bl_rb_right(tmp, field);\
   }\
   return (parent);\
 }
 
-#define rb_neginf  -1
-#define rb_inf  1
+#define bl_rb_neginf  -1
+#define bl_rb_inf  1
 
-#define rb_insert(name, x, y)  name##_rb_insert(x, y)
-#define rb_remove(name, x, y)  name##_rb_remove(x, y)
-#define rb_find(name, x, y)  name##_rb_find(x, y)
-#define rb_nfind(name, x, y)  name##_rb_nfind(x, y)
-#define rb_next(name, x, y)  name##_rb_next(y)
-#define rb_prev(name, x, y)  name##_rb_prev(y)
-#define rb_min(name, x)    name##_rb_minmax(x, rb_neginf)
-#define rb_max(name, x)    name##_rb_minmax(x, rb_inf)
+#define bl_rb_insert(name, x, y)  name##_bl_rb_insert(x, y)
+#define bl_rb_remove(name, x, y)  name##_bl_rb_remove(x, y)
+#define bl_rb_find(name, x, y)  name##_bl_rb_find(x, y)
+#define bl_rb_nfind(name, x, y)  name##_bl_rb_nfind(x, y)
+#define bl_rb_next(name, x, y)  name##_bl_rb_next(y)
+#define bl_rb_prev(name, x, y)  name##_bl_rb_prev(y)
+#define bl_rb_min(name, x)    name##_bl_rb_minmax(x, bl_rb_neginf)
+#define bl_rb_max(name, x)    name##_bl_rb_minmax(x, bl_rb_inf)
 
-#define rb_foreach(x, name, head)\
-  for ((x) = rb_min(name, head);\
+#define bl_rb_foreach(x, name, head)\
+  for ((x) = bl_rb_min(name, head);\
        (x) != nullptr;\
-       (x) = name##_rb_next(x))
+       (x) = name##_bl_rb_next(x))
 
-#define rb_foreach_from(x, name, y)\
+#define bl_rb_foreach_from(x, name, y)\
   for ((x) = (y);\
-      ((x) != nullptr) && ((y) = name##_rb_next(x), (x) != nullptr);\
+      ((x) != nullptr) && ((y) = name##_bl_rb_next(x), (x) != nullptr);\
        (x) = (y))
 
-#define rb_foreach_safe(x, name, head, y)\
-  for ((x) = rb_min(name, head);\
-      ((x) != nullptr) && ((y) = name##_rb_next(x), (x) != nullptr);\
+#define bl_rb_foreach_safe(x, name, head, y)\
+  for ((x) = bl_rb_min(name, head);\
+      ((x) != nullptr) && ((y) = name##_bl_rb_next(x), (x) != nullptr);\
        (x) = (y))
 
-#define rb_foreach_reverse(x, name, head)\
-  for ((x) = rb_max(name, head);\
+#define bl_rb_foreach_reverse(x, name, head)\
+  for ((x) = bl_rb_max(name, head);\
        (x) != nullptr;\
-       (x) = name##_rb_prev(x))
+       (x) = name##_bl_rb_prev(x))
 
-#define rb_foreach_reverse_from(x, name, y)\
+#define bl_rb_foreach_reverse_from(x, name, y)\
   for ((x) = (y);\
-      ((x) != nullptr) && ((y) = name##_rb_prev(x), (x) != nullptr);\
+      ((x) != nullptr) && ((y) = name##_bl_rb_prev(x), (x) != nullptr);\
        (x) = (y))
 
-#define rb_foreach_reverse_safe(x, name, head, y)\
-  for ((x) = rb_max(name, head);\
-      ((x) != nullptr) && ((y) = name##_rb_prev(x), (x) != nullptr);\
+#define bl_rb_foreach_reverse_safe(x, name, head, y)\
+  for ((x) = bl_rb_max(name, head);\
+      ((x) != nullptr) && ((y) = name##_bl_rb_prev(x), (x) != nullptr);\
        (x) = (y))
 
 #endif  /* _SYS_TREE_H_ */

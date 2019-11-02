@@ -6,11 +6,11 @@ extern "C" {
 #endif
 
 /*---------------------------------------------------------------------------*/
-word taskq_delayed_entry_cmp_func (void const* av, void const* bv)
+bl_word bl_taskq_delayed_entry_cmp_func (void const* av, void const* bv)
 {
-  taskq_delayed_entry const* a = (taskq_delayed_entry const*) av;
-  taskq_delayed_entry const* b = (taskq_delayed_entry const*) bv;
-  return (word) ((i32) a->id) - ((i32) b->id);
+  bl_taskq_delayed_entry const* a = (bl_taskq_delayed_entry const*) av;
+  bl_taskq_delayed_entry const* b = (bl_taskq_delayed_entry const*) bv;
+  return (bl_word) ((bl_i32) a->id) - ((bl_i32) b->id);
 }
 /*---------------------------------------------------------------------------*/
 

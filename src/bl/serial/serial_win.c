@@ -42,21 +42,21 @@ static inline std::string prefix_port (std::string const& in)
 extern "C" {
 #endif
 /*----------------------------------------------------------------------------*/
-define_ringb_funcs (u8_dq, u8)
+define_bl_ringb_funcs (bl_u8_dq, bl_u8)
 /*----------------------------------------------------------------------------*/
 struct bl_serial {
   HANDLE fd;
-  ringb  rq;
-  uword  rtimeout_ms;
-  uword  wtimeout_ms;
+  bl_ringb  rq;
+  bl_uword  rtimeout_ms;
+  bl_uword  wtimeout_ms;
 };
 /*----------------------------------------------------------------------------*/
 BL_SERIAL_EXPORT bl_err bl_serial_init(
-  bl_serial** s_out, uword read_buffer_min_size, alloc_tbl const* alloc
+  bl_serial** s_out, bl_uword read_buffer_min_size, bl_alloc_tbl const* alloc
   )
 {
   bl_assert (s_out && alloc);
-  read_buffer_min_size = round_next_pow2_u (read_buffer_min_size);
+  read_buffer_min_size = bl_round_next_pow2_u (read_buffer_min_size);
   if (read_buffer_min_size == 0 || !alloc || !s_out) {
     return bl_mkerr (bl_invalid);
   }
@@ -67,23 +67,24 @@ BL_SERIAL_EXPORT bl_err bl_serial_init(
   }
   memset (s, 0, sizeof *s);
   s->fd = INVALID_HANDLE_VALUE;
-  (void) u8_dq_init_extern(
+  (void) bl_u8_dq_init_extern(
     &s->rq,
-    ((u8*) s) + sizeof *s,
+    ((bl_u8*) s) + sizeof *s,
     read_buffer_min_size
     );
   *s_out = s;
   return bl_mkok();
 }
 /*----------------------------------------------------------------------------*/
-BL_SERIAL_EXPORT void bl_serial_destroy (bl_serial* s, alloc_tbl const* alloc)
+BL_SERIAL_EXPORT void
+  bl_serial_destroy (bl_serial* s, bl_alloc_tbl const* alloc)
 {
   bl_assert (s);
   bl_serial_stop (s);
   bl_dealloc (alloc, s);
 }
 /*----------------------------------------------------------------------------*/
-static bool try_get_standard_baudrate (uword baudrate, int* enum_val)
+static bool try_get_standard_baudrate (bl_uword baudrate, int* enum_val)
 {
   switch (baudrate) {
 #ifdef CBR_0
@@ -311,36 +312,38 @@ BL_SERIAL_EXPORT void bl_serial_stop (bl_serial* s)
 }
 /*----------------------------------------------------------------------------*/
 BL_SERIAL_EXPORT bl_err bl_serial_read(
-  bl_serial* s, memr rbuff, toffset timeout_us
+  bl_serial* s, bl_memr rbuff, bl_toffset timeout_us
   )
 {
   bl_assert (s);
   bl_assert (s->fd != INVALID_HANDLE_VALUE);
   bl_assert (timeout_us >= 0);
 
-  if (!memr_is_valid (rbuff) || memr_size (rbuff) > u8_dq_capacity (&s->rq)) {
+  if (!bl_memr_is_valid (rbuff)
+    || bl_memr_size (rbuff) > bl_u8_dq_capacity (&s->rq)
+    ) {
     return bl_mkerr (bl_invalid);
   }
   /*leftovers from previous reads*/
-  uword copied = bl_min (memr_size (rbuff), u8_dq_size (&s->rq));
+  bl_uword copied = bl_min (bl_memr_size (rbuff), bl_u8_dq_size (&s->rq));
   if (copied != 0) {
-    uword adjacent = u8_dq_adjacent_elems_from (&s->rq, 0, copied);
-    memcpy (memr_beg (rbuff), u8_dq_at_head (&s->rq), adjacent);
+    bl_uword adjacent = bl_u8_dq_adjacent_elems_from (&s->rq, 0, copied);
+    memcpy (bl_memr_beg (rbuff), bl_u8_dq_at_head (&s->rq), adjacent);
     if (adjacent != copied) {
       memcpy(
-        memr_at (rbuff, adjacent),
-        u8_dq_at (&s->rq, adjacent),
+        bl_memr_at (rbuff, adjacent),
+        bl_u8_dq_at (&s->rq, adjacent),
         copied - adjacent
         );
     }
-    u8_dq_drop_head_n (&s->rq, copied);
+    bl_u8_dq_drop_head_n (&s->rq, copied);
   }
-  if (copied == memr_size (rbuff)) {
+  if (copied == bl_memr_size (rbuff)) {
     return bl_mkok();
   }
 
   bl_err err = bl_mkok();
-  uword t_ms = div_ceil (timeout_us, usec_in_msec);
+  bl_uword t_ms = bl_div_ceil (timeout_us, bl_usec_in_msec);
   if (t_ms != s->rtimeout_ms) {
     COMMTIMEOUTS timeouts;
     if (!GetCommTimeouts (s->fd, &timeouts)) {
@@ -356,29 +359,29 @@ BL_SERIAL_EXPORT bl_err bl_serial_read(
   }
 
   DWORD read;
-  DWORD toread = memr_size (rbuff) - copied;
-  bool rf = ReadFile (s->fd, memr_at (rbuff, copied), toread, &read, nullptr);
+  DWORD toread = bl_memr_size (rbuff) - copied;
+  bool rf = ReadFile (s->fd, bl_memr_at (rbuff, copied), toread, &read, nullptr);
   copied += read;
   if (!rf) {
     err = bl_mkerr (bl_error);
     goto roll_back;
   }
-  else if (copied != memr_size (rbuff)) {
+  else if (copied != bl_memr_size (rbuff)) {
     err = bl_mkerr (bl_timeout);
     goto roll_back;
   }
   return bl_mkok();
 roll_back:
   /*unsucessful read*/
-  bl_assert (u8_dq_size (&s->rq) == 0);
-  u8_dq_set_start_position (&s->rq, 0);
-  u8_dq_expand_tail_n (&s->rq, copied);
-  memcpy (u8_dq_at_head (&s->rq), memr_beg (rbuff), copied);
+  bl_assert (bl_u8_dq_size (&s->rq) == 0);
+  bl_u8_dq_set_start_position (&s->rq, 0);
+  bl_u8_dq_expand_tail_n (&s->rq, copied);
+  memcpy (bl_u8_dq_at_head (&s->rq), bl_memr_beg (rbuff), copied);
   return err;
 }
 /*----------------------------------------------------------------------------*/
 BL_SERIAL_EXPORT bl_err bl_serial_write(
-  bl_serial* s, memr wbuff, u32* written, toffset timeout_us
+  bl_serial* s, bl_memr wbuff, bl_u32* written, bl_toffset timeout_us
   )
 {
   bl_assert (s);
@@ -387,10 +390,10 @@ BL_SERIAL_EXPORT bl_err bl_serial_write(
   bl_assert (timeout_us >= 0);
 
   *written = 0;
-  if (!memr_is_valid (wbuff) || !written) {
+  if (!bl_memr_is_valid (wbuff) || !written) {
     return bl_mkerr (bl_invalid);
   }
-  uword t_ms = (timeout_us != 0) ? div_ceil (timeout_us, usec_in_msec) : 1;
+  bl_uword t_ms = (timeout_us != 0) ? bl_div_ceil (timeout_us, bl_usec_in_msec) : 1;
   if (t_ms != s->wtimeout_ms) {
     COMMTIMEOUTS timeouts;
     if (!GetCommTimeouts (s->fd, &timeouts)) {
@@ -405,13 +408,13 @@ BL_SERIAL_EXPORT bl_err bl_serial_write(
 
   DWORD wr;
   bool wf = WriteFile(
-    s->fd, memr_beg (wbuff), memr_size (wbuff), &wr, nullptr
+    s->fd, bl_memr_beg (wbuff), bl_memr_size (wbuff), &wr, nullptr
     );
   *written = wr;
   if (!wf) {
     return bl_mkerr (bl_error);
   }
-  else if (memr_size (wbuff) != wr) {
+  else if (bl_memr_size (wbuff) != wr) {
     return bl_mkerr (bl_timeout);
   }
   else {
@@ -420,7 +423,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_write(
 }
 /*----------------------------------------------------------------------------*/
 BL_SERIAL_EXPORT bl_err bl_serial_ioctl_get(
-  bl_serial* s, bl_serial_ioctl op, uword* val
+  bl_serial* s, bl_serial_ioctl op, bl_uword* val
   )
 {
   bl_assert (s);
@@ -448,7 +451,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_ioctl_get(
 }
 /*----------------------------------------------------------------------------*/
 BL_SERIAL_EXPORT bl_err bl_serial_ioctl_set(
-  bl_serial* s, bl_serial_ioctl op, uword val
+  bl_serial* s, bl_serial_ioctl op, bl_uword val
   )
 {
   bl_assert (s);
@@ -470,47 +473,47 @@ BL_SERIAL_EXPORT bl_err bl_serial_ioctl_set(
   return EscapeCommFunction (s->fd, fn) ? bl_ok : bl_error;
 }
 /*----------------------------------------------------------------------------*/
-BL_SERIAL_EXPORT uword bl_serial_get_bit_time_ns (bl_serial_cfg const* cfg)
+BL_SERIAL_EXPORT bl_uword bl_serial_get_bit_time_ns (bl_serial_cfg const* cfg)
 {
   bl_assert (cfg);
   if (!cfg) {
     return 0;
   }
-  return (uword) fixp_to_int(
-      int_to_fixp (u64, nsec_in_sec, 32) / cfg->baudrate, 32
+  return (bl_uword) bl_fixp_to_int(
+      bl_int_to_fixp (bl_u64, bl_nsec_in_sec, 32) / cfg->baudrate, 32
       );
 }
 /*----------------------------------------------------------------------------*/
-BL_SERIAL_EXPORT uword bl_serial_get_byte_time_ns (bl_serial_cfg const* cfg)
+BL_SERIAL_EXPORT bl_uword bl_serial_get_byte_time_ns (bl_serial_cfg const* cfg)
 {
   bl_assert (cfg);
   if (!cfg) {
     return 0;
   }
-  u64 bit_ns    = int_to_fixp (u64, nsec_in_sec, 32) / cfg->baudrate;
-  u64 bits_byte = 1 + cfg->byte_size + (cfg->parity != bl_parity_none);
-  bits_byte     = int_to_fixp (u64, bits_byte, 32);
+  bl_u64 bit_ns    = bl_int_to_fixp (bl_u64, bl_nsec_in_sec, 32) / cfg->baudrate;
+  bl_u64 bits_byte = 1 + cfg->byte_size + (cfg->parity != bl_parity_none);
+  bits_byte     = bl_int_to_fixp (bl_u64, bits_byte, 32);
 
   switch (cfg->stop_bits) {
   case bl_stop_bits_one:
-    bits_byte += int_to_fixp (u64, 1, 32);
+    bits_byte += bl_int_to_fixp (bl_u64, 1, 32);
     break;
   case bl_stop_bits_one_point_five:
-    bits_byte += fixp_div(
-      u64,
-      int_to_fixp (u64, 3, 32),
-      int_to_fixp (u64, 2, 32),
+    bits_byte += bl_fixp_div(
+      bl_u64,
+      bl_int_to_fixp (bl_u64, 3, 32),
+      bl_int_to_fixp (bl_u64, 2, 32),
       32
       );
     break;
   case bl_stop_bits_two:
-    bits_byte += int_to_fixp (u64, 2, 32);
+    bits_byte += bl_int_to_fixp (bl_u64, 2, 32);
     break;
   default:
     break;
   }
-  return (uword) fixp_to_int(
-    fixp_mul (u64, bit_ns, bits_byte, 32),
+  return (bl_uword) bl_fixp_to_int(
+    bl_fixp_mul (bl_u64, bit_ns, bits_byte, 32),
     32
     );
 }

@@ -21,29 +21,29 @@
   so use it wisely.
 */
 /*---------------------------------------------------------------------------*/
-#define sjoin_attach(base_struct_type, extra_struct_type)\
+#define bl_sjoin_attach(base_struct_type, extra_struct_type)\
     base_struct_type  base;\
     extra_struct_type xtra;\
 /*---------------------------------------------------------------------------*/
-#define sjoin_define(class_name, base_struct_type, extra_struct_type)\
+#define bl_sjoin_define(class_name, base_struct_type, extra_struct_type)\
   typedef struct class_name {\
-    sjoin_attach(base_struct_type, extra_struct_type)\
+    bl_sjoin_attach(base_struct_type, extra_struct_type)\
   } class_name
 /*---------------------------------------------------------------------------*/
-#define sjoin_extra(class_ptr) (&(class_ptr)->xtra)
+#define bl_sjoin_extra(class_ptr) (&(class_ptr)->xtra)
 /*---------------------------------------------------------------------------*/
-#define sjoin_base(class_ptr) (&(class_ptr)->base)
+#define bl_sjoin_base(class_ptr) (&(class_ptr)->base)
 /*---------------------------------------------------------------------------*/
-#define sjoin_from_base(class_name, base_ptr)\
-  to_type_containing ((base_ptr), base, class_name)
+#define bl_sjoin_from_base(class_name, base_ptr)\
+  bl_to_type_containing ((base_ptr), base, class_name)
 /*---------------------------------------------------------------------------*/
-#define sjoin_from_extra(class_name, extra_ptr)\
-  to_type_containing ((extra_ptr), xtra, class_name)
+#define bl_sjoin_from_extra(class_name, extra_ptr)\
+  bl_to_type_containing ((extra_ptr), xtra, class_name)
 /*---------------------------------------------------------------------------*/
-#define sjoin_mv_base_extra(class_name, base_ptr)\
-  sjoin_extra (sjoin_from_base (class_name, (base_ptr)))
+#define bl_sjoin_mv_base_extra(class_name, base_ptr)\
+  bl_sjoin_extra (bl_sjoin_from_base (class_name, (base_ptr)))
 /*---------------------------------------------------------------------------*/
-#define sjoin_mv_extra_base(class_name, extra_ptr)\
-  sjoin_base (sjoin_from_extra (object_name, (extra_ptr)))
+#define bl_sjoin_mv_extra_base(class_name, extra_ptr)\
+  bl_sjoin_base (bl_sjoin_from_extra (object_name, (extra_ptr)))
 /*---------------------------------------------------------------------------*/
 #endif  /*BL_STRUCT_JOIN_H*/

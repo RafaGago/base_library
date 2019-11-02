@@ -4,74 +4,85 @@
 
 #include <bl/base/impl/array_linked_list_u32.h>
 
-static void alnls_u32_find_two_previous_nodes(
-  alnls_u32* l, alnls_u32_it* prev, alnls_u32_it* prev2, alnls_u32_it val
+static void bl_alnls_u32_find_two_previous_nodes(
+  bl_alnls_u32*    l,
+  bl_alnls_u32_it* prev,
+  bl_alnls_u32_it* prev2,
+  bl_alnls_u32_it  val
   )
 {
-  bl_assert (!alnls_u32_is_empty (l));
-  *prev2       = alnls_u32_it_end (l);
-  *prev        = alnls_u32_it_end (l);
-  alnls_u32_it now = alnls_u32_it_begin (l);
+  bl_assert (!bl_alnls_u32_is_empty (l));
+  *prev2       = bl_alnls_u32_it_end (l);
+  *prev        = bl_alnls_u32_it_end (l);
+  bl_alnls_u32_it now = bl_alnls_u32_it_begin (l);
 
   while (now != val) {
     *prev2 = *prev;
     *prev  = now;
-    now    = alnls_u32_it_next (l, now);
+    now    = bl_alnls_u32_it_next (l, now);
   }
 }
 /* TODO: regular insert ? */
 /*---------------------------------------------------------------------------*/
-BL_EXPORT void alnls_u32_insert_tail (alnls_u32* l, alnls_u32_it n)
+BL_EXPORT void bl_alnls_u32_insert_tail(
+  bl_alnls_u32* l, bl_alnls_u32_it n
+  )
 {
-  bl_assert (alnls_u32_it_next (l, n) == alnls_u32_it_end (l));
-  if (!alnls_u32_is_empty (l)) {
-    alnls_u32_it tail, subtail;
-    alnls_u32_find_two_previous_nodes (l, &tail, &subtail, alnls_u32_it_end (l));
+  bl_assert (bl_alnls_u32_it_next (l, n) == bl_alnls_u32_it_end (l));
+  if (!bl_alnls_u32_is_empty (l)) {
+    bl_alnls_u32_it tail, subtail;
+    bl_alnls_u32_find_two_previous_nodes(
+      l, &tail, &subtail, bl_alnls_u32_it_end (l)
+      );
     l->nodes[tail] = n;
-    bl_assert (alnls_u32_it_next (l, tail) == n); /* overflow check */
+    bl_assert (bl_alnls_u32_it_next (l, tail) == n); /* overflow check */
   }
   else {
     l->head = n;
-    bl_assert (alnls_u32_it_begin (l) == n); /* overflow check */
+    bl_assert (bl_alnls_u32_it_begin (l) == n); /* overflow check */
   }
   ++l->size;
 }
 /*---------------------------------------------------------------------------*/
-BL_EXPORT alnls_u32_it alnls_u32_drop (alnls_u32* l, alnls_u32_it n)
+BL_EXPORT bl_alnls_u32_it
+  bl_alnls_u32_drop (bl_alnls_u32* l, bl_alnls_u32_it n)
 {
-  bl_assert (alnls_u32_it_in_range( l, n));
-  bl_assert (!alnls_u32_node_is_free (l, n));
+  bl_assert (bl_alnls_u32_it_in_range( l, n));
+  bl_assert (!bl_alnls_u32_node_is_free (l, n));
 
-  if (alnls_u32_is_empty (l)) {
-    return alnls_u32_it_end (l);
+  if (bl_alnls_u32_is_empty (l)) {
+    return bl_alnls_u32_it_end (l);
   }
-  alnls_u32_it should_be_n, prev, find;
-  find = alnls_u32_it_next (l, n);
-  alnls_u32_find_two_previous_nodes (l, &should_be_n, &prev, find);
+  bl_alnls_u32_it should_be_n, prev, find;
+  find = bl_alnls_u32_it_next (l, n);
+  bl_alnls_u32_find_two_previous_nodes (l, &should_be_n, &prev, find);
   bl_assert (should_be_n == n);
-  if (prev != alnls_u32_it_end (l)) {
+  if (prev != bl_alnls_u32_it_end (l)) {
     l->nodes[prev] = find;
   }
   else {
-    l->head = alnls_u32_it_end (l);
+    l->head = bl_alnls_u32_it_end (l);
   }
-  l->nodes[n] = alnls_u32_it_end (l);
+  l->nodes[n] = bl_alnls_u32_it_end (l);
   --l->size;
   return prev;
 }
 /*---------------------------------------------------------------------------*/
-BL_EXPORT alnls_u32_it alnls_u32_drop_tail (alnls_u32* l)
+BL_EXPORT bl_alnls_u32_it
+  bl_alnls_u32_drop_tail (bl_alnls_u32* l)
 {
-  if (alnls_u32_is_empty (l)) {
-    return alnls_u32_it_end (l);
+  if (bl_alnls_u32_is_empty (l)) {
+    return bl_alnls_u32_it_end (l);
   }
-  alnls_u32_it tail, subtail;
-  alnls_u32_find_two_previous_nodes (l, &tail, &subtail, alnls_u32_it_end (l));
-  if (subtail != alnls_u32_it_end (l)) {
-    l->nodes[subtail] = alnls_u32_it_end (l);
+  bl_alnls_u32_it tail, subtail;
+  bl_alnls_u32_find_two_previous_nodes(
+    l, &tail, &subtail, bl_alnls_u32_it_end (l)
+    );
+  if (subtail != bl_alnls_u32_it_end (l)) {
+    l->nodes[subtail] = bl_alnls_u32_it_end (l);
   }
   else {
-    l->head = alnls_u32_it_end (l);
+    l->head = bl_alnls_u32_it_end (l);
   }
   --l->size;
   return tail;

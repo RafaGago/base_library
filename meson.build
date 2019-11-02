@@ -1,10 +1,8 @@
-# TODO: address sanitizer/valgrind
-
 project(
     'base_library',
     'c',
     'cpp', # only for relacy
-    version: '0.0.1',
+    version: '0.1.0',
     license: 'BSD-3',
     default_options: [
         'c_std=gnu99',
@@ -53,7 +51,7 @@ install_subdir ('include/bl', install_dir : 'include')
 
 relacy_path = 'gitmodules/relacy'
 
-cflags = [ '-D_GNU_SOURCE' ]
+cflags = [ '-D_GNU_SOURCE', '-DBL_COMPILATION' ]
 lib_cflags = []
 test_cflags = []
 host_system = host_machine.system()

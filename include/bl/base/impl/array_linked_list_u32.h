@@ -10,107 +10,123 @@
 #include <bl/base/integer.h>
 #include <bl/base/utility.h>
 
-typedef u32 alnls_u32_it;
+typedef bl_u32 bl_alnls_u32_it;
 /*---------------------------------------------------------------------------*/
-typedef struct alnls_u32 {
-  uword capacity;
-  uword size;
-  u32 head;
-  u32* nodes;
+typedef struct bl_alnls_u32 {
+  bl_uword capacity;
+  bl_uword size;
+  bl_u32  head;
+  bl_u32* nodes;
 }
-alnls_u32;
+bl_alnls_u32;
 /*---------------------------------------------------------------------------*/
-#define alnls_u32_foreach(type_ptr, it_var)\
-  for (alnls_u32_it alnls_u32_priv_curr_it = alnls_u32_it_begin ((type_ptr)),\
-         it_var = alnls_u32_priv_curr_it;\
-       alnls_u32_it_in_range ((type_ptr), alnls_u32_priv_curr_it) &&\
-         (alnls_u32_priv_curr_it =\
-            alnls_u32_it_next ((type_ptr), alnls_u32_priv_curr_it), 1);\
-       it_var = alnls_u32_priv_curr_it\
-       )
-/*---------------------------------------------------------------------------*/
-#define alnls_u32_foreach_read_only(type_ptr, it_var)\
-  for (it_var = alnls_u32_it_begin ((type_ptr));\
-       alnls_u32_it_in_range ((type_ptr), it_var);\
-       it_var = alnls_u32_it_next ((type_ptr), it_var)\
-       )
-/*---------------------------------------------------------------------------*/
-#define alnls_u32_init(list, backing_nodes_array)\
-  alnls_u32_init_impl(\
-    (list),\
-    (backing_nodes_array),\
-    arr_elems (backing_nodes_array)\
+#define bl_alnls_u32_foreach(type_ptr, it_var)\
+  for(\
+    bl_alnls_u32_it bl_alnls_u32_priv_curr_it =\
+        bl_alnls_u32_it_begin ((type_ptr)),\
+      it_var = bl_alnls_u32_priv_curr_it;\
+    bl_alnls_u32_it_in_range ((type_ptr), bl_alnls_u32_priv_curr_it) &&\
+      (bl_alnls_u32_priv_curr_it =\
+        bl_alnls_u32_it_next ((type_ptr), bl_alnls_u32_priv_curr_it), 1);\
+    it_var = bl_alnls_u32_priv_curr_it\
     )
 /*---------------------------------------------------------------------------*/
-static inline alnls_u32_it alnls_u32_it_end (alnls_u32* l)
+#define bl_alnls_u32_foreach_read_only(type_ptr, it_var)\
+  for(\
+    it_var = bl_alnls_u32_it_begin ((type_ptr));\
+    bl_alnls_u32_it_in_range ((type_ptr), it_var);\
+    it_var = bl_alnls_u32_it_next ((type_ptr), it_var)\
+    )
+/*---------------------------------------------------------------------------*/
+#define bl_alnls_u32_init(list, backing_nodes_array)\
+  bl_alnls_u32_init_impl(\
+    (list),\
+    (backing_nodes_array),\
+    bl_arr_elems (backing_nodes_array)\
+    )
+/*---------------------------------------------------------------------------*/
+static inline bl_alnls_u32_it bl_alnls_u32_it_end (bl_alnls_u32* l)
 {
   return l->capacity;
 }
 /*---------------------------------------------------------------------------*/
-static inline alnls_u32_it alnls_u32_it_begin (alnls_u32* l)
+static inline bl_alnls_u32_it bl_alnls_u32_it_begin (bl_alnls_u32* l)
 {
   return l->head;
 }
 /*---------------------------------------------------------------------------*/
-static inline alnls_u32_it alnls_u32_capacity (alnls_u32* l)
+static inline bl_alnls_u32_it bl_alnls_u32_capacity (bl_alnls_u32* l)
 {
   return l->capacity;
 }
 /*---------------------------------------------------------------------------*/
-static inline alnls_u32_it alnls_u32_size (alnls_u32* l)
+static inline bl_alnls_u32_it bl_alnls_u32_size (bl_alnls_u32* l)
 {
   return l->size;
 }
 /*---------------------------------------------------------------------------*/
-static inline alnls_u32_it alnls_u32_it_in_range (alnls_u32* l, alnls_u32_it it)
+static inline bl_alnls_u32_it
+  bl_alnls_u32_it_in_range (bl_alnls_u32* l, bl_alnls_u32_it it)
 {
   return it < l->capacity;
 }
 /*---------------------------------------------------------------------------*/
-static inline bool alnls_u32_is_empty (alnls_u32* l)
+static inline bool bl_alnls_u32_is_empty (bl_alnls_u32* l)
 {
-  return alnls_u32_it_begin (l) == alnls_u32_it_end (l);
+  return bl_alnls_u32_it_begin (l) == bl_alnls_u32_it_end (l);
 }
 /*---------------------------------------------------------------------------*/
-static inline alnls_u32_it alnls_u32_it_next (alnls_u32* l, alnls_u32_it it)
+static inline bl_alnls_u32_it
+  bl_alnls_u32_it_next (bl_alnls_u32* l, bl_alnls_u32_it it)
 {
   return l->nodes[it];
 }
 /*---------------------------------------------------------------------------*/
-static inline void alnls_u32_node_release (alnls_u32* l, alnls_u32_it it)
+static inline void
+  bl_alnls_u32_node_release (bl_alnls_u32* l, bl_alnls_u32_it it)
 {
   l->nodes[it] = it;
 }
 /*---------------------------------------------------------------------------*/
-static inline bool alnls_u32_node_is_free (alnls_u32* l, alnls_u32_it it)
+static inline bool
+  bl_alnls_u32_node_is_free (bl_alnls_u32* l, bl_alnls_u32_it it)
 {
   return l->nodes[it] == it;
 }
 /*---------------------------------------------------------------------------*/
-static inline void alnls_u32_acquire_node_unsafe (alnls_u32* l, alnls_u32_it it)
+static inline void bl_alnls_u32_acquire_node_unsafe(
+  bl_alnls_u32* l, bl_alnls_u32_it it
+  )
 {
-  bl_assert (it < alnls_u32_capacity (l));
-  bl_assert (alnls_u32_node_is_free (l, it));
-  l->nodes[it] = alnls_u32_it_end (l);
+  bl_assert (it < bl_alnls_u32_capacity (l));
+  bl_assert (bl_alnls_u32_node_is_free (l, it));
+  l->nodes[it] = bl_alnls_u32_it_end (l);
 }
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT void alnls_u32_init_impl(
-  alnls_u32* l, u32* nodes, uword nodes_capacity
+extern BL_EXPORT void bl_alnls_u32_init_impl(
+  bl_alnls_u32* l, bl_u32* nodes, bl_uword nodes_capacity
   );
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT alnls_u32_it alnls_u32_try_acquire_node (alnls_u32* l, alnls_u32_it n);
+extern BL_EXPORT bl_alnls_u32_it
+  bl_alnls_u32_try_acquire_node (bl_alnls_u32* l, bl_alnls_u32_it n);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT alnls_u32_it alnls_u32_try_acquire_a_node (alnls_u32* l);
+extern BL_EXPORT bl_alnls_u32_it
+  bl_alnls_u32_try_acquire_a_node (bl_alnls_u32* l);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT void alnls_u32_insert_head (alnls_u32* l, alnls_u32_it n);
+extern BL_EXPORT void
+  bl_alnls_u32_insert_head (bl_alnls_u32* l, bl_alnls_u32_it n);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT alnls_u32_it alnls_u32_drop_head (alnls_u32* l);
+extern BL_EXPORT bl_alnls_u32_it
+  bl_alnls_u32_drop_head (bl_alnls_u32* l);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT void alnls_u32_insert_tail (alnls_u32* l, alnls_u32_it n);
+extern BL_EXPORT void
+  bl_alnls_u32_insert_tail (bl_alnls_u32* l, bl_alnls_u32_it n);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT alnls_u32_it alnls_u32_drop (alnls_u32* l, alnls_u32_it n);
+extern BL_EXPORT bl_alnls_u32_it
+  bl_alnls_u32_drop (bl_alnls_u32* l, bl_alnls_u32_it n);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT alnls_u32_it alnls_u32_drop_tail (alnls_u32* l);
+extern BL_EXPORT bl_alnls_u32_it
+  bl_alnls_u32_drop_tail (bl_alnls_u32* l);
 
 #endif /* #define __BL_ARRAY_LINKED_LIST_u32_H__ */
 

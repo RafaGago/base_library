@@ -25,17 +25,17 @@ enum bl_serial_ioctl_e{
   bl_send_break, /*W. - */
   bl_set_break,  /*W. bool level*/
 };
-typedef uword bl_serial_ioctl;
+typedef bl_uword bl_serial_ioctl;
 /*----------------------------------------------------------------------------*/
 typedef struct bl_serial bl_serial;
 /*----------------------------------------------------------------------------*/
 extern BL_SERIAL_EXPORT bl_err bl_serial_init(
-  bl_serial** s_out, uword read_buffer_min_size, alloc_tbl const* alloc
+  bl_serial** s_out, bl_uword read_buffer_min_size, bl_alloc_tbl const* alloc
   );
 /*----------------------------------------------------------------------------*/
 /* undefined behaviour is to be expected if some thread is reading or writing */
 extern BL_SERIAL_EXPORT void bl_serial_destroy(
-  bl_serial* s, alloc_tbl const* alloc
+  bl_serial* s, bl_alloc_tbl const* alloc
   );
 /*----------------------------------------------------------------------------*/
 extern BL_SERIAL_EXPORT bl_err bl_serial_start(
@@ -48,28 +48,28 @@ extern BL_SERIAL_EXPORT void bl_serial_stop (bl_serial* s);
 /* This call is to be called from just one thread. 0 = nonblocking. No partial
   reads are returned in case of a timeout */
 extern BL_SERIAL_EXPORT bl_err bl_serial_read(
-  bl_serial* s, memr rbuff, toffset timeout_us
+  bl_serial* s, bl_memr rbuff, bl_toffset timeout_us
   );
 /*----------------------------------------------------------------------------*/
 /* This call is to be called from just one thread.*/
 extern BL_SERIAL_EXPORT bl_err bl_serial_write(
-  bl_serial* s, memr wbuff, u32* written, toffset timeout_us
+  bl_serial* s, bl_memr wbuff, bl_u32* written, bl_toffset timeout_us
   );
 /*----------------------------------------------------------------------------*/
 extern BL_SERIAL_EXPORT bl_err bl_serial_ioctl_get(
-  bl_serial* s, bl_serial_ioctl op, uword* val
+  bl_serial* s, bl_serial_ioctl op, bl_uword* val
   );
 /*----------------------------------------------------------------------------*/
 /* undefined behaviour is to be expected if some thread is reading or writing */
 extern BL_SERIAL_EXPORT bl_err bl_serial_ioctl_set(
-  bl_serial* s, bl_serial_ioctl op, uword val
+  bl_serial* s, bl_serial_ioctl op, bl_uword val
   );
 /*----------------------------------------------------------------------------*/
-extern BL_SERIAL_EXPORT uword bl_serial_get_bit_time_ns(
+extern BL_SERIAL_EXPORT bl_uword bl_serial_get_bit_time_ns(
   bl_serial_cfg const* cfg
   );
 /*----------------------------------------------------------------------------*/
-extern BL_SERIAL_EXPORT uword bl_serial_get_byte_time_ns(
+extern BL_SERIAL_EXPORT bl_uword bl_serial_get_byte_time_ns(
   bl_serial_cfg const* cfg
   );
 /*----------------------------------------------------------------------------*/

@@ -10,7 +10,7 @@
 /*TODO: C11 Type-generic expressions are very suitable here*/
 
 /*---------------------------------------------------------------------------*/
-static inline u8 msb_to_right_set_u8 (u8 x)
+static inline bl_u8 bl_msb_to_right_set_u8 (bl_u8 x)
 {
   x |= (x >> 1);
   x |= (x >> 2);
@@ -18,7 +18,7 @@ static inline u8 msb_to_right_set_u8 (u8 x)
   return x;
 }
 #if BL_WORDSIZE_MAX >= 16
-static inline u16 msb_to_right_set_u16 (u16 x)
+static inline bl_u16 bl_msb_to_right_set_u16 (bl_u16 x)
 {
   x |= (x >> 1);
   x |= (x >> 2);
@@ -28,7 +28,7 @@ static inline u16 msb_to_right_set_u16 (u16 x)
 }
 #endif
 #if BL_WORDSIZE_MAX >= 32
-static inline u32 msb_to_right_set_u32 (u32 x)
+static inline bl_u32 bl_msb_to_right_set_u32 (bl_u32 x)
 {
   x |= (x >> 1);
   x |= (x >> 2);
@@ -39,7 +39,7 @@ static inline u32 msb_to_right_set_u32 (u32 x)
 }
 #endif
 #if BL_WORDSIZE_MAX >= 64
-static inline u64 msb_to_right_set_u64 (u64 x)
+static inline bl_u64 bl_msb_to_right_set_u64 (bl_u64 x)
 {
   x |= (x >> 1);
   x |= (x >> 2);
@@ -51,24 +51,28 @@ static inline u64 msb_to_right_set_u64 (u64 x)
 }
 #endif
 /*---------------------------------------------------------------------------*/
-#define next_pow2_u8(x)  ((u8)  msb_to_right_set_u8 (x)  + 1)
-#define next_pow2_u16(x) ((u16) msb_to_right_set_u16 (x) + 1)
-#define next_pow2_u32(x) ((u32) msb_to_right_set_u32 (x) + 1)
-#define next_pow2_u64(x) ((u64) msb_to_right_set_u64 (x) + 1)
+#define bl_next_pow2_u8(x)  ((bl_u8)  bl_msb_to_right_set_u8 (x)  + 1)
+#define bl_next_pow2_u16(x) ((bl_u16) bl_msb_to_right_set_u16 (x) + 1)
+#define bl_next_pow2_u32(x) ((bl_u32) bl_msb_to_right_set_u32 (x) + 1)
+#define bl_next_pow2_u64(x) ((bl_u64) bl_msb_to_right_set_u64 (x) + 1)
 /*---------------------------------------------------------------------------*/
-#define round_next_pow2_u8(x)  (is_pow2 (x) ? x : next_pow2_u8 (x))
-#define round_next_pow2_u16(x) (is_pow2 (x) ? x : next_pow2_u16 (x))
-#define round_next_pow2_u32(x) (is_pow2 (x) ? x : next_pow2_u32 (x))
-#define round_next_pow2_u64(x) (is_pow2 (x) ? x : next_pow2_u64 (x))
+#define bl_round_next_pow2_u8(x) \
+  (bl_is_pow2 (x) ? x : bl_next_pow2_u8 (x))
+#define bl_round_next_pow2_u16(x) \
+  (bl_is_pow2 (x) ? x : bl_next_pow2_u16 (x))
+#define bl_round_next_pow2_u32(x) \
+  (bl_is_pow2 (x) ? x : bl_next_pow2_u32 (x))
+#define bl_round_next_pow2_u64(x) \
+  (bl_is_pow2 (x) ? x : bl_next_pow2_u64 (x))
 /*---------------------------------------------------------------------------*/
-static inline u8 reverse_bits (u8 val)
+static inline bl_u8 bl_reverse_bits (bl_u8 val)
 {
-  u64 v;
-  v   = (u64) val * 0x80200802ULL;
+  bl_u64 v;
+  v   = (bl_u64) val * 0x80200802ULL;
   v  &= 0x0884422110ULL;
   v  *= 0x0101010101ULL;
   v >>= 32;
-  return (u8) v;
+  return (bl_u8) v;
 }
 /*---------------------------------------------------------------------------*/
 #if defined (BL_GCC) || defined (BL_GCLANG)
@@ -78,39 +82,39 @@ static inline u8 reverse_bits (u8 val)
 #endif
 /*---------------------------------------------------------------------------*/
 #if BL_WORDSIZE == 8
-  #define msb_to_right_set_u msb_to_right_set_u8
-  #define next_pow2_u        next_pow2_u8
-  #define round_next_pow2_u  round_next_pow2_u8
-  #define popcount_u         popcount_u8
-  #define log2_floor_u       log2_floor_u8
-  #define log2_ceil_u        log2_ceil_u8
+  #define bl_msb_to_right_set_u bl_msb_to_right_set_u8
+  #define bl_next_pow2_u        bl_next_pow2_u8
+  #define bl_round_next_pow2_u  bl_round_next_pow2_u8
+  #define bl_popcount_u         bl_popcount_u8
+  #define bl_log2_floor_u       bl_log2_floor_u8
+  #define bl_log2_ceil_u        bl_log2_ceil_u8
 #endif
 /*---------------------------------------------------------------------------*/
 #if BL_WORDSIZE == 16
-  #define msb_to_right_set_u msb_to_right_set_u16
-  #define next_pow2_u        next_pow2_u16
-  #define round_next_pow2_u  round_next_pow2_u16
-  #define popcount_u         popcount_u16
-  #define log2_floor_u       log2_floor_u16
-  #define log2_ceil_u        log2_ceil_u16
+  #define bl_msb_to_right_set_u bl_msb_to_right_set_u16
+  #define bl_next_pow2_u        bl_next_pow2_u16
+  #define bl_round_next_pow2_u  bl_round_next_pow2_u16
+  #define bl_popcount_u         bl_popcount_u16
+  #define bl_log2_floor_u       bl_log2_floor_u16
+  #define bl_log2_ceil_u        bl_log2_ceil_u16
 #endif
 /*---------------------------------------------------------------------------*/
 #if BL_WORDSIZE == 32
-  #define msb_to_right_set_u msb_to_right_set_u32
-  #define next_pow2_u        next_pow2_u32
-  #define round_next_pow2_u  round_next_pow2_u32
-  #define popcount_u         popcount_u32
-  #define log2_floor_u       log2_floor_u32
-  #define log2_ceil_u        log2_ceil_u32
+  #define bl_msb_to_right_set_u bl_msb_to_right_set_u32
+  #define bl_next_pow2_u        bl_next_pow2_u32
+  #define bl_round_next_pow2_u  bl_round_next_pow2_u32
+  #define bl_popcount_u         bl_popcount_u32
+  #define bl_log2_floor_u       bl_log2_floor_u32
+  #define bl_log2_ceil_u        bl_log2_ceil_u32
 #endif
 /*---------------------------------------------------------------------------*/
 #if BL_WORDSIZE == 64
-  #define msb_to_right_set_u msb_to_right_set_u64
-  #define next_pow2_u        next_pow2_u64
-  #define round_next_pow2_u  round_next_pow2_u64
-  #define popcount_u         popcount_u64
-  #define log2_floor_u       log2_floor_u64
-  #define log2_ceil_u        log2_ceil_u64
+  #define bl_msb_to_right_set_u bl_msb_to_right_set_u64
+  #define bl_next_pow2_u        bl_next_pow2_u64
+  #define bl_round_next_pow2_u  bl_round_next_pow2_u64
+  #define bl_popcount_u         bl_popcount_u64
+  #define bl_log2_floor_u       bl_log2_floor_u64
+  #define bl_log2_ceil_u        bl_log2_ceil_u64
 #endif
 /*---------------------------------------------------------------------------*/
 

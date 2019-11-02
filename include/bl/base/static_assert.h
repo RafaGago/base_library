@@ -1,20 +1,25 @@
 #ifndef __BL_STATIC_ASSERT_H__
 #define __BL_STATIC_ASSERT_H__
 
-#if !defined __cplusplus && !defined (_MSC_VER) && !defined (static_assert)
-  #define static_assert(cond, str) _Static_assert(cond, str)
+#include <assert.h>
+
+#if defined __cplusplus || defined static_assert
+  #define BL_HAS_STATIC_ASSERT 1
+  #define bl_static_assert(cond, str) static_assert(cond, str)
+#else
+  #define BL_HAS_STATIC_ASSERT 0
+  #define bl_static_assert(cond, str) assert(str && cond)
 #endif
 
-#define static_assert_ns(cond) static_assert (cond, "")
+#define bl_static_assert_ns(cond) bl_static_assert (cond, "")
 
-/*
- Use these two when out of a function, so we will be able to fallback to
- compilers without static_assert. Place static_asserts inside functions
- whenever it's possible. The over-verbose name is to encourage this.
-*/
-
-#define static_assert_outside_func(cond, str) static_assert (cond, str)
-#define static_assert_outside_func_ns(cond) static_assert_ns (cond)
+#if BL_HAS_STATIC_ASSERT == 1
+  #define bl_static_assert_outside_func(cond, str) bl_static_assert (cond, str)
+  #define bl_static_assert_outside_func_ns(cond) bl_static_assert_ns (cond)
+#else
+  #define bl_static_assert_outside_func(cond, str) /* warning ? */
+  #define bl_static_assert_outside_func_ns(cond) /* warning ? */
+#endif
 
 #endif /* __BL_STATIC_ASSERT_H__ */
 

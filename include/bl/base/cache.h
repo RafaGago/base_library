@@ -9,25 +9,25 @@
   #define BL_CACHE_LINE_SIZE 64
 #endif
 /*---------------------------------------------------------------------------*/
-#define declare_cache_pad_member\
-  char pp_tokconcat (padding_, __LINE__)[BL_CACHE_LINE_SIZE]
+#define bl_declare_cache_pad_member\
+  char bl_pp_tokconcat (padding_, __LINE__)[BL_CACHE_LINE_SIZE]
 /*---------------------------------------------------------------------------*/
 #ifndef __cplusplus
-#define align_type_to_cache_line(type)\
-  char pp_tokconcat (padding_, __LINE__)[BL_CACHE_LINE_SIZE % sizeof (type)]
+#define bl_align_type_to_cache_line(type)\
+  char bl_pp_tokconcat (padding_, __LINE__)[BL_CACHE_LINE_SIZE % sizeof (type)]
 #else
 /*---------------------------------------------------------------------------*/
 template <int N>
-struct align_type_to_cache_line_priv {
+struct bl_align_type_to_cache_line_priv {
   char arr[N];
 };
 template <>
-struct align_type_to_cache_line_priv<0> {};
+struct bl_align_type_to_cache_line_priv<0> {};
 /*---------------------------------------------------------------------------*/
-#define align_type_to_cache_line(type)\
-align_type_to_cache_line_priv<\
+#define bl_align_type_to_cache_line(type)\
+bl_align_type_to_cache_line_priv<\
   BL_CACHE_LINE_SIZE % sizeof (type)\
-  > pp_tokconcat (padding_, __LINE__)
+  > bl_pp_tokconcat (padding_, __LINE__)
 #endif
 /*---------------------------------------------------------------------------*/
 

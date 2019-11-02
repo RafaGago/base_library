@@ -12,17 +12,17 @@
 extern "C" {
 #endif
 /*----------------------------------------------------------------------------*/
-typedef struct nonblock_backoff {
-  uword   spin;
-  uword   spin_max;
-  uword   yield;
-  uword   yield_max;
-  toffset sleep_ns;
-  toffset sleep_mul;
-  toffset sleep_div;
-  toffset sleep_ns_max;
+typedef struct bl_nonblock_backoff {
+  bl_uword   spin;
+  bl_uword   spin_max;
+  bl_uword   yield;
+  bl_uword   yield_max;
+  bl_toffset sleep_ns;
+  bl_toffset sleep_mul;
+  bl_toffset sleep_div;
+  bl_toffset sleep_ns_max;
 }
-nonblock_backoff;
+bl_nonblock_backoff;
 /*------------------------------------------------------------------------------
 spin_max:  number of spinning loops
 yield_max: number of yield loops
@@ -37,28 +37,28 @@ If one wishes to have constant delays "sleep_mul" has to be set to 0.
 
 ------------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
-  void nonblock_backoff_init(
-    nonblock_backoff* nb,
-    uword             spin_max,
-    uword             yield_max,
-    toffset           sleep_us_init,
-    toffset           sleep_mul,
-    toffset           sleep_div,
-    toffset           sleep_us_max
+  void bl_nonblock_backoff_init(
+    bl_nonblock_backoff* nb,
+    bl_uword             spin_max,
+    bl_uword             yield_max,
+    bl_toffset           sleep_us_init,
+    bl_toffset           sleep_mul,
+    bl_toffset           sleep_div,
+    bl_toffset           sleep_us_max
     );
 /*----------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
-  void nonblock_backoff_init_default(
-    nonblock_backoff* nb, toffset sleep_us_max
+  void bl_nonblock_backoff_init_default(
+    bl_nonblock_backoff* nb, bl_toffset sleep_us_max
     );
 /*------------------------------------------------------------------------------
 Can be used to determine if a thread has reached the idle state
 ------------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
-  toffset nonblock_backoff_next_sleep_us (nonblock_backoff* nb);
+  bl_toffset bl_nonblock_backoff_next_sleep_us (bl_nonblock_backoff* nb);
 /*----------------------------------------------------------------------------*/
 extern BL_NONBLOCK_EXPORT
-  void nonblock_backoff_run (nonblock_backoff* nb);
+  void bl_nonblock_backoff_run (bl_nonblock_backoff* nb);
 /*----------------------------------------------------------------------------*/
 #ifdef __cplusplus
 } /*extern "C" {*/

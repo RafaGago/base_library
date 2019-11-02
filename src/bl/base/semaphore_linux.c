@@ -18,9 +18,9 @@ extern "C" {
 #endif
 /*----------------------------------------------------------------------------*/
 static inline int futex_wait_masked_absolute_monotonic(
-  atomic_u32*            f,
-  u32                    expected_fval,
-  u32                    expected_fval_mask,
+  bl_atomic_u32*            f,
+  bl_u32                    expected_fval,
+  bl_u32                    expected_fval_mask,
   const struct timespec* tp
   )
 {
@@ -35,7 +35,7 @@ static inline int futex_wait_masked_absolute_monotonic(
     );
 }
 /*----------------------------------------------------------------------------*/
-static inline int futex_wake (atomic_u32* f, i32 thread_count)
+static inline int futex_wake (bl_atomic_u32* f, bl_i32 thread_count)
 {
   return syscall(
     SYS_futex,
@@ -51,7 +51,7 @@ static inline int futex_wake (atomic_u32* f, i32 thread_count)
 #define tm_sem_futex_sig_bits  24
 #define tm_sem_futex_wait_bits 8
 /*----------------------------------------------------------------------------*/
-#define tm_sem_futex_sig_mask    u32_lsb_set (tm_sem_futex_sig_bits)
+#define tm_sem_futex_sig_mask    bl_u32_lsb_set (tm_sem_futex_sig_bits)
 #define tm_sem_futex_get_sig(v)  (v & tm_sem_futex_sig_mask)
 #define tm_sem_futex_get_wait(v) (v >> tm_sem_futex_sig_bits)
 #define tm_sem_futex_set(s, w)\
@@ -59,56 +59,60 @@ static inline int futex_wake (atomic_u32* f, i32 thread_count)
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err bl_tm_sem_signal (bl_tm_sem* s)
 {
-  u32 sig, wait, curr;
-  u32 prev = atomic_u32_load_rlx (&s->sem);
+  bl_u32 sig, wait, curr;
+  bl_u32 prev = bl_atomic_u32_load_rlx (&s->sem);
   do {
     sig  = tm_sem_futex_get_sig (prev);
     wait = tm_sem_futex_get_wait (prev);
     curr = tm_sem_futex_set (sig + 1, wait);
 
-    if (unlikely (tm_sem_futex_get_sig (curr) < sig)) {
+    if (bl_unlikely (tm_sem_futex_get_sig (curr) < sig)) {
       return bl_mkerr (bl_would_overflow);
     }
   }
-  while (!atomic_u32_weak_cas (&s->sem, &prev, curr, mo_release, mo_relaxed));
+  while (!bl_atomic_u32_weak_cas(
+    &s->sem, &prev, curr, bl_mo_release, bl_mo_relaxed)
+    );
 
-  if (unlikely (wait != 0)) {
+  if (bl_unlikely (wait != 0)) {
     (void) futex_wake (&s->sem, 1);
   }
   return bl_mkok();
 }
 /*----------------------------------------------------------------------------*/
-BL_EXPORT bl_err bl_tm_sem_wait (bl_tm_sem* s, u32 usec)
+BL_EXPORT bl_err bl_tm_sem_wait (bl_tm_sem* s, bl_u32 usec)
 {
-  u32    sig;
-  u32    wait;
-  u32    curr;
-  u32    prev;
+  bl_u32    sig;
+  bl_u32    wait;
+  bl_u32    curr;
+  bl_u32    prev;
   bl_err err;
 
   err  = bl_mkok();
-  prev = atomic_u32_load_rlx (&s->sem);
+  prev = bl_atomic_u32_load_rlx (&s->sem);
   do {
     sig  = tm_sem_futex_get_sig (prev);
     wait = tm_sem_futex_get_wait (prev);
 
-    if (likely (sig > 0)) {
+    if (bl_likely (sig > 0)) {
       curr = tm_sem_futex_set (sig - 1, wait);
     }
     else {
       curr = tm_sem_futex_set (sig, wait + 1);
-      if (unlikely (tm_sem_futex_get_wait (curr) < wait)) {
+      if (bl_unlikely (tm_sem_futex_get_wait (curr) < wait)) {
         bl_assert (false && "too many waiter threads");
         return bl_mkerr (bl_would_overflow);
       }
     }
   }
-  while (!atomic_u32_weak_cas (&s->sem, &prev, curr, mo_acquire, mo_relaxed));
+  while (!bl_atomic_u32_weak_cas(
+    &s->sem, &prev, curr, bl_mo_acquire, bl_mo_relaxed)
+    );
 
   if (sig == 0) {
     struct timespec t;
     if (usec != bl_tm_sem_infinity) {
-      t = timespec_us_from_now (usec, CLOCK_MONOTONIC);
+      t = bl_timespec_us_from_now (usec, CLOCK_MONOTONIC);
     }
     int ferr;
   do_wait:
@@ -120,7 +124,7 @@ BL_EXPORT bl_err bl_tm_sem_wait (bl_tm_sem* s, u32 usec)
       );
     if (ferr == 0 || errno == EWOULDBLOCK) {
       /*new signals, try to acquire one*/
-      prev = atomic_u32_load_rlx (&s->sem);
+      prev = bl_atomic_u32_load_rlx (&s->sem);
       do {
         sig  = tm_sem_futex_get_sig (prev);
         wait = tm_sem_futex_get_wait (prev);
@@ -135,8 +139,9 @@ BL_EXPORT bl_err bl_tm_sem_wait (bl_tm_sem* s, u32 usec)
         }
       }
       while(
-        !atomic_u32_weak_cas (&s->sem, &prev, curr, mo_acquire, mo_relaxed)
-        );
+        !bl_atomic_u32_weak_cas(
+          &s->sem, &prev, curr, bl_mo_acquire, bl_mo_relaxed
+        ));
     }
     else {
       switch (errno) {
@@ -155,7 +160,7 @@ BL_EXPORT bl_err bl_tm_sem_wait (bl_tm_sem* s, u32 usec)
         err = bl_mkerr_sys (bl_error, errno);
         break;
       }
-      atomic_u32_fetch_sub_rlx (&s->sem, (1 << tm_sem_futex_sig_bits));
+      bl_atomic_u32_fetch_sub_rlx (&s->sem, (1 << tm_sem_futex_sig_bits));
     }
   }
   return err;
@@ -163,13 +168,13 @@ BL_EXPORT bl_err bl_tm_sem_wait (bl_tm_sem* s, u32 usec)
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err bl_tm_sem_init (bl_tm_sem* s)
 {
-  atomic_u32_store_rlx (&s->sem, 0);
+  bl_atomic_u32_store_rlx (&s->sem, 0);
   return bl_mkok();
 }
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err bl_tm_sem_destroy (bl_tm_sem* s)
 {
-  word woken = futex_wake (&s->sem, itype_max (word));
+  bl_word woken = futex_wake (&s->sem, bl_itype_max (bl_word));
   bl_assert (woken == 0);
   /*if this returns an error there still are waiters -> wrong user shutdown*/
   return bl_mkerr ((woken == 0) ? bl_ok : bl_error);

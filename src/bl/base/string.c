@@ -6,13 +6,13 @@
 
 /*----------------------------------------------------------------------------*/
 BL_EXPORT int bl_vasprintf_ext(
-  char**           str,
-  int              str_alloc_size,
-  int              str_offset,
-  int              do_realloc,
-  alloc_tbl const* alloc,
-  char const*      format,
-  va_list          args
+  char**              str,
+  int                 str_alloc_size,
+  int                 str_offset,
+  int                 do_realloc,
+  bl_alloc_tbl const* alloc,
+  char const*         format,
+  va_list             args
   )
 {
   bl_assert(alloc && format && str);
@@ -21,7 +21,7 @@ BL_EXPORT int bl_vasprintf_ext(
   int   usable_bytes = str_alloc_size - str_offset;
   *str               = nullptr;
 
-  if (unlikely(
+  if (bl_unlikely(
       str_alloc_size < 1 || usable_bytes <= 0 || str_offset < 0
       )) {
     return -bl_invalid;
@@ -32,7 +32,7 @@ BL_EXPORT int bl_vasprintf_ext(
   else {
     out_buff   = bl_alloc (alloc, str_alloc_size);
     do_realloc = 1;
-    if (unlikely (!out_buff)) {
+    if (bl_unlikely (!out_buff)) {
       return -bl_alloc;
     }
   }
@@ -50,7 +50,7 @@ BL_EXPORT int bl_vasprintf_ext(
   out_buff = bl_realloc(
     alloc, do_realloc ? out_buff : nullptr, required_bytes
     );
-  if (unlikely (!out_buff)) {
+  if (bl_unlikely (!out_buff)) {
     if (!in_buff) {
       bl_dealloc (alloc, out_buff_prev);
     }
@@ -61,14 +61,14 @@ BL_EXPORT int bl_vasprintf_ext(
   bl_assert (size == required_bytes - str_offset - 1);
 end:
   va_end (args_cp);
-  if (likely (size >= 0)) {
+  if (bl_likely (size >= 0)) {
     *str = out_buff;
   }
   return size;
 }
 /*----------------------------------------------------------------------------*/
 BL_EXPORT int bl_asprintf(
-  char **str, alloc_tbl const* alloc, const char *format, ...
+  char **str, bl_alloc_tbl const* alloc, const char *format, ...
   )
 {
   va_list args;

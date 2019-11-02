@@ -43,8 +43,8 @@
 extern "C" {
 #endif
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT uword bl_thread_min_sleep_us (void);
-extern BL_EXPORT void bl_thread_usleep (u32 us);
+extern BL_EXPORT bl_uword bl_thread_min_sleep_us (void);
+extern BL_EXPORT void bl_thread_usleep (bl_u32 us);
 /*---------------------------------------------------------------------------*/
 
 #if defined BL_LINUX
@@ -54,18 +54,18 @@ extern BL_EXPORT void bl_thread_usleep (u32 us);
 #include <unistd.h>
 
 /*---------------------------------------------------------------------------*/
-static inline uword bl_get_cpu_count (void)
+static inline bl_uword bl_get_cpu_count (void)
 {
   return sysconf (_SC_NPROCESSORS_ONLN);
 }
 /*---------------------------------------------------------------------------*/
-static inline uword bl_get_cpu (void)
+static inline bl_uword bl_get_cpu (void)
 {
   unsigned int v = sched_getcpu();
 #ifndef BL_THREAD_GET_CPU_NO_ASSERT
   bl_assert (v >=0 && v < bl_get_cpu_count());
 #endif
-  return (uword) (v >= 0 ? v : 0);
+  return (bl_uword) (v >= 0 ? v : 0);
 }
 /*---------------------------------------------------------------------------*/
 typedef cpu_set_t bl_affinity_mask;
@@ -75,14 +75,14 @@ static inline void bl_affinity_mask_init (bl_affinity_mask* m)
   CPU_ZERO (m);
 }
 /*---------------------------------------------------------------------------*/
-static inline void bl_affinity_mask_set_cpu (bl_affinity_mask* m, uword cpu)
+static inline void bl_affinity_mask_set_cpu (bl_affinity_mask* m, bl_uword cpu)
 {
   bl_assert (cpu < bl_get_cpu_count());
   CPU_SET (cpu, m);
 }
 /*---------------------------------------------------------------------------*/
 static inline bool bl_affinity_mask_cpu_is_set(
-  bl_affinity_mask const* m, uword cpu
+  bl_affinity_mask const* m, bl_uword cpu
   )
 {
   bl_assert (cpu < bl_get_cpu_count());
@@ -113,17 +113,17 @@ static inline bl_err bl_get_thread_affinity (bl_thread t, bl_affinity_mask* m)
 
 #include <bl/base/include_windows.h>
 /*---------------------------------------------------------------------------*/
-static inline uword bl_get_cpu_count (void)
+static inline bl_uword bl_get_cpu_count (void)
 {
   SYSTEM_INFO sysinfo;
   GetSystemInfo (&sysinfo);
-  return (uword) sysinfo.dwNumberOfProcessors;
+  return (bl_uword) sysinfo.dwNumberOfProcessors;
 }
 /*---------------------------------------------------------------------------*/
-static inline uword bl_get_cpu (void)
+static inline bl_uword bl_get_cpu (void)
 {
   /* TODO: check that this isn't heavyweight */
-  uword v = (uword) GetCurrentProcessorNumber();
+  bl_uword v = (bl_uword) GetCurrentProcessorNumber();
 #ifndef BL_THREAD_GET_CPU_NO_ASSERT
   bl_assert (v < bl_get_cpu_count());
 #endif
@@ -138,13 +138,13 @@ static inline void bl_affinity_mask_init (bl_affinity_mask* m)
   *m = 0;
 }
 /*---------------------------------------------------------------------------*/
-static inline void bl_affinity_mask_set_cpu (bl_affinity_mask* m, uword cpu)
+static inline void bl_affinity_mask_set_cpu (bl_affinity_mask* m, bl_uword cpu)
 {
   *m |= (1 << cpu);
 }
 /*---------------------------------------------------------------------------*/
 static inline bool bl_affinity_mask_cpu_is_set(
-  bl_affinity_mask const* m, uword cpu
+  bl_affinity_mask const* m, bl_uword cpu
   )
 {
   bl_assert (m);

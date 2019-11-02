@@ -42,7 +42,7 @@ calculated as a ratio to it. Hence the parts per million (PPM) units. */
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
 #define MAGIC_NAN (0x7ff8000000000000UL) /* A NaN value */
-#define IS_MAGIC_NAN(v) ((u64)(v) == (u64) MAGIC_NAN)
+#define IS_MAGIC_NAN(v) ((bl_u64)(v) == (bl_u64) MAGIC_NAN)
 /*----------------------------------------------------------------------------*/
 #define CPUFREQ_WINDOW \
   (((double) BL_TIME_CPUFREQ_MAX_SAMPLE_PPM) / 1000000.)
@@ -60,19 +60,19 @@ static int doublecmp (const void * aptr, const void * bptr)
   return 0;
 }
 /*----------------------------------------------------------------------------*/
-static double find_most_repeated (double* v, uword vcount, double window)
+static double find_most_repeated (double* v, bl_uword vcount, double window)
 {
   struct sample_data{
     double total;
     double winstart;
-    uword  count;
+    bl_uword  count;
   };
   qsort (v, vcount, sizeof v[0], doublecmp);
 
   struct sample_data cur = { v[0], v[0], 1 };
   struct sample_data max = cur;
 
-  for (uword i = 1; i < vcount; ++i) {
+  for (bl_uword i = 1; i < vcount; ++i) {
     if ((v[i] - cur.winstart) < window) {
       cur.total += v[i];
       ++cur.count;
@@ -90,20 +90,20 @@ static double find_most_repeated (double* v, uword vcount, double window)
     (max.total / (double) max.count) : (double) MAGIC_NAN;
 }
 /*----------------------------------------------------------------------------*/
-static tstamp t_get_noinline (void)
+static bl_tstamp t_get_noinline (void)
 {
   return bl_get_tstamp();
 }
 /*----------------------------------------------------------------------------*/
-static toffset t_to_nsec_noinline (tstamp t)
+static bl_toffset t_to_nsec_noinline (bl_tstamp t)
 {
   return bl_tstamp_to_nsec (t);
 }
 /*----------------------------------------------------------------------------*/
 typedef struct sysclockdiff {
-  atomic_u64 to_sys_ns;
-  tstamp (*get) (void);
-  toffset (*to_nsec) (tstamp);
+  bl_atomic_u64 to_sys_ns;
+  bl_tstamp (*get) (void);
+  bl_toffset (*to_nsec) (bl_tstamp);
 }
 sysclockdiff;
 /*----------------------------------------------------------------------------*/
@@ -111,64 +111,64 @@ sysclockdiff;
 and atomic types of different sizes than the basic type size */
 /*----------------------------------------------------------------------------*/
 static sysclockdiff timestamp_sysdata = {
-  (atomic_u64) MAGIC_NAN, &t_get_noinline, &t_to_nsec_noinline
+  (bl_atomic_u64) MAGIC_NAN, &t_get_noinline, &t_to_nsec_noinline
 };
 /*----------------------------------------------------------------------------*/
 #ifdef BL_HAS_CPU_TSTAMP
 /*----------------------------------------------------------------------------*/
-static tstamp cpu_t_get_noinline (void)
+static bl_tstamp cpu_t_get_noinline (void)
 {
-  return bl_get_cputstamp();
+  return bl_cpu_tstamp_get();
 }
 /*----------------------------------------------------------------------------*/
 static sysclockdiff cputimestamp_sysdata = {
-  (atomic_u64) MAGIC_NAN, &cpu_t_get_noinline, &bl_cputstamp_to_nsec
+  (bl_atomic_u64) MAGIC_NAN, &cpu_t_get_noinline, &bl_cpu_tstamp_to_nsec
 };
 /*----------------------------------------------------------------------------*/
-atomic_u64 cpu_tstamp_freq = (atomic_u64) 0;
+bl_atomic_u64 cpu_bl_tstamp_freq = (bl_atomic_u64) 0;
 /*----------------------------------------------------------------------------*/
-static bl_err bl_cputstamp_freq_set()
+static bl_err bl_cpu_tstamp_freq_set()
 {
-  if (bl_cputstamp_get_freq() != 0) {
+  if (bl_cpu_tstamp_get_freq() != 0) {
     /* already initialized */
     return bl_mkok();
   }
-  tstamp tprev;
-  tstamp cpuprev;
+  bl_tstamp tprev;
+  bl_tstamp cpuprev;
   double ratio[BL_TIME_QSAMPLES];
   bl_thread_yield(); /* context switching in-between minimization attempt.*/
 
   tprev   = bl_get_tstamp();
-  cpuprev = bl_get_cputstamp();
+  cpuprev = bl_cpu_tstamp_get();
 
-  for (uword i = 0; i < arr_elems (ratio); ++i) {
+  for (bl_uword i = 0; i < bl_arr_elems (ratio); ++i) {
     bl_thread_usleep(5000);
-    tstamp t   = bl_get_tstamp();
-    tstamp cpu = bl_get_cputstamp();
+    bl_tstamp t   = bl_get_tstamp();
+    bl_tstamp cpu = bl_cpu_tstamp_get();
     ratio[i]   = (double) (cpu - cpuprev);
     ratio[i]  /= (double) (t - tprev);
     tprev      = t;
     cpuprev    = cpu;
   }
-  double avg = find_most_repeated (ratio, arr_elems (ratio), CPUFREQ_WINDOW);
+  double avg = find_most_repeated (ratio, bl_arr_elems (ratio), CPUFREQ_WINDOW);
   if (IS_MAGIC_NAN (avg)) {
     /*clock jitter couldn't match the defined criteria */
     return bl_mkerr (bl_error);
 
   }
   double tfreq = (double) bl_tstamp_get_freq();
-  atomic_u64_store_rlx (&cpu_tstamp_freq, (u64) (tfreq * avg));
+  bl_atomic_u64_store_rlx (&cpu_bl_tstamp_freq, (bl_u64) (tfreq * avg));
   return bl_mkok();
 }
 /*----------------------------------------------------------------------------*/
 static bl_err timestamp_cpu_init (void)
 {
   /* calculate cpu timestamp frequency using the monotonic clock */
-  uword attempts = -1;
+  bl_uword attempts = -1;
   bl_err err;
   do {
     ++attempts;
-    err = bl_cputstamp_freq_set();
+    err = bl_cpu_tstamp_freq_set();
   }
   while (err.bl && attempts < BL_TIME_INIT_RETRY_ROUNDS);
   if (err.bl) {
@@ -178,15 +178,15 @@ static bl_err timestamp_cpu_init (void)
   /* calculate initial difference between cpu timestamp clock and sysclock */
   attempts = 0;
   while(
-    IS_MAGIC_NAN (atomic_u64_load_rlx (&cputimestamp_sysdata.to_sys_ns)) &&
+    IS_MAGIC_NAN (bl_atomic_u64_load_rlx (&cputimestamp_sysdata.to_sys_ns)) &&
     attempts < BL_TIME_INIT_RETRY_ROUNDS
     )
   {
     /*trying to set an initial value on "ts_to_sys_ns"*/
-    bl_cputstamp_to_sysclock_diff_ns();
+    bl_cpu_tstamp_to_sysclock_diff_ns();
     ++attempts;
   }
-  if (IS_MAGIC_NAN (atomic_u64_load_rlx (&cputimestamp_sysdata.to_sys_ns))) {
+  if (IS_MAGIC_NAN (bl_atomic_u64_load_rlx (&cputimestamp_sysdata.to_sys_ns))) {
     /*too much jitter in clock.*/
     return bl_mkerr (bl_error);
   }
@@ -197,10 +197,10 @@ static bl_err timestamp_cpu_init (void)
 /*----------------------------------------------------------------------------*/
 BL_TIME_EXTRAS_EXPORT bl_err bl_time_extras_init (void)
 {
-  uword attempts = 0;
+  bl_uword attempts = 0;
   /* calculate initial difference between monotonic and sysclock */
   while(
-    IS_MAGIC_NAN (atomic_u64_load_rlx (&timestamp_sysdata.to_sys_ns)) &&
+    IS_MAGIC_NAN (bl_atomic_u64_load_rlx (&timestamp_sysdata.to_sys_ns)) &&
     attempts < BL_TIME_INIT_RETRY_ROUNDS
     )
   {
@@ -208,7 +208,7 @@ BL_TIME_EXTRAS_EXPORT bl_err bl_time_extras_init (void)
     bl_tstamp_to_sysclock_diff_ns();
     ++attempts;
   }
-  if (IS_MAGIC_NAN (atomic_u64_load_rlx (&timestamp_sysdata.to_sys_ns))) {
+  if (IS_MAGIC_NAN (bl_atomic_u64_load_rlx (&timestamp_sysdata.to_sys_ns))) {
     /*insane clock. unable to proceed */
     return bl_mkerr (bl_error);
   }
@@ -226,48 +226,48 @@ BL_TIME_EXTRAS_EXPORT void bl_time_extras_destroy (void)
   */
 }
 /*----------------------------------------------------------------------------*/
-static toffset bl_tstamp_to_sysclock_diff_ns_impl(sysclockdiff* sc)
+static bl_toffset bl_tstamp_to_sysclock_diff_ns_impl(sysclockdiff* sc)
 {
   double diff[BL_TIME_QSAMPLES];
   double sys_to_ns =
-    (double) nsec_in_sec / (double) bl_sysclock_tstamp_get_freq();
+    (double) bl_nsec_in_sec / (double) bl_tstamp_sysclock_get_freq();
 
   bl_thread_yield(); /* context switching in-between minimization attempt.*/
-  for (uword i = 0; i < arr_elems (diff); ++i) {
-    tstamp t = sc->get();
-    tstamp s = bl_get_sysclock_tstamp();
-    processor_pause();
+  for (bl_uword i = 0; i < bl_arr_elems (diff); ++i) {
+    bl_tstamp t = sc->get();
+    bl_tstamp s = bl_tstamp_sysclock_get();
+    bl_processor_pause();
     diff[i]  = (((double) s) * sys_to_ns) - ((double) sc->to_nsec (t));
   }
   double avg = find_most_repeated(
-    diff, arr_elems (diff), (double) BL_TIME_TO_SYSCLOCK_MAX_SAMPLE_DRIFT_NS
+    diff, bl_arr_elems (diff), (double) BL_TIME_TO_SYSCLOCK_MAX_SAMPLE_DRIFT_NS
     );
   if (!IS_MAGIC_NAN (avg)) {
     /*good enough dataset. success.*/
-    atomic_u64_store_rlx(&sc->to_sys_ns, (u64) avg);
+    bl_atomic_u64_store_rlx(&sc->to_sys_ns, (bl_u64) avg);
   }
-  return (toffset) atomic_u64_load_rlx (&sc->to_sys_ns);
+  return (bl_toffset) bl_atomic_u64_load_rlx (&sc->to_sys_ns);
 }
 /*----------------------------------------------------------------------------*/
-BL_TIME_EXTRAS_EXPORT toffset bl_tstamp_to_sysclock_diff_ns (void)
+BL_TIME_EXTRAS_EXPORT bl_toffset bl_tstamp_to_sysclock_diff_ns (void)
 {
   return bl_tstamp_to_sysclock_diff_ns_impl (&timestamp_sysdata);
 }
 /*----------------------------------------------------------------------------*/
 #ifdef BL_HAS_CPU_TSTAMP
 /*----------------------------------------------------------------------------*/
-BL_TIME_EXTRAS_EXPORT toffset bl_cputstamp_to_nsec (tstamp t)
+BL_TIME_EXTRAS_EXPORT bl_toffset bl_cpu_tstamp_to_nsec (bl_tstamp t)
 {
-  return (toffset)
-    (((double) t * (double) nsec_in_sec) / (double) bl_cputstamp_get_freq());
+  return (bl_toffset)
+    (((double) t * (double) bl_nsec_in_sec) / (double) bl_cpu_tstamp_get_freq());
 }
 /*----------------------------------------------------------------------------*/
-BL_TIME_EXTRAS_EXPORT u64 bl_cputstamp_get_freq (void)
+BL_TIME_EXTRAS_EXPORT bl_u64 bl_cpu_tstamp_get_freq (void)
 {
-  return atomic_u64_load_rlx (&cpu_tstamp_freq);
+  return bl_atomic_u64_load_rlx (&cpu_bl_tstamp_freq);
 }
 /*----------------------------------------------------------------------------*/
-BL_TIME_EXTRAS_EXPORT toffset bl_cputstamp_to_sysclock_diff_ns (void)
+BL_TIME_EXTRAS_EXPORT bl_toffset bl_cpu_tstamp_to_sysclock_diff_ns (void)
 {
   return bl_tstamp_to_sysclock_diff_ns_impl (&cputimestamp_sysdata);
 }

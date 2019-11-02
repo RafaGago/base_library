@@ -4,57 +4,61 @@
 
 #include <bl/base/impl/array_linked_list_u32.h>
 
-BL_EXPORT void alnls_u32_init_impl(
-  alnls_u32* l, u32* nodes, uword nodes_capacity
+BL_EXPORT void bl_alnls_u32_init_impl(
+  bl_alnls_u32* l, bl_u32* nodes, bl_uword nodes_capacity
   )
 {
   l->nodes    = nodes;
   l->capacity = nodes_capacity;
   l->head     = l->capacity;
-  for (alnls_u32_it it = 0; it < l->capacity; ++it) {
-    alnls_u32_node_release (l, it);
+  for (bl_alnls_u32_it it = 0; it < l->capacity; ++it) {
+    bl_alnls_u32_node_release (l, it);
   }
   l->size = 0;
 }
 /*---------------------------------------------------------------------------*/
-BL_EXPORT alnls_u32_it alnls_u32_try_acquire_node (alnls_u32* l, alnls_u32_it n)
+BL_EXPORT bl_alnls_u32_it
+  bl_alnls_u32_try_acquire_node (bl_alnls_u32* l, bl_alnls_u32_it n)
 {
-  if (alnls_u32_node_is_free (l, n)) {
-    alnls_u32_acquire_node_unsafe (l, n);
+  if (bl_alnls_u32_node_is_free (l, n)) {
+    bl_alnls_u32_acquire_node_unsafe (l, n);
     return n;
   }
-  return alnls_u32_it_end (l);
+  return bl_alnls_u32_it_end (l);
 }
 /*---------------------------------------------------------------------------*/
-BL_EXPORT alnls_u32_it alnls_u32_try_acquire_a_node (alnls_u32* l)
+BL_EXPORT bl_alnls_u32_it
+  bl_alnls_u32_try_acquire_a_node (bl_alnls_u32* l)
 {
-  alnls_u32_it i;
-  for (i = 0; i < alnls_u32_it_end (l); ++i) {
-    if (alnls_u32_node_is_free (l, i)) {
-      alnls_u32_acquire_node_unsafe (l, i);
+  bl_alnls_u32_it i;
+  for (i = 0; i < bl_alnls_u32_it_end (l); ++i) {
+    if (bl_alnls_u32_node_is_free (l, i)) {
+      bl_alnls_u32_acquire_node_unsafe (l, i);
       break;
     }
   }
   return i;
 }
 /*---------------------------------------------------------------------------*/
-BL_EXPORT void alnls_u32_insert_head (alnls_u32* l, alnls_u32_it n)
+BL_EXPORT void
+  bl_alnls_u32_insert_head (bl_alnls_u32* l, bl_alnls_u32_it n)
 {
-  bl_assert (alnls_u32_it_next (l, n) == alnls_u32_it_end (l));
+  bl_assert (bl_alnls_u32_it_next (l, n) == bl_alnls_u32_it_end (l));
   l->nodes[n] = l->head;
-  l->head     = (u32) n;
-  bl_assert (alnls_u32_it_begin (l) == n); /* oveflow check */
+  l->head     = (bl_u32) n;
+  bl_assert (bl_alnls_u32_it_begin (l) == n); /* oveflow check */
   ++l->size;
 }
 /*---------------------------------------------------------------------------*/
-BL_EXPORT alnls_u32_it alnls_u32_drop_head (alnls_u32* l)
+BL_EXPORT bl_alnls_u32_it
+  bl_alnls_u32_drop_head (bl_alnls_u32* l)
 {
-  if (alnls_u32_is_empty (l)) {
-    return alnls_u32_it_end (l);
+  if (bl_alnls_u32_is_empty (l)) {
+    return bl_alnls_u32_it_end (l);
   }
-  alnls_u32_it prev_head = alnls_u32_it_begin (l);
-  l->head             = alnls_u32_it_next (l, prev_head);
-  l->nodes[prev_head] = alnls_u32_it_end (l);
+  bl_alnls_u32_it prev_head = bl_alnls_u32_it_begin (l);
+  l->head             = bl_alnls_u32_it_next (l, prev_head);
+  l->nodes[prev_head] = bl_alnls_u32_it_end (l);
   --l->size;
   return prev_head;
 }

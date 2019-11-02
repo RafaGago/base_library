@@ -28,45 +28,45 @@ static inline int is_fifo (FILE* fp)
 /*---------------------------------------------------------------------------*/
 #endif
 /*---------------------------------------------------------------------------*/
-static bl_err dynarray_from_file_realloc_if(
-  dynarray_stub*   d,
-  uword            d_offset,
-  uword            d_overalloc,
-  uword            d_realloc_multiple_of,
-  uword            file_bytes,
-  alloc_tbl const* alloc
+static bl_err bl_dynarray_from_file_realloc_if(
+  bl_dynarray_stub*   d,
+  bl_uword            d_offset,
+  bl_uword            d_overalloc,
+  bl_uword            d_realloc_multiple_of,
+  bl_uword            file_bytes,
+  bl_alloc_tbl const* alloc
   )
 {
-  if (unlikely (file_bytes + d_overalloc + d_offset < file_bytes + d_offset)) {
+  if (bl_unlikely (file_bytes + d_overalloc + d_offset < file_bytes + d_offset)) {
     return bl_mkerr (bl_range);
   }
   if ((file_bytes + d_overalloc) > (d->size - d_offset)) {
     if (d_realloc_multiple_of == 0) {
       d_realloc_multiple_of = 1;
     }
-    uword newsize = round_to_next_multiple(
+    bl_uword newsize = bl_round_to_next_multiple(
       d_offset + file_bytes + d_overalloc, d_realloc_multiple_of
       );
-    if (unlikely (newsize < d_offset + file_bytes + d_overalloc)) {
+    if (bl_unlikely (newsize < d_offset + file_bytes + d_overalloc)) {
       return bl_mkerr (bl_range);
     }
-    bl_err err = dynarray_resize (d, newsize, 1, alloc);
-    if (unlikely (err.bl)) {
+    bl_err err = bl_dynarray_resize (d, newsize, 1, alloc);
+    if (bl_unlikely (err.bl)) {
       return err;
     }
   }
   return bl_mkok();
 }
 /*---------------------------------------------------------------------------*/
-bl_err dynarray_from_file(
-  dynarray_stub*   d,
-  uword*           d_written,
-  uword            d_offset,
-  uword            d_overalloc,
-  uword            d_realloc_multiple_of,
-  FILE*            fp,
-  uword            fp_read_limit,
-  alloc_tbl const* alloc
+BL_EXPORT bl_err bl_dynarray_from_file(
+  bl_dynarray_stub*   d,
+  bl_uword*           d_written,
+  bl_uword            d_offset,
+  bl_uword            d_overalloc,
+  bl_uword            d_realloc_multiple_of,
+  FILE*               fp,
+  bl_uword            fp_read_limit,
+  bl_alloc_tbl const* alloc
   )
 {
   bl_err err = bl_mkok();
@@ -83,37 +83,37 @@ bl_err dynarray_from_file(
   }
   if (!fifo) {
     /* ftell/fseek will work */
-    uword start = ftell (fp);
-    if (unlikely (fseek (fp, 0L, SEEK_END))) {
+    bl_uword start = ftell (fp);
+    if (bl_unlikely (fseek (fp, 0L, SEEK_END))) {
       return bl_mkerr_sys (bl_file, errno);
     }
-    uword total = ftell (fp);
+    bl_uword total = ftell (fp);
     bl_assert(total >= start);
-    if (unlikely (fseek (fp, start, SEEK_SET))) {
+    if (bl_unlikely (fseek (fp, start, SEEK_SET))) {
       return bl_mkerr_sys (bl_file, errno);
     }
     total -= start;
-    if (unlikely (total == 0)) {
+    if (bl_unlikely (total == 0)) {
       return bl_mkok();
     }
     total = fp_read_limit != 0 ? bl_min (total, fp_read_limit) : total;
-    err = dynarray_from_file_realloc_if(
+    err = bl_dynarray_from_file_realloc_if(
       d, d_offset, d_overalloc, d_realloc_multiple_of, total, alloc
       );
     if (err.bl) {
       return err;
     }
-    *d_written = fread (((u8*) d->arr) + d_offset, 1, total, fp);
+    *d_written = fread (((bl_u8*) d->arr) + d_offset, 1, total, fp);
     err.sys = (bl_err_uint) errno;
     err.bl  = ferror (fp) == 0 ? bl_ok : bl_file;
     return err;
   }
   else {
-    uword alloc_size   = 0;
-    uword total        = 0;
+    bl_uword alloc_size   = 0;
+    bl_uword total        = 0;
     void* b            = NULL;
     ssize_t read_bytes = 0;
-    uword next_read    = 0;
+    bl_uword next_read    = 0;
     int fd             = fileno (fp);
 
     do {
@@ -131,7 +131,7 @@ bl_err dynarray_from_file(
         next_read -= total;
       }
       read_bytes = read (fd, b + total, next_read);
-      if (unlikely (read_bytes < 0)) {
+      if (bl_unlikely (read_bytes < 0)) {
         err.sys = (bl_err_uint) errno;
         err.bl  = bl_file;
         goto dealloc;
@@ -140,13 +140,13 @@ bl_err dynarray_from_file(
     }
     while (read_bytes == next_read && next_read == PIPE_BUF);
 
-    err = dynarray_from_file_realloc_if(
+    err = bl_dynarray_from_file_realloc_if(
       d, d_offset, d_overalloc, d_realloc_multiple_of, total, alloc
       );
     if (err.bl) {
       goto dealloc;
     }
-    memcpy (((u8*) d->arr) + d_offset, b, total);
+    memcpy (((bl_u8*) d->arr) + d_offset, b, total);
     *d_written = total;
   dealloc:
     free (b);

@@ -68,19 +68,19 @@
 extern "C" {
 #endif
 /*----------------------------------------------------------------------------*/
-define_ringb_funcs (u8_dq, u8)
+define_bl_ringb_funcs (bl_u8_dq, bl_u8)
 /*----------------------------------------------------------------------------*/
 struct bl_serial {
   int   fd;
-  ringb rq;
+  bl_ringb rq;
 };
 /*----------------------------------------------------------------------------*/
 BL_SERIAL_EXPORT bl_err bl_serial_init(
-  bl_serial** s_out, uword read_buffer_min_size, alloc_tbl const* alloc
+  bl_serial** s_out, bl_uword read_buffer_min_size, bl_alloc_tbl const* alloc
   )
 {
   bl_assert (s_out && alloc);
-  read_buffer_min_size = round_next_pow2_u (read_buffer_min_size);
+  read_buffer_min_size = bl_round_next_pow2_u (read_buffer_min_size);
   if (read_buffer_min_size == 0 || !alloc || !s_out) {
     return bl_mkerr (bl_invalid);
   }
@@ -90,23 +90,24 @@ BL_SERIAL_EXPORT bl_err bl_serial_init(
   }
   memset (s, 0, sizeof *s);
   s->fd  = -1;
-  (void) u8_dq_init_extern(
+  (void) bl_u8_dq_init_extern(
     &s->rq,
-    ((u8*) s) + sizeof *s,
+    ((bl_u8*) s) + sizeof *s,
     read_buffer_min_size
     );
   *s_out = s;
   return bl_mkok();
 }
 /*----------------------------------------------------------------------------*/
-BL_SERIAL_EXPORT void bl_serial_destroy (bl_serial* s, alloc_tbl const* alloc)
+BL_SERIAL_EXPORT void
+  bl_serial_destroy (bl_serial* s, bl_alloc_tbl const* alloc)
 {
   bl_assert (s);
   bl_serial_stop (s);
   bl_dealloc (alloc, s);
 }
 /*----------------------------------------------------------------------------*/
-static bool try_get_standard_baudrate (uword baudrate, int* enum_val)
+static bool try_get_standard_baudrate (bl_uword baudrate, int* enum_val)
 {
   switch (baudrate) {
 #ifdef B0
@@ -247,7 +248,7 @@ static inline void set_standard_baudrate(
 /*----------------------------------------------------------------------------*/
 #if defined (MAC_OS_X_VERSION_10_4) &&\
     (MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_4)
-static inline bl_err try_set_nonstandard_baudrate (bl_serial* s, uword baudrate)
+static inline bl_err try_set_nonstandard_baudrate (bl_serial* s, bl_uword baudrate)
 {
   speed_t bauds = (speed_t) baudrate;
   return bk_mkerr_sys(
@@ -256,7 +257,7 @@ static inline bl_err try_set_nonstandard_baudrate (bl_serial* s, uword baudrate)
 }
 /*----------------------------------------------------------------------------*/
 #elif defined (BL_LINUX) && defined (TIOCSSERIAL)
-static inline bl_err try_set_nonstandard_baudrate (bl_serial* s, uword baudrate)
+static inline bl_err try_set_nonstandard_baudrate (bl_serial* s, bl_uword baudrate)
 {
   struct serial_struct ser;
   if (ioctl (s->fd, TIOCGSERIAL, &ser) < 0) {
@@ -272,7 +273,7 @@ static inline bl_err try_set_nonstandard_baudrate (bl_serial* s, uword baudrate)
 }
 /*----------------------------------------------------------------------------*/
 #else
-static inline bl_err try_set_nonstandard_baudrate (bl_serial* s, uword baudrate)
+static inline bl_err try_set_nonstandard_baudrate (bl_serial* s, bl_uword baudrate)
 {
   return bl_mkerr (bl_invalid);
 }
@@ -463,67 +464,67 @@ BL_SERIAL_EXPORT void bl_serial_stop (bl_serial* s)
 }
 /*----------------------------------------------------------------------------*/
 BL_SERIAL_EXPORT bl_err bl_serial_read(
-  bl_serial* s, memr rbuff, toffset timeout_us
+  bl_serial* s, bl_memr rbuff, bl_toffset timeout_us
   )
 {
   bl_assert (s);
   bl_assert (s->fd >= 0);
   bl_assert (timeout_us >= 0);
 
-  if (!memr_is_valid (rbuff) || memr_size (rbuff) > u8_dq_capacity (&s->rq)) {
+  if (!bl_memr_is_valid (rbuff) || bl_memr_size (rbuff) > bl_u8_dq_capacity (&s->rq)) {
     return bl_mkerr (bl_invalid);
   }
   /*leftovers from previous reads*/
-  uword copied = bl_min (memr_size (rbuff), u8_dq_size (&s->rq));
+  bl_uword copied = bl_min (bl_memr_size (rbuff), bl_u8_dq_size (&s->rq));
   if (copied != 0) {
-    uword adjacent = u8_dq_adjacent_elems_from (&s->rq, 0, copied);
-    memcpy (memr_beg (rbuff), u8_dq_at_head (&s->rq), adjacent);
+    bl_uword adjacent = bl_u8_dq_adjacent_elems_from (&s->rq, 0, copied);
+    memcpy (bl_memr_beg (rbuff), bl_u8_dq_at_head (&s->rq), adjacent);
     if (adjacent != copied) {
       memcpy(
-        memr_at (rbuff, adjacent),
-        u8_dq_at (&s->rq, adjacent),
+        bl_memr_at (rbuff, adjacent),
+        bl_u8_dq_at (&s->rq, adjacent),
         copied - adjacent
         );
     }
-    u8_dq_drop_head_n (&s->rq, copied);
+    bl_u8_dq_drop_head_n (&s->rq, copied);
   }
-  if (copied == memr_size (rbuff)) {
+  if (copied == bl_memr_size (rbuff)) {
     return bl_mkok();
   }
 
-  tstamp deadline = 0;
+  bl_tstamp deadline = 0;
   bl_err err      = bl_mkok();
   if (timeout_us != 0) {
-    err =  deadline_init (&deadline, timeout_us);
+    err =  bl_deadline_init (&deadline, timeout_us);
     if (err.bl) {
       goto rollback;
     }
   }
   /*read*/
-  while (copied < memr_size (rbuff)) {
-    uword rd = read(
-      s->fd, memr_at (rbuff, copied), memr_size (rbuff) - copied
+  while (copied < bl_memr_size (rbuff)) {
+    bl_uword rd = read(
+      s->fd, bl_memr_at (rbuff, copied), bl_memr_size (rbuff) - copied
       );
     copied += rd;
     if (rd != 0) {
       continue;
     }
-    tstampdiff diff = (timeout_us != 0) ?
-      deadline_compare (deadline, bl_get_tstamp()) : -1;
+    bl_tstampdiff diff = (timeout_us != 0) ?
+      bl_deadline_compare (deadline, bl_get_tstamp()) : -1;
       /*context switches from here to the pselect will be suboptimal*/
     if (diff <= 0) {
       err = bl_mkerr (bl_timeout);
       goto rollback;
     }
-    uword us_pending = bl_tstamp_to_usec_ceil ((tstamp) diff);
+    bl_uword us_pending = bl_tstamp_to_usec_ceil ((bl_tstamp) diff);
 
     fd_set fds;
     FD_ZERO (&fds);
     FD_SET (s->fd, &fds);
 
     struct timespec t;
-    t.tv_sec  = us_pending / usec_in_sec;
-    t.tv_nsec = (us_pending - (t.tv_sec * usec_in_sec)) * nsec_in_usec;
+    t.tv_sec  = us_pending / bl_usec_in_sec;
+    t.tv_nsec = (us_pending - (t.tv_sec * bl_usec_in_sec)) * bl_nsec_in_usec;
 
     int r = pselect (s->fd + 1, &fds, nullptr, nullptr, &t, nullptr);
     if (r < 0 && errno != EINTR) {
@@ -535,15 +536,15 @@ BL_SERIAL_EXPORT bl_err bl_serial_read(
 
 rollback:
   /*unsucessful read*/
-  bl_assert (u8_dq_size (&s->rq) == 0);
-  u8_dq_set_start_position (&s->rq, 0);
-  u8_dq_expand_tail_n (&s->rq, copied);
-  memcpy (u8_dq_at_head (&s->rq), memr_beg (rbuff), copied);
+  bl_assert (bl_u8_dq_size (&s->rq) == 0);
+  bl_u8_dq_set_start_position (&s->rq, 0);
+  bl_u8_dq_expand_tail_n (&s->rq, copied);
+  memcpy (bl_u8_dq_at_head (&s->rq), bl_memr_beg (rbuff), copied);
   return err;
 }
 /*----------------------------------------------------------------------------*/
 BL_SERIAL_EXPORT bl_err bl_serial_write(
-  bl_serial* s, memr wbuff, u32* written, toffset timeout_us
+  bl_serial* s, bl_memr wbuff, bl_u32* written, bl_toffset timeout_us
   )
 {
   bl_assert (s);
@@ -551,22 +552,22 @@ BL_SERIAL_EXPORT bl_err bl_serial_write(
   bl_assert (s->fd >= 0);
   bl_assert (timeout_us >= 0);
 
-  if (!memr_is_valid (wbuff) || !written) {
+  if (!bl_memr_is_valid (wbuff) || !written) {
     return bl_mkerr (bl_invalid);
   }
 
   *written        = 0;
-  tstamp deadline = 0;
+  bl_tstamp deadline = 0;
   bl_err err      = bl_mkok();
   if (timeout_us != 0) {
-    err = deadline_init (&deadline, timeout_us);
+    err = bl_deadline_init (&deadline, timeout_us);
     if (err.bl) {
       return err;
     }
   }
 
-  uword wr = 0;
-  while (wr < memr_size (wbuff)) {
+  bl_uword wr = 0;
+  while (wr < bl_memr_size (wbuff)) {
     fd_set fds;
     FD_ZERO (&fds);
     FD_SET (s->fd, &fds);
@@ -574,21 +575,21 @@ BL_SERIAL_EXPORT bl_err bl_serial_write(
     struct timespec t;
     struct timespec* t_ptr = nullptr;
     if (timeout_us != 0) {
-      tstampdiff diff = deadline_compare (deadline, bl_get_tstamp());
+      bl_tstampdiff diff = bl_deadline_compare (deadline, bl_get_tstamp());
       if (diff <= 0) {
         err = bl_mkerr (bl_timeout);
         goto end;
       }
-      uword us_pending = bl_tstamp_to_usec_ceil ((tstamp) diff);
-      t.tv_sec  = us_pending / usec_in_sec;
-      t.tv_nsec = (us_pending - (t.tv_sec * usec_in_sec)) * nsec_in_usec;
+      bl_uword us_pending = bl_tstamp_to_usec_ceil ((bl_tstamp) diff);
+      t.tv_sec  = us_pending / bl_usec_in_sec;
+      t.tv_nsec = (us_pending - (t.tv_sec * bl_usec_in_sec)) * bl_nsec_in_usec;
       t_ptr     = &t;
     }
     if (pselect (s->fd + 1, nullptr, &fds, nullptr, t_ptr, nullptr) > 0) {
       bl_assert (FD_ISSET (s->fd, &fds));
-      uword now = write (s->fd, memr_at (wbuff, wr), memr_size (wbuff) - wr);
-      bl_assert (now <= memr_size (wbuff) - wr);
-      if (unlikely (now == 0)) {
+      bl_uword now = write (s->fd, bl_memr_at (wbuff, wr), bl_memr_size (wbuff) - wr);
+      bl_assert (now <= bl_memr_size (wbuff) - wr);
+      if (bl_unlikely (now == 0)) {
         /*device disconnected on Linux*/
         err = bl_mkerr (bl_error);
         goto end;
@@ -602,7 +603,7 @@ end:
 }
 /*----------------------------------------------------------------------------*/
 BL_SERIAL_EXPORT bl_err bl_serial_ioctl_get(
-  bl_serial* s, bl_serial_ioctl op, uword* val
+  bl_serial* s, bl_serial_ioctl op, bl_uword* val
   )
 {
   bl_assert (s);
@@ -630,7 +631,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_ioctl_get(
 }
 /*----------------------------------------------------------------------------*/
 BL_SERIAL_EXPORT bl_err bl_serial_ioctl_set(
-  bl_serial* s, bl_serial_ioctl op, uword val
+  bl_serial* s, bl_serial_ioctl op, bl_uword val
   )
 {
   bl_assert (s);
@@ -665,29 +666,29 @@ BL_SERIAL_EXPORT bl_err bl_serial_ioctl_set(
     );
 }
 /*----------------------------------------------------------------------------*/
-BL_SERIAL_EXPORT uword bl_serial_get_bit_time_ns (bl_serial_cfg const* cfg)
+BL_SERIAL_EXPORT bl_uword bl_serial_get_bit_time_ns (bl_serial_cfg const* cfg)
 {
   bl_assert (cfg);
   if (!cfg) {
     return 0;
   }
-  return (uword) fixp_to_int(
-      int_to_fixp (u64, nsec_in_sec, 32) / cfg->baudrate, 32
+  return (bl_uword) bl_fixp_to_int(
+      bl_int_to_fixp (bl_u64, bl_nsec_in_sec, 32) / cfg->baudrate, 32
       );
 }
 /*----------------------------------------------------------------------------*/
-BL_SERIAL_EXPORT uword bl_serial_get_byte_time_ns (bl_serial_cfg const* cfg)
+BL_SERIAL_EXPORT bl_uword bl_serial_get_byte_time_ns (bl_serial_cfg const* cfg)
 {
   bl_assert (cfg);
   if (!cfg) {
     return 0;
   }
-  u64 bit_ns    = int_to_fixp (u64, nsec_in_sec, 32) / cfg->baudrate;
-  u64 bits_byte = 1 +
+  bl_u64 bit_ns    = bl_int_to_fixp (bl_u64, bl_nsec_in_sec, 32) / cfg->baudrate;
+  bl_u64 bits_byte = 1 +
     cfg->byte_size +
     (cfg->parity != bl_parity_none) +
     (cfg->stop_bits == bl_stop_bits_one) ? 1 : 2;
-  return (uword) fixp_to_int (bit_ns * bits_byte, 32);
+  return (bl_uword) bl_fixp_to_int (bit_ns * bits_byte, 32);
 }
 /*----------------------------------------------------------------------------*/
 #ifdef __cplusplus

@@ -15,14 +15,14 @@ extern "C" {
 #endif
 /*----------------------------------------------------------------------------*/
 BL_NONBLOCK_EXPORT
-void nonblock_backoff_init(
-  nonblock_backoff* nb,
-  uword             spin_max,
-  uword             yield_max,
-  toffset           sleep_us_init,
-  toffset           sleep_mul,
-  toffset           sleep_div,
-  toffset           sleep_us_max
+void bl_nonblock_backoff_init(
+  bl_nonblock_backoff* nb,
+  bl_uword             spin_max,
+  bl_uword             yield_max,
+  bl_toffset           sleep_us_init,
+  bl_toffset           sleep_mul,
+  bl_toffset           sleep_div,
+  bl_toffset           sleep_us_max
   )
 {
   bl_assert (sleep_us_init > 0);
@@ -39,25 +39,25 @@ void nonblock_backoff_init(
 }
 /*----------------------------------------------------------------------------*/
 BL_NONBLOCK_EXPORT
-void nonblock_backoff_init_default (nonblock_backoff* nb, toffset sleep_us_max)
+void bl_nonblock_backoff_init_default (bl_nonblock_backoff* nb, bl_toffset sleep_us_max)
 {
-   nonblock_backoff_init (nb, 40, 20, BL_SCHED_TMIN_US, 1, 3, sleep_us_max);
+   bl_nonblock_backoff_init (nb, 40, 20, BL_SCHED_TMIN_US, 1, 3, sleep_us_max);
 }
 /*----------------------------------------------------------------------------*/
-static toffset nonblock_get_next_sleep_ns (nonblock_backoff* nb)
+static bl_toffset nonblock_get_next_sleep_ns (bl_nonblock_backoff* nb)
 {
-  toffset nsleep = nb->sleep_ns;
-  i64 add        = nsleep * 2048;
+  bl_toffset nsleep = nb->sleep_ns;
+  bl_i64 add        = nsleep * 2048;
   add           *= nb->sleep_mul;
   add           /= nb->sleep_div;
-  nsleep        += (toffset) add / 2048;
+  nsleep        += (bl_toffset) add / 2048;
   nsleep         = bl_max (nb->sleep_ns, nsleep);
   nsleep         = bl_min (nb->sleep_ns_max, nsleep);
   return nsleep;
 }
 /*----------------------------------------------------------------------------*/
 BL_NONBLOCK_EXPORT
-toffset nonblock_backoff_next_sleep_us (nonblock_backoff* nb)
+bl_toffset bl_nonblock_backoff_next_sleep_us (bl_nonblock_backoff* nb)
 {
   if (nb->spin < nb->spin_max || nb->yield < nb->yield_max) {
     return 0;
@@ -66,21 +66,21 @@ toffset nonblock_backoff_next_sleep_us (nonblock_backoff* nb)
 }
 /*----------------------------------------------------------------------------*/
 BL_NONBLOCK_EXPORT
-void nonblock_backoff_run (nonblock_backoff* nb)
+void bl_nonblock_backoff_run (bl_nonblock_backoff* nb)
 {
   if (nb->spin < nb->spin_max) {
     if (nb->spin < 6) {
-      processor_pause();
+      bl_processor_pause();
     }
     else if (nb->spin < 12) {
-      processor_pause();
-      processor_pause();
+      bl_processor_pause();
+      bl_processor_pause();
     }
     else {
-      processor_pause();
-      processor_pause();
-      processor_pause();
-      processor_pause();
+      bl_processor_pause();
+      bl_processor_pause();
+      bl_processor_pause();
+      bl_processor_pause();
     }
     ++nb->spin;
     return;

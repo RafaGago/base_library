@@ -8,15 +8,15 @@
 #include <bl/base/integer_math.h>
 #include <bl/base/time.h>
 
-/* some convenience functions for tstamp */
+/* some convenience functions for bl_tstamp */
 /*---------------------------------------------------------------------------*/
-static inline bl_err deadline_init_explicit(
-  tstamp* d, tstamp now, toffset usec
+static inline bl_err bl_deadline_init_explicit(
+  bl_tstamp* d, bl_tstamp now, bl_toffset usec
   )
 {
   bl_assert (d);
-  if (usec <= bl_usec_to_tstamp_max ()) {
-    *d = now + bl_usec_to_tstamp (usec);
+  if (usec <= bl_usec_to_bl_tstamp_max ()) {
+    *d = now + bl_usec_to_bl_tstamp (usec);
     return bl_mkok();
   }
   else {
@@ -25,34 +25,34 @@ static inline bl_err deadline_init_explicit(
   }
 }
 /*---------------------------------------------------------------------------*/
-static inline bl_err deadline_init (tstamp* d, toffset usec)
+static inline bl_err bl_deadline_init (bl_tstamp* d, bl_toffset usec)
 {
-  return deadline_init_explicit (d, bl_get_tstamp(), usec);
+  return bl_deadline_init_explicit (d, bl_get_tstamp(), usec);
 }
 /*---------------------------------------------------------------------------*/
-static inline tstampdiff deadline_compare (tstamp a, tstamp b)
+static inline bl_tstampdiff bl_deadline_compare (bl_tstamp a, bl_tstamp b)
 {
-  return tstamp_get_diff (a, b);
+  return bl_tstamp_get_diff (a, b);
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp deadline_min (tstamp a, tstamp b)
+static inline bl_tstamp bl_deadline_min (bl_tstamp a, bl_tstamp b)
 {
-  return deadline_compare (a, b) <= 0 ? a : b;
+  return bl_deadline_compare (a, b) <= 0 ? a : b;
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp deadline_max (tstamp a, tstamp b)
+static inline bl_tstamp bl_deadline_max (bl_tstamp a, bl_tstamp b)
 {
-  return deadline_compare (a, b) >= 0 ? a : b;
+  return bl_deadline_compare (a, b) >= 0 ? a : b;
 }
 /*---------------------------------------------------------------------------*/
-static inline bool deadline_expired_explicit (tstamp d, tstamp now)
+static inline bool bl_deadline_expired_explicit (bl_tstamp d, bl_tstamp now)
 {
-  return deadline_compare (d, now) <= 0;
+  return bl_deadline_compare (d, now) <= 0;
 }
 /*---------------------------------------------------------------------------*/
-static inline bool deadline_expired (tstamp d)
+static inline bool bl_deadline_expired (bl_tstamp d)
 {
-  return deadline_expired_explicit (d, bl_get_tstamp());
+  return bl_deadline_expired_explicit (d, bl_get_tstamp());
 }
 /*---------------------------------------------------------------------------*/
 

@@ -9,70 +9,70 @@
 extern "C" {
 #endif
 /*----------------------------------------------------------------------------*/
-BL_NONBLOCK_EXPORT bl_err mpmc_bt_produce_sig_fallback(
-    mpmc_bt*       q,
-    mpmc_b_ticket* ticket,
+BL_NONBLOCK_EXPORT bl_err bl_mpmc_bt_produce_sig_fallback(
+    bl_mpmc_bt*       q,
+    bl_mpmc_b_ticket* ticket,
     void const*    data,
     bool           replace_sig,
-    mpmc_b_sig     sig,
-    mpmc_b_sig     sig_fmask,
-    mpmc_b_sig     sig_fmatch
+    bl_mpmc_b_sig     sig,
+    bl_mpmc_b_sig     sig_fmask,
+    bl_mpmc_b_sig     sig_fmatch
     )
 {
-  u8* slot;
-  bl_err err = mpmc_b_produce_prepare_sig_fallback(
+  bl_u8* slot;
+  bl_err err = bl_mpmc_b_produce_prepare_sig_fallback(
     &q->q, ticket, &slot, replace_sig, sig, sig_fmask, sig_fmatch
     );
-  if (likely (!err.bl)) {
+  if (bl_likely (!err.bl)) {
     memcpy (slot, data, q->sizeof_type);
-    mpmc_b_produce_commit (&q->q, *ticket);
+    bl_mpmc_b_produce_commit (&q->q, *ticket);
   }
   return err;
 }
 /*----------------------------------------------------------------------------*/
-BL_NONBLOCK_EXPORT bl_err mpmc_bt_produce_sp(
-  mpmc_bt* q, mpmc_b_ticket* ticket, void const* data
+BL_NONBLOCK_EXPORT bl_err bl_mpmc_bt_produce_sp(
+  bl_mpmc_bt* q, bl_mpmc_b_ticket* ticket, void const* data
   )
 {
-  u8* slot;
-  bl_err err = mpmc_b_produce_prepare_sp (&q->q, ticket, &slot);
-  if (likely (!err.bl)) {
+  bl_u8* slot;
+  bl_err err = bl_mpmc_b_produce_prepare_sp (&q->q, ticket, &slot);
+  if (bl_likely (!err.bl)) {
     memcpy (slot, data, q->sizeof_type);
-    mpmc_b_produce_commit (&q->q, *ticket);
+    bl_mpmc_b_produce_commit (&q->q, *ticket);
   }
   return err;
 }
 /*----------------------------------------------------------------------------*/
-BL_NONBLOCK_EXPORT bl_err mpmc_bt_consume_sig_fallback(
-  mpmc_bt*       q,
-  mpmc_b_ticket* ticket,
+BL_NONBLOCK_EXPORT bl_err bl_mpmc_bt_consume_sig_fallback(
+  bl_mpmc_bt*       q,
+  bl_mpmc_b_ticket* ticket,
   void*          data,
   bool           replace_sig,
-  mpmc_b_sig     sig,
-  mpmc_b_sig     sig_fmask,
-  mpmc_b_sig     sig_fmatch
+  bl_mpmc_b_sig     sig,
+  bl_mpmc_b_sig     sig_fmask,
+  bl_mpmc_b_sig     sig_fmatch
   )
 {
-  u8* slot;
-  bl_err err = mpmc_b_consume_prepare_sig_fallback(
+  bl_u8* slot;
+  bl_err err = bl_mpmc_b_consume_prepare_sig_fallback(
     &q->q, ticket, &slot, replace_sig, sig, sig_fmask, sig_fmatch
     );
-  if (likely (!err.bl)) {
+  if (bl_likely (!err.bl)) {
     memcpy (data, slot, q->sizeof_type);
-    mpmc_b_consume_commit (&q->q, *ticket);
+    bl_mpmc_b_consume_commit (&q->q, *ticket);
   }
   return err;
 }
 /*----------------------------------------------------------------------------*/
-BL_NONBLOCK_EXPORT bl_err mpmc_bt_consume_sc(
-  mpmc_bt* q, mpmc_b_ticket* ticket, void* data
+BL_NONBLOCK_EXPORT bl_err bl_mpmc_bt_consume_sc(
+  bl_mpmc_bt* q, bl_mpmc_b_ticket* ticket, void* data
   )
 {
-  u8* slot;
-  bl_err err = mpmc_b_consume_prepare_sc (&q->q, ticket, &slot);
-  if (likely (!err.bl)) {
+  bl_u8* slot;
+  bl_err err = bl_mpmc_b_consume_prepare_sc (&q->q, ticket, &slot);
+  if (bl_likely (!err.bl)) {
     memcpy (data, slot, q->sizeof_type);
-    mpmc_b_consume_commit (&q->q, *ticket);
+    bl_mpmc_b_consume_commit (&q->q, *ticket);
   }
   return err;
 }

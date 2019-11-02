@@ -18,38 +18,38 @@
 static void timestamp_not_very_broken (void **state)
 {
   enum {
-    sleep_us = (uword) BL_SCHED_TMIN_US * 20,
-    ubound   = (uword) sleep_us * 2,
+    sleep_us = (bl_uword) BL_SCHED_TMIN_US * 20,
+    ubound   = (bl_uword) sleep_us * 2,
   };
-  tstamp start    = bl_get_tstamp();
+  bl_tstamp start    = bl_get_tstamp();
   bl_thread_usleep (sleep_us);
-  tstamp finish   = bl_get_tstamp();
-  tstampdiff diff = tstamp_get_diff (finish, start);
+  bl_tstamp finish   = bl_get_tstamp();
+  bl_tstampdiff diff = bl_tstamp_get_diff (finish, start);
   assert_true (diff > 0);
-  toffset us      = bl_tstamp_to_usec ((tstamp) diff);
+  bl_toffset us      = bl_tstamp_to_usec ((bl_tstamp) diff);
   assert_true (us >= sleep_us && us <= ubound);
 }
 /*---------------------------------------------------------------------------*/
 static void timestamp_maxes (void **state)
 {
-  tstamp v;
-  toffset max;
+  bl_tstamp v;
+  bl_toffset max;
 
-  max = bl_sec_to_tstamp_max();
-  v   = bl_sec_to_tstamp (max);
-  assert_true (v <= tstamp_max_safe_add_sub);
+  max = bl_sec_to_bl_tstamp_max();
+  v   = bl_sec_to_bl_tstamp (max);
+  assert_true (v <= bl_tstamp_max_safe_add_sub);
 
-  max = bl_msec_to_tstamp_max();
-  v   = bl_msec_to_tstamp (max);
-  assert_true (v <= tstamp_max_safe_add_sub);
+  max = bl_msec_to_bl_tstamp_max();
+  v   = bl_msec_to_bl_tstamp (max);
+  assert_true (v <= bl_tstamp_max_safe_add_sub);
 
-  max = bl_usec_to_tstamp_max();
-  v   = bl_usec_to_tstamp (max);
-  assert_true (v <= tstamp_max_safe_add_sub);
+  max = bl_usec_to_bl_tstamp_max();
+  v   = bl_usec_to_bl_tstamp (max);
+  assert_true (v <= bl_tstamp_max_safe_add_sub);
 
-  max = bl_nsec_to_tstamp_max();
-  v   = bl_nsec_to_tstamp (max);
-  assert_true (v <= tstamp_max_safe_add_sub);
+  max = bl_nsec_to_bl_tstamp_max();
+  v   = bl_nsec_to_bl_tstamp (max);
+  assert_true (v <= bl_tstamp_max_safe_add_sub);
 }
 /*---------------------------------------------------------------------------*/
 static const struct CMUnitTest tests[] = {

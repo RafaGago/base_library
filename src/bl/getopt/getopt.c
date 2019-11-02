@@ -145,7 +145,7 @@ BL_GETOPT_EXPORT int bl_getopt_long(
   }
 
   char* value_separator_ptr = strchr (argptr, '=');
-  if (match->has_arg == no_argument) {
+  if (match->has_arg == bl_no_argument) {
     retval = value_separator_ptr ? '?' : retval;
     goto exit;
   }
@@ -154,7 +154,7 @@ BL_GETOPT_EXPORT int bl_getopt_long(
   if (s->optarg != nullptr) {
     ++s->optarg;
   }
-  if (match->has_arg == required_argument) {
+  if (match->has_arg == bl_required_argument) {
     s->optind += (s->optarg == nullptr);
     if (s->optarg == nullptr && s->optind < argc) {
       s->optarg = argv[s->optind];

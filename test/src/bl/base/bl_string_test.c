@@ -11,7 +11,7 @@
 #define COMMA() ,
 #define ARGS() 1000 COMMA() 1001
 
-alloc_tbl alloc;
+bl_alloc_tbl alloc;
 /*---------------------------------------------------------------------------*/
 static int run_vasnprintf_ex(
   char**      str,
@@ -33,8 +33,8 @@ static int run_vasnprintf_ex(
 static void bl_string_vasnprintf_ex_success_first_alloc (void **state)
 {
   char* str = nullptr;
-  int ret   = run_vasnprintf_ex(&str, sizeof EXPECTED, 0, FORMAT, ARGS());
-  assert_int_equal (ret, lit_len (EXPECTED));
+  int ret   = run_vasnprintf_ex (&str, sizeof EXPECTED, 0, FORMAT, ARGS());
+  assert_int_equal (ret, bl_lit_len (EXPECTED));
   assert_string_equal (str, EXPECTED);
   bl_dealloc (&alloc, str);
 }
@@ -42,8 +42,10 @@ static void bl_string_vasnprintf_ex_success_first_alloc (void **state)
 static void bl_string_vasnprintf_ex_success_second_alloc (void **state)
 {
   char* str = nullptr;
-  int ret   = run_vasnprintf_ex(&str, lit_len (EXPECTED), 0, FORMAT, ARGS());
-  assert_int_equal (ret, lit_len (EXPECTED));
+  int ret   = run_vasnprintf_ex(
+    &str, bl_lit_len (EXPECTED), 0, FORMAT, ARGS()
+    );
+  assert_int_equal (ret, bl_lit_len (EXPECTED));
   assert_string_equal (str, EXPECTED);
   bl_dealloc (&alloc, str);
 }
@@ -53,17 +55,17 @@ static void bl_string_vasnprintf_ex_success_first_alloc_buffer (void **state)
   char buff[sizeof EXPECTED];
   char* str = buff;
   int ret   = run_vasnprintf_ex (&str, sizeof buff, 0, FORMAT, ARGS());
-  assert_int_equal (ret, lit_len (EXPECTED));
+  assert_int_equal (ret, bl_lit_len (EXPECTED));
   assert_string_equal (str, EXPECTED);
   assert_ptr_equal (str, buff);
 }
 /*---------------------------------------------------------------------------*/
 static void bl_string_vasnprintf_ex_success_second_alloc_buffer (void **state)
 {
-  char buff[lit_len (EXPECTED)];
+  char buff[bl_lit_len (EXPECTED)];
   char* str = buff;
   int ret   = run_vasnprintf_ex (&str, sizeof buff, 0, FORMAT, ARGS());
-  assert_int_equal (ret, lit_len (EXPECTED));
+  assert_int_equal (ret, bl_lit_len (EXPECTED));
   assert_string_equal (str, EXPECTED);
   assert_ptr_not_equal (str, buff);
   bl_dealloc (&alloc, str);
@@ -78,7 +80,7 @@ static const struct CMUnitTest tests[] = {
 /*---------------------------------------------------------------------------*/
 int bl_string_tests (void)
 {
-  alloc = get_default_alloc();
+  alloc = bl_get_default_alloc();
   return cmocka_run_group_tests (tests, nullptr, nullptr);
 }
 /*---------------------------------------------------------------------------*/

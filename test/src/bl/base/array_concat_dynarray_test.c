@@ -5,94 +5,102 @@
 #include <bl/base/utility.h>
 #include <bl/base/integer.h>
 
-define_ac_dynarray_types (u32_acdarr, u32)
-declare_ac_dynarray_funcs (u32_acdarr, u32)
+bl_define_ac_dynarray_types (bl_u32_acdarr, bl_u32)
+bl_declare_ac_dynarray_funcs (bl_u32_acdarr, bl_u32)
 /*---------------------------------------------------------------------------*/
-static void ac_dynarray_0_sized_array (void **state)
+static void ac_bl_dynarray_0_sized_array (void **state)
 {
-  u32_acdarr d;
-  alloc_tbl t = get_default_alloc();
+  bl_u32_acdarr d;
+  bl_alloc_tbl t = bl_get_default_alloc();
 
-  u32_acdarr_init (&d, nullptr, 0);
-  assert_true (u32_acdarr_size (&d) == 0);
-  u32_acdarr_destroy (&d, &t);
+  bl_u32_acdarr_init (&d, nullptr, 0);
+  assert_true (bl_u32_acdarr_size (&d) == 0);
+  bl_u32_acdarr_destroy (&d, &t);
 }
 /*---------------------------------------------------------------------------*/
-static void ac_dynarray_one_expand (void **state)
+static void ac_bl_dynarray_one_expand (void **state)
 {
-  u32_acdarr d;
-  alloc_tbl t = get_default_alloc();
-  u32 arr[4];
-  u32_acdarr_init (&d, arr, arr_elems (arr));
-  assert_true (u32_acdarr_size (&d) == arr_elems (arr));
-  assert_int_equal (u32_acdarr_resize (&d, arr_elems (arr) * 2, &t).bl, bl_ok);
-  for (uword i = 0; i < u32_acdarr_size (&d); ++i) {
-    *u32_acdarr_at (&d, i) = i;
+  bl_u32_acdarr d;
+  bl_alloc_tbl t = bl_get_default_alloc();
+  bl_u32 arr[4];
+  bl_u32_acdarr_init (&d, arr, bl_arr_elems (arr));
+  assert_true (bl_u32_acdarr_size (&d) == bl_arr_elems (arr));
+  assert_int_equal(
+    bl_u32_acdarr_resize (&d, bl_arr_elems (arr) * 2, &t).bl, bl_ok
+    );
+  for (bl_uword i = 0; i < bl_u32_acdarr_size (&d); ++i) {
+    *bl_u32_acdarr_at (&d, i) = i;
   }
-  for (uword i = 0; i < arr_elems (arr); ++i) {
+  for (bl_uword i = 0; i < bl_arr_elems (arr); ++i) {
     assert_int_equal (arr[i], i);
   }
-  for (uword i = arr_elems (arr); i < u32_acdarr_size (&d); ++i) {
-    assert_int_equal (*u32_acdarr_at (&d, i), i);
+  for (bl_uword i = bl_arr_elems (arr); i < bl_u32_acdarr_size (&d); ++i) {
+    assert_int_equal (*bl_u32_acdarr_at (&d, i), i);
   }
-  u32_acdarr_destroy (&d, &t);
+  bl_u32_acdarr_destroy (&d, &t);
 }
 /*---------------------------------------------------------------------------*/
-static void ac_dynarray_two_expand (void **state)
+static void ac_bl_dynarray_two_expand (void **state)
 {
-  u32_acdarr d;
-  alloc_tbl t = get_default_alloc();
-  u32 arr[4];
-  u32_acdarr_init (&d, arr, arr_elems (arr));
-  assert_true (u32_acdarr_size (&d) == arr_elems (arr));
-  assert_int_equal (u32_acdarr_resize (&d, arr_elems (arr) * 2, &t).bl, bl_ok);
-  for (uword i = 0; i < u32_acdarr_size (&d); ++i) {
-    *u32_acdarr_at (&d, i) = i;
-  }
-  assert_int_equal (u32_acdarr_resize (&d, arr_elems (arr) * 3, &t).bl, bl_ok);
-  for (uword i = arr_elems (arr) * 2; i < u32_acdarr_size (&d); ++i) {
-    *u32_acdarr_at (&d, i) = i;
-  }
-  for (uword i = 0; i < arr_elems (arr); ++i) {
-    assert_int_equal (arr[i], i);
-  }
-  for (uword i = arr_elems (arr); i < u32_acdarr_size (&d); ++i) {
-    assert_int_equal (*u32_acdarr_at (&d, i), i);
-  }
-  u32_acdarr_destroy (&d, &t);
-}
-/*---------------------------------------------------------------------------*/
-static void ac_dynarray_one_shrink (void **state)
-{
-  u32_acdarr d;
-  alloc_tbl t = get_default_alloc();
-  u32 arr[4];
-  u32_acdarr_init (&d, arr, arr_elems (arr));
-  assert_true (u32_acdarr_size (&d) == arr_elems (arr));
-  assert_int_equal (u32_acdarr_resize (&d, arr_elems (arr) * 2, &t).bl, bl_ok);
-  for (uword i = 0; i < u32_acdarr_size (&d); ++i) {
-    *u32_acdarr_at (&d, i) = i;
+  bl_u32_acdarr d;
+  bl_alloc_tbl t = bl_get_default_alloc();
+  bl_u32 arr[4];
+  bl_u32_acdarr_init (&d, arr, bl_arr_elems (arr));
+  assert_true (bl_u32_acdarr_size (&d) == bl_arr_elems (arr));
+  assert_int_equal(
+    bl_u32_acdarr_resize (&d, bl_arr_elems (arr) * 2, &t).bl, bl_ok
+    );
+  for (bl_uword i = 0; i < bl_u32_acdarr_size (&d); ++i) {
+    *bl_u32_acdarr_at (&d, i) = i;
   }
   assert_int_equal(
-    u32_acdarr_resize (&d, (arr_elems (arr) * 2) - 2, &t).bl, bl_ok
+    bl_u32_acdarr_resize (&d, bl_arr_elems (arr) * 3, &t).bl, bl_ok
     );
-  for (uword i = 0; i < arr_elems (arr); ++i) {
+  for (bl_uword i = bl_arr_elems (arr) * 2; i < bl_u32_acdarr_size (&d); ++i) {
+    *bl_u32_acdarr_at (&d, i) = i;
+  }
+  for (bl_uword i = 0; i < bl_arr_elems (arr); ++i) {
     assert_int_equal (arr[i], i);
   }
-  for (uword i = arr_elems (arr); i < u32_acdarr_size (&d); ++i) {
-    assert_int_equal (*u32_acdarr_at (&d, i), i);
+  for (bl_uword i = bl_arr_elems (arr); i < bl_u32_acdarr_size (&d); ++i) {
+    assert_int_equal (*bl_u32_acdarr_at (&d, i), i);
   }
-  u32_acdarr_destroy (&d, &t);
+  bl_u32_acdarr_destroy (&d, &t);
+}
+/*---------------------------------------------------------------------------*/
+static void ac_bl_dynarray_one_shrink (void **state)
+{
+  bl_u32_acdarr d;
+  bl_alloc_tbl t = bl_get_default_alloc();
+  bl_u32 arr[4];
+  bl_u32_acdarr_init (&d, arr, bl_arr_elems (arr));
+  assert_true (bl_u32_acdarr_size (&d) == bl_arr_elems (arr));
+  assert_int_equal(
+    bl_u32_acdarr_resize (&d, bl_arr_elems (arr) * 2, &t).bl, bl_ok
+    );
+  for (bl_uword i = 0; i < bl_u32_acdarr_size (&d); ++i) {
+    *bl_u32_acdarr_at (&d, i) = i;
+  }
+  assert_int_equal(
+    bl_u32_acdarr_resize (&d, (bl_arr_elems (arr) * 2) - 2, &t).bl, bl_ok
+    );
+  for (bl_uword i = 0; i < bl_arr_elems (arr); ++i) {
+    assert_int_equal (arr[i], i);
+  }
+  for (bl_uword i = bl_arr_elems (arr); i < bl_u32_acdarr_size (&d); ++i) {
+    assert_int_equal (*bl_u32_acdarr_at (&d, i), i);
+  }
+  bl_u32_acdarr_destroy (&d, &t);
 }
 /*---------------------------------------------------------------------------*/
 static const struct CMUnitTest tests[] = {
-  cmocka_unit_test (ac_dynarray_0_sized_array),
-  cmocka_unit_test (ac_dynarray_one_expand),
-  cmocka_unit_test (ac_dynarray_two_expand),
-  cmocka_unit_test (ac_dynarray_one_shrink),
+  cmocka_unit_test (ac_bl_dynarray_0_sized_array),
+  cmocka_unit_test (ac_bl_dynarray_one_expand),
+  cmocka_unit_test (ac_bl_dynarray_two_expand),
+  cmocka_unit_test (ac_bl_dynarray_one_shrink),
 };
 /*---------------------------------------------------------------------------*/
-int ac_dynarray_tests (void)
+int ac_bl_dynarray_tests (void)
 {
   return cmocka_run_group_tests (tests, nullptr, nullptr);
 }

@@ -9,19 +9,19 @@ extern "C" {
 #endif
 
 /*---------------------------------------------------------------------------*/
-typedef flat_deadlines taskq_delayed;
+typedef bl_flat_deadlines bl_taskq_delayed;
 /*---------------------------------------------------------------------------*/
-typedef struct taskq_delayed_entry {
-  tstamp     time;
-  taskq_task task;
-  u32        id;
+typedef struct bl_taskq_delayed_entry {
+  bl_tstamp     time;
+  bl_taskq_task task;
+  bl_u32        id;
 }
-taskq_delayed_entry;
+bl_taskq_delayed_entry;
 /*---------------------------------------------------------------------------*/
-extern word taskq_delayed_entry_cmp_func (void const* av, void const* bv);
+extern bl_word bl_taskq_delayed_entry_cmp_func (void const* av, void const* bv);
 /*---------------------------------------------------------------------------*/
-define_flat_deadlines_funcs(
-    taskq_delayed, taskq_delayed_entry, taskq_delayed_entry_cmp_func
+define_bl_flat_deadlines_funcs(
+    bl_taskq_delayed, bl_taskq_delayed_entry, bl_taskq_delayed_entry_cmp_func
     )
 /*---------------------------------------------------------------------------*/
 

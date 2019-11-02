@@ -4,162 +4,190 @@
 #ifndef __BL_ARRAY_DOUBLY_LINKED_LIST_u64_H__
 #define __BL_ARRAY_DOUBLY_LINKED_LIST_u64_H__
 
-/* SELF-COMMENT: why not save code size and make the head the first element of
-   "nodes" */
-
 #include <bl/base/assert.h>
 #include <bl/base/libexport.h>
 #include <bl/base/platform.h>
 #include <bl/base/integer.h>
 #include <bl/base/utility.h>
 
-typedef u64 adlnls_u64_it;
+typedef bl_u64 bl_adlnls_u64_it;
 /*---------------------------------------------------------------------------*/
-typedef struct adlnls_u64_hook {
-  u64 next : type_bits (u64) / 2;
-  u64 prev : type_bits (u64) / 2;
+typedef struct bl_adlnls_u64_hook {
+  bl_u64 next : bl_type_bits (bl_u64) / 2;
+  bl_u64 prev : bl_type_bits (bl_u64) / 2;
 }
-adlnls_u64_hook;
+bl_adlnls_u64_hook;
 /*---------------------------------------------------------------------------*/
-typedef struct adlnls_u64 {
-  adlnls_u64_hook head;
-  adlnls_u64_hook* nodes;
-  uword capacity;
-  uword size;
+typedef struct bl_adlnls_u64 {
+  bl_adlnls_u64_hook head;
+  bl_adlnls_u64_hook* nodes;
+  bl_uword capacity;
+  bl_uword size;
 }
-adlnls_u64;
+bl_adlnls_u64;
 /*---------------------------------------------------------------------------*/
-#define adlnls_u64_foreach(type_ptr, it_var)\
-  for (adlnls_u64_it adlnls_u64_priv_curr_it = adlnls_u64_it_begin ((type_ptr)),\
-         it_var = adlnls_u64_priv_curr_it;\
-       adlnls_u64_it_in_range ((type_ptr), adlnls_u64_priv_curr_it) &&\
-         (adlnls_u64_priv_curr_it =\
-            adlnls_u64_it_next ((type_ptr), adlnls_u64_priv_curr_it), 1);\
-       it_var = adlnls_u64_priv_curr_it\
-       )
-/*---------------------------------------------------------------------------*/
-#define adlnls_u64_foreach_read_only(type_ptr, it_var)\
-  for (it_var = adlnls_u64_it_begin ((type_ptr));\
-       adlnls_u64_it_in_range ((type_ptr), it_var);\
-       it_var = adlnls_u64_it_next ((type_ptr), it_var)\
-       )
-/*---------------------------------------------------------------------------*/
-#define adlnls_u64_foreach_r(type_ptr, it_var)\
-  for (adlnls_u64_it adlnls_u64_priv_curr_it = adlnls_u64_it_rbegin ((type_ptr)),\
-         it_var = adlnls_u64_priv_curr_it;\
-       adlnls_u64_it_in_range_r ((type_ptr), adlnls_u64_priv_curr_it) &&\
-         (adlnls_u64_priv_curr_it =\
-            adlnls_u64_it_prev ((type_ptr), adlnls_u64_priv_curr_it), 1);\
-       it_var = adlnls_u64_priv_curr_it\
-       )
-/*---------------------------------------------------------------------------*/
-#define adlnls_u64_foreach_r_read_only(type_ptr, it_var)\
-  for (it_var = adlnls_u64_it_rbegin ((type_ptr));\
-       adlnls_u64_it_in_range_r ((type_ptr), it_var);\
-       it_var = adlnls_u64_it_prev ((type_ptr), it_var)\
-       )
-/*---------------------------------------------------------------------------*/
-#define adlnls_u64_init(list, backing_nodes_array)\
-  adlnls_u64_init_impl(\
-    (list),\
-    (backing_nodes_array),\
-    arr_elems (backing_nodes_array)\
+#define bl_adlnls_u64_foreach(type_ptr, it_var)\
+  for(\
+    bl_adlnls_u64_it bl_adlnls_u64_priv_curr_it =\
+        bl_adlnls_u64_it_begin ((type_ptr)),\
+      it_var = bl_adlnls_u64_priv_curr_it;\
+    bl_adlnls_u64_it_in_range ((type_ptr), bl_adlnls_u64_priv_curr_it) &&\
+      (bl_adlnls_u64_priv_curr_it =\
+        bl_adlnls_u64_it_next(\
+          (type_ptr), bl_adlnls_u64_priv_curr_it), 1\
+          );\
+    it_var = bl_adlnls_u64_priv_curr_it\
     )
 /*---------------------------------------------------------------------------*/
-static inline adlnls_u64_it adlnls_u64_it_end (adlnls_u64* l)
+#define bl_adlnls_u64_foreach_read_only(type_ptr, it_var)\
+  for(\
+    it_var = bl_adlnls_u64_it_begin ((type_ptr));\
+    bl_adlnls_u64_it_in_range ((type_ptr), it_var);\
+    it_var = bl_adlnls_u64_it_next ((type_ptr), it_var)\
+    )
+/*---------------------------------------------------------------------------*/
+/* "_r" reverse iteration */
+#define bl_adlnls_u64_foreach_r(type_ptr, it_var)\
+  for(\
+    bl_adlnls_u64_it bl_adlnls_u64_priv_curr_it =\
+        bl_adlnls_u64_it_rbegin ((type_ptr)),\
+      it_var = bl_adlnls_u64_priv_curr_it;\
+    bl_adlnls_u64_it_in_range_r(\
+        (type_ptr), bl_adlnls_u64_priv_curr_it\
+        ) &&\
+      (bl_adlnls_u64_priv_curr_it =\
+    bl_adlnls_u64_it_prev ((type_ptr), bl_adlnls_u64_priv_curr_it), 1);\
+      it_var = bl_adlnls_u64_priv_curr_it\
+    )
+/*---------------------------------------------------------------------------*/
+#define bl_adlnls_u64_foreach_r_read_only(type_ptr, it_var)\
+  for(\
+    it_var = bl_adlnls_u64_it_rbegin ((type_ptr));\
+    bl_adlnls_u64_it_in_range_r ((type_ptr), it_var);\
+    it_var = bl_adlnls_u64_it_prev ((type_ptr), it_var)\
+    )
+/*---------------------------------------------------------------------------*/
+#define bl_adlnls_u64_init(list, backing_nodes_array)\
+  bl_adlnls_u64_init_impl(\
+    (list),\
+    (backing_nodes_array),\
+    bl_arr_elems (backing_nodes_array)\
+    )
+/*---------------------------------------------------------------------------*/
+static inline bl_adlnls_u64_it bl_adlnls_u64_it_end (bl_adlnls_u64* l)
 {
   return l->capacity;
 }
 /*---------------------------------------------------------------------------*/
-static inline adlnls_u64_it adlnls_u64_it_rend (adlnls_u64* l)
+static inline bl_adlnls_u64_it bl_adlnls_u64_it_rend (bl_adlnls_u64* l)
 {
   return l->capacity;
 }
 /*---------------------------------------------------------------------------*/
-static inline adlnls_u64_it adlnls_u64_it_begin (adlnls_u64* l)
+static inline bl_adlnls_u64_it
+  bl_adlnls_u64_it_begin (bl_adlnls_u64* l)
 {
   return l->head.next;
 }
 /*---------------------------------------------------------------------------*/
-static inline adlnls_u64_it adlnls_u64_it_rbegin (adlnls_u64* l)
+static inline bl_adlnls_u64_it
+  bl_adlnls_u64_it_rbegin (bl_adlnls_u64* l)
 {
   return l->head.prev;
 }
 /*---------------------------------------------------------------------------*/
-static inline adlnls_u64_it adlnls_u64_capacity (adlnls_u64* l)
+static inline bl_adlnls_u64_it
+  bl_adlnls_u64_capacity (bl_adlnls_u64* l)
 {
   return l->capacity;
 }
 /*---------------------------------------------------------------------------*/
-static inline adlnls_u64_it adlnls_u64_size (adlnls_u64* l)
+static inline bl_adlnls_u64_it
+  bl_adlnls_u64_size (bl_adlnls_u64* l)
 {
   return l->size;
 }
 /*---------------------------------------------------------------------------*/
-static inline adlnls_u64_it adlnls_u64_it_in_range (adlnls_u64* l, adlnls_u64_it it)
+static inline bl_adlnls_u64_it
+  bl_adlnls_u64_it_in_range (bl_adlnls_u64* l, bl_adlnls_u64_it it)
 {
   return it < l->capacity;
 }
 /*---------------------------------------------------------------------------*/
-static inline adlnls_u64_it adlnls_u64_it_in_range_r (adlnls_u64* l, adlnls_u64_it it)
+static inline bl_adlnls_u64_it
+  bl_adlnls_u64_it_in_range_r (bl_adlnls_u64* l, bl_adlnls_u64_it it)
 {
   return it < l->capacity;
 }
 /*---------------------------------------------------------------------------*/
-static inline bool adlnls_u64_is_empty (adlnls_u64* l)
+static inline bool bl_adlnls_u64_is_empty (bl_adlnls_u64* l)
 {
-  return adlnls_u64_it_begin (l) == adlnls_u64_it_end (l);
+  return bl_adlnls_u64_it_begin (l) == bl_adlnls_u64_it_end (l);
 }
 /*---------------------------------------------------------------------------*/
-static inline adlnls_u64_it adlnls_u64_it_next (adlnls_u64* l, adlnls_u64_it it)
+static inline bl_adlnls_u64_it
+  bl_adlnls_u64_it_next (bl_adlnls_u64* l, bl_adlnls_u64_it it)
 {
   return l->nodes[it].next;
 }
 /*---------------------------------------------------------------------------*/
-static inline adlnls_u64_it adlnls_u64_it_prev (adlnls_u64* l, adlnls_u64_it it)
+static inline bl_adlnls_u64_it
+  bl_adlnls_u64_it_prev (bl_adlnls_u64* l, bl_adlnls_u64_it it)
 {
   return l->nodes[it].prev;
 }
 /*---------------------------------------------------------------------------*/
-static inline void adlnls_u64_node_release (adlnls_u64* l, adlnls_u64_it it)
+static inline void
+  bl_adlnls_u64_node_release (bl_adlnls_u64* l, bl_adlnls_u64_it it)
 {
   l->nodes[it].next = it;
   l->nodes[it].prev = it;
 }
 /*---------------------------------------------------------------------------*/
-static inline bool adlnls_u64_node_is_free (adlnls_u64* l, adlnls_u64_it it)
+static inline bool
+  bl_adlnls_u64_node_is_free (bl_adlnls_u64* l, bl_adlnls_u64_it it)
 {
   return l->nodes[it].next == it;
 }
 /*---------------------------------------------------------------------------*/
-static inline void adlnls_u64_acquire_node_unsafe (adlnls_u64* l, adlnls_u64_it it)
+static inline void bl_adlnls_u64_acquire_node_unsafe(
+  bl_adlnls_u64* l, bl_adlnls_u64_it it
+  )
 {
-  bl_assert (it < adlnls_u64_capacity (l));
-  bl_assert (adlnls_u64_node_is_free (l, it));
-  l->nodes[it].prev = adlnls_u64_it_end (l);
-  l->nodes[it].next = adlnls_u64_it_end (l);
+  bl_assert (it < bl_adlnls_u64_capacity (l));
+  bl_assert (bl_adlnls_u64_node_is_free (l, it));
+  l->nodes[it].prev = bl_adlnls_u64_it_end (l);
+  l->nodes[it].next = bl_adlnls_u64_it_end (l);
 }
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT void adlnls_u64_init_impl(
-  adlnls_u64* l, u64* nodes, uword nodes_capacity
+extern BL_EXPORT void bl_adlnls_u64_init_impl(
+  bl_adlnls_u64* l, bl_u64* nodes, bl_uword nodes_capacity
   );
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT adlnls_u64_it adlnls_u64_try_acquire_node (adlnls_u64* l, adlnls_u64_it n);
+extern BL_EXPORT bl_adlnls_u64_it bl_adlnls_u64_try_acquire_node(
+  bl_adlnls_u64* l, bl_adlnls_u64_it n
+  );
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT adlnls_u64_it adlnls_u64_try_acquire_a_node (adlnls_u64* l);
+extern BL_EXPORT bl_adlnls_u64_it
+  bl_adlnls_u64_try_acquire_a_node (bl_adlnls_u64* l);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT void adlnls_u64_insert_head (adlnls_u64* l, adlnls_u64_it n);
+extern BL_EXPORT void
+  bl_adlnls_u64_insert_head (bl_adlnls_u64* l, bl_adlnls_u64_it n);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT void adlnls_u64_insert_tail (adlnls_u64* l, adlnls_u64_it n);
+extern BL_EXPORT void
+  bl_adlnls_u64_insert_tail (bl_adlnls_u64* l, bl_adlnls_u64_it n);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT adlnls_u64_it adlnls_u64_drop_head (adlnls_u64* l);
+extern BL_EXPORT bl_adlnls_u64_it
+  bl_adlnls_u64_drop_head (bl_adlnls_u64* l);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT adlnls_u64_it adlnls_u64_drop_tail (adlnls_u64* l);
+extern BL_EXPORT bl_adlnls_u64_it
+  bl_adlnls_u64_drop_tail (bl_adlnls_u64* l);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT adlnls_u64_it adlnls_u64_drop (adlnls_u64* l, adlnls_u64_it n);
+extern BL_EXPORT bl_adlnls_u64_it
+  bl_adlnls_u64_drop (bl_adlnls_u64* l, bl_adlnls_u64_it n);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT adlnls_u64_it adlnls_u64_drop_explicit(
-  adlnls_u64* l, adlnls_u64_it n, bool return_previous
+extern BL_EXPORT bl_adlnls_u64_it bl_adlnls_u64_drop_explicit(
+  bl_adlnls_u64* l, bl_adlnls_u64_it n, bool return_previous
   );
 
 #endif /* #define __BL_ARRAY_LINKED_LIST_u64_H__ */

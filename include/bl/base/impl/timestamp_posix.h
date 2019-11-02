@@ -18,23 +18,23 @@
 /* FIXME: this is made inline just to remove warnings*/
 /*---------------------------------------------------------------------------*/
 #if !defined (BL_TIMESTAMP_64BIT)
-#define bl_tstamp_get_freq() usec_in_sec
+#define bl_tstamp_get_freq() bl_usec_in_sec
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_get_tstamp (void)
+static inline bl_tstamp bl_get_tstamp (void)
 {
   struct timespec t;
   clock_gettime (BL_CLOCK_MONOTONIC, &t);
-  return (tstamp)
-   ((((u64) t.tv_sec) * usec_in_sec) + (t.tv_nsec / nsec_in_usec));
+  return (bl_tstamp)
+   ((((bl_u64) t.tv_sec) * bl_usec_in_sec) + (t.tv_nsec / bl_nsec_in_usec));
 }
 /*---------------------------------------------------------------------------*/
-#define bl_sysclock_tstamp_get_freq() 1
+#define bl_tstamp_sysclock_get_freq() 1
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_get_sysclock_tstamp (void)
+static inline bl_tstamp bl_tstamp_sysclock_get (void)
 {
   struct timespec t;
   clock_gettime (CLOCK_REALTIME, &t);
-  return (tstamp) t.tv_sec;
+  return (bl_tstamp) t.tv_sec;
 }
 /*---------------------------------------------------------------------------*/
 #include <bl/base/impl/timestamp_funcs_microsecond_base.h>
@@ -43,22 +43,22 @@ static inline tstamp bl_get_sysclock_tstamp (void)
 /*---------------------------------------------------------------------------*/
 #else
 /*---------------------------------------------------------------------------*/
-#define bl_tstamp_get_freq() nsec_in_sec
+#define bl_tstamp_get_freq() bl_nsec_in_sec
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_get_tstamp (void)
+static inline bl_tstamp bl_get_tstamp (void)
 {
   struct timespec t;
   clock_gettime (BL_CLOCK_MONOTONIC, &t);
-  return (((u64) t.tv_sec) * nsec_in_sec) + t.tv_nsec;
+  return (((bl_u64) t.tv_sec) * bl_nsec_in_sec) + t.tv_nsec;
 }
 /*---------------------------------------------------------------------------*/
-#define bl_sysclock_tstamp_get_freq() nsec_in_sec
+#define bl_tstamp_sysclock_get_freq() bl_nsec_in_sec
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_get_sysclock_tstamp (void)
+static inline bl_tstamp bl_tstamp_sysclock_get (void)
 {
   struct timespec t;
   clock_gettime (CLOCK_REALTIME, &t);
-  return (((u64) t.tv_sec) * nsec_in_sec) + t.tv_nsec;
+  return (((bl_u64) t.tv_sec) * bl_nsec_in_sec) + t.tv_nsec;
 }
 /*---------------------------------------------------------------------------*/
 #include <bl/base/impl/timestamp_funcs_nanosecond_base.h>
@@ -66,27 +66,27 @@ static inline tstamp bl_get_sysclock_tstamp (void)
 /*---------------------------------------------------------------------------*/
 #endif /* #if !defined (BL_TIMESTAMP_64BIT) */
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_sysclock_tstamp_to_epoch (tstamp t)
+static inline bl_tstamp bl_tstamp_sysclock_to_epoch (bl_tstamp t)
 {
   return t;
 }
 /*---------------------------------------------------------------------------*/
 /* private. for internal use */
 /*---------------------------------------------------------------------------*/
-static void timespec_normalize (struct timespec* t)
+static void bl_timespec_normalize (struct timespec* t)
 {
-  t->tv_sec += (t->tv_nsec / nsec_in_sec);
-  t->tv_nsec = (t->tv_nsec % nsec_in_sec);
+  t->tv_sec += (t->tv_nsec / bl_nsec_in_sec);
+  t->tv_nsec = (t->tv_nsec % bl_nsec_in_sec);
 }
 /* private. for internal use */
 /*---------------------------------------------------------------------------*/
-static inline struct timespec timespec_us_from_now (u32 usec, int clock)
+static inline struct timespec bl_timespec_us_from_now (bl_u32 usec, int clock)
 {
   struct timespec t;
   clock_gettime (clock, &t);
-  t.tv_sec  += usec / usec_in_sec;
-  t.tv_nsec += (usec % usec_in_sec) * nsec_in_usec;
-  timespec_normalize (&t);
+  t.tv_sec  += usec / bl_usec_in_sec;
+  t.tv_nsec += (usec % bl_usec_in_sec) * bl_nsec_in_usec;
+  bl_timespec_normalize (&t);
   return t;
 }
 /*----------------------------------------------------------------------------*/

@@ -1,11 +1,11 @@
 #include <bl/base/dynarray.h>
 #include <bl/base/utility.h>
 /*----------------------------------------------------------------------------*/
-bl_err dynarray_resize(
-  dynarray_stub*   d,
-  uword            new_size,
-  uword            elem_size,
-  alloc_tbl const* alloc
+BL_EXPORT bl_err bl_dynarray_resize(
+  bl_dynarray_stub*   d,
+  bl_uword            new_size,
+  bl_uword            elem_size,
+  bl_alloc_tbl const* alloc
   )
 {
   bl_assert (d && alloc);
@@ -14,7 +14,7 @@ bl_err dynarray_resize(
 
   if (new_size != 0) {
     new_ptr = bl_realloc (alloc, d->arr, new_size * elem_size);
-    if (unlikely (!new_ptr)) {
+    if (bl_unlikely (!new_ptr)) {
       new_size = d->size;
       new_ptr  = d->arr;
       err      = bl_mkerr (bl_alloc);

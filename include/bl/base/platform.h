@@ -156,13 +156,13 @@
   #define nullptr NULL
 #endif
 /*---------------------------------------------------------------------------*/
-static_assert_outside_func ((bool) 1 == true, "bool type check failed");
-static_assert_outside_func ((bool) 0 == false, "bool type check failed");
+bl_static_assert_outside_func ((bool) 1 == true, "bool type check failed");
+bl_static_assert_outside_func ((bool) 0 == false, "bool type check failed");
 
 #if BL_WORDSIZE <= 32
-  static_assert_outside_func ((int) nullptr == 0, "nullptr check failed");
+  bl_static_assert_outside_func ((int) nullptr == 0, "nullptr check failed");
 #else
-  static_assert_outside_func ((long) nullptr == 0, "nullptr check failed");
+  bl_static_assert_outside_func ((long) nullptr == 0, "nullptr check failed");
 #endif
 /*---------------------------------------------------------------------------*/
 #if defined (BL_WINDOWS)
@@ -178,7 +178,7 @@ static_assert_outside_func ((bool) 0 == false, "bool type check failed");
 #endif
 
 #if BL_WORDSIZE > BL_WORDSIZE_MAX
-  #error "the word size can't be bigger than the maximum word size"
+  #error "the bl_word size can't be bigger than the maximum bl_word size"
 #endif
 
 #endif /*EVK_PLATFORM_H_*/

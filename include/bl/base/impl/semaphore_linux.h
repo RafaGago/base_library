@@ -47,13 +47,13 @@ static inline bl_err bl_sem_signal (bl_sem* s)
 }
 /*----------------------------------------------------------------------------*/
 typedef struct bl_tm_sem {
-  atomic_u32 sem;
+  bl_atomic_u32 sem;
 }
 bl_tm_sem;
 /*----------------------------------------------------------------------------*/
 extern BL_EXPORT bl_err bl_tm_sem_signal (bl_tm_sem* s);
 /*----------------------------------------------------------------------------*/
-extern BL_EXPORT bl_err bl_tm_sem_wait (bl_tm_sem* s, u32 usec);
+extern BL_EXPORT bl_err bl_tm_sem_wait (bl_tm_sem* s, bl_u32 usec);
 /*----------------------------------------------------------------------------*/
 extern BL_EXPORT bl_err bl_tm_sem_init (bl_tm_sem* s);
 /*----------------------------------------------------------------------------*/

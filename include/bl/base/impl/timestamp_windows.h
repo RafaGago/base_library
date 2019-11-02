@@ -11,7 +11,7 @@
 #include <bl/base/include_windows.h>
 
 /*---------------------------------------------------------------------------*/
-static inline LARGE_INTEGER qpc_get_freq_priv(void)
+static inline LARGE_INTEGER bl_qpc_get_freq_priv(void)
 {
   LARGE_INTEGER freq;
   bl_assert_always (QueryPerformanceFrequency (&freq) != 0);
@@ -19,45 +19,45 @@ static inline LARGE_INTEGER qpc_get_freq_priv(void)
 }
 /*---------------------------------------------------------------------------*/
 /*this function is used outside this header but it's not exposed*/
-static inline u64 qpc_get_freq (void)
+static inline bl_u64 bl_qpc_get_freq (void)
 {
-  static LARGE_INTEGER freq = qpc_get_freq_priv();
+  static LARGE_INTEGER freq = bl_qpc_get_freq_priv();
   return freq.QuadPart;
 }
 /*---------------------------------------------------------------------------*/
-static inline u64 bl_tstamp_get_freq (void)
+static inline bl_u64 bl_tstamp_get_freq (void)
 {
-  return qpc_get_freq();
+  return bl_qpc_get_freq();
 }
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_get_tstamp (void)
+static inline bl_tstamp bl_get_tstamp (void)
 {
   LARGE_INTEGER t;
   bl_assert_always (QueryPerformanceCounter (&t) != 0);
-  return (tstamp) t.QuadPart;
+  return (bl_tstamp) t.QuadPart;
 }
 /*---------------------------------------------------------------------------*/
 #include <bl/base/impl/timestamp_funcs_arbitrary_base.h>
 /*---------------------------------------------------------------------------*/
-static inline tstamp bl_get_sysclock_tstamp (void)
+static inline bl_tstamp bl_tstamp_sysclock_get (void)
 {
   FILETIME t;
-  u64 f = qpc_get_freq();
+  bl_u64 f = bl_qpc_get_freq();
   GetSystemTimeAsFileTime (&t);
-  u64 res = (u64) t.dwLowDateTime | (((u64) t.dwHighDateTime) << 32);
+  bl_u64 res = (bl_u64) t.dwLowDateTime | (((bl_u64) t.dwHighDateTime) << 32);
 #if defined (BL_TIMESTAMP_64BIT)
   res *= 100; /*to nsec*/
 #else
-  res /= usec_in_sec * 10; /*to sec*/
+  res /= bl_usec_in_sec * 10; /*to sec*/
 #endif
-  return (tstamp) res;
+  return (bl_tstamp) res;
 }
 /*---------------------------------------------------------------------------*/
 #if defined (BL_TIMESTAMP_64BIT)
 
-#define bl_sysclock_tstamp_get_freq() nsec_in_sec
+#define bl_tstamp_sysclock_get_freq() bl_nsec_in_sec
 
-static inline tstamp bl_sysclock_tstamp_to_epoch (tstamp t)
+static inline bl_tstamp bl_tstamp_sysclock_to_epoch (bl_tstamp t)
 {
   return t - (116444736000000000LL * 100);
 }
@@ -66,12 +66,12 @@ static inline tstamp bl_sysclock_tstamp_to_epoch (tstamp t)
 
 #else
 
-static inline tstamp bl_sysclock_tstamp_to_epoch (tstamp t)
+static inline bl_tstamp bl_tstamp_sysclock_to_epoch (bl_tstamp t)
 {
-  return t - (116444736000000000LL / (usec_in_sec * 10));
+  return t - (116444736000000000LL / (bl_usec_in_sec * 10));
 }
 
-#define bl_sysclock_tstamp_get_freq() 1
+#define bl_tstamp_sysclock_get_freq() 1
 
 #include <bl/base/impl/timestamp_sysclock_funcs_second_base.h>
 

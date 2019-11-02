@@ -35,8 +35,8 @@
  *  @(#)queue.h  8.5 (Berkeley) 8/20/94
  */
 
-#ifndef  _BSD_SYS_QUEUE_H_
-#define  _BSD_SYS_QUEUE_H_
+#ifndef  BL_BSD_SYS_QUEUE_H_
+#define  BL_BSD_SYS_QUEUE_H_
 
 #include <bl/base/platform.h>
 
@@ -608,15 +608,15 @@ TAIL QUEUE EXAMPLE
   TAILQ_INIT(&head);
 */
 /*---------------------------------------------------------------------------*/
-#define list_head(name, type)\
+#define bl_list_head(name, type)\
 struct name {\
   struct type *lh_first;  /* first element */\
 }
 
-#define list_head_initializer(head)\
+#define bl_list_head_initializer(head)\
   { nullptr }
 
-#define list_entry(type)\
+#define bl_list_entry(type)\
 struct {\
   struct type *le_next;  /* next element */\
   struct type **le_prev;  /* address of previous next element */\
@@ -625,18 +625,18 @@ struct {\
 /*
  * list functions.
  */
-#define queuedebug_list_insert_head(head, elm, field)
-#define queuedebug_list_op(elm, field)
-#define queuedebug_list_postremove(elm, field)
+#define bl_queuedebug_bl_list_insert_head(head, elm, field)
+#define bl_queuedebug_list_op(elm, field)
+#define bl_queuedebug_list_postremove(elm, field)
 
-#define  list_init(head)\
+#define  bl_list_init(head)\
 do {\
   (head)->lh_first = nullptr;\
 } while (/*constcond*/0)
 
-#define list_insert_after(listelm, elm, field)\
+#define bl_list_insert_after(listelm, elm, field)\
 do {\
-  queuedebug_list_op((listelm), field)\
+  bl_queuedebug_list_op((listelm), field)\
   if (((elm)->field.le_next = (listelm)->field.le_next) != nullptr)\
     (listelm)->field.le_next->field.le_prev =\
      &(elm)->field.le_next;\
@@ -644,35 +644,35 @@ do {\
   (elm)->field.le_prev = &(listelm)->field.le_next;\
 } while (/*constcond*/0)
 
-#define  list_insert_before(listelm, elm, field)\
+#define  bl_list_insert_before(listelm, elm, field)\
 do {\
-  queuedebug_list_op((listelm), field)\
+  bl_queuedebug_list_op((listelm), field)\
   (elm)->field.le_prev = (listelm)->field.le_prev;\
   (elm)->field.le_next = (listelm);\
   *(listelm)->field.le_prev = (elm);\
   (listelm)->field.le_prev = &(elm)->field.le_next;\
 } while (/*constcond*/0)
 
-#define list_insert_head(head, elm, field)\
+#define bl_list_insert_head(head, elm, field)\
 do {\
-  queuedebug_list_insert_head((head), (elm), field)\
+  bl_queuedebug_bl_list_insert_head((head), (elm), field)\
   if (((elm)->field.le_next = (head)->lh_first) != nullptr)\
     (head)->lh_first->field.le_prev = &(elm)->field.le_next;\
   (head)->lh_first = (elm);\
   (elm)->field.le_prev = &(head)->lh_first;\
 } while (/*constcond*/0)
 
-#define list_remove(elm, field)\
+#define bl_list_remove(elm, field)\
 do {\
-  queuedebug_list_op((elm), field)\
+  bl_queuedebug_list_op((elm), field)\
   if ((elm)->field.le_next != nullptr)\
     (elm)->field.le_next->field.le_prev = \
      (elm)->field.le_prev;\
   *(elm)->field.le_prev = (elm)->field.le_next;\
-  queuedebug_list_postremove((elm), field)\
+  bl_queuedebug_list_postremove((elm), field)\
 } while (/*constcond*/0)
 
-#define list_foreach(var, head, field)\
+#define bl_list_foreach(var, head, field)\
   for ((var) = ((head)->lh_first);\
     (var);\
     (var) = ((var)->field.le_next))
@@ -680,22 +680,22 @@ do {\
 /*
  * list access methods.
  */
-#define  list_empty(head)    ((head)->lh_first == nullptr)
-#define  list_first(head)    ((head)->lh_first)
-#define  list_next(elm, field)    ((elm)->field.le_next)
+#define  bl_list_empty(head)    ((head)->lh_first == nullptr)
+#define  bl_list_first(head)    ((head)->lh_first)
+#define  bl_list_next(elm, field)    ((elm)->field.le_next)
 
 /*
  * singly-linked list definitions.
  */
-#define slist_head(name, type)\
+#define bl_slist_head(name, type)\
 struct name {\
   struct type *slh_first;  /* first element */\
 }
 
-#define slist_head_initializer(head)\
+#define sbl_list_head_initializer(head)\
   { nullptr }
 
-#define slist_entry(type)\
+#define bl_slist_entry(type)\
 struct {\
   struct type *sle_next;  /* next element */\
 }
@@ -703,41 +703,41 @@ struct {\
 /*
  * singly-linked list functions.
  */
-#define  slist_empty(head)  ((head)->slh_first == nullptr)
-#define  slist_first(head)  ((head)->slh_first)
-#define  slist_next(elm, field)  ((elm)->field.sle_next)
+#define  bl_slist_empty(head)  ((head)->slh_first == nullptr)
+#define  bl_slist_first(head)  ((head)->slh_first)
+#define  bl_slist_next(elm, field)  ((elm)->field.sle_next)
 
-#define slist_foreach(var, head, field)\
+#define bl_slist_foreach(var, head, field)\
   for((var) = (head)->slh_first; (var); (var) = (var)->field.sle_next)
 
-#define slist_init(head)\
+#define bl_slist_init(head)\
 do {\
   (head)->slh_first = nullptr;\
 } while (/*constcond*/0)
 
-#define slist_insert_after(slistelm, elm, field)\
+#define bl_slist_insert_after(slistelm, elm, field)\
 do {\
   (elm)->field.sle_next = (slistelm)->field.sle_next;\
   (slistelm)->field.sle_next = (elm);\
 } while (/*constcond*/0)
 
-#define slist_insert_head(head, elm, field)\
+#define bl_slist_insert_head(head, elm, field)\
 do {\
   (elm)->field.sle_next = (head)->slh_first;\
   (head)->slh_first = (elm);\
 } while (/*constcond*/0)
 
-#define slist_next(elm, field)  ((elm)->field.sle_next)
+#define bl_slist_next(elm, field)  ((elm)->field.sle_next)
 
-#define slist_remove_head(head, field)\
+#define bl_slist_remove_head(head, field)\
 do {\
   (head)->slh_first = (head)->slh_first->field.sle_next;\
 } while (/*constcond*/0)
 
-#define slist_remove(head, elm, type, field)\
+#define bl_slist_remove(head, elm, type, field)\
 do {\
   if ((head)->slh_first == (elm)) {\
-    slist_remove_head((head), field);\
+    bl_slist_remove_head((head), field);\
   }\
   else {\
     struct type *curelm = (head)->slh_first;\
@@ -751,16 +751,16 @@ do {\
 /*
  * simple queue definitions.
  */
-#define simpleq_head(name, type)\
+#define bl_simpleq_head(name, type)\
 struct name {\
   struct type *sqh_first;  /* first element */\
   struct type **sqh_last;  /* addr of last next element */\
 }
 
-#define simpleq_head_initializer(head)\
+#define bl_simpleq_head_initializer(head)\
   { nullptr, &(head).sqh_first }
 
-#define simpleq_entry(type)\
+#define bl_simpleq_entry(type)\
 struct {\
   struct type *sqe_next;  /* next element */\
 }
@@ -768,40 +768,40 @@ struct {\
 /*
  * simple queue functions.
  */
-#define  simpleq_init(head)\
+#define  bl_simpleq_init(head)\
 do {\
   (head)->sqh_first = nullptr;\
   (head)->sqh_last = &(head)->sqh_first;\
 } while (/*constcond*/0)
 
-#define simpleq_insert_head(head, elm, field)\
+#define bl_simpleq_insert_head(head, elm, field)\
 do {\
   if (((elm)->field.sqe_next = (head)->sqh_first) == nullptr)\
     (head)->sqh_last = &(elm)->field.sqe_next;\
   (head)->sqh_first = (elm);\
 } while (/*constcond*/0)
 
-#define simpleq_insert_tail(head, elm, field)\
+#define bl_simpleq_insert_tail(head, elm, field)\
 do {\
   (elm)->field.sqe_next = nullptr;\
   *(head)->sqh_last = (elm);\
   (head)->sqh_last = &(elm)->field.sqe_next;\
 } while (/*constcond*/0)
 
-#define simpleq_insert_after(head, listelm, elm, field)\
+#define bl_simpleq_insert_after(head, listelm, elm, field)\
 do {\
   if (((elm)->field.sqe_next = (listelm)->field.sqe_next) == nullptr)\
     (head)->sqh_last = &(elm)->field.sqe_next;\
   (listelm)->field.sqe_next = (elm);\
 } while (/*constcond*/0)
 
-#define simpleq_remove_head(head, elm, field)\
+#define bl_simpleq_remove_head(head, elm, field)\
 do {\
   if (((head)->sqh_first = (elm)->field.sqe_next) == nullptr)\
     (head)->sqh_last = &(head)->sqh_first;\
 } while (/*constcond*/0)
 
-#define simpleq_foreach(var, head, field)\
+#define bl_simpleq_foreach(var, head, field)\
   for ((var) = ((head)->sqh_first);\
     (var);\
     (var) = ((var)->field.sqe_next))
@@ -809,23 +809,23 @@ do {\
 /*
  * simple queue access methods.
  */
-#define  simpleq_empty(head)    ((head)->sqh_first == nullptr)
-#define  simpleq_first(head)    ((head)->sqh_first)
-#define  simpleq_next(elm, field)  ((elm)->field.sqe_next)
+#define  bl_simpleq_empty(head)    ((head)->sqh_first == nullptr)
+#define  bl_simpleq_first(head)    ((head)->sqh_first)
+#define  bl_simpleq_next(elm, field)  ((elm)->field.sqe_next)
 
 /*
  * tail queue definitions.
  */
-#define tailq_head(name, type)\
+#define bl_tailq_head(name, type)\
 struct name {\
   struct type *tqh_first;  /* first element */\
   struct type **tqh_last;  /* addr of last next element */\
 }
 
-#define tailq_head_initializer(head)\
+#define bl_tailq_head_initializer(head)\
   { nullptr, &(head).tqh_first }
 
-#define tailq_entry(type)\
+#define bl_tailq_entry(type)\
 struct {\
   struct type *tqe_next;  /* next element */\
   struct type **tqe_prev;  /* address of previous next element */\
@@ -834,20 +834,20 @@ struct {\
 /*
  * tail queue functions.
  */
-#define queuedebug_tailq_insert_head(head, elm, field)
-#define queuedebug_tailq_insert_tail(head, elm, field)
-#define queuedebug_tailq_op(elm, field)
-#define queuedebug_tailq_postremove(elm, field)
+#define bl_queuedebug_bl_tailq_insert_head(head, elm, field)
+#define bl_queuedebug_bl_tailq_insert_tail(head, elm, field)
+#define bl_queuedebug_tailq_op(elm, field)
+#define bl_queuedebug_tailq_postremove(elm, field)
 
-#define  tailq_init(head)\
+#define  bl_tailq_init(head)\
 do {\
   (head)->tqh_first = nullptr;\
   (head)->tqh_last = &(head)->tqh_first;\
 } while (/*constcond*/0)
 
-#define tailq_insert_head(head, elm, field)\
+#define bl_tailq_insert_head(head, elm, field)\
 do {\
-  queuedebug_tailq_insert_head((head), (elm), field)\
+  bl_queuedebug_bl_tailq_insert_head((head), (elm), field)\
   if (((elm)->field.tqe_next = (head)->tqh_first) != nullptr)\
     (head)->tqh_first->field.tqe_prev =\
      &(elm)->field.tqe_next;\
@@ -857,18 +857,18 @@ do {\
   (elm)->field.tqe_prev = &(head)->tqh_first;\
 } while (/*constcond*/0)
 
-#define tailq_insert_tail(head, elm, field)\
+#define bl_tailq_insert_tail(head, elm, field)\
 do {\
-  queuedebug_tailq_insert_tail((head), (elm), field)\
+  bl_queuedebug_bl_tailq_insert_tail((head), (elm), field)\
   (elm)->field.tqe_next = nullptr;\
   (elm)->field.tqe_prev = (head)->tqh_last;\
   *(head)->tqh_last = (elm);\
   (head)->tqh_last = &(elm)->field.tqe_next;\
 } while (/*constcond*/0)
 
-#define tailq_insert_after(head, listelm, elm, field)\
+#define bl_tailq_insert_after(head, listelm, elm, field)\
 do {\
-  queuedebug_tailq_op((listelm), field)\
+  bl_queuedebug_tailq_op((listelm), field)\
   if (((elm)->field.tqe_next = (listelm)->field.tqe_next) != nullptr)\
     (elm)->field.tqe_next->field.tqe_prev = \
      &(elm)->field.tqe_next;\
@@ -878,45 +878,45 @@ do {\
   (elm)->field.tqe_prev = &(listelm)->field.tqe_next;\
 } while (/*constcond*/0)
 
-#define  tailq_insert_before(listelm, elm, field)\
+#define  bl_tailq_insert_before(listelm, elm, field)\
 do {\
-  queuedebug_tailq_op((listelm), field)\
+  bl_queuedebug_tailq_op((listelm), field)\
   (elm)->field.tqe_prev = (listelm)->field.tqe_prev;\
   (elm)->field.tqe_next = (listelm);\
   *(listelm)->field.tqe_prev = (elm);\
   (listelm)->field.tqe_prev = &(elm)->field.tqe_next;\
 } while (/*constcond*/0)
 
-#define tailq_remove(head, elm, field)\
+#define bl_tailq_remove(head, elm, field)\
 do {\
-  queuedebug_tailq_op((elm), field)\
+  bl_queuedebug_tailq_op((elm), field)\
   if (((elm)->field.tqe_next) != nullptr)\
     (elm)->field.tqe_next->field.tqe_prev = \
      (elm)->field.tqe_prev;\
   else\
     (head)->tqh_last = (elm)->field.tqe_prev;\
   *(elm)->field.tqe_prev = (elm)->field.tqe_next;\
-  queuedebug_tailq_postremove((elm), field);\
+  bl_queuedebug_tailq_postremove((elm), field);\
 } while (/*constcond*/0)
 
 /*
  * tail queue access methods.
  */
-#define  tailq_empty(head)    ((head)->tqh_first == nullptr)
-#define  tailq_first(head)    ((head)->tqh_first)
-#define  tailq_next(elm, field)    ((elm)->field.tqe_next)
+#define  bl_tailq_empty(head)    ((head)->tqh_first == nullptr)
+#define  bl_tailq_first(head)    ((head)->tqh_first)
+#define  bl_tailq_next(elm, field)    ((elm)->field.tqe_next)
 
-#define tailq_last(head, headname) \
+#define bl_tailq_last(head, headname) \
   (*(((struct headname *)((head)->tqh_last))->tqh_last))
-#define tailq_prev(elm, headname, field) \
+#define bl_tailq_prev(elm, headname, field) \
   (*(((struct headname *)((elm)->field.tqe_prev))->tqh_last))
 
-#define tailq_foreach(var, head, field)\
+#define bl_tailq_foreach(var, head, field)\
   for ((var) = ((head)->tqh_first);\
     (var);\
     (var) = ((var)->field.tqe_next))
 
-#define tailq_foreach_reverse(var, head, headname, field)\
+#define bl_tailq_foreach_reverse(var, head, headname, field)\
   for ((var) = (*(((struct headname *)((head)->tqh_last))->tqh_last));\
     (var);\
     (var) = (*(((struct headname *)((var)->field.tqe_prev))->tqh_last)))
@@ -924,16 +924,16 @@ do {\
 /*
  * circular queue definitions.
  */
-#define circleq_head(name, type)\
+#define bl_circleq_head(name, type)\
 struct name {\
   struct type *cqh_first;    /* first element */\
   struct type *cqh_last;    /* last element */\
 }
 
-#define circleq_head_initializer(head)\
+#define bl_circleq_head_initializer(head)\
   { (void *)&head, (void *)&head }
 
-#define circleq_entry(type)\
+#define bl_circleq_entry(type)\
 struct {\
   struct type *cqe_next;    /* next element */\
   struct type *cqe_prev;    /* previous element */\
@@ -942,13 +942,13 @@ struct {\
 /*
  * circular queue functions.
  */
-#define  circleq_init(head)\
+#define  bl_circleq_init(head)\
 do {\
   (head)->cqh_first = (void *)(head);\
   (head)->cqh_last = (void *)(head);\
 } while (/*constcond*/0)
 
-#define circleq_insert_after(head, listelm, elm, field)\
+#define bl_circleq_insert_after(head, listelm, elm, field)\
 do {\
   (elm)->field.cqe_next = (listelm)->field.cqe_next;\
   (elm)->field.cqe_prev = (listelm);\
@@ -959,7 +959,7 @@ do {\
   (listelm)->field.cqe_next = (elm);\
 } while (/*constcond*/0)
 
-#define circleq_insert_before(head, listelm, elm, field)\
+#define bl_circleq_insert_before(head, listelm, elm, field)\
 do {\
   (elm)->field.cqe_next = (listelm);\
   (elm)->field.cqe_prev = (listelm)->field.cqe_prev;\
@@ -970,7 +970,7 @@ do {\
   (listelm)->field.cqe_prev = (elm);\
 } while (/*constcond*/0)
 
-#define circleq_insert_head(head, elm, field)\
+#define bl_circleq_insert_head(head, elm, field)\
 do {\
   (elm)->field.cqe_next = (head)->cqh_first;\
   (elm)->field.cqe_prev = (void *)(head);\
@@ -981,7 +981,7 @@ do {\
   (head)->cqh_first = (elm);\
 } while (/*constcond*/0)
 
-#define circleq_insert_tail(head, elm, field)\
+#define bl_circleq_insert_tail(head, elm, field)\
 do {\
   (elm)->field.cqe_next = (void *)(head);\
   (elm)->field.cqe_prev = (head)->cqh_last;\
@@ -992,7 +992,7 @@ do {\
   (head)->cqh_last = (elm);\
 } while (/*constcond*/0)
 
-#define  circleq_remove(head, elm, field)\
+#define  bl_circleq_remove(head, elm, field)\
 do {\
   if ((elm)->field.cqe_next == (void *)(head))\
     (head)->cqh_last = (elm)->field.cqe_prev;\
@@ -1006,12 +1006,12 @@ do {\
      (elm)->field.cqe_next;\
 } while (/*constcond*/0)
 
-#define circleq_foreach(var, head, field)\
+#define bl_circleq_foreach(var, head, field)\
   for ((var) = ((head)->cqh_first);\
    (var) != (void *)(head);\
    (var) = ((var)->field.cqe_next))
 
-#define circleq_foreach_reverse(var, head, field)\
+#define bl_circleq_foreach_reverse(var, head, field)\
   for ((var) = ((head)->cqh_last);\
    (var) != (void *)(head);\
    (var) = ((var)->field.cqe_prev))
@@ -1019,10 +1019,10 @@ do {\
 /*
  * circular queue access methods.
  */
-#define  circleq_empty(head)    ((head)->cqh_first == (void *)(head))
-#define  circleq_first(head)    ((head)->cqh_first)
-#define  circleq_last(head)    ((head)->cqh_last)
-#define  circleq_next(elm, field)  ((elm)->field.cqe_next)
-#define  circleq_prev(elm, field)  ((elm)->field.cqe_prev)
+#define  bl_circleq_empty(head)    ((head)->cqh_first == (void *)(head))
+#define  bl_circleq_first(head)    ((head)->cqh_first)
+#define  bl_circleq_last(head)    ((head)->cqh_last)
+#define  bl_circleq_next(elm, field)  ((elm)->field.cqe_next)
+#define  bl_circleq_prev(elm, field)  ((elm)->field.cqe_prev)
 #endif  /* !_SYS_QUEUE_H_ */
 

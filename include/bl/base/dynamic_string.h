@@ -13,20 +13,20 @@
 /* one of the functions on ctype.h */
 typedef int (*bl_ctype_func) (int character);
 /*---------------------------------------------------------------------------*/
-typedef struct dstr_arr {
+typedef struct bl_dstr_arr {
   char* str;
-  uword size;
+  bl_uword size;
 }
-dstr_arr;
+bl_dstr_arr;
 /*---------------------------------------------------------------------------*/
-typedef struct dstr {
-  dstr_arr         da;
-  alloc_tbl const* alloc;
-  uword            len;
+typedef struct bl_dstr {
+  bl_dstr_arr         da;
+  bl_alloc_tbl const* alloc;
+  bl_uword            len;
 }
-dstr;
+bl_dstr;
 /*---------------------------------------------------------------------------*/
-static inline void dstr_init (dstr *s, alloc_tbl const* alloc)
+static inline void bl_dstr_init (bl_dstr *s, bl_alloc_tbl const* alloc)
 {
   s->da.str  = nullptr;
   s->da.size = 0;
@@ -34,7 +34,7 @@ static inline void dstr_init (dstr *s, alloc_tbl const* alloc)
   s->alloc   = alloc;
 }
 /*---------------------------------------------------------------------------*/
-/*adjust the internal string buffer capacity, setting it to "dstr_len" will
+/*adjust the internal string buffer capacity, setting it to "bl_dstr_len" will
   optimize the string space usage. Setting it to a bigger value will save
   memory allocations at the expense of having potentially unused memory.
 
@@ -42,88 +42,90 @@ static inline void dstr_init (dstr *s, alloc_tbl const* alloc)
   have room to allocate a character and the null termination.
 */
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT bl_err dstr_set_capacity (dstr* s, uword new_len);
-static inline uword dstr_get_capacity (dstr const* s)
+extern BL_EXPORT bl_err bl_dstr_set_capacity (bl_dstr* s, bl_uword new_len);
+static inline bl_uword bl_dstr_get_capacity (bl_dstr const* s)
 {
   return s->da.size != 0 ? s->da.size - 1 : 0;
 }
 /*---------------------------------------------------------------------------*/
-static inline void dstr_clear (dstr *s)
+static inline void bl_dstr_clear (bl_dstr *s)
 {
   s->len = 0;
 }
 /*---------------------------------------------------------------------------*/
-static inline void dstr_destroy (dstr *s)
+static inline void bl_dstr_destroy (bl_dstr *s)
 {
-  dstr_clear (s);
-  dstr_set_capacity (s, 0);
+  bl_dstr_clear (s);
+  bl_dstr_set_capacity (s, 0);
 }
 /*---------------------------------------------------------------------------*/
-static inline char const* dstr_get (dstr const *s)
+static inline char const* bl_dstr_get (bl_dstr const *s)
 {
   return s->da.str ? (char const*) s->da.str : "";
 }
 /*---------------------------------------------------------------------------*/
-static inline uword dstr_len (dstr const *s)
+static inline bl_uword bl_dstr_len (bl_dstr const *s)
 {
   return s->len;
 }
 /*---------------------------------------------------------------------------*/
-static inline char const* dstr_beg (dstr const *s)
+static inline char const* bl_dstr_beg (bl_dstr const *s)
 {
-  return dstr_get (s);
+  return bl_dstr_get (s);
 }
 /*---------------------------------------------------------------------------*/
-static inline char const* dstr_end (dstr const *s)
+static inline char const* bl_dstr_end (bl_dstr const *s)
 {
-  return dstr_get (s) + dstr_len (s);
+  return bl_dstr_get (s) + bl_dstr_len (s);
 }
 /*---------------------------------------------------------------------------*/
-static inline alloc_tbl const* dstr_alloc (dstr const *s)
+static inline bl_alloc_tbl const* bl_dstr_alloc (bl_dstr const *s)
 {
   return s->alloc;
 }
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT char* dstr_steal_ownership (dstr *s);
+extern BL_EXPORT char* bl_dstr_steal_ownership (bl_dstr *s);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT void dstr_transfer_ownership_l(
-  dstr *s, char* heap_string_from_same_alloc, uword len
+extern BL_EXPORT void bl_dstr_transfer_ownership_l(
+  bl_dstr *s, char* heap_string_from_same_alloc, bl_uword len
   );
 /*---------------------------------------------------------------------------*/
-static inline void dstr_transfer_ownership(
-  dstr *s, char* heap_string_from_same_alloc
+static inline void bl_dstr_transfer_ownership(
+  bl_dstr *s, char* heap_string_from_same_alloc
   )
 {
-  dstr_transfer_ownership_l(
+  bl_dstr_transfer_ownership_l(
     s, heap_string_from_same_alloc, strlen (heap_string_from_same_alloc)
     );
 }
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT bl_err dstr_set_l (dstr *s, char const *str, uword len);
-extern BL_EXPORT bl_err dstr_append_l (dstr *s, char const *str, uword len);
-extern BL_EXPORT bl_err dstr_insert_l(
-  dstr *s, uword idx, char const *str, uword len
+extern BL_EXPORT bl_err
+  bl_dstr_set_l (bl_dstr *s, char const *str, bl_uword len);
+extern BL_EXPORT bl_err
+  bl_dstr_append_l(bl_dstr *s, char const *str, bl_uword len);
+extern BL_EXPORT bl_err bl_dstr_insert_l(
+  bl_dstr *s, bl_uword idx, char const *str, bl_uword len
   );
-extern BL_EXPORT uword dstr_find_l(
-  dstr* s, char const* search, uword search_len, uword offset
+extern BL_EXPORT bl_uword bl_dstr_find_l(
+  bl_dstr* s, char const* search, bl_uword search_len, bl_uword offset
   );
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT bl_err dstr_replace_l(
-  dstr*       s,
+extern BL_EXPORT bl_err bl_dstr_replace_l(
+  bl_dstr*    s,
   char const* match,
-  uword       match_len,
+  bl_uword       match_len,
   char const* replace,
-  uword       replace_len,
-  uword       offset,
-  uword       max_replace_count /* 0 replaces all matches */
+  bl_uword       replace_len,
+  bl_uword       offset,
+  bl_uword       max_replace_count /* 0 replaces all matches */
   );
 /*---------------------------------------------------------------------------*/
-#define dstr_set_lit(s, lit) dstr_set_l ((s), lit, sizeof lit - 1)
-#define dstr_append_lit(s, lit) dstr_append_l ((s), lit, sizeof lit - 1)
-#define dstr_insert_lit(s, idx, lit)\
-  dstr_insert_l ((s), (idx), lit, sizeof lit - 1)
-#define dstr_replace_lit(s, match_lit, replace_lit, offset, count)\
-  dstr_replace_l(\
+#define bl_dstr_set_lit(s, lit) bl_dstr_set_l ((s), lit, sizeof lit - 1)
+#define bl_dstr_append_lit(s, lit) bl_dstr_append_l ((s), lit, sizeof lit - 1)
+#define bl_dstr_insert_lit(s, idx, lit)\
+  bl_dstr_insert_l ((s), (idx), lit, sizeof lit - 1)
+#define bl_dstr_replace_lit(s, match_lit, replace_lit, offset, count)\
+  bl_dstr_replace_l(\
     (s),\
     match_lit,\
     sizeof match_lit - 1,\
@@ -132,175 +134,189 @@ extern BL_EXPORT bl_err dstr_replace_l(
     (offset),\
     (count)\
     )
-#define dstr_find_lit(s, search_lit, offset)\
-  dstr_find_l ((s), search_lit, sizeof search_lit - 1, (offset))
+#define bl_dstr_find_lit(s, search_lit, offset)\
+  bl_dstr_find_l ((s), search_lit, sizeof search_lit - 1, (offset))
 /*---------------------------------------------------------------------------*/
-static inline bl_err dstr_set (dstr *s, char const *str)
+static inline bl_err bl_dstr_set (bl_dstr *s, char const *str)
 {
-  return dstr_set_l (s, str, str ? strlen (str) : 0);
+  return bl_dstr_set_l (s, str, str ? strlen (str) : 0);
 }
-static inline bl_err dstr_append (dstr *s, char const *str)
+static inline bl_err bl_dstr_append (bl_dstr *s, char const *str)
 {
-  return str ? dstr_append_l (s, str, strlen (str)) : bl_mkok();
+  return str ? bl_dstr_append_l (s, str, strlen (str)) : bl_mkok();
 }
-static inline bl_err dstr_insert (dstr *s, uword idx, char const *str)
+static inline bl_err bl_dstr_insert (bl_dstr *s, bl_uword idx, char const *str)
 {
-  return str ? dstr_insert_l (s, idx, str, strlen (str)) : bl_mkok();
+  return str ? bl_dstr_insert_l (s, idx, str, strlen (str)) : bl_mkok();
 }
-static inline bl_err dstr_replace(
-  dstr *s, char const *match, char const *replace, uword offset, uword count
+static inline bl_err bl_dstr_replace(
+  bl_dstr    *s,
+  char const *match,
+  char const *replace,
+  bl_uword   offset,
+  bl_uword    count
   )
 {
-  return dstr_replace_l(
+  return bl_dstr_replace_l(
     s, match, strlen (match), replace, strlen (replace), offset, count
     );
 }
-static inline uword dstr_find (dstr* s, char const* seach, uword offset)
+static inline bl_uword
+  l_dstr_find (bl_dstr* s, char const* seach, bl_uword offset)
 {
-  return dstr_find_l (s, seach, strlen (seach), offset);
+  return bl_dstr_find_l (s, seach, strlen (seach), offset);
 }
 /*---------------------------------------------------------------------------*/
-static inline bl_err dstr_set_o (dstr *s, dstr const *str)
+static inline bl_err bl_dstr_set_o (bl_dstr *s, bl_dstr const *str)
 {
-  return dstr_set_l (s, dstr_get (str), dstr_len (str));
+  return bl_dstr_set_l (s, bl_dstr_get (str), bl_dstr_len (str));
 }
-static inline bl_err dstr_append_o (dstr *s, dstr const *str)
+static inline bl_err bl_dstr_append_o (bl_dstr *s, bl_dstr const *str)
 {
-  return dstr_append_l (s, dstr_get (str), dstr_len (str));
+  return bl_dstr_append_l (s, bl_dstr_get (str), bl_dstr_len (str));
 }
-static inline bl_err dstr_insert_o (dstr *s, uword idx, dstr const *str)
+static inline bl_err
+  bl_dstr_insert_o (bl_dstr *s, bl_uword idx, bl_dstr const *str)
 {
-  return dstr_insert_l (s, idx, dstr_get (str), dstr_len (str));
+  return bl_dstr_insert_l (s, idx, bl_dstr_get (str), bl_dstr_len (str));
 }
-static inline bl_err dstr_replace_o(
-  dstr *s, dstr const *match, dstr const *replace, uword offset, uword count
+static inline bl_err bl_dstr_replace_o(
+  bl_dstr       *s,
+  bl_dstr const *match,
+  bl_dstr const *replace,
+  bl_uword         offset,
+  bl_uword         count
   )
 {
-  return dstr_replace_l(
+  return bl_dstr_replace_l(
     s,
-    dstr_get (match),
-    dstr_len (match),
-    dstr_get (replace),
-    dstr_len (replace),
+    bl_dstr_get (match),
+    bl_dstr_len (match),
+    bl_dstr_get (replace),
+    bl_dstr_len (replace),
     offset,
     count
     );
 }
 /*---------------------------------------------------------------------------*/
-static inline bl_err dstr_set_char (dstr *s, char c)
+static inline bl_err bl_dstr_set_char (bl_dstr *s, char c)
 {
-  return dstr_set_l (s, &c, 1);
+  return bl_dstr_set_l (s, &c, 1);
 }
-static inline bl_err dstr_append_char (dstr *s, char c)
+static inline bl_err bl_dstr_append_char (bl_dstr *s, char c)
 {
-  return dstr_append_l (s, &c, 1);
+  return bl_dstr_append_l (s, &c, 1);
 }
-static inline bl_err dstr_insert_char (dstr *s, uword idx, char c)
+static inline bl_err bl_dstr_insert_char (bl_dstr *s, bl_uword idx, char c)
 {
-  return dstr_insert_l (s, idx, &c, 1);
+  return bl_dstr_insert_l (s, idx, &c, 1);
 }
-static inline bl_err dstr_replace_char(
-  dstr *s, char match, char replace, uword offset, uword count
+static inline bl_err bl_dstr_replace_char(
+  bl_dstr *s, char match, char replace, bl_uword offset, bl_uword count
   )
 {
-  return dstr_replace_l (s, &match, 1, &replace, 1, offset, count);
+  return bl_dstr_replace_l (s, &match, 1, &replace, 1, offset, count);
 }
 /*---------------------------------------------------------------------------*/
 /* all the *_va functions use a printf style format string plus varags */
 extern BL_EXPORT bl_err
-  dstr_set_va (dstr *s, char const* fmt, ...)
+  bl_dstr_set_va (bl_dstr *s, char const* fmt, ...)
    BL_PRINTF_FORMAT (2, 3);
 
 extern BL_EXPORT bl_err
-  dstr_append_va (dstr *s, char const* fmt, ...)
+  bl_dstr_append_va (bl_dstr *s, char const* fmt, ...)
     BL_PRINTF_FORMAT (2, 3);
 
 extern BL_EXPORT bl_err
-  dstr_insert_va (dstr *s, uword idx, char const* fmt, ...)
+  bl_dstr_insert_va (bl_dstr *s, bl_uword idx, char const* fmt, ...)
     BL_PRINTF_FORMAT (3, 4);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT bl_err dstr_erase (dstr *s, uword idx, uword char_count);
-static inline bl_err dstr_erase_head (dstr *s, uword char_count)
+extern BL_EXPORT bl_err
+  bl_dstr_erase (bl_dstr *s, bl_uword idx, bl_uword char_count);
+
+static inline bl_err bl_dstr_erase_head (bl_dstr *s, bl_uword char_count)
 {
-  return dstr_erase (s, 0, char_count);
+  return bl_dstr_erase (s, 0, char_count);
 }
-extern BL_EXPORT bl_err dstr_erase_tail (dstr *s, uword char_count);
+extern BL_EXPORT bl_err bl_dstr_erase_tail (bl_dstr *s, bl_uword char_count);
 /*---------------------------------------------------------------------------*/
 /* erases characters from the head and the tail, e.g. to trim a string you
    would include ctype.h and do:
 
-       dstr_erase_head_tail_while (s, isspace, 1);
+       bl_dstr_erase_head_tail_while (s, isspace, 1);
 
    to remove everything that is not a digit (only from the head and the tail):
 
-       dstr_erase_head_tail_while (s, isdigit, 0);
+       bl_dstr_erase_head_tail_while (s, isdigit, 0);
 
    Note that fnres is boolean and will be interpreted as 0 or nonzero. This is
    to match the return values of the functions in ctype.h
 */
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT bl_err dstr_erase_head_tail_while(
-  dstr *s, bl_ctype_func fn, int fnres
+extern BL_EXPORT bl_err bl_dstr_erase_head_tail_while(
+  bl_dstr *s, bl_ctype_func fn, int fnres
   );
-extern BL_EXPORT bl_err dstr_erase_head_while(
-  dstr *s, bl_ctype_func fn, int fnres
+extern BL_EXPORT bl_err bl_dstr_erase_head_while(
+  bl_dstr *s, bl_ctype_func fn, int fnres
   );
-extern BL_EXPORT bl_err dstr_erase_tail_while(
-  dstr *s, bl_ctype_func fn, int fnres
+extern BL_EXPORT bl_err bl_dstr_erase_tail_while(
+  bl_dstr *s, bl_ctype_func fn, int fnres
   );
 /*---------------------------------------------------------------------------*/
 /* applies transformation to range of chars, e.g. to convert to lower case you
    would include ctype.h and do:
 
-        dstr_apply (s, tolower, 0, dstr_len(s));
+        bl_dstr_apply (s, tolower, 0, bl_dstr_len(s));
 
    Note that there is the apply_all convenience function to do the same
 
-        dstr_apply_all (s, tolower);
+        bl_dstr_apply_all (s, tolower);
 */
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT bl_err dstr_apply(
-    dstr *s, bl_ctype_func fn, uword start, uword end
+extern BL_EXPORT bl_err bl_dstr_apply(
+    bl_dstr *s, bl_ctype_func fn, bl_uword start, bl_uword end
     );
 /*---------------------------------------------------------------------------*/
-static inline bl_err dstr_apply_all (dstr *s, bl_ctype_func fn)
+static inline bl_err bl_dstr_apply_all (bl_dstr *s, bl_ctype_func fn)
 {
-    return dstr_apply (s, fn, 0, dstr_len (s));
+    return bl_dstr_apply (s, fn, 0, bl_dstr_len (s));
 }
 /*---------------------------------------------------------------------------*/
 /* sets from file */
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT bl_err dstr_append_file(
-  dstr *s, FILE* file, uword file_read_limit
+extern BL_EXPORT bl_err bl_dstr_append_file(
+  bl_dstr *s, FILE* file, bl_uword file_read_limit
   );
 /*---------------------------------------------------------------------------*/
-static inline bl_err dstr_set_file (dstr *s, FILE* file, uword file_read_limit)
+static inline bl_err bl_dstr_set_file(
+  bl_dstr *s, FILE* file, bl_uword file_read_limit
+  )
 {
-  dstr_clear (s);
-  return dstr_append_file (s, file, file_read_limit);
+  bl_dstr_clear (s);
+  return bl_dstr_append_file (s, file, file_read_limit);
 }
 /*---------------------------------------------------------------------------*/
 /*convenience init funcs*/
-static inline bl_err dstr_init_str(
-  dstr *s, char const* str, alloc_tbl const* alloc
+static inline bl_err bl_dstr_init_str(
+  bl_dstr *s, char const* str, bl_alloc_tbl const* alloc
   )
 {
-  dstr_init (s, alloc);
-  return dstr_set (s, str);
+  bl_dstr_init (s, alloc);
+  return bl_dstr_set (s, str);
 }
 /*---------------------------------------------------------------------------*/
-static inline bl_err dstr_init_str_o(
-  dstr *s, dstr const *str, alloc_tbl const* alloc
+static inline bl_err bl_dstr_init_str_o(
+  bl_dstr *s, bl_dstr const *str, bl_alloc_tbl const* alloc
   )
 {
-  dstr_init (s, alloc);
-  return dstr_set_o (s, str);
+  bl_dstr_init (s, alloc);
+  return bl_dstr_set_o (s, str);
 }
 /*---------------------------------------------------------------------------*/
-static inline dstr dstr_init_rv (alloc_tbl const* alloc)
+static inline bl_dstr bl_dstr_init_rv (bl_alloc_tbl const* alloc)
 {
-  dstr r;
-  dstr_init (&r, alloc);
+  bl_dstr r;
+  bl_dstr_init (&r, alloc);
   return r;
 }
 /*---------------------------------------------------------------------------*/

@@ -7,47 +7,47 @@
 /*---------------------------------------------------------------------------*/
 #if !defined (BL_TIMESTAMP_64BIT)
 /*---------------------------------------------------------------------------*/
-BL_EXPORT toffset bl_tstamp_to_private (tstamp ts, u32 factor)
+BL_EXPORT bl_toffset bl_tstamp_to_private (bl_tstamp ts, bl_u32 factor)
 {
-  u64 f = bl_tstamp_get_freq();
-  return (toffset) ((((u64) ts) * factor) / f);
+  bl_u64 f = bl_tstamp_get_freq();
+  return (bl_toffset) ((((bl_u64) ts) * factor) / f);
 }
 /*---------------------------------------------------------------------------*/
-BL_EXPORT toffset bl_tstamp_to_ceil_private (tstamp ts, u32 factor)
+BL_EXPORT bl_toffset bl_tstamp_to_ceil_private (bl_tstamp ts, bl_u32 factor)
 {
-  u64 f = bl_tstamp_get_freq();
-  return (toffset) div_ceil (((u64) ts * factor), f);
+  bl_u64 f = bl_tstamp_get_freq();
+  return (bl_toffset) bl_div_ceil (((bl_u64) ts * factor), f);
 }
 /*---------------------------------------------------------------------------*/
-BL_EXPORT tstamp bl_to_tstamp_private (toffset amt, u32 factor)
+BL_EXPORT bl_tstamp bl_to_bl_tstamp_private (bl_toffset amt, bl_u32 factor)
 {
-  return (tstamp) div_ceil ((u64) amt * bl_tstamp_get_freq(), factor);
+  return (bl_tstamp) bl_div_ceil ((bl_u64) amt * bl_tstamp_get_freq(), factor);
 }
 /*---------------------------------------------------------------------------*/
 #else /*BL_TIMESTAMP_64BIT*/
 /*---------------------------------------------------------------------------*/
-BL_EXPORT toffset bl_tstamp_to_private (tstamp ts, u32 factor)
+BL_EXPORT bl_toffset bl_tstamp_to_private (bl_tstamp ts, bl_u32 factor)
 {
-  u64 f   = bl_tstamp_get_freq();
-  u64 sec = ts / f;
-  u64 rem = ts % f;
-  return (toffset) (sec * factor) + ((rem * factor) / f);
+  bl_u64 f   = bl_tstamp_get_freq();
+  bl_u64 sec = ts / f;
+  bl_u64 rem = ts % f;
+  return (bl_toffset) (sec * factor) + ((rem * factor) / f);
 }
 /*---------------------------------------------------------------------------*/
-BL_EXPORT toffset bl_tstamp_to_ceil_private (tstamp ts, u32 factor)
+BL_EXPORT bl_toffset bl_tstamp_to_ceil_private (bl_tstamp ts, bl_u32 factor)
 {
-  u64 f   = bl_tstamp_get_freq();
-  u64 sec = ts / f;
-  u64 rem = ts % f;
-  return (toffset) (sec * factor) + div_ceil (rem * factor, f);
+  bl_u64 f   = bl_tstamp_get_freq();
+  bl_u64 sec = ts / f;
+  bl_u64 rem = ts % f;
+  return (bl_toffset) (sec * factor) + bl_div_ceil (rem * factor, f);
 }
 /*---------------------------------------------------------------------------*/
-BL_EXPORT tstamp bl_to_tstamp_private (toffset amt, u32 factor)
+BL_EXPORT bl_tstamp bl_to_bl_tstamp_private (bl_toffset amt, bl_u32 factor)
 {
-  u64      f   = bl_tstamp_get_freq();
-  toffset  sec = amt / factor;
-  toffset  rem = amt % factor;
-  return (sec * f) + div_ceil (rem * f, factor);
+  bl_u64      f   = bl_tstamp_get_freq();
+  bl_toffset  sec = amt / factor;
+  bl_toffset  rem = amt % factor;
+  return (sec * f) + bl_div_ceil (rem * f, factor);
 }
 /*---------------------------------------------------------------------------*/
 #endif /*BL_64BIT_TIMESTAMP*/

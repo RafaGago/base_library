@@ -13,17 +13,17 @@
 extern "C" {
 #endif
 /*----------------------------------------------------------------------------*/
-BL_EXPORT bl_err bl_tm_sem_wait (bl_sem* s, u32 usec)
+BL_EXPORT bl_err bl_tm_sem_wait (bl_sem* s, bl_u32 usec)
 {
   DWORD         ms;
-  u64           f;
+  bl_u64           f;
   LARGE_INTEGER deadline;
 
   if (usec != bl_tm_sem_infinity) {
-    ms = div_ceil (usec, usec_in_msec);
-    f  = qpc_get_freq();
+    ms = bl_div_ceil (usec, bl_usec_in_msec);
+    f  = bl_qpc_get_freq();
     bl_assert_side_effect (QueryPerformanceCounter (&deadline) != 0);
-    deadline.QuadPart += div_ceil (f * usec, usec_in_sec);
+    deadline.QuadPart += bl_div_ceil (f * usec, bl_usec_in_sec);
   }
   else {
     /*"INFINITE" is defined as 0xffffffff so "ms" can never be "INFINITE" from
@@ -63,11 +63,11 @@ BL_EXPORT bl_err bl_tm_sem_wait (bl_sem* s, u32 usec)
       I find ugly to need to call QPC at least twice (might be two extra
       Kernel calls depending on how is implemented).
       */
-      for (uword i = 0; i < 16; ++i) {
-        processor_pause();
-        processor_pause();
-        processor_pause();
-        processor_pause();
+      for (bl_uword i = 0; i < 16; ++i) {
+        bl_processor_pause();
+        bl_processor_pause();
+        bl_processor_pause();
+        bl_processor_pause();
       }
     }
   }

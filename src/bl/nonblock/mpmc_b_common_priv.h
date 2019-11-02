@@ -11,17 +11,18 @@ extern "C" {
 #endif
 
 /*----------------------------------------------------------------------------*/
-static inline u8* slot_addr (u8* mem, u32 slots, u32 slot_size, mpmc_b_ticket t)
+static inline bl_u8*
+  slot_addr (bl_u8* mem, bl_u32 slots, bl_u32 slot_size, bl_mpmc_b_ticket t)
 {
   return &mem[(t & (slots - 1)) * slot_size];
 }
 /*----------------------------------------------------------------------------*/
-extern bl_err mpmc_b_signal_try_set(
-  atomic_u32* dst, mpmc_b_sig* expected, mpmc_b_sig desired
+extern bl_err bl_mpmc_b_signal_try_set(
+  bl_atomic_u32* dst, bl_mpmc_b_sig* expected, bl_mpmc_b_sig desired
   );
 /*----------------------------------------------------------------------------*/
-extern bl_err mpmc_b_signal_try_set_tmatch(
-  atomic_u32* dst, mpmc_b_ticket* expected, mpmc_b_sig desired
+extern bl_err bl_mpmc_b_signal_try_set_tmatch(
+  bl_atomic_u32* dst, bl_mpmc_b_ticket* expected, bl_mpmc_b_sig desired
   );
 /*----------------------------------------------------------------------------*/
 

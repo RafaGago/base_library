@@ -15,78 +15,79 @@
 extern "C" {
 #endif
 /*----------------------------------------------------------------------------*/
-enum mpmc_b_flags {
+enum bl_mpmc_b_flags {
   block_producers = 1 << 0,
 };
 /*----------------------------------------------------------------------------*/
-BL_NONBLOCK_EXPORT bl_err mpmc_b_init(
-  mpmc_b*          q,
-  alloc_tbl const* alloc,
-  u32              slot_count,
-  u32              data_size,
-  u32              data_alignment
+BL_NONBLOCK_EXPORT bl_err bl_mpmc_b_init(
+  bl_mpmc_b*          q,
+  bl_alloc_tbl const* alloc,
+  bl_u32              slot_count,
+  bl_u32              data_size,
+  bl_u32              data_alignment
   )
 {
-  slot_count    = round_next_pow2_u (slot_count);
-  u32 slot_size = mpmc_b_compute_slot_size (data_size, data_alignment);
-  u32 offset    = slot_size - data_size;
-  slot_size     = mpmc_b_round_slot_size (slot_size, data_alignment);
-  if (slot_count < 2 || slot_count > mpmc_b_max_slots) {
+  slot_count    = bl_round_next_pow2_u (slot_count);
+  bl_u32 slot_size = bl_mpmc_b_compute_slot_size (data_size, data_alignment);
+  bl_u32 offset    = slot_size - data_size;
+  slot_size     = bl_mpmc_b_round_slot_size (slot_size, data_alignment);
+  if (slot_count < 2 || slot_count > bl_mpmc_b_max_slots) {
     return bl_mkerr (bl_invalid);
   }
-  q->buffer = (u8*) bl_alloc (alloc, slot_count * slot_size);
+  q->buffer = (bl_u8*) bl_alloc (alloc, slot_count * slot_size);
   if (!q->buffer) {
     return bl_mkerr (bl_alloc);
   }
   q->slot_count  = slot_count;
   q->slot_size   = slot_size;
   q->data_offset = offset;
-  u32 v = 0;
-  u8* ptr = q->buffer;
+  bl_u32 v = 0;
+  bl_u8* ptr = q->buffer;
   while (v< slot_count) {
-    atomic_u32_store_rlx ((atomic_u32*) ptr, v);
+    bl_atomic_u32_store_rlx ((bl_atomic_u32*) ptr, v);
     ++v;
     ptr += slot_size;
   }
-  atomic_u32_store_rlx (&q->push_slot, 0);
-  atomic_u32_store_rlx (&q->pop_slot, 0);
-  atomic_u32_store_rlx (&q->flags, 0);
+  bl_atomic_u32_store_rlx (&q->push_slot, 0);
+  bl_atomic_u32_store_rlx (&q->pop_slot, 0);
+  bl_atomic_u32_store_rlx (&q->flags, 0);
   return bl_mkok();
 }
 /*----------------------------------------------------------------------------*/
-BL_NONBLOCK_EXPORT void mpmc_b_destroy (mpmc_b* q, alloc_tbl const* alloc)
+BL_NONBLOCK_EXPORT void bl_mpmc_b_destroy (bl_mpmc_b* q, bl_alloc_tbl const* alloc)
 {
   if (q->buffer) {
     bl_dealloc (alloc, q->buffer);
   }
 }
 /*----------------------------------------------------------------------------*/
-BL_NONBLOCK_EXPORT void mpmc_b_block_producers (mpmc_b* q)
+BL_NONBLOCK_EXPORT void bl_mpmc_b_block_producers (bl_mpmc_b* q)
 {
-  u32 flags = atomic_u32_load_rlx (&q->flags);
+  bl_u32 flags = bl_atomic_u32_load_rlx (&q->flags);
   do {
     if ((flags & block_producers) == block_producers) {
       return;
     }
   }
-  while (!atomic_u32_weak_cas_rlx (&q->flags, &flags, flags | block_producers));
+  while (!bl_atomic_u32_weak_cas_rlx (&q->flags, &flags, flags | block_producers));
   /*TODO signals trashed*/
-  atomic_u32_fetch_add_rlx (&q->push_slot, 2 * q->slot_count);
+  bl_atomic_u32_fetch_add_rlx (&q->push_slot, 2 * q->slot_count);
 }
 /*----------------------------------------------------------------------------*/
-static bl_err mpmc_b_prepare_m_check_ver(
-  mpmc_b*   q,
-  mpmc_b_op op,
-  u8**      data,
-  u32       op_cmp_offset,
+static bl_err bl_mpmc_b_prepare_m_check_ver(
+  bl_mpmc_b*   q,
+  bl_mpmc_b_op op,
+  bl_u8**      data,
+  bl_u32       op_cmp_offset,
   bl_err    full_or_empty
   )
 {
-  mpmc_b_op ver;
-  u8* slot   = slot_addr (q->buffer, q->slot_count, q->slot_size, op);
-  ver        = atomic_u32_load ((atomic_u32*) slot, mo_acquire);
+  bl_mpmc_b_op ver;
+  bl_u8* slot   = slot_addr (q->buffer, q->slot_count, q->slot_size, op);
+  ver        = bl_atomic_u32_load ((bl_atomic_u32*) slot, bl_mo_acquire);
   op        += op_cmp_offset;
-  i32 status = (i32) (mpmc_b_ticket_decode (ver) - mpmc_b_ticket_decode (op));
+  bl_i32 status = (bl_i32)
+    (bl_mpmc_b_ticket_decode (ver) - bl_mpmc_b_ticket_decode (op));
   if (status == 0) {
     *data  = slot + q->data_offset;
     return bl_mkok();
@@ -98,39 +99,40 @@ static bl_err mpmc_b_prepare_m_check_ver(
     full_or_empty : bl_mkerr (bl_locked);
 }
 /*----------------------------------------------------------------------------*/
-static bl_err mpmc_b_prepare_sig_fallback_m(
-  mpmc_b*     q,
-  mpmc_b_op*  op,
-  u8**        data,
+static bl_err bl_mpmc_b_prepare_sig_fallback_m(
+  bl_mpmc_b*     q,
+  bl_mpmc_b_op*  op,
+  bl_u8**        data,
   bool        replace_sig,
-  mpmc_b_sig  sig,
-  mpmc_b_sig  sig_fmask,
-  mpmc_b_sig  sig_fmatch,
-  atomic_u32* op_var,
-  u32         op_cmp_offset,
+  bl_mpmc_b_sig  sig,
+  bl_mpmc_b_sig  sig_fmask,
+  bl_mpmc_b_sig  sig_fmatch,
+  bl_atomic_u32* op_var,
+  bl_u32         op_cmp_offset,
   bl_err      nodata_error
   )
 {
   bl_assert (q && q->buffer && op && data);
-  mpmc_b_op now = atomic_u32_load_rlx (op_var);
+  bl_mpmc_b_op now = bl_atomic_u32_load_rlx (op_var);
   while (1) {
-    mpmc_b_sig signow = mpmc_b_sig_decode (now);
-    if (unlikely ((signow & sig_fmask) == sig_fmatch)) {
+    bl_mpmc_b_sig signow = bl_mpmc_b_sig_decode (now);
+    if (bl_unlikely ((signow & sig_fmask) == sig_fmatch)) {
       *op = now;
       return bl_mkerr (bl_preconditions);
     }
-    bl_err err = mpmc_b_prepare_m_check_ver(
+    bl_err err = bl_mpmc_b_prepare_m_check_ver(
       q, now, data, op_cmp_offset, nodata_error
       );
     if (err.bl == bl_ok) {
-      mpmc_b_op next = mpmc_b_op_encode (now + 1, replace_sig ? sig : signow);
-      if (atomic_u32_weak_cas_rlx (op_var, &now, next)) {
+      bl_mpmc_b_op next =
+        bl_mpmc_b_op_encode (now + 1, replace_sig ? sig : signow);
+      if (bl_atomic_u32_weak_cas_rlx (op_var, &now, next)) {
         *op = now;
         return err;
       }
     }
     else if (err.bl == bl_busy){
-      now = atomic_u32_load_rlx (op_var);
+      now = bl_atomic_u32_load_rlx (op_var);
     }
     else {
       *op   = now;
@@ -140,71 +142,75 @@ static bl_err mpmc_b_prepare_sig_fallback_m(
   }
 }
 /*----------------------------------------------------------------------------*/
-static bl_err mpmc_b_prepare_s(
-  mpmc_b*     q,
-  mpmc_b_op*  op,
-  u8**        data,
-  atomic_u32* op_var,
-  u32         op_cmp_offset,
+static bl_err bl_mpmc_b_prepare_s(
+  bl_mpmc_b*     q,
+  bl_mpmc_b_op*  op,
+  bl_u8**        data,
+  bl_atomic_u32* op_var,
+  bl_u32         op_cmp_offset,
   bl_err      nodata_error
   )
 {
   bl_assert (q && q->buffer && op && data);
-  mpmc_b_op now = atomic_u32_load_rlx (op_var);
-  bl_err err = mpmc_b_prepare_m_check_ver(
+  bl_mpmc_b_op now = bl_atomic_u32_load_rlx (op_var);
+  bl_err err = bl_mpmc_b_prepare_m_check_ver(
     q, now, data, op_cmp_offset, nodata_error
     );
   if (err.bl == bl_ok) {
     *op = now;
-    atomic_u32_store_rlx (op_var, mpmc_b_op_encode (now + 1, 0));
+    bl_atomic_u32_store_rlx (op_var, bl_mpmc_b_op_encode (now + 1, 0));
     return err;
   }
   bl_assert (err.bl == nodata_error.bl);
   return err;
 }
 /*----------------------------------------------------------------------------*/
-static void mpmc_b_commit (mpmc_b* q, mpmc_b_op op, u32 increment)
+static void bl_mpmc_b_commit (bl_mpmc_b* q, bl_mpmc_b_op op, bl_u32 increment)
 {
-  u8* slot = slot_addr (q->buffer, q->slot_count, q->slot_size, op);
+  bl_u8* slot = slot_addr (q->buffer, q->slot_count, q->slot_size, op);
   op += increment;
-  atomic_u32_store ((atomic_u32*) slot, mpmc_b_op_encode (op, 0), mo_release);
+  bl_atomic_u32_store(
+    (bl_atomic_u32*) slot, bl_mpmc_b_op_encode (op, 0), bl_mo_release
+    );
 }
 /*----------------------------------------------------------------------------*/
-BL_NONBLOCK_EXPORT void mpmc_b_fifo_produce_prepare (mpmc_b* q, mpmc_b_op* op)
+BL_NONBLOCK_EXPORT void
+  bl_mpmc_b_fifo_produce_prepare (bl_mpmc_b* q, bl_mpmc_b_op* op)
 {
-  *op = mpmc_b_op_encode (atomic_u32_fetch_add_rlx (&q->push_slot, 1), 0);
+  *op = bl_mpmc_b_op_encode (bl_atomic_u32_fetch_add_rlx (&q->push_slot, 1), 0);
 }
 /*----------------------------------------------------------------------------*/
-BL_NONBLOCK_EXPORT bl_err mpmc_b_fifo_produce_prepare_is_ready(
-  mpmc_b* q, mpmc_b_op op, u8** data
+BL_NONBLOCK_EXPORT bl_err bl_mpmc_b_fifo_produce_prepare_is_ready(
+  bl_mpmc_b* q, bl_mpmc_b_op op, bl_u8** data
   )
 {
-  bl_err err = mpmc_b_prepare_m_check_ver(
+  bl_err err = bl_mpmc_b_prepare_m_check_ver(
     q, op, data, 0, bl_mkerr (bl_would_overflow)
     );
-  if (likely (err.bl != bl_would_overflow)) {
+  if (bl_likely (err.bl != bl_would_overflow)) {
     return err;
   }
   /* if the counter has advanced more than the slot count either:
      - block has been called.
      - the user is using more threads than slots on
-       "mpmc_b_fifo_produce_prepare" => user bug */
-  mpmc_b_op now = atomic_u32_load_rlx (&q->push_slot);
-  i32 status = (i32) (mpmc_b_ticket_decode (now) - mpmc_b_ticket_decode (op));
+       "bl_mpmc_b_fifo_produce_prepare" => user bug */
+  bl_mpmc_b_op now = bl_atomic_u32_load_rlx (&q->push_slot);
+  bl_i32 status = (bl_i32)
+    (bl_mpmc_b_ticket_decode (now) - bl_mpmc_b_ticket_decode (op));
   return bl_mkerr (status < q->slot_count ? bl_would_overflow : bl_locked);
 }
 /*----------------------------------------------------------------------------*/
-BL_NONBLOCK_EXPORT bl_err mpmc_b_produce_prepare_sig_fallback(
-  mpmc_b*    q,
-  mpmc_b_op* op,
-  u8**       data,
-  bool       replace_sig,
-  mpmc_b_sig sig,
-  mpmc_b_sig sig_fmask,
-  mpmc_b_sig sig_fmatch
+BL_NONBLOCK_EXPORT bl_err bl_mpmc_b_produce_prepare_sig_fallback(
+  bl_mpmc_b*    q,
+  bl_mpmc_b_op* op,
+  bl_u8**       data,
+  bool          replace_sig,
+  bl_mpmc_b_sig sig,
+  bl_mpmc_b_sig sig_fmask,
+  bl_mpmc_b_sig sig_fmatch
   )
 {
-  return mpmc_b_prepare_sig_fallback_m(
+  return bl_mpmc_b_prepare_sig_fallback_m(
     q,
     op,
     data,
@@ -218,31 +224,31 @@ BL_NONBLOCK_EXPORT bl_err mpmc_b_produce_prepare_sig_fallback(
     );
 }
 /*----------------------------------------------------------------------------*/
-BL_NONBLOCK_EXPORT bl_err mpmc_b_produce_prepare_sp(
-    mpmc_b* q, mpmc_b_op* op, u8** data
+BL_NONBLOCK_EXPORT bl_err bl_mpmc_b_produce_prepare_sp(
+    bl_mpmc_b* q, bl_mpmc_b_op* op, bl_u8** data
     )
 {
-  return mpmc_b_prepare_s(
+  return bl_mpmc_b_prepare_s(
     q, op, data, &q->push_slot, 0, bl_mkerr (bl_would_overflow)
     );
 }
 /*----------------------------------------------------------------------------*/
-BL_NONBLOCK_EXPORT void mpmc_b_produce_commit (mpmc_b* q, mpmc_b_op op)
+BL_NONBLOCK_EXPORT void bl_mpmc_b_produce_commit (bl_mpmc_b* q, bl_mpmc_b_op op)
 {
-  mpmc_b_commit (q, op, 1);
+  bl_mpmc_b_commit (q, op, 1);
 }
 /*----------------------------------------------------------------------------*/
-BL_NONBLOCK_EXPORT bl_err mpmc_b_consume_prepare_sig_fallback(
-  mpmc_b*    q,
-  mpmc_b_op* op,
-  u8**       data,
-  bool       replace_sig,
-  mpmc_b_sig sig,
-  mpmc_b_sig sig_fmask,
-  mpmc_b_sig sig_fmatch
+BL_NONBLOCK_EXPORT bl_err bl_mpmc_b_consume_prepare_sig_fallback(
+  bl_mpmc_b*    q,
+  bl_mpmc_b_op* op,
+  bl_u8**       data,
+  bool          replace_sig,
+  bl_mpmc_b_sig sig,
+  bl_mpmc_b_sig sig_fmask,
+  bl_mpmc_b_sig sig_fmatch
   )
 {
-  return mpmc_b_prepare_sig_fallback_m(
+  return bl_mpmc_b_prepare_sig_fallback_m(
     q,
     op,
     data,
@@ -256,44 +262,44 @@ BL_NONBLOCK_EXPORT bl_err mpmc_b_consume_prepare_sig_fallback(
     );
 }
 /*----------------------------------------------------------------------------*/
-BL_NONBLOCK_EXPORT bl_err mpmc_b_consume_prepare_sc(
-  mpmc_b* q, mpmc_b_op* op, u8** data
+BL_NONBLOCK_EXPORT bl_err bl_mpmc_b_consume_prepare_sc(
+  bl_mpmc_b* q, bl_mpmc_b_op* op, bl_u8** data
   )
 {
-  return mpmc_b_prepare_s (q, op, data, &q->pop_slot, 1, bl_mkerr (bl_empty));
+  return bl_mpmc_b_prepare_s (q, op, data, &q->pop_slot, 1, bl_mkerr (bl_empty));
 }
 /*----------------------------------------------------------------------------*/
-BL_NONBLOCK_EXPORT void mpmc_b_consume_commit (mpmc_b *q, mpmc_b_op op)
+BL_NONBLOCK_EXPORT void bl_mpmc_b_consume_commit (bl_mpmc_b *q, bl_mpmc_b_op op)
 {
-  mpmc_b_commit (q, op, q->slot_count);
+  bl_mpmc_b_commit (q, op, q->slot_count);
 }
 /*----------------------------------------------------------------------------*/
-BL_NONBLOCK_EXPORT bl_err mpmc_b_producer_signal_try_set(
-  mpmc_b* q, mpmc_b_sig* expected, mpmc_b_sig desired
+BL_NONBLOCK_EXPORT bl_err bl_mpmc_b_producer_signal_try_set(
+  bl_mpmc_b* q, bl_mpmc_b_sig* expected, bl_mpmc_b_sig desired
   )
 {
-  return mpmc_b_signal_try_set (&q->push_slot, expected, desired);
+  return bl_mpmc_b_signal_try_set (&q->push_slot, expected, desired);
 }
 /*----------------------------------------------------------------------------*/
-BL_NONBLOCK_EXPORT bl_err mpmc_b_producer_signal_try_set_tmatch(
-  mpmc_b* q, mpmc_b_op* expected, mpmc_b_sig desired
+BL_NONBLOCK_EXPORT bl_err bl_mpmc_b_producer_signal_try_set_tmatch(
+  bl_mpmc_b* q, bl_mpmc_b_op* expected, bl_mpmc_b_sig desired
   )
 {
-  return mpmc_b_signal_try_set_tmatch (&q->push_slot, expected, desired);
+  return bl_mpmc_b_signal_try_set_tmatch (&q->push_slot, expected, desired);
 }
 /*----------------------------------------------------------------------------*/
-BL_NONBLOCK_EXPORT bl_err mpmc_b_consumer_signal_try_set(
-  mpmc_b* q, mpmc_b_sig* expected, mpmc_b_sig desired
+BL_NONBLOCK_EXPORT bl_err bl_mpmc_b_consumer_signal_try_set(
+  bl_mpmc_b* q, bl_mpmc_b_sig* expected, bl_mpmc_b_sig desired
   )
 {
-  return mpmc_b_signal_try_set (&q->pop_slot, expected, desired);
+  return bl_mpmc_b_signal_try_set (&q->pop_slot, expected, desired);
 }
 /*--------------------------- ------------------------------------------------*/
-BL_NONBLOCK_EXPORT bl_err mpmc_b_consumer_signal_try_set_tmatch(
-  mpmc_b* q, mpmc_b_op* expected, mpmc_b_sig desired
+BL_NONBLOCK_EXPORT bl_err bl_mpmc_b_consumer_signal_try_set_tmatch(
+  bl_mpmc_b* q, bl_mpmc_b_op* expected, bl_mpmc_b_sig desired
   )
 {
-  return mpmc_b_signal_try_set_tmatch (&q->pop_slot, expected, desired);
+  return bl_mpmc_b_signal_try_set_tmatch (&q->pop_slot, expected, desired);
 }
 /*--------------------------- ------------------------------------------------*/
 

@@ -7,463 +7,471 @@
 #include <bl/base/assert.h>
 #include <bl/base/preprocessor_basic.h>
 /*----------------------------------------------------------------------------*/
-#define memr_initializer(addr, size) { addr, size }
+#define bl_memr_initializer(addr, size) { addr, size }
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
-/* memr8                                                                      */
+/* bl_memr8                                                                      */
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
-typedef struct memr8 {
+typedef struct bl_memr8 {
   void* addr;
-  u8    size;
+  bl_u8    size;
 }
-memr8;
+bl_memr8;
 /*----------------------------------------------------------------------------*/
-static inline memr8 memr8_rv (void* addr, u8 size);
+static inline bl_memr8 bl_memr8_rv (void* addr, bl_u8 size);
 /*----------------------------------------------------------------------------*/
-static inline void* memr8_beg (memr8 m)
+static inline void* bl_memr8_beg (bl_memr8 m)
 {
   return m.addr;
 }
 /*----------------------------------------------------------------------------*/
-static inline u8 memr8_size (memr8 m)
+static inline bl_u8 bl_memr8_size (bl_memr8 m)
 {
   return m.size;
 }
 /*----------------------------------------------------------------------------*/
-static inline void* memr8_end (memr8 m)
+static inline void* bl_memr8_end (bl_memr8 m)
 {
-  return ((u8*) memr8_beg (m)) + memr8_size (m);
+  return ((bl_u8*) bl_memr8_beg (m)) + bl_memr8_size (m);
 }
 /*----------------------------------------------------------------------------*/
-static inline memr8 memr8_resize (memr8 m, u8 new_size)
+static inline bl_memr8 bl_memr8_resize (bl_memr8 m, bl_u8 new_size)
 {
-  return memr8_rv (memr8_beg (m), new_size);
+  return bl_memr8_rv (bl_memr8_beg (m), new_size);
 }
 /*----------------------------------------------------------------------------*/
-static inline void* memr8_at (memr8 m, u8 idx)
+static inline void* bl_memr8_at (bl_memr8 m, bl_u8 idx)
 {
-  bl_assert (idx < memr8_size (m));
-  return ((u8*) memr8_beg (m)) + idx;
+  bl_assert (idx < bl_memr8_size (m));
+  return ((bl_u8*) bl_memr8_beg (m)) + idx;
 }
 /*----------------------------------------------------------------------------*/
-static inline memr8 memr8_null (void)
+static inline bl_memr8 bl_memr8_null (void)
 {
-  return memr8_rv (nullptr, 0);
+  return bl_memr8_rv (nullptr, 0);
 }
 /*----------------------------------------------------------------------------*/
-static inline bool memr8_is_null (memr8 m)
+static inline bool bl_memr8_is_null (bl_memr8 m)
 {
-  return memr8_beg (m) == nullptr || memr8_size (m) == 0;
+  return bl_memr8_beg (m) == nullptr || bl_memr8_size (m) == 0;
 }
 /*----------------------------------------------------------------------------*/
-static inline bool memr8_is_valid (memr8 m)
+static inline bool bl_memr8_is_valid (bl_memr8 m)
 {
-  return memr8_beg (m) != nullptr || memr8_size (m) == 0;
+  return bl_memr8_beg (m) != nullptr || bl_memr8_size (m) == 0;
 }
 /*----------------------------------------------------------------------------*/
 /*subrange from beggining*/
-static inline memr8 memr8_subrange_beg (memr8 m, u8 offset_bytes)
+static inline bl_memr8 bl_memr8_subrange_beg (bl_memr8 m, bl_u8 offset_bytes)
 {
-  bl_assert (!memr8_is_null (m));
-  /*equal allowed, will return a zero sized memr8 in such case*/
-  bl_assert (memr8_size (m) >= offset_bytes);
-  return memr8_rv (memr8_at (m, offset_bytes), memr8_size (m) - offset_bytes);
+  bl_assert (!bl_memr8_is_null (m));
+  /*equal allowed, will return a zero sized bl_memr8 in such case*/
+  bl_assert (bl_memr8_size (m) >= offset_bytes);
+  return bl_memr8_rv(
+    bl_memr8_at (m, offset_bytes), bl_memr8_size (m) - offset_bytes
+    );
 }
 /*----------------------------------------------------------------------------*/
-static inline void memr8_set (memr8 m, int v)
+static inline void bl_memr8_set (bl_memr8 m, int v)
 {
-  bl_assert (memr8_is_valid (m));
-  memset (memr8_beg (m), v, memr8_size (m));
+  bl_assert (bl_memr8_is_valid (m));
+  memset (bl_memr8_beg (m), v, bl_memr8_size (m));
 }
 /*----------------------------------------------------------------------------*/
-static inline u8 memr8_copy (memr8 dst, memr8 src)
+static inline bl_u8 bl_memr8_copy (bl_memr8 dst, bl_memr8 src)
 {
-  bl_assert (memr8_is_valid (src));
-  bl_assert (memr8_is_valid (dst));
-  bl_assert (memr8_size (dst) >= memr8_size (src));
-  memcpy (memr8_beg (dst), memr8_beg (src), memr8_size (src));
-  return memr8_size (src);
+  bl_assert (bl_memr8_is_valid (src));
+  bl_assert (bl_memr8_is_valid (dst));
+  bl_assert (bl_memr8_size (dst) >= bl_memr8_size (src));
+  memcpy (bl_memr8_beg (dst), bl_memr8_beg (src), bl_memr8_size (src));
+  return bl_memr8_size (src);
 }
 /*----------------------------------------------------------------------------*/
-static inline u8 memr8_copy_offset (memr8 dst, memr8 src, u8 dst_offset_bytes)
+static inline bl_u8 bl_memr8_copy_offset(
+  bl_memr8 dst, bl_memr8 src, bl_u8 dst_offset_bytes
+  )
 {
-  memr8 dst_off = memr8_subrange_beg (dst, dst_offset_bytes);
-  return memr8_copy (dst_off, src);
+  bl_memr8 dst_off = bl_memr8_subrange_beg (dst, dst_offset_bytes);
+  return bl_memr8_copy (dst_off, src);
 }
 /*----------------------------------------------------------------------------*/
-static inline memr8 memr8_rv (void* addr, u8 size)
+static inline bl_memr8 bl_memr8_rv (void* addr, bl_u8 size)
 {
-  memr8 ret = memr_initializer (addr, size);
-  bl_assert (memr8_is_valid (ret));
+  bl_memr8 ret = bl_memr_initializer (addr, size);
+  bl_assert (bl_memr8_is_valid (ret));
   return ret;
 }
 /*----------------------------------------------------------------------------*/
-#define memr8_rv_array(arr) memr8_rv (arr, sizeof arr)
-#define memr8_beg_as(memr_val, type) ((type*) memr8_beg (memr_val))
-#define memr8_end_as(memr_val, type) ((type*) memr8_end (memr_val))
-#define memr8_at_as(memr_val, idx, type)\
-  ((type*) memr8_at ((memr_val), idx * sizeof (type)))
+#define bl_memr8_rv_array(arr) bl_memr8_rv (arr, sizeof arr)
+#define bl_memr8_beg_as(memr_val, type) ((type*) bl_memr8_beg (memr_val))
+#define bl_memr8_end_as(memr_val, type) ((type*) bl_memr8_end (memr_val))
+#define bl_memr8_at_as(memr_val, idx, type)\
+  ((type*) bl_memr8_at ((memr_val), idx * sizeof (type)))
 #ifdef NDEBUG
-  #define memr8_cast(memr_val)\
-    memr8_rv ((memr_val).addr, (u8) (memr_val).size)
+  #define bl_memr8_cast(memr_val)\
+    bl_memr8_rv ((memr_val).addr, (bl_u8) (memr_val).size)
 #else
-  #define memr8_cast(memr_val)\
-    memr_rv(\
+  #define bl_memr8_cast(memr_val)\
+    bl_memr_rv(\
       (memr_val).addr,\
       (\
-        bl_assert (((u8) (memr_val).size) == (memr_val).size),\
-        (u8) (memr_val).size\
+        bl_assert (((bl_u8) (memr_val).size) == (memr_val).size),\
+        (bl_u8) (memr_val).size\
       )\
     )
 #endif
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
-/* memr16                                                                     */
+/* bl_memr16                                                                     */
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
 #if BL_WORDSIZE >= 16
-typedef struct memr16 {
+typedef struct bl_memr16 {
   void* addr;
-  u16   size;
+  bl_u16   size;
 }
-memr16;
+bl_memr16;
 /*----------------------------------------------------------------------------*/
-static inline memr16 memr16_rv (void* addr, u16 size);
+static inline bl_memr16 bl_memr16_rv (void* addr, bl_u16 size);
 /*----------------------------------------------------------------------------*/
-static inline void* memr16_beg (memr16 m)
+static inline void* bl_memr16_beg (bl_memr16 m)
 {
   return m.addr;
 }
 /*----------------------------------------------------------------------------*/
-static inline u16 memr16_size (memr16 m)
+static inline bl_u16 bl_memr16_size (bl_memr16 m)
 {
   return m.size;
 }
 /*----------------------------------------------------------------------------*/
-static inline void* memr16_end (memr16 m)
+static inline void* bl_memr16_end (bl_memr16 m)
 {
-  return ((u8*) memr16_beg (m)) + memr16_size (m);
+  return ((bl_u8*) bl_memr16_beg (m)) + bl_memr16_size (m);
 }
 /*----------------------------------------------------------------------------*/
-static inline memr16 memr16_resize (memr16 m, u16 new_size)
+static inline bl_memr16 bl_memr16_resize (bl_memr16 m, bl_u16 new_size)
 {
-  return memr16_rv (memr16_beg (m), new_size);
+  return bl_memr16_rv (bl_memr16_beg (m), new_size);
 }
 /*----------------------------------------------------------------------------*/
-static inline void* memr16_at (memr16 m, u16 idx)
+static inline void* bl_memr16_at (bl_memr16 m, bl_u16 idx)
 {
-  bl_assert (idx < memr16_size (m));
-  return ((u8*) memr16_beg (m)) + idx;
+  bl_assert (idx < bl_memr16_size (m));
+  return ((bl_u8*) bl_memr16_beg (m)) + idx;
 }
 /*----------------------------------------------------------------------------*/
-static inline memr16 memr16_null (void)
+static inline bl_memr16 bl_memr16_null (void)
 {
-  return memr16_rv (nullptr, 0);
+  return bl_memr16_rv (nullptr, 0);
 }
 /*----------------------------------------------------------------------------*/
-static inline bool memr16_is_null (memr16 m)
+static inline bool bl_memr16_is_null (bl_memr16 m)
 {
-  return memr16_beg (m) == nullptr || memr16_size (m) == 0;
+  return bl_memr16_beg (m) == nullptr || bl_memr16_size (m) == 0;
 }
 /*----------------------------------------------------------------------------*/
-static inline bool memr16_is_valid (memr16 m)
+static inline bool bl_memr16_is_valid (bl_memr16 m)
 {
-  return memr16_beg (m) != nullptr || memr16_size (m) == 0;
+  return bl_memr16_beg (m) != nullptr || bl_memr16_size (m) == 0;
 }
 /*----------------------------------------------------------------------------*/
 /*subrange from beggining*/
-static inline memr16 memr16_subrange_beg (memr16 m, u16 offset_bytes)
+static inline bl_memr16 bl_memr16_subrange_beg (bl_memr16 m, bl_u16 offset_bytes)
 {
-  bl_assert (!memr16_is_null (m));
-  /*equal allowed, will return a zero sized memr16 in such case*/
-  bl_assert (memr16_size (m) >= offset_bytes);
-  return memr16_rv(
-    memr16_at (m, offset_bytes), memr16_size (m) - offset_bytes
+  bl_assert (!bl_memr16_is_null (m));
+  /*equal allowed, will return a zero sized bl_memr16 in such case*/
+  bl_assert (bl_memr16_size (m) >= offset_bytes);
+  return bl_memr16_rv(
+    bl_memr16_at (m, offset_bytes), bl_memr16_size (m) - offset_bytes
     );
 }
 /*----------------------------------------------------------------------------*/
-static inline void memr16_set (memr16 m, int v)
+static inline void bl_memr16_set (bl_memr16 m, int v)
 {
-  bl_assert (memr16_is_valid (m));
-  bl_assert ((size_t) memr16_size (m) == memr16_size (m));
-  memset (memr16_beg (m), v, (size_t) memr16_size (m));
+  bl_assert (bl_memr16_is_valid (m));
+  bl_assert ((size_t) bl_memr16_size (m) == bl_memr16_size (m));
+  memset (bl_memr16_beg (m), v, (size_t) bl_memr16_size (m));
 }
 /*----------------------------------------------------------------------------*/
-static inline u16 memr16_copy (memr16 dst, memr16 src)
+static inline bl_u16 bl_memr16_copy (bl_memr16 dst, bl_memr16 src)
 {
-  bl_assert (memr16_is_valid (src));
-  bl_assert (memr16_is_valid (dst));
-  bl_assert (memr16_size (dst) >= memr16_size (src));
-  bl_assert ((size_t) memr16_size (src) == memr16_size (src));
-  memcpy (memr16_beg (dst), memr16_beg (src), (size_t) memr16_size (src));
-  return memr16_size (src);
+  bl_assert (bl_memr16_is_valid (src));
+  bl_assert (bl_memr16_is_valid (dst));
+  bl_assert (bl_memr16_size (dst) >= bl_memr16_size (src));
+  bl_assert ((size_t) bl_memr16_size (src) == bl_memr16_size (src));
+  memcpy(
+    bl_memr16_beg (dst), bl_memr16_beg (src), (size_t) bl_memr16_size (src)
+    );
+  return bl_memr16_size (src);
 }
 /*----------------------------------------------------------------------------*/
-static inline u16 memr16_copy_offset(
-  memr16 dst, memr16 src, u16 dst_offset_bytes
+static inline bl_u16 bl_memr16_copy_offset(
+  bl_memr16 dst, bl_memr16 src, bl_u16 dst_offset_bytes
   )
 {
-  memr16 dst_off = memr16_subrange_beg (dst, dst_offset_bytes);
-  return memr16_copy (dst_off, src);
+  bl_memr16 dst_off = bl_memr16_subrange_beg (dst, dst_offset_bytes);
+  return bl_memr16_copy (dst_off, src);
 }
 /*----------------------------------------------------------------------------*/
-static inline memr16 memr16_rv (void* addr, u16 size)
+static inline bl_memr16 bl_memr16_rv (void* addr, bl_u16 size)
 {
-  memr16 ret = memr_initializer (addr, size);
-  bl_assert (memr16_is_valid (ret));
+  bl_memr16 ret = bl_memr_initializer (addr, size);
+  bl_assert (bl_memr16_is_valid (ret));
   return ret;
 }
 /*----------------------------------------------------------------------------*/
-#define memr16_rv_array(arr) memr16_rv (arr, sizeof arr)
-#define memr16_beg_as(memr_val, type) ((type*) memr16_beg (memr_val))
-#define memr16_end_as(memr_val, type) ((type*) memr16_end (memr_val))
-#define memr16_at_as(memr_val, idx, type)\
-  ((type*) memr16_at ((memr_val), idx * sizeof (type)))
+#define bl_memr16_rv_array(arr) bl_memr16_rv (arr, sizeof arr)
+#define bl_memr16_beg_as(memr_val, type) ((type*) bl_memr16_beg (memr_val))
+#define bl_memr16_end_as(memr_val, type) ((type*) bl_memr16_end (memr_val))
+#define bl_memr16_at_as(memr_val, idx, type)\
+  ((type*) bl_memr16_at ((memr_val), idx * sizeof (type)))
 #ifdef NDEBUG
-  #define memr16_cast(memr_val)\
-    memr16_rv ((memr_val).addr, (u16) (memr_val).size)
+  #define bl_memr16_cast(memr_val)\
+    bl_memr16_rv ((memr_val).addr, (bl_u16) (memr_val).size)
 #else
-  #define memr16_cast(memr_val)\
-    memr_rv(\
+  #define bl_memr16_cast(memr_val)\
+    bl_memr_rv(\
       (memr_val).addr,\
       (\
-        bl_assert (((u16) (memr_val).size) == (memr_val).size),\
-        (u16) (memr_val).size\
+        bl_assert (((bl_u16) (memr_val).size) == (memr_val).size),\
+        (bl_u16) (memr_val).size\
       )\
     )
 #endif
 #endif /*#if BL_WORDSIZE >= 16*/
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
-/* memr32                                                                     */
+/* bl_memr32                                                                     */
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
 #if BL_WORDSIZE >= 32
-typedef struct memr32 {
+typedef struct bl_memr32 {
   void* addr;
-  u32   size;
+  bl_u32   size;
 }
-memr32;
+bl_memr32;
 /*----------------------------------------------------------------------------*/
-static inline memr32 memr32_rv (void* addr, u32 size);
+static inline bl_memr32 bl_memr32_rv (void* addr, bl_u32 size);
 /*----------------------------------------------------------------------------*/
-static inline void* memr32_beg (memr32 m)
+static inline void* bl_memr32_beg (bl_memr32 m)
 {
   return m.addr;
 }
 /*----------------------------------------------------------------------------*/
-static inline u32 memr32_size (memr32 m)
+static inline bl_u32 bl_memr32_size (bl_memr32 m)
 {
   return m.size;
 }
 /*----------------------------------------------------------------------------*/
-static inline void* memr32_end (memr32 m)
+static inline void* bl_memr32_end (bl_memr32 m)
 {
-  return ((u8*) memr32_beg (m)) + memr32_size (m);
+  return ((bl_u8*) bl_memr32_beg (m)) + bl_memr32_size (m);
 }
 /*----------------------------------------------------------------------------*/
-static inline memr32 memr32_resize (memr32 m, u32 new_size)
+static inline bl_memr32 bl_memr32_resize (bl_memr32 m, bl_u32 new_size)
 {
-  return memr32_rv (memr32_beg (m), new_size);
+  return bl_memr32_rv (bl_memr32_beg (m), new_size);
 }
 /*----------------------------------------------------------------------------*/
-static inline void* memr32_at (memr32 m, u32 idx)
+static inline void* bl_memr32_at (bl_memr32 m, bl_u32 idx)
 {
-  bl_assert (idx < memr32_size (m));
-  return ((u8*) memr32_beg (m)) + idx;
+  bl_assert (idx < bl_memr32_size (m));
+  return ((bl_u8*) bl_memr32_beg (m)) + idx;
 }
 /*----------------------------------------------------------------------------*/
-static inline memr32 memr32_null (void)
+static inline bl_memr32 bl_memr32_null (void)
 {
-  return memr32_rv (nullptr, 0);
+  return bl_memr32_rv (nullptr, 0);
 }
 /*----------------------------------------------------------------------------*/
-static inline bool memr32_is_null (memr32 m)
+static inline bool bl_memr32_is_null (bl_memr32 m)
 {
-  return memr32_beg (m) == nullptr || memr32_size (m) == 0;
+  return bl_memr32_beg (m) == nullptr || bl_memr32_size (m) == 0;
 }
 /*----------------------------------------------------------------------------*/
-static inline bool memr32_is_valid (memr32 m)
+static inline bool bl_memr32_is_valid (bl_memr32 m)
 {
-  return memr32_beg (m) != nullptr || memr32_size (m) == 0;
+  return bl_memr32_beg (m) != nullptr || bl_memr32_size (m) == 0;
 }
 /*----------------------------------------------------------------------------*/
 /*subrange from beggining*/
-static inline memr32 memr32_subrange_beg (memr32 m, u32 offset_bytes)
+static inline bl_memr32 bl_memr32_subrange_beg (bl_memr32 m, bl_u32 offset_bytes)
 {
-  bl_assert (!memr32_is_null (m));
-  /*equal allowed, will return a zero sized memr32 in such case*/
-  bl_assert (memr32_size (m) >= offset_bytes);
-  return memr32_rv(
-    memr32_at (m, offset_bytes), memr32_size (m) - offset_bytes
+  bl_assert (!bl_memr32_is_null (m));
+  /*equal allowed, will return a zero sized bl_memr32 in such case*/
+  bl_assert (bl_memr32_size (m) >= offset_bytes);
+  return bl_memr32_rv(
+    bl_memr32_at (m, offset_bytes), bl_memr32_size (m) - offset_bytes
     );
 }
 /*----------------------------------------------------------------------------*/
-static inline void memr32_set (memr32 m, int v)
+static inline void bl_memr32_set (bl_memr32 m, int v)
 {
-  bl_assert (memr32_is_valid (m));
-  bl_assert ((size_t) memr32_size (m) == memr32_size (m));
-  memset (memr32_beg (m), v, memr32_size (m));
+  bl_assert (bl_memr32_is_valid (m));
+  bl_assert ((size_t) bl_memr32_size (m) == bl_memr32_size (m));
+  memset (bl_memr32_beg (m), v, bl_memr32_size (m));
 }
 /*----------------------------------------------------------------------------*/
-static inline u32 memr32_copy (memr32 dst, memr32 src)
+static inline bl_u32 bl_memr32_copy (bl_memr32 dst, bl_memr32 src)
 {
-  bl_assert (memr32_is_valid (src));
-  bl_assert (memr32_is_valid (dst));
-  bl_assert (memr32_size (dst) >= memr32_size (src));
-  bl_assert ((size_t) memr32_size (src) == memr32_size (src));
-  memcpy (memr32_beg (dst), memr32_beg (src), (size_t) memr32_size (src));
-  return memr32_size (src);
+  bl_assert (bl_memr32_is_valid (src));
+  bl_assert (bl_memr32_is_valid (dst));
+  bl_assert (bl_memr32_size (dst) >= bl_memr32_size (src));
+  bl_assert ((size_t) bl_memr32_size (src) == bl_memr32_size (src));
+  memcpy(
+    bl_memr32_beg (dst), bl_memr32_beg (src), (size_t) bl_memr32_size (src)
+    );
+  return bl_memr32_size (src);
 }
 /*----------------------------------------------------------------------------*/
-static inline u32 memr32_copy_offset(
-  memr32 dst, memr32 src, u32 dst_offset_bytes
+static inline bl_u32 bl_memr32_copy_offset(
+  bl_memr32 dst, bl_memr32 src, bl_u32 dst_offset_bytes
   )
 {
-  memr32 dst_off = memr32_subrange_beg (dst, dst_offset_bytes);
-  return memr32_copy (dst_off, src);
+  bl_memr32 dst_off = bl_memr32_subrange_beg (dst, dst_offset_bytes);
+  return bl_memr32_copy (dst_off, src);
 }
 /*----------------------------------------------------------------------------*/
-static inline memr32 memr32_rv (void* addr, u32 size)
+static inline bl_memr32 bl_memr32_rv (void* addr, bl_u32 size)
 {
-  memr32 ret = memr_initializer (addr, size);
-  bl_assert (memr32_is_valid (ret));
+  bl_memr32 ret = bl_memr_initializer (addr, size);
+  bl_assert (bl_memr32_is_valid (ret));
   return ret;
 }
 /*----------------------------------------------------------------------------*/
-#define memr32_rv_array(arr) memr32_rv (arr, sizeof arr)
-#define memr32_beg_as(memr_val, type) ((type*) memr32_beg (memr_val))
-#define memr32_end_as(memr_val, type) ((type*) memr32_end (memr_val))
-#define memr32_at_as(memr_val, idx, type)\
-  ((type*) memr32_at ((memr_val), idx * sizeof (type)))
+#define bl_memr32_rv_array(arr) bl_memr32_rv (arr, sizeof arr)
+#define bl_memr32_beg_as(memr_val, type) ((type*) bl_memr32_beg (memr_val))
+#define bl_memr32_end_as(memr_val, type) ((type*) bl_memr32_end (memr_val))
+#define bl_memr32_at_as(memr_val, idx, type)\
+  ((type*) bl_memr32_at ((memr_val), idx * sizeof (type)))
 #ifdef NDEBUG
-  #define memr32_cast(memr_val)\
-    memr32_rv ((memr_val).addr, (u32) (memr_val).size)
+  #define bl_memr32_cast(memr_val)\
+    bl_memr32_rv ((memr_val).addr, (bl_u32) (memr_val).size)
 #else
-  #define memr32_cast(memr_val)\
-    memr_rv(\
+  #define bl_memr32_cast(memr_val)\
+    bl_memr_rv(\
       (memr_val).addr,\
       (\
-        bl_assert (((u32) (memr_val).size) == (memr_val).size),\
-        (u32) (memr_val).size\
+        bl_assert (((bl_u32) (memr_val).size) == (memr_val).size),\
+        (bl_u32) (memr_val).size\
       )\
     )
 #endif
 #endif /*#if BL_WORDSIZE >= 32*/
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
-/* memr64                                                                     */
+/* bl_memr64                                                                     */
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
 #if BL_WORDSIZE >= 64
-typedef struct memr64 {
+typedef struct bl_memr64 {
   void* addr;
-  u64   size;
+  bl_u64   size;
 }
-memr64;
+bl_memr64;
 /*----------------------------------------------------------------------------*/
-static inline memr64 memr64_rv (void* addr, u64 size);
+static inline bl_memr64 bl_memr64_rv (void* addr, bl_u64 size);
 /*----------------------------------------------------------------------------*/
-static inline void* memr64_beg (memr64 m)
+static inline void* bl_memr64_beg (bl_memr64 m)
 {
   return m.addr;
 }
 /*----------------------------------------------------------------------------*/
-static inline u64 memr64_size (memr64 m)
+static inline bl_u64 bl_memr64_size (bl_memr64 m)
 {
   return m.size;
 }
 /*----------------------------------------------------------------------------*/
-static inline void* memr64_end (memr64 m)
+static inline void* bl_memr64_end (bl_memr64 m)
 {
-  return ((u8*) memr64_beg (m)) + memr64_size (m);
+  return ((bl_u8*) bl_memr64_beg (m)) + bl_memr64_size (m);
 }
 /*----------------------------------------------------------------------------*/
-static inline memr64 memr64_resize (memr64 m, u64 new_size)
+static inline bl_memr64 bl_memr64_resize (bl_memr64 m, bl_u64 new_size)
 {
-  return memr64_rv (memr64_beg (m), new_size);
+  return bl_memr64_rv (bl_memr64_beg (m), new_size);
 }
 /*----------------------------------------------------------------------------*/
-static inline void* memr64_at (memr64 m, u64 idx)
+static inline void* bl_memr64_at (bl_memr64 m, bl_u64 idx)
 {
-  bl_assert (idx < memr64_size (m));
-  return ((u8*) memr64_beg (m)) + idx;
+  bl_assert (idx < bl_memr64_size (m));
+  return ((bl_u8*) bl_memr64_beg (m)) + idx;
 }
 /*----------------------------------------------------------------------------*/
-static inline memr64 memr64_null (void)
+static inline bl_memr64 bl_memr64_null (void)
 {
-  return memr64_rv (nullptr, 0);
+  return bl_memr64_rv (nullptr, 0);
 }
 /*----------------------------------------------------------------------------*/
-static inline bool memr64_is_null (memr64 m)
+static inline bool bl_memr64_is_null (bl_memr64 m)
 {
-  return memr64_beg (m) == nullptr || memr64_size (m) == 0;
+  return bl_memr64_beg (m) == nullptr || bl_memr64_size (m) == 0;
 }
 /*----------------------------------------------------------------------------*/
-static inline bool memr64_is_valid (memr64 m)
+static inline bool bl_memr64_is_valid (bl_memr64 m)
 {
-  return memr64_beg (m) != nullptr || memr64_size (m) == 0;
+  return bl_memr64_beg (m) != nullptr || bl_memr64_size (m) == 0;
 }
 /*----------------------------------------------------------------------------*/
 /*subrange from beggining*/
-static inline memr64 memr64_subrange_beg (memr64 m, u64 offset_bytes)
+static inline bl_memr64 bl_memr64_subrange_beg (bl_memr64 m, bl_u64 offset_bytes)
 {
-  bl_assert (!memr64_is_null (m));
-  /*equal allowed, will return a zero sized memr64 in such case*/
-  bl_assert (memr64_size (m) >= offset_bytes);
-  return memr64_rv(
-    memr64_at (m, offset_bytes), memr64_size (m) - offset_bytes
+  bl_assert (!bl_memr64_is_null (m));
+  /*equal allowed, will return a zero sized bl_memr64 in such case*/
+  bl_assert (bl_memr64_size (m) >= offset_bytes);
+  return bl_memr64_rv(
+    bl_memr64_at (m, offset_bytes), bl_memr64_size (m) - offset_bytes
     );
 }
 /*----------------------------------------------------------------------------*/
-static inline void memr64_set (memr64 m, int v)
+static inline void bl_memr64_set (bl_memr64 m, int v)
 {
-  bl_assert (memr64_is_valid (m));
-  bl_assert ((size_t) memr64_size (m) == memr64_size (m));
-  memset (memr64_beg (m), v, (size_t) memr64_size (m));
+  bl_assert (bl_memr64_is_valid (m));
+  bl_assert ((size_t) bl_memr64_size (m) == bl_memr64_size (m));
+  memset (bl_memr64_beg (m), v, (size_t) bl_memr64_size (m));
 }
 /*----------------------------------------------------------------------------*/
-static inline u64 memr64_copy (memr64 dst, memr64 src)
+static inline bl_u64 bl_memr64_copy (bl_memr64 dst, bl_memr64 src)
 {
-  bl_assert (memr64_is_valid (src));
-  bl_assert (memr64_is_valid (dst));
-  bl_assert (memr64_size (dst) >= memr64_size (src));
-  bl_assert ((size_t) memr64_size (src) == memr64_size (src));
-  memcpy (memr64_beg (dst), memr64_beg (src), memr64_size (src));
-  return memr64_size (src);
+  bl_assert (bl_memr64_is_valid (src));
+  bl_assert (bl_memr64_is_valid (dst));
+  bl_assert (bl_memr64_size (dst) >= bl_memr64_size (src));
+  bl_assert ((size_t) bl_memr64_size (src) == bl_memr64_size (src));
+  memcpy (bl_memr64_beg (dst), bl_memr64_beg (src), bl_memr64_size (src));
+  return bl_memr64_size (src);
 }
 /*----------------------------------------------------------------------------*/
-static inline u64 memr64_copy_offset(
-  memr64 dst, memr64 src, u64 dst_offset_bytes
+static inline bl_u64 bl_memr64_copy_offset(
+  bl_memr64 dst, bl_memr64 src, bl_u64 dst_offset_bytes
   )
 {
-  memr64 dst_off = memr64_subrange_beg (dst, dst_offset_bytes);
-  return memr64_copy (dst_off, src);
+  bl_memr64 dst_off = bl_memr64_subrange_beg (dst, dst_offset_bytes);
+  return bl_memr64_copy (dst_off, src);
 }
 /*----------------------------------------------------------------------------*/
-static inline memr64 memr64_rv (void* addr, u64 size)
+static inline bl_memr64 bl_memr64_rv (void* addr, bl_u64 size)
 {
-  memr64 ret = memr_initializer (addr, size);
-  bl_assert (memr64_is_valid (ret));
+  bl_memr64 ret = bl_memr_initializer (addr, size);
+  bl_assert (bl_memr64_is_valid (ret));
   return ret;
 }
 /*----------------------------------------------------------------------------*/
-#define memr64_rv_array(arr) memr64_rv (arr, sizeof arr)
-#define memr64_beg_as(memr_val, type) ((type*) memr64_beg (memr_val))
-#define memr64_end_as(memr_val, type) ((type*) memr64_end (memr_val))
-#define memr64_at_as(memr_val, idx, type)\
-  ((type*) memr64_at ((memr_val), idx * sizeof (type)))
+#define bl_memr64_rv_array(arr) bl_memr64_rv (arr, sizeof arr)
+#define bl_memr64_beg_as(memr_val, type) ((type*) bl_memr64_beg (memr_val))
+#define bl_memr64_end_as(memr_val, type) ((type*) bl_memr64_end (memr_val))
+#define bl_memr64_at_as(memr_val, idx, type)\
+  ((type*) bl_memr64_at ((memr_val), idx * sizeof (type)))
 #if 1
-  #define memr64_cast(memr_val)\
-    memr64_rv ((memr_val).addr, (u64) (memr_val).size)
+  #define bl_memr64_cast(memr_val)\
+    bl_memr64_rv ((memr_val).addr, (bl_u64) (memr_val).size)
 #else
-  #define memr64_cast(memr_val)\
-    memr_rv(\
+  #define bl_memr64_cast(memr_val)\
+    bl_memr_rv(\
       (memr_val).addr,\
       (\
-        bl_assert (((u64) (memr_val).size) == (memr_val).size),\
-        (u64) (memr_val).size\
+        bl_assert (((bl_u64) (memr_val).size) == (memr_val).size),\
+        (bl_u64) (memr_val).size\
       )\
     )
 #endif
@@ -471,42 +479,43 @@ static inline memr64 memr64_rv (void* addr, u64 size)
 /*----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 #if BL_WORDSIZE == 8
-  typedef memr8 memr;
-  #define memr_concat(suffix) pp_tokconcat (memr8_, suffix)
+  typedef bl_memr8 bl_memr;
+  #define bl_memr_concat(suffix) bl_pp_tokconcat (bl_memr8_, suffix)
 #endif
 /*----------------------------------------------------------------------------*/
 #if BL_WORDSIZE == 16
-  typedef memr16 memr;
-  #define memr_concat(suffix) pp_tokconcat (memr16_, suffix)
+  typedef bl_memr16 bl_memr;
+  #define bl_memr_concat(suffix) bl_pp_tokconcat (bl_memr16_, suffix)
 #endif
 /*----------------------------------------------------------------------------*/
 #if BL_WORDSIZE == 32
-  typedef memr32 memr;
-  #define memr_concat(suffix) pp_tokconcat (memr32_, suffix)
+  typedef bl_memr32 bl_memr;
+  #define bl_memr_concat(suffix) bl_pp_tokconcat (bl_memr32_, suffix)
 #endif
 /*----------------------------------------------------------------------------*/
 #if BL_WORDSIZE == 64
-  typedef memr64 memr;
-  #define memr_concat(suffix) pp_tokconcat (memr64_, suffix)
+  typedef bl_memr64 bl_memr;
+  #define bl_memr_concat(suffix) bl_pp_tokconcat (bl_memr64_, suffix)
 #endif
 /*----------------------------------------------------------------------------*/
-#define memr_beg(m)               memr_concat (beg) (m)
-#define memr_size(m)              memr_concat (size) (m)
-#define memr_end(m)               memr_concat (end) (m)
-#define memr_resize(m, s)         memr_concat (resize) ((m), (s))
-#define memr_at(m, i)             memr_concat (at) ((m), (i))
-#define memr_null()               memr_concat (null)
-#define memr_is_null(m)           memr_concat (is_null) (m)
-#define memr_is_valid(m)          memr_concat (is_valid) (m)
-#define memr_subrange_beg(m, o)   memr_concat (subrange_beg) ((m), (o))
-#define memr_set(m, v)            memr_concat (set) ((m), (v))
-#define memr_copy(d, s)           memr_concat (copy) ((d), (s))
-#define memr_copy_offset(d, s, o) memr_concat (copy_offset) ((d), (s), (o))
-#define memr_rv(a, s)             memr_concat (rv) ((a), (s))
-#define memr_rv_array(arr)        memr_concat (rv_array) (arr)
-#define memr_beg_as(m, t)         memr_concat (beg_as) ((m), t)
-#define memr_end_as(m, t)         memr_concat (end_as) ((m), t)
-#define memr_at_as(m, i, t)       memr_concat (at_as) ((m), (i), t)
-#define memr_cast(m)              memr_concat (cast) (m)
+#define bl_memr_beg(m)               bl_memr_concat (beg) (m)
+#define bl_memr_size(m)              bl_memr_concat (size) (m)
+#define bl_memr_end(m)               bl_memr_concat (end) (m)
+#define bl_memr_resize(m, s)         bl_memr_concat (resize) ((m), (s))
+#define bl_memr_at(m, i)             bl_memr_concat (at) ((m), (i))
+#define bl_memr_null()               bl_memr_concat (null)
+#define bl_memr_is_null(m)           bl_memr_concat (is_null) (m)
+#define bl_memr_is_valid(m)          bl_memr_concat (is_valid) (m)
+#define bl_memr_subrange_beg(m, o)   bl_memr_concat (subrange_beg) ((m), (o))
+#define bl_memr_set(m, v)            bl_memr_concat (set) ((m), (v))
+#define bl_memr_copy(d, s)           bl_memr_concat (copy) ((d), (s))
+#define bl_memr_copy_offset(d, s, o)\
+  bl_memr_concat (copy_offset) ((d), (s), (o))
+#define bl_memr_rv(a, s)             bl_memr_concat (rv) ((a), (s))
+#define bl_memr_rv_array(arr)        bl_memr_concat (rv_array) (arr)
+#define bl_memr_beg_as(m, t)         bl_memr_concat (beg_as) ((m), t)
+#define bl_memr_end_as(m, t)         bl_memr_concat (end_as) ((m), t)
+#define bl_memr_at_as(m, i, t)       bl_memr_concat (at_as) ((m), (i), t)
+#define bl_memr_cast(m)              bl_memr_concat (cast) (m)
 /*----------------------------------------------------------------------------*/
 #endif /* __BL_MEMORY_RANGE_H__ */

@@ -35,7 +35,7 @@ extern BL_TIME_EXTRAS_EXPORT void bl_time_extras_destroy (void);
 /* Returns the difference in nanoseconds between the "bl_tstamp" monotonic
    clock vs the calendar clock "bl_sysclock". This is useful to convert
    monotonic to calendar time. */
-extern BL_TIME_EXTRAS_EXPORT toffset bl_tstamp_to_sysclock_diff_ns (void);
+extern BL_TIME_EXTRAS_EXPORT bl_toffset bl_tstamp_to_sysclock_diff_ns (void);
 /*----------------------------------------------------------------------------*/
 #if defined (BL_INTEL_AMD_PC)
 /*----------------------------------------------------------------------------*/
@@ -49,7 +49,7 @@ extern BL_TIME_EXTRAS_EXPORT toffset bl_tstamp_to_sysclock_diff_ns (void);
 
 #define BL_HAS_CPU_TSTAMP 1
 /*----------------------------------------------------------------------------*/
-static inline tstamp bl_get_cputstamp (void)
+static inline bl_tstamp bl_cpu_tstamp_get (void)
 {
   _mm_mfence();
   return __rdtsc();
@@ -57,41 +57,42 @@ static inline tstamp bl_get_cputstamp (void)
 /* the fast version is suitable for timestamping only, not for measurements, as
 it allows instruction reordering by the compiler */
 /*----------------------------------------------------------------------------*/
-static inline tstamp bl_get_cputstamp_fast (void)
+static inline bl_tstamp bl_cpu_tstamp_get_fast (void)
 {
   return __rdtsc();
 }
 /*----------------------------------------------------------------------------*/
-extern BL_TIME_EXTRAS_EXPORT toffset bl_cputstamp_to_nsec (tstamp t);
+extern BL_TIME_EXTRAS_EXPORT bl_toffset bl_cpu_tstamp_to_nsec (bl_tstamp t);
 /*----------------------------------------------------------------------------*/
-extern BL_TIME_EXTRAS_EXPORT u64 bl_cputstamp_get_freq (void);
+extern BL_TIME_EXTRAS_EXPORT bl_u64 bl_cpu_tstamp_get_freq (void);
 /*----------------------------------------------------------------------------*/
-/* Returns the difference in nanoseconds between the "bl_cputstamp" monotonic
+/* Returns the difference in nanoseconds between the "bl_cpu_tstamp" monotonic
    clock vs the calendar clock "bl_sysclock". This is useful to convert
    monotonic to calendar time.*/
-extern BL_TIME_EXTRAS_EXPORT toffset bl_cputstamp_to_sysclock_diff_ns (void);
+extern BL_TIME_EXTRAS_EXPORT bl_toffset
+  bl_cpu_tstamp_to_sysclock_diff_ns (void);
 /*----------------------------------------------------------------------------*/
 #else /*  defined (BL_INTEL_AMD_PC) */
 #define BL_HAS_CPU_TSTAMP 0
 #endif /* else  defined (BL_INTEL_AMD_PC) */
 /*----------------------------------------------------------------------------*/
-/*ftstamp represents the fastest monotonic clock available on the platform  */
+/*f_tstamp represents the fastest monotonic clock available on the platform  */
 
 #if BL_HAS_CPU_TSTAMP == 1
 
-#define bl_get_ftstamp()                 bl_get_cputstamp()
-#define bl_get_ftstamp_fast()            bl_get_cputstamp_fast()
-#define bl_fstamp_to_nsec(t)             bl_cputstamp_to_nsec (t)
-#define bl_ftstamp_get_freq()            bl_cputstamp_get_freq()
-#define bl_ftstamp_to_sysclock_diff_ns() bl_cputstamp_to_sysclock_diff_ns()
+#define bl_f_tstamp_get()                 bl_cpu_tstamp_get()
+#define bl_f_tstamp_get_fast()            bl_cpu_tstamp_get_fast()
+#define bl_f_stamp_to_nsec(t)             bl_cpu_tstamp_to_nsec (t)
+#define bl_f_tstamp_get_freq()            bl_cpu_tstamp_get_freq()
+#define bl_f_tstamp_to_sysclock_diff_ns() bl_cpu_tstamp_to_sysclock_diff_ns()
 
 #else /* BL_HAS_CPU_TSTAMP == 1 */
 
-#define bl_get_ftstamp()                 bl_get_tstamp()
-#define bl_get_ftstamp_fast()            bl_get_tstamp()
-#define bl_fstamp_to_nsec(t)             bl_stamp_to_nsec (t)
-#define bl_ftstamp_get_freq()            bl_stamp_get_freq()
-#define bl_ftstamp_to_sysclock_diff_ns() bl_stamp_to_sysclock_diff_ns()
+#define bl_f_tstamp_get()                 bl_get_tstamp()
+#define bl_f_tstamp_get_fast()            bl_get_tstamp()
+#define bl_f_tstamp_to_nsec(t)            bl_stamp_to_nsec (t)
+#define bl_f_tstamp_get_freq()            bl_stamp_get_freq()
+#define bl_f_tstamp_to_sysclock_diff_ns() bl_stamp_to_sysclock_diff_ns()
 
 #endif /* else BL_HAS_CPU_TSTAMP == 1 */
 

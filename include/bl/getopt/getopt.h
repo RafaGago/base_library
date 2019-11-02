@@ -11,9 +11,9 @@ https://github.com/kimgr/getopt_port */
 extern "C" {
 #endif
 /*----------------------------------------------------------------------------*/
-#define no_argument       0
-#define required_argument 1
-#define optional_argument 2
+#define bl_no_argument       0
+#define bl_required_argument 1
+#define bl_optional_argument 2
 /*----------------------------------------------------------------------------*/
 typedef struct bl_getopt_state {
   char* optarg;
