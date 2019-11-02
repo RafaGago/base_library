@@ -20,7 +20,7 @@ bl_taskq_delayed_entry;
 /*---------------------------------------------------------------------------*/
 extern bl_word bl_taskq_delayed_entry_cmp_func (void const* av, void const* bv);
 /*---------------------------------------------------------------------------*/
-define_bl_flat_deadlines_funcs(
+bl_define_flat_deadlines_funcs(
     bl_taskq_delayed, bl_taskq_delayed_entry, bl_taskq_delayed_entry_cmp_func
     )
 /*---------------------------------------------------------------------------*/

@@ -17,7 +17,7 @@ static bl_word fdl_cmpeq_func (void const* a, void const* b)
     ((bl_flat_deadlines_content const*) b)->id;
 }
 /*---------------------------------------------------------------------------*/
-define_bl_flat_deadlines_funcs (fdl, bl_flat_deadlines_content, fdl_cmpeq_func)
+bl_define_flat_deadlines_funcs (fdl, bl_flat_deadlines_content, fdl_cmpeq_func)
 /*---------------------------------------------------------------------------*/
 typedef struct bl_flat_deadlines_context {
   bl_alloc_tbl      alloc;

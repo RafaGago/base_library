@@ -110,7 +110,7 @@ struct content_type {
 "cmpeq_func" a function invoked to compare two "content_type" structures. If
 "content_type" has only the timestamp you can pass null here.
 ----------------------------------------------------------------------------*/
-#define define_bl_flat_deadlines_funcs(prefix, content_type, cmpeq_func) \
+#define bl_define_flat_deadlines_funcs(prefix, content_type, cmpeq_func) \
 \
 bl_static_assert_outside_func( \
   offsetof (content_type, time) == 0, \
