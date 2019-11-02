@@ -35,7 +35,7 @@ static void bl_tstamp_to_sysclock_diff_test (void **state)
 /*---------------------------------------------------------------------------*/
 #ifdef BL_HAS_CPU_TSTAMP
 /*---------------------------------------------------------------------------*/
-static void bl_cpu_tstamp_vs_bl_tstamp_test (void **state)
+static void bl_cpu_tstamp_vs_tstamp_test (void **state)
 {
   bl_uword ok = 0;
 
@@ -79,7 +79,7 @@ static void bl_cpu_tstamp_to_sysclock_diff_test (void **state)
 static const struct CMUnitTest tests[] = {
   cmocka_unit_test(bl_tstamp_to_sysclock_diff_test),
 #ifdef BL_HAS_CPU_TSTAMP
-  cmocka_unit_test(bl_cpu_tstamp_vs_bl_tstamp_test),
+  cmocka_unit_test(bl_cpu_tstamp_vs_tstamp_test),
   cmocka_unit_test(bl_cpu_tstamp_to_sysclock_diff_test),
 #endif
 };

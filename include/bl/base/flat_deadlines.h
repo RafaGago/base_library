@@ -69,8 +69,8 @@ static inline void* bl_flat_deadlines_get_tail(
 /*--------------------------------------------------------------------------*/
 extern BL_EXPORT void const* bl_flat_deadlines_get_head_if_expired(
   bl_flat_deadlines* fd,
-  bl_uword              elem_size,
-  bool               dont_acquire_new_bl_tstamp,
+  bl_uword           elem_size,
+  bool               dont_acquire_new_tstamp,
   bl_tstamp          now
   );
 /*--------------------------------------------------------------------------*/
@@ -92,8 +92,8 @@ Note that:
  on the "find" parameter but will be retrieved on "dst".
 ----------------------------------------------------------------------------*/
 extern BL_EXPORT bool bl_flat_deadlines_try_get_and_drop(
-  bl_flat_deadlines*              fd,
-  bl_uword                        elem_size,
+  bl_flat_deadlines*           fd,
+  bl_uword                     elem_size,
   flat_dealines_value_cmp_func cmp,
   void*                        dst,
   void const*                  find
@@ -226,11 +226,11 @@ static inline void prefix##_drop_tail (bl_flat_deadlines* fd) \
 } \
 \
 static inline content_type const* prefix##_get_head_if_expired( \
-  bl_flat_deadlines* dl, bool dont_acquire_new_bl_tstamp, bl_tstamp now \
+  bl_flat_deadlines* dl, bool dont_acquire_new_tstamp, bl_tstamp now \
   ) \
 { \
   return (content_type*) bl_flat_deadlines_get_head_if_expired( \
-    dl, sizeof (content_type), dont_acquire_new_bl_tstamp, now \
+    dl, sizeof (content_type), dont_acquire_new_tstamp, now \
     ); \
 } \
 \

@@ -42,17 +42,17 @@ bl_static_assert_outside_func_ns(
 /*---------------------------------------------------------------------------*/
 extern BL_EXPORT bl_err bl_autoarray_set_rounded_capacity(
   bl_autoarray_stub*  d,
-  bl_uword               capacity,
-  bl_uword               elem_size,
+  bl_uword            capacity,
+  bl_uword            elem_size,
   bl_alloc_tbl const* alloc
   );
 /*--------------------------------------------------------------------------*/
 extern BL_EXPORT bl_err bl_autoarray_insert_n(
   bl_autoarray_stub*  d,
-  bl_uword               idx,
+  bl_uword            idx,
   void const*         c,
-  bl_uword               c_count,
-  bl_uword               elem_size,
+  bl_uword            c_count,
+  bl_uword            elem_size,
   bl_alloc_tbl const* alloc
   );
 /*--------------------------------------------------------------------------*/
@@ -60,8 +60,8 @@ extern BL_EXPORT bl_err bl_autoarray_insert_n(
 \
 typedef struct prefix {\
   content_type* arr;\
-  bl_uword         capacity;\
-  bl_uword         size;\
+  bl_uword      capacity;\
+  bl_uword      size;\
 }\
 prefix;\
 /*---------------------------------------------------------------------------*/

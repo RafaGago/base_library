@@ -18,16 +18,16 @@
 #define bl_tstamp_sysclock2nsec_priv(ts)\
   (((bl_toffset) ts) * bl_nsec_in_sec)
 /*---------------------------------------------------------------------------*/
-#define bl_sec_to_bl_tstamp_sysclock_max()\
+#define bl_sec_to_tstamp_sysclock_max()\
   bl_tstamp_sysclock2sec_priv (bl_tstamp_max_safe_add_sub)
 
-#define bl_msec_to_bl_tstamp_sysclock_max()\
+#define bl_msec_to_tstamp_sysclock_max()\
   bl_tstamp_sysclock2msec_priv (bl_tstamp_max_safe_add_sub)
 
-#define bl_nsec_to_bl_tstamp_sysclock_max()\
+#define bl_nsec_to_tstamp_sysclock_max()\
   bl_tstamp_sysclock2nsec_priv (bl_tstamp_max_safe_add_sub)
 
-#define bl_usec_to_bl_tstamp_sysclock_max()\
+#define bl_usec_to_tstamp_sysclock_max()\
   bl_tstamp_sysclock2usec_priv (bl_tstamp_max_safe_add_sub)
 /*---------------------------------------------------------------------------*/
 static inline bl_toffset bl_tstamp_sysclock_to_sec (bl_tstamp ts)
@@ -70,27 +70,27 @@ static inline bl_toffset bl_tstamp_sysclock_to_nsec_ceil (bl_tstamp ts)
   return (bl_toffset) (ts * bl_nsec_in_sec);
 }
 /*---------------------------------------------------------------------------*/
-static inline bl_tstamp bl_sec_to_bl_tstamp_sysclock (bl_toffset sec)
+static inline bl_tstamp bl_sec_to_tstamp_sysclock (bl_toffset sec)
 {
-  bl_assert (sec <= bl_sec_to_bl_tstamp_sysclock_max());
+  bl_assert (sec <= bl_sec_to_tstamp_sysclock_max());
   return ((bl_tstamp) sec);
 }
 
-static inline bl_tstamp bl_msec_to_bl_tstamp_sysclock (bl_toffset msec)
+static inline bl_tstamp bl_msec_to_tstamp_sysclock (bl_toffset msec)
 {
-  bl_assert (msec <= bl_msec_to_bl_tstamp_sysclock_max());
+  bl_assert (msec <= bl_msec_to_tstamp_sysclock_max());
   return bl_div_ceil (((bl_tstamp) msec), bl_msec_in_sec);
 }
 
-static inline bl_tstamp bl_usec_to_bl_tstamp_sysclock (bl_toffset usec)
+static inline bl_tstamp bl_usec_to_tstamp_sysclock (bl_toffset usec)
 {
-  bl_assert (usec <= bl_usec_to_bl_tstamp_sysclock_max());
+  bl_assert (usec <= bl_usec_to_tstamp_sysclock_max());
   return bl_div_ceil (((bl_tstamp) usec), bl_usec_in_sec);
 }
 
-static inline bl_tstamp bl_nsec_to_bl_tstamp_sysclock (bl_toffset nsec)
+static inline bl_tstamp bl_nsec_to_tstamp_sysclock (bl_toffset nsec)
 {
-  bl_assert (nsec <= bl_nsec_to_bl_tstamp_sysclock_max());
+  bl_assert (nsec <= bl_nsec_to_tstamp_sysclock_max());
   return bl_div_ceil (((bl_tstamp) nsec), bl_nsec_in_sec);
 }
 /*---------------------------------------------------------------------------*/

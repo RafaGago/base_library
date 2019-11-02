@@ -15,8 +15,8 @@ static inline bl_err bl_deadline_init_explicit(
   )
 {
   bl_assert (d);
-  if (usec <= bl_usec_to_bl_tstamp_max ()) {
-    *d = now + bl_usec_to_bl_tstamp (usec);
+  if (usec <= bl_usec_to_tstamp_max ()) {
+    *d = now + bl_usec_to_tstamp (usec);
     return bl_mkok();
   }
   else {

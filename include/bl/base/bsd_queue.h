@@ -625,7 +625,7 @@ struct {\
 /*
  * list functions.
  */
-#define bl_queuedebug_bl_list_insert_head(head, elm, field)
+#define bl_queuedebug_list_insert_head(head, elm, field)
 #define bl_queuedebug_list_op(elm, field)
 #define bl_queuedebug_list_postremove(elm, field)
 
@@ -655,7 +655,7 @@ do {\
 
 #define bl_list_insert_head(head, elm, field)\
 do {\
-  bl_queuedebug_bl_list_insert_head((head), (elm), field)\
+  bl_queuedebug_list_insert_head((head), (elm), field)\
   if (((elm)->field.le_next = (head)->lh_first) != nullptr)\
     (head)->lh_first->field.le_prev = &(elm)->field.le_next;\
   (head)->lh_first = (elm);\
@@ -834,8 +834,8 @@ struct {\
 /*
  * tail queue functions.
  */
-#define bl_queuedebug_bl_tailq_insert_head(head, elm, field)
-#define bl_queuedebug_bl_tailq_insert_tail(head, elm, field)
+#define bl_queuedebug_tailq_insert_head(head, elm, field)
+#define bl_queuedebug_tailq_insert_tail(head, elm, field)
 #define bl_queuedebug_tailq_op(elm, field)
 #define bl_queuedebug_tailq_postremove(elm, field)
 
@@ -847,7 +847,7 @@ do {\
 
 #define bl_tailq_insert_head(head, elm, field)\
 do {\
-  bl_queuedebug_bl_tailq_insert_head((head), (elm), field)\
+  bl_queuedebug_tailq_insert_head((head), (elm), field)\
   if (((elm)->field.tqe_next = (head)->tqh_first) != nullptr)\
     (head)->tqh_first->field.tqe_prev =\
      &(elm)->field.tqe_next;\
@@ -859,7 +859,7 @@ do {\
 
 #define bl_tailq_insert_tail(head, elm, field)\
 do {\
-  bl_queuedebug_bl_tailq_insert_tail((head), (elm), field)\
+  bl_queuedebug_tailq_insert_tail((head), (elm), field)\
   (elm)->field.tqe_next = nullptr;\
   (elm)->field.tqe_prev = (head)->tqh_last;\
   *(head)->tqh_last = (elm);\

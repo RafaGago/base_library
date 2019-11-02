@@ -152,14 +152,14 @@
 
     Same as above, but the values are rounded to the ceiling.
  ---------------------------------------------------------------
- "static inline bl_tstamp bl_sec_to_bl_tstamp (bl_toffset sec_min)"
- "static inline bl_tstamp bl_msec_to_bl_tstamp (bl_toffset msec_min)"
- "static inline bl_tstamp bl_usec_to_bl_tstamp (bl_toffset usec_min)"
- "static inline bl_tstamp bl_nsec_to_bl_tstamp (bl_toffset nsec_min)"
- "static inline bl_tstamp bl_sec_to_bl_tstamp_sysclock (bl_toffset sec_min)"
- "static inline bl_tstamp bl_msec_to_bl_tstamp_sysclock (bl_toffset msec_min)"
- "static inline bl_tstamp bl_usec_to_bl_tstamp_sysclock (bl_toffset usec_min)"
- "static inline bl_tstamp bl_nsec_to_bl_tstamp_sysclock (bl_toffset nsec_min)"
+ "static inline bl_tstamp bl_sec_to_tstamp (bl_toffset sec_min)"
+ "static inline bl_tstamp bl_msec_to_tstamp (bl_toffset msec_min)"
+ "static inline bl_tstamp bl_usec_to_tstamp (bl_toffset usec_min)"
+ "static inline bl_tstamp bl_nsec_to_tstamp (bl_toffset nsec_min)"
+ "static inline bl_tstamp bl_sec_to_tstamp_sysclock (bl_toffset sec_min)"
+ "static inline bl_tstamp bl_msec_to_tstamp_sysclock (bl_toffset msec_min)"
+ "static inline bl_tstamp bl_usec_to_tstamp_sysclock (bl_toffset usec_min)"
+ "static inline bl_tstamp bl_nsec_to_tstamp_sysclock (bl_toffset nsec_min)"
 
    Gets an offset that is AT LEAST the given amount which can be added or
    subtracted to a timestamp.
@@ -176,17 +176,17 @@
 
    If one wants to get the timer resolution this call can give it:
 
-   "bl_tstamp_to_nsec_ceil (bl_nsec_to_bl_tstamp (1))"
+   "bl_tstamp_to_nsec_ceil (bl_nsec_to_tstamp (1))"
 
  ---------------------------------------------------------------
- "static inline bl_toffset bl_sec_to_bl_tstamp_max (void)"
- "static inline bl_toffset bl_msec_to_bl_tstamp_max (void)"
- "static inline bl_toffset bl_usec_to_bl_tstamp_max (void)"
- "static inline bl_toffset bl_nsec_to_bl_tstamp_max (void)"
- "static inline bl_toffset bl_sec_to_bl_tstamp_sysclock_max (void)"
- "static inline bl_toffset bl_msec_to_bl_tstamp_sysclock_max (void)"
- "static inline bl_toffset bl_usec_to_bl_tstamp_sysclock_max (void)"
- "static inline bl_toffset bl_nsec_to_bl_tstamp_sysclock_max (void)"
+ "static inline bl_toffset bl_sec_to_tstamp_max (void)"
+ "static inline bl_toffset bl_msec_to_tstamp_max (void)"
+ "static inline bl_toffset bl_usec_to_tstamp_max (void)"
+ "static inline bl_toffset bl_nsec_to_tstamp_max (void)"
+ "static inline bl_toffset bl_sec_to_tstamp_sysclock_max (void)"
+ "static inline bl_toffset bl_msec_to_tstamp_sysclock_max (void)"
+ "static inline bl_toffset bl_usec_to_tstamp_sysclock_max (void)"
+ "static inline bl_toffset bl_nsec_to_tstamp_sysclock_max (void)"
 
    Get the maximum input value that any of the functions above can take.
    This function group may be defined as macros if all values are known

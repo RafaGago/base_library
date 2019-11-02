@@ -125,7 +125,7 @@ static sysclockdiff cputimestamp_sysdata = {
   (bl_atomic_u64) MAGIC_NAN, &cpu_t_get_noinline, &bl_cpu_tstamp_to_nsec
 };
 /*----------------------------------------------------------------------------*/
-bl_atomic_u64 cpu_bl_tstamp_freq = (bl_atomic_u64) 0;
+bl_atomic_u64 cpu_tstamp_freq = (bl_atomic_u64) 0;
 /*----------------------------------------------------------------------------*/
 static bl_err bl_cpu_tstamp_freq_set()
 {
@@ -157,7 +157,7 @@ static bl_err bl_cpu_tstamp_freq_set()
 
   }
   double tfreq = (double) bl_tstamp_get_freq();
-  bl_atomic_u64_store_rlx (&cpu_bl_tstamp_freq, (bl_u64) (tfreq * avg));
+  bl_atomic_u64_store_rlx (&cpu_tstamp_freq, (bl_u64) (tfreq * avg));
   return bl_mkok();
 }
 /*----------------------------------------------------------------------------*/
@@ -264,7 +264,7 @@ BL_TIME_EXTRAS_EXPORT bl_toffset bl_cpu_tstamp_to_nsec (bl_tstamp t)
 /*----------------------------------------------------------------------------*/
 BL_TIME_EXTRAS_EXPORT bl_u64 bl_cpu_tstamp_get_freq (void)
 {
-  return bl_atomic_u64_load_rlx (&cpu_bl_tstamp_freq);
+  return bl_atomic_u64_load_rlx (&cpu_tstamp_freq);
 }
 /*----------------------------------------------------------------------------*/
 BL_TIME_EXTRAS_EXPORT bl_toffset bl_cpu_tstamp_to_sysclock_diff_ns (void)

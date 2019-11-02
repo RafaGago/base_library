@@ -65,18 +65,18 @@ static void bl_flat_deadlines_o1_regular_insertion (void **state)
   assert_true (err.bl == bl_would_overflow);
 
   const bl_flat_deadlines_content* v =
-    fdl_get_head_if_expired (&c->dl, true, bl_usec_to_bl_tstamp (999));
+    fdl_get_head_if_expired (&c->dl, true, bl_usec_to_tstamp (999));
   assert_true (v == nullptr);
 
-  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_bl_tstamp (1000));
+  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_tstamp (1000));
   assert_true (v != nullptr);
   assert_true (v->id == 0);
   fdl_drop_head (&c->dl);
 
-  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_bl_tstamp (1999));
+  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_tstamp (1999));
   assert_true (v == nullptr);
 
-  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_bl_tstamp (2000));
+  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_tstamp (2000));
   assert_true (v != nullptr);
   assert_true (v->id == 1);
   fdl_drop_head (&c->dl);
@@ -88,7 +88,7 @@ static void bl_flat_deadlines_o1_regular_insertion_wrap (void **state)
   bl_flat_deadlines_content e[2];
 
   const bl_tstamp near_wrap =
-    bl_utype_max (bl_tstamp) - bl_usec_to_bl_tstamp (1500);
+    bl_utype_max (bl_tstamp) - bl_usec_to_tstamp (1500);
 
   bl_static_assert_ns (bl_arr_elems (e) == bl_flat_deadlines_test_elems);
 
@@ -109,12 +109,12 @@ static void bl_flat_deadlines_o1_regular_insertion_wrap (void **state)
 
   const bl_flat_deadlines_content* v =
     fdl_get_head_if_expired(
-      &c->dl, true, near_wrap + bl_usec_to_bl_tstamp (999)
+      &c->dl, true, near_wrap + bl_usec_to_tstamp (999)
       );
   assert_true (v == nullptr);
 
   v = fdl_get_head_if_expired(
-    &c->dl, true, near_wrap + bl_usec_to_bl_tstamp (1000)
+    &c->dl, true, near_wrap + bl_usec_to_tstamp (1000)
     );
   assert_true (v != nullptr);
   assert_true (v->id == 0);
@@ -122,13 +122,13 @@ static void bl_flat_deadlines_o1_regular_insertion_wrap (void **state)
 
   /*deliberate bl_tstamp overflow*/
   v = fdl_get_head_if_expired(
-    &c->dl, true, near_wrap + bl_usec_to_bl_tstamp (1999)
+    &c->dl, true, near_wrap + bl_usec_to_tstamp (1999)
     );
   assert_true (v == nullptr);
 
   /*deliberate bl_tstamp overflow*/
   v = fdl_get_head_if_expired(
-    &c->dl, true, near_wrap + bl_usec_to_bl_tstamp (2000)
+    &c->dl, true, near_wrap + bl_usec_to_tstamp (2000)
     );
   assert_true (v != nullptr);
   assert_true (v->id == 1);
@@ -189,21 +189,21 @@ static void bl_flat_deadlines_duplicate_deadline (void **state)
   assert_true (err.bl == bl_would_overflow);
 
   const bl_flat_deadlines_content* v =
-    fdl_get_head_if_expired (&c->dl, true, bl_usec_to_bl_tstamp (999));
+    fdl_get_head_if_expired (&c->dl, true, bl_usec_to_tstamp (999));
   assert_true (v == nullptr);
 
-  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_bl_tstamp (1000));
+  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_tstamp (1000));
   assert_true (v != nullptr);
   assert_true (v->id == 0);
   fdl_drop_head (&c->dl);
 
-  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_bl_tstamp (1000));
+  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_tstamp (1000));
   assert_true (v != nullptr);
   assert_true (v->id == 1);
   fdl_drop_head (&c->dl);
 }
 /*---------------------------------------------------------------------------*/
-static void bl_flat_deadlines_duplicate_bl_deadline_deletion (void **state)
+static void bl_flat_deadlines_duplicate_deadline_deletion (void **state)
 {
   bl_flat_deadlines_context* c = (bl_flat_deadlines_context*) *state;
   bl_flat_deadlines_content e[2];
@@ -224,7 +224,7 @@ static void bl_flat_deadlines_duplicate_bl_deadline_deletion (void **state)
   assert_true (err.bl == bl_would_overflow);
 
   const bl_flat_deadlines_content* v = fdl_get_head_if_expired(
-    &c->dl, true, bl_usec_to_bl_tstamp (999)
+    &c->dl, true, bl_usec_to_tstamp (999)
     );
   assert_true (v == nullptr);
 
@@ -236,7 +236,7 @@ static void bl_flat_deadlines_duplicate_bl_deadline_deletion (void **state)
   res = fdl_try_get_and_drop (&c->dl, &cancel, &e[0]);
   assert_true (!res);
 
-  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_bl_tstamp (1000));
+  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_tstamp (1000));
   assert_true (v != nullptr);
   assert_true (v->id == 1);
   fdl_drop_head (&c->dl);
@@ -264,7 +264,7 @@ static const struct CMUnitTest tests[] = {
     bl_flat_deadlines_test_teardown
     ),
   cmocka_unit_test_setup_teardown(
-    bl_flat_deadlines_duplicate_bl_deadline_deletion,
+    bl_flat_deadlines_duplicate_deadline_deletion,
     bl_flat_deadlines_test_setup,
     bl_flat_deadlines_test_teardown
     ),

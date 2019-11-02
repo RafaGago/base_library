@@ -35,20 +35,20 @@ static void timestamp_maxes (void **state)
   bl_tstamp v;
   bl_toffset max;
 
-  max = bl_sec_to_bl_tstamp_max();
-  v   = bl_sec_to_bl_tstamp (max);
+  max = bl_sec_to_tstamp_max();
+  v   = bl_sec_to_tstamp (max);
   assert_true (v <= bl_tstamp_max_safe_add_sub);
 
-  max = bl_msec_to_bl_tstamp_max();
-  v   = bl_msec_to_bl_tstamp (max);
+  max = bl_msec_to_tstamp_max();
+  v   = bl_msec_to_tstamp (max);
   assert_true (v <= bl_tstamp_max_safe_add_sub);
 
-  max = bl_usec_to_bl_tstamp_max();
-  v   = bl_usec_to_bl_tstamp (max);
+  max = bl_usec_to_tstamp_max();
+  v   = bl_usec_to_tstamp (max);
   assert_true (v <= bl_tstamp_max_safe_add_sub);
 
-  max = bl_nsec_to_bl_tstamp_max();
-  v   = bl_nsec_to_bl_tstamp (max);
+  max = bl_nsec_to_tstamp_max();
+  v   = bl_nsec_to_tstamp (max);
   assert_true (v <= bl_tstamp_max_safe_add_sub);
 }
 /*---------------------------------------------------------------------------*/

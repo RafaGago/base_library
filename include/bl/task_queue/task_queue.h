@@ -138,7 +138,7 @@ static inline bl_err bl_taskq_post_delayed(
   )
 {
   bl_assert (abs_time_point_out);
-  *abs_time_point_out = bl_get_tstamp() + bl_usec_to_bl_tstamp (delay_us);
+  *abs_time_point_out = bl_get_tstamp() + bl_usec_to_tstamp (delay_us);
   return bl_taskq_post_delayed_abs (tq, id, *abs_time_point_out, task);
 }
 /*---------------------------------------------------------------------------*/

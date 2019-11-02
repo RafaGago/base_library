@@ -34,19 +34,19 @@ enum thr_type_e{
 typedef bl_u8 thr_type;
 /*----------------------------------------------------------------------------*/
 typedef struct work_data {
-  bl_uword    received;
-  bl_uword    error_count;
-  bl_uword    expected_error_count;
+  bl_uword received;
+  bl_uword error_count;
+  bl_uword expected_error_count;
   thr_type type;
 }
 work_data;
 /*----------------------------------------------------------------------------*/
 typedef struct producer_thread_data {
-  bl_taskq*     tq;
+  bl_taskq*  tq;
   bl_sem*    sem;
   work_data* wd;
-  bl_uword      remaining;
-  bl_uword      overflow;
+  bl_uword   remaining;
+  bl_uword   overflow;
   bl_err     last_err;
   thr_type   type;
 }
