@@ -6,7 +6,7 @@
 #include <bl/base/ringbuffer.h>
 #include <bl/base/utility.h>
 
-define_bl_ringb_funcs (bl_ringbt, bl_u32)
+bl_define_ringb_funcs (bl_ringbt, bl_u32)
 /*---------------------------------------------------------------------------*/
 typedef struct bl_ringbuffer_context {
   bl_u32   buff[8];

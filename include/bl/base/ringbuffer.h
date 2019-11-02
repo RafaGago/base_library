@@ -185,7 +185,7 @@ extern BL_EXPORT void bl_ringb_drop_range(
   Wrapper functions: the only thing they do is to remove the "elem_size"
   parameter.
 ----------------------------------------------------------------------------*/
-#define define_bl_ringb_funcs(prefix, content_type)\
+#define bl_define_ringb_funcs(prefix, content_type)\
 static inline bl_err prefix##_init_extern(\
   bl_ringb* rb, content_type* mem, bl_uword capacity\
   )\
