@@ -3,7 +3,7 @@ This file is used for autogeneration and is invalid C. The extension is kept to
 make the code editor color the syntax.
 
 To regenerate use scripts/autogenerator.sh:
-autogenerator.sh -f <THIS_FILE> -r TYPE=bl_u8 -r TYPE=bl_u16 -r TYPE=bl_u32 -r TYPE=bl_u64
+autogenerator.sh -f <THIS_FILE> -r TYPE=u8 -r TYPE=u16 -r TYPE=u32 -r TYPE=u64
 
 This is BAD, but IMO it was worse to have criptic-macro based generic data
 structures. This library is designed to be statically linked, so some of the
