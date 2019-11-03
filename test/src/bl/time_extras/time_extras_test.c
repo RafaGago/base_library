@@ -40,13 +40,13 @@ static void bl_cpu_tstamp_vs_tstamp_test (void **state)
   bl_uword ok = 0;
 
   bl_thread_yield(); /* context switching in-between minimization attempt.*/
-  bl_tstamp tprev = bl_get_tstamp();
+  bl_tstamp tprev = bl_tstamp_get();
   bl_tstamp cprev = bl_cpu_tstamp_get();
   atomic_sigfence (bl_mo_acq_rel);
 
   for (bl_uword i = 0; i < 20; ++i) {
     bl_thread_yield(); /* context switching in-between minimization attempt.*/
-    bl_tstamp t = bl_get_tstamp();
+    bl_tstamp t = bl_tstamp_get();
     /* this smoke test may fail spuriosly if the scheduler preempts this thread
     here too many times. The 15 value is conservative enough.*/
     bl_tstamp c = bl_cpu_tstamp_get();

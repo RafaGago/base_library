@@ -140,14 +140,14 @@ int thread (void* context)
       "on " thcon_hdr ": barrier error %d", thcon_hdr_v (c), barrier_err
       );
   }
-  bl_tstamp start = bl_get_tstamp();
+  bl_tstamp start = bl_tstamp_get();
   if (c->is_signaler) {
     run_signaler (c);
   }
   else {
     run_waiter (c);
   }
-  c->elapsed = bl_get_tstamp() - start;
+  c->elapsed = bl_tstamp_get() - start;
   return 0;
 }
 /*----------------------------------------------------------------------------*/

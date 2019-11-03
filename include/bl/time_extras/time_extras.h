@@ -88,8 +88,8 @@ extern BL_TIME_EXTRAS_EXPORT bl_toffset
 
 #else /* BL_HAS_CPU_TSTAMP == 1 */
 
-#define bl_f_tstamp_get()                 bl_get_tstamp()
-#define bl_f_tstamp_get_fast()            bl_get_tstamp()
+#define bl_f_tstamp_get()                 bl_tstamp_get()
+#define bl_f_tstamp_get_fast()            bl_tstamp_get()
 #define bl_f_tstamp_to_nsec(t)            bl_stamp_to_nsec (t)
 #define bl_f_tstamp_get_freq()            bl_stamp_get_freq()
 #define bl_f_tstamp_to_sysclock_diff_ns() bl_stamp_to_sysclock_diff_ns()

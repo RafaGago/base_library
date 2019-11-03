@@ -202,7 +202,7 @@ BL_TASKQ_EXPORT bl_err bl_taskq_run_one (bl_taskq* tq, bl_u32 timeout_us)
     }
     bl_u32 sem_us;
     if (has_deadline) {
-      bl_tstamp now = bl_get_tstamp();
+      bl_tstamp now = bl_tstamp_get();
       if (!bl_deadline_expired_explicit (deadline, now)) {
         sem_us = bl_tstamp_to_usec_ceil (deadline - now);
       }
@@ -393,7 +393,7 @@ BL_TASKQ_EXPORT bl_err bl_taskq_init(
     bl_taskq struct using just one allocator call, bl_oringb has the
     "init_extern" call in which the user externally provides the buffer */
   err = bl_taskq_delayed_init(
-    &tq->delayed, bl_get_tstamp(), delayed_capacity, alloc
+    &tq->delayed, bl_tstamp_get(), delayed_capacity, alloc
     );
   if (err.bl) {
     goto bl_taskq_queue_destroy;

@@ -35,7 +35,7 @@ BL_EXPORT void const* bl_flat_deadlines_get_head_if_expired(
   /* as the list ordering rotates to allow timestamp wrap around (and O(1) */
   /* lookup for the next expired candidate) it is wrong to move the rotation */
   /*   offset while still having outdated items on the list */
-  dl->time_offset = (dont_acquire_new_tstamp) ? now : bl_get_tstamp();
+  dl->time_offset = (dont_acquire_new_tstamp) ? now : bl_tstamp_get();
   return (void*)
     bl_deadline_expired_explicit (*d, dl->time_offset) ? d : nullptr;
 }

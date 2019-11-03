@@ -510,7 +510,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_read(
       continue;
     }
     bl_tstampdiff diff = (timeout_us != 0) ?
-      bl_deadline_compare (deadline, bl_get_tstamp()) : -1;
+      bl_deadline_compare (deadline, bl_tstamp_get()) : -1;
       /*context switches from here to the pselect will be suboptimal*/
     if (diff <= 0) {
       err = bl_mkerr (bl_timeout);
@@ -575,7 +575,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_write(
     struct timespec t;
     struct timespec* t_ptr = nullptr;
     if (timeout_us != 0) {
-      bl_tstampdiff diff = bl_deadline_compare (deadline, bl_get_tstamp());
+      bl_tstampdiff diff = bl_deadline_compare (deadline, bl_tstamp_get());
       if (diff <= 0) {
         err = bl_mkerr (bl_timeout);
         goto end;

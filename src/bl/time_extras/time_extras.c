@@ -92,7 +92,7 @@ static double find_most_repeated (double* v, bl_uword vcount, double window)
 /*----------------------------------------------------------------------------*/
 static bl_tstamp t_get_noinline (void)
 {
-  return bl_get_tstamp();
+  return bl_tstamp_get();
 }
 /*----------------------------------------------------------------------------*/
 static bl_toffset t_to_nsec_noinline (bl_tstamp t)
@@ -138,12 +138,12 @@ static bl_err bl_cpu_tstamp_freq_set()
   double ratio[BL_TIME_QSAMPLES];
   bl_thread_yield(); /* context switching in-between minimization attempt.*/
 
-  tprev   = bl_get_tstamp();
+  tprev   = bl_tstamp_get();
   cpuprev = bl_cpu_tstamp_get();
 
   for (bl_uword i = 0; i < bl_arr_elems (ratio); ++i) {
     bl_thread_usleep(5000);
-    bl_tstamp t   = bl_get_tstamp();
+    bl_tstamp t   = bl_tstamp_get();
     bl_tstamp cpu = bl_cpu_tstamp_get();
     ratio[i]   = (double) (cpu - cpuprev);
     ratio[i]  /= (double) (t - tprev);

@@ -394,7 +394,7 @@ int main (int argc, char* argv[])
             "remaining elements on delayed list detected: %"BL_FMT_UWORD"\n",
             bl_taskq_delayed_size (&tq->delayed)
             );
-          bl_tstamp curr = bl_get_tstamp();
+          bl_tstamp curr = bl_tstamp_get();
           printf ("current timestamp %"BL_FMT_TSTAMP"\n", curr);
           for (bl_uword j = 0; j < bl_taskq_delayed_size (&tq->delayed); ++j) {
             bl_taskq_delayed_entry const* f =

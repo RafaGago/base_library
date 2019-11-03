@@ -15,61 +15,72 @@
   #define BL_CLOCK_MONOTONIC CLOCK_MONOTONIC /*TODO this isn't posix now...*/
 #endif
 /*---------------------------------------------------------------------------*/
-/* FIXME: this is made inline just to remove warnings*/
+/* 32 bit */
 /*---------------------------------------------------------------------------*/
-#if !defined (BL_TIMESTAMP_64BIT)
-#define bl_tstamp_get_freq() bl_usec_in_sec
+#define bl_tstamp32_get_freq() bl_usec_in_sec
 /*---------------------------------------------------------------------------*/
-static inline bl_tstamp bl_get_tstamp (void)
+static inline bl_tstamp32 bl_tstamp32_get (void)
 {
   struct timespec t;
   clock_gettime (BL_CLOCK_MONOTONIC, &t);
-  return (bl_tstamp)
+  return (bl_tstamp32)
    ((((bl_u64) t.tv_sec) * bl_usec_in_sec) + (t.tv_nsec / bl_nsec_in_usec));
 }
 /*---------------------------------------------------------------------------*/
-#define bl_tstamp_sysclock_get_freq() 1
+#define bl_tstamp32_sysclock_get_freq() 1
 /*---------------------------------------------------------------------------*/
-static inline bl_tstamp bl_tstamp_sysclock_get (void)
+static inline bl_tstamp32 bl_tstamp32_sysclock_get (void)
 {
   struct timespec t;
   clock_gettime (CLOCK_REALTIME, &t);
-  return (bl_tstamp) t.tv_sec;
+  return (bl_tstamp32) t.tv_sec;
 }
 /*---------------------------------------------------------------------------*/
-#include <bl/base/impl/timestamp_funcs_microsecond_base.h>
-#include <bl/base/impl/timestamp_sysclock_funcs_second_base.h>
+static inline bl_tstamp32 bl_tstamp32_sysclock_to_epoch (bl_tstamp32 t)
+{
+  return t;
+}
 /*---------------------------------------------------------------------------*/
+#include <bl/base/impl/generated/timestamp/timestamp32_funcs_microsecond_base.h>
+#include <bl/base/impl/generated/timestamp/timestamp32_sysclock_funcs_second_base.h>
 /*---------------------------------------------------------------------------*/
-#else
+/* 64 bit */
 /*---------------------------------------------------------------------------*/
-#define bl_tstamp_get_freq() bl_nsec_in_sec
+#define bl_tstamp64_get_freq() bl_nsec_in_sec
 /*---------------------------------------------------------------------------*/
-static inline bl_tstamp bl_get_tstamp (void)
+static inline bl_tstamp64 bl_tstamp64_get (void)
 {
   struct timespec t;
   clock_gettime (BL_CLOCK_MONOTONIC, &t);
   return (((bl_u64) t.tv_sec) * bl_nsec_in_sec) + t.tv_nsec;
 }
 /*---------------------------------------------------------------------------*/
-#define bl_tstamp_sysclock_get_freq() bl_nsec_in_sec
+#define bl_tstamp64_sysclock_get_freq() bl_nsec_in_sec
 /*---------------------------------------------------------------------------*/
-static inline bl_tstamp bl_tstamp_sysclock_get (void)
+static inline bl_tstamp64 bl_tstamp64_sysclock_get (void)
 {
   struct timespec t;
   clock_gettime (CLOCK_REALTIME, &t);
   return (((bl_u64) t.tv_sec) * bl_nsec_in_sec) + t.tv_nsec;
 }
 /*---------------------------------------------------------------------------*/
-#include <bl/base/impl/timestamp_funcs_nanosecond_base.h>
-#include <bl/base/impl/timestamp_sysclock_funcs_nanosecond_base.h>
-/*---------------------------------------------------------------------------*/
-#endif /* #if !defined (BL_TIMESTAMP_64BIT) */
-/*---------------------------------------------------------------------------*/
-static inline bl_tstamp bl_tstamp_sysclock_to_epoch (bl_tstamp t)
+static inline bl_tstamp64 bl_tstamp64_sysclock_to_epoch (bl_tstamp64 t)
 {
   return t;
 }
+/*---------------------------------------------------------------------------*/
+#include <bl/base/impl/generated/timestamp/timestamp64_funcs_nanosecond_base.h>
+#include <bl/base/impl/generated/timestamp/timestamp64_sysclock_funcs_nanosecond_base.h>
+/*----------------------------------------------------------------------------*/
+/* timestamp bases. */
+/*----------------------------------------------------------------------------*/
+#if !defined BL_TIMESTAMP_64BIT
+  #include <bl/base/impl/generated/timestamp/timestamp_funcs_microsecond_base.h>
+  #include <bl/base/impl/generated/timestamp/timestamp_sysclock_funcs_second_base.h>
+#else
+  #include <bl/base/impl/generated/timestamp/timestamp_funcs_nanosecond_base.h>
+  #include <bl/base/impl/generated/timestamp/timestamp_sysclock_funcs_nanosecond_base.h>
+#endif /* #if !defined (BL_TIMESTAMP_64BIT) */
 /*---------------------------------------------------------------------------*/
 /* private. for internal use */
 /*---------------------------------------------------------------------------*/
@@ -89,6 +100,5 @@ static inline struct timespec bl_timespec_us_from_now (bl_u32 usec, int clock)
   bl_timespec_normalize (&t);
   return t;
 }
-/*----------------------------------------------------------------------------*/
 
 #endif /* __BL_TIMESTAMP_POSIX_H__ */

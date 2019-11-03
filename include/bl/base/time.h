@@ -19,16 +19,16 @@
 
 /*---------------------------------------------------------------------------*/
 /*
- This header adds the next time functions:
+ This header adds the next time functions in two variants, 32 and 64 bit,
+ suffixed with the 32/64 suffixes. There is an unsuffixed variant that is
+ selected by defining "BL_TIMESTAMP_64BIT".
 
+ All the functions, types or definitions described here are available with
+ and without suffix, e.g. there is bl_tstamp32, bl_tstamp64 and bl_tstamp.
  ---------------------------------------------------------------
  bl_tstamp:
   An unsigned type representing some time units and intended to measure
   time periods. It can wrap and is compared using signed conversion.
-
-  Define "BL_TIMESTAMP_64BIT" most of the time if you want the timestamps to be
-  64 bit (recommended). Having 32-bit timestamps affects the resolution of all
-  the timing functions. The 32-bit timestamp is microcontroller legacy.
 
  bl_tstampdiff:
   The signed counterpart of "bl_tstamp". Its absolute value can be safely added
@@ -87,13 +87,13 @@
   Select one of the input values.
 
  ---------------------------------------------------------------
- "static inline bl_tstamp bl_get_tstamp (void)"
+ "static inline bl_tstamp bl_tstamp_get (void)"
 
   Gets the current timestamp of a monotonic clock. The reference point is
   arbitrary (maybe system boot time) but the clock is always guarenteed to
   advance.
  ---------------------------------------------------------------
- "static inline bl_u64 bl_get_tstamp_freq (void)"
+ "static inline bl_u64 bl_tstamp_get_freq (void)"
 
   Gets the frequency (in Hz) at which the time base of the timestamp is opera-
   ting in. This function may be defined as a macro if the value is known
@@ -137,8 +137,8 @@
 
    Convert a raw timestamp to a value representing time e.g:
 
-    bl_tstamp prev     = bl_get_tstamp();
-    bl_tstamp now      = bl_get_tstamp();
+    bl_tstamp prev     = bl_tstamp_get();
+    bl_tstamp now      = bl_tstamp_get();
     bl_word elapsed_ns = bl_tstamp_to_nsec (now - prev);
  ---------------------------------------------------------------
  "static inline bl_toffset bl_tstamp_to_sec_ceil (bl_tstamp ts)"
