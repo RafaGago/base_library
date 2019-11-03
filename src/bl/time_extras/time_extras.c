@@ -30,14 +30,14 @@ enough values for the clock calculations"*/
 /* used as dispersion window size for the conversion to sysclock functions.
 Values within the range specified here are consided a same group.*/
 #ifndef BL_TIME_TO_SYSCLOCK_MAX_SAMPLE_DRIFT_NS
-  #define BL_TIME_TO_SYSCLOCK_MAX_SAMPLE_DRIFT_NS 50
+  #define BL_TIME_TO_SYSCLOCK_MAX_SAMPLE_DRIFT_NS 30
 #endif
 
 /* used as dispersion window size for calculation of the CPU clock frequency
 (when available). This clock is calibrated against the monotonic clock and
 calculated as a ratio to it. Hence the parts per million (PPM) units. */
 #ifndef BL_TIME_CPUFREQ_MAX_SAMPLE_PPM
-  #define BL_TIME_CPUFREQ_MAX_SAMPLE_PPM 30
+  #define BL_TIME_CPUFREQ_MAX_SAMPLE_PPM 20
 #endif
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/

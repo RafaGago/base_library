@@ -14,8 +14,8 @@
 static void timepoint32_not_very_broken (void **state)
 {
   enum {
-    sleep_us = (bl_uword) BL_SCHED_TMIN_US * 20,
-    ubound   = (bl_uword) sleep_us * 2,
+    sleep_us = 70000,
+    ubound   = 80000,
   };
   bl_timept32 start    = bl_timept32_get();
   bl_thread_usleep (sleep_us);
@@ -51,8 +51,8 @@ static void timepoint32_maxes (void **state)
 static void timepoint64_not_very_broken (void **state)
 {
   enum {
-    sleep_us = (bl_uword) BL_SCHED_TMIN_US * 20,
-    ubound   = (bl_uword) sleep_us * 2,
+    sleep_us = 70000,
+    ubound   = 80000,
   };
   bl_timept64 start    = bl_timept64_get();
   bl_thread_usleep (sleep_us);

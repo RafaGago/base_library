@@ -45,7 +45,7 @@ static void bl_cpu_timept_vs_timept_test (void **state)
   atomic_sigfence (bl_mo_acq_rel);
 
   for (bl_uword i = 0; i < 20; ++i) {
-    bl_thread_yield(); /* context switching in-between minimization attempt.*/
+    bl_thread_usleep(5000);
     bl_timept t = bl_timept_get();
     /* this smoke test may fail spuriosly if the scheduler preempts this thread
     here too many times. The 15 value is conservative enough.*/
