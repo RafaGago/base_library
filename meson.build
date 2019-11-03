@@ -51,7 +51,7 @@ install_subdir ('include/bl', install_dir : 'include')
 
 relacy_path = 'gitmodules/relacy'
 
-cflags = [ '-D_GNU_SOURCE', '-DBL_COMPILATION' ]
+cflags = [ '-D_GNU_SOURCE' ]
 lib_cflags = []
 test_cflags = []
 host_system = host_machine.system()
@@ -160,7 +160,7 @@ base_lib = build_target(
     base_srcs,
     target_type         : libtype,
     include_directories : include_dirs,
-    c_args              : cflags + lib_cflags,
+    c_args              : cflags + lib_cflags + ['-DBL_COMPILATION'],
     install             : true
     )
 pkg_mod.generate(
@@ -176,7 +176,7 @@ if not get_option ('bare')
         executable(
             'bl-base-test',
             base_test_srcs,
-            c_args              : cflags + test_cflags,
+            c_args              : cflags + test_cflags + ['-DBL_COMPILATION'],
             include_directories : test_include_dirs,
             link_with           : base_lib,
             link_args           : test_link_args,
@@ -217,7 +217,7 @@ nonblock_lib = build_target(
     nonblock_srcs,
     target_type         : libtype,
     include_directories : include_dirs,
-    c_args              : cflags + lib_cflags,
+    c_args              : cflags + lib_cflags + ['-DBL_COMPILATION'],
     install             : true
     )
 pkg_mod.generate(
@@ -234,7 +234,7 @@ if not get_option ('bare')
             'bl-nonblock-test',
             nonblock_test_srcs,
             include_directories : test_include_dirs,
-            c_args              : cflags + test_cflags,
+            c_args              : cflags + test_cflags + ['-DBL_COMPILATION'],
             link_with           : [ base_lib, nonblock_lib] ,
             link_args           : test_link_args,
             dependencies        : threads
@@ -267,7 +267,7 @@ taskqueue_lib = build_target(
     taskqueue_srcs,
     target_type         : libtype,
     include_directories : include_dirs,
-    c_args              : cflags + lib_cflags,
+    c_args              : cflags + lib_cflags + ['-DBL_COMPILATION'],
     install             : true
     )
 pkg_mod.generate(
@@ -284,7 +284,7 @@ if not get_option ('bare')
             'bl-taskqueue-test',
             taskqueue_test_srcs,
             include_directories : test_include_dirs,
-            c_args              : cflags + test_cflags,
+            c_args              : cflags + test_cflags + ['-DBL_COMPILATION'],
             link_with           : [ base_lib, nonblock_lib, taskqueue_lib ],
             link_args           : test_link_args,
             dependencies        : threads
@@ -293,7 +293,7 @@ if not get_option ('bare')
         'bl-taskqueue-stress',
         taskqueue_stress_test_srcs,
         include_directories : test_include_dirs,
-        c_args              : cflags,
+        c_args              : cflags + ['-DBL_COMPILATION'],
         link_with           : [ base_lib, nonblock_lib ],
         dependencies        : threads
         )
@@ -310,7 +310,7 @@ serial_lib = build_target(
     'bl-serial',
     serial_srcs,
     target_type         : libtype,
-    c_args              : cflags + lib_cflags,
+    c_args              : cflags + lib_cflags + ['-DBL_COMPILATION'],
     include_directories : include_dirs,
     install             : true
     )
@@ -338,7 +338,7 @@ getopt_lib = build_target(
     getopt_srcs,
     target_type         : libtype,
     include_directories : include_dirs,
-    c_args              : cflags + lib_cflags,
+    c_args              : cflags + lib_cflags + ['-DBL_COMPILATION'],
     install             : true
     )
 pkg_mod.generate(
@@ -354,7 +354,7 @@ if not get_option ('bare')
         executable(
             'bl-getopt-test',
             getopt_test_srcs,
-            c_args              : cflags,
+            c_args              : cflags + ['-DBL_COMPILATION'],
             include_directories : test_include_dirs,
             link_args           : test_link_args,
         ))
@@ -374,7 +374,7 @@ if get_option ('timepoint_64bit')
         t_extras_srcs,
         target_type         : libtype,
         include_directories : include_dirs,
-        c_args              : cflags + lib_cflags,
+        c_args              : cflags + lib_cflags + ['-DBL_COMPILATION'],
         install             : true
         )
     pkg_mod.generate(
@@ -390,7 +390,7 @@ if get_option ('timepoint_64bit')
             executable(
                 'bl-t_extras-test',
                 t_extras_test_srcs,
-                c_args              : cflags,
+                c_args              : cflags + ['-DBL_COMPILATION'],
                 include_directories : test_include_dirs,
                 link_with           : [ base_lib , t_extras_lib ] ,
                 link_args           : test_link_args,
