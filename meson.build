@@ -82,9 +82,12 @@ endif
 threads = dependency ('threads')
 
 cdata = configuration_data()
-if get_option ('timestamp_64bit')
-    cflags += [ '-DBL_TIMESTAMP_64BIT' ]
-    cdata.set ('timestamp_64_placeholder', '#define BL_TIMESTAMP_64BIT')
+if get_option ('timepoint_64bit')
+    cflags += [ '-DBL_TIMEPOINT_BITS=64' ]
+    cdata.set ('timepoint_placeholder', '#define BL_TIMEPOINT_BITS 64')
+else
+    cflags += [ '-DBL_TIMEPOINT_BITS=32' ]
+    cdata.set ('timepoint_placeholder', '#define BL_TIMEPOINT_BITS 32')
 endif
 
 cdata.set ('version', version)
@@ -109,7 +112,7 @@ base_srcs = [
     'src/bl/base/autoarray.c',
     'src/bl/base/thread_micro_sleep.c',
     'src/bl/base/hex_string.c',
-    'src/bl/base/timestamp_funcs_arbitrary_base.c',
+    'src/bl/base/timepoint_funcs_arbitrary_base.c',
     'src/bl/base/string.c',
     'src/bl/base/dynamic_string.c',
     'src/bl/base/dynamic_string_replace.c',
@@ -357,7 +360,7 @@ if not get_option ('bare')
 endif
 
 # - time_extras-----------------------------------------------------------------
-if get_option ('timestamp_64bit')
+if get_option ('timepoint_64bit')
     t_extras_srcs = [
         'src/bl/time_extras/time_extras.c',
     ]

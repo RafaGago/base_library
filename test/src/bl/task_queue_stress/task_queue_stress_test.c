@@ -117,7 +117,7 @@ int producer_thread_delayed (producer_thread_data* td, bl_u32 timeout_us)
 {
   bl_taskq_id id;
   bl_err   err;
-  bl_tstamp   tp_cancel;
+  bl_timept   tp_cancel;
 
   while (td->remaining) {
     err = bl_taskq_post_delayed(
@@ -146,7 +146,7 @@ int producer_thread_delayed (producer_thread_data* td, bl_u32 timeout_us)
 }
 /*----------------------------------------------------------------------------*/
 static inline bool producer_thread_post_delayed_cancel(
-  producer_thread_data* td, bl_taskq_id id, bl_tstamp tp_cancel
+  producer_thread_data* td, bl_taskq_id id, bl_timept tp_cancel
   )
 {
   bl_err err;
@@ -175,7 +175,7 @@ int producer_thread_delayed_cancel(
 {
   bl_taskq_id id;
   bl_err   err;
-  bl_tstamp   tp_cancel;
+  bl_timept   tp_cancel;
 
   while (td->remaining) {
     err = bl_taskq_post_delayed(
@@ -394,13 +394,13 @@ int main (int argc, char* argv[])
             "remaining elements on delayed list detected: %"BL_FMT_UWORD"\n",
             bl_taskq_delayed_size (&tq->delayed)
             );
-          bl_tstamp curr = bl_tstamp_get();
-          printf ("current timestamp %"BL_FMT_TSTAMP"\n", curr);
+          bl_timept curr = bl_timept_get();
+          printf ("current timepoint %"BL_FMT_TSTAMP"\n", curr);
           for (bl_uword j = 0; j < bl_taskq_delayed_size (&tq->delayed); ++j) {
             bl_taskq_delayed_entry const* f =
               bl_taskq_delayed_at (&tq->delayed, j);
             printf(
-              "delayed list element %"BL_FMT_UWORD" timestamp: %"BL_FMT_TSTAMP"\n",
+              "delayed list element %"BL_FMT_UWORD" timepoint: %"BL_FMT_TSTAMP"\n",
                j,
                f->time
               );

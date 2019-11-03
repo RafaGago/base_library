@@ -31,13 +31,13 @@ task_cmd;
 /*---------------------------------------------------------------------------*/
 typedef struct delayed_cmd {
   bl_taskq_task task;
-  bl_tstamp     tp;
+  bl_timept     tp;
 }
 delayed_cmd;
 /*---------------------------------------------------------------------------*/
 typedef struct delayed_cancel_cmd {
   bl_taskq_id id;
-  bl_tstamp   tp;
+  bl_timept   tp;
 }
 delayed_cancel_cmd;
 /*---------------------------------------------------------------------------*/
@@ -177,7 +177,7 @@ BL_TASKQ_EXPORT bl_err bl_taskq_run_one (bl_taskq* tq, bl_u32 timeout_us)
   }
   /*slow path*/
   bool   has_deadline = timeout_us != bl_taskq_no_timeout;
-  bl_tstamp deadline     = 0;
+  bl_timept deadline     = 0;
   if (has_deadline) {
     err = bl_deadline_init (&deadline, timeout_us);
     if (bl_unlikely (err.bl)) {
@@ -202,9 +202,9 @@ BL_TASKQ_EXPORT bl_err bl_taskq_run_one (bl_taskq* tq, bl_u32 timeout_us)
     }
     bl_u32 sem_us;
     if (has_deadline) {
-      bl_tstamp now = bl_tstamp_get();
+      bl_timept now = bl_timept_get();
       if (!bl_deadline_expired_explicit (deadline, now)) {
-        sem_us = bl_tstamp_to_usec_ceil (deadline - now);
+        sem_us = bl_timept_to_usec_ceil (deadline - now);
       }
       else {
         ierr = bl_mkerr (bl_timeout);
@@ -323,7 +323,7 @@ BL_TASKQ_EXPORT bl_err
 BL_TASKQ_EXPORT bl_err bl_taskq_post_delayed_abs(
   bl_taskq*     tq,
   bl_taskq_id*  id,
-  bl_tstamp     abs_time_point,
+  bl_timept     abs_time_point,
   bl_taskq_task task
   )
 {
@@ -336,7 +336,7 @@ BL_TASKQ_EXPORT bl_err bl_taskq_post_delayed_abs(
 }
 /*---------------------------------------------------------------------------*/
 BL_TASKQ_EXPORT bl_err bl_taskq_post_try_cancel_delayed(
-  bl_taskq* tq, bl_taskq_id id, bl_tstamp abs_time_point
+  bl_taskq* tq, bl_taskq_id id, bl_timept abs_time_point
   )
 {
   bl_assert (tq);
@@ -393,7 +393,7 @@ BL_TASKQ_EXPORT bl_err bl_taskq_init(
     bl_taskq struct using just one allocator call, bl_oringb has the
     "init_extern" call in which the user externally provides the buffer */
   err = bl_taskq_delayed_init(
-    &tq->delayed, bl_tstamp_get(), delayed_capacity, alloc
+    &tq->delayed, bl_timept_get(), delayed_capacity, alloc
     );
   if (err.bl) {
     goto bl_taskq_queue_destroy;

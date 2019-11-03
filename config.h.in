@@ -18,5 +18,5 @@
 #define BL_VERSION \
   BL_VERSION_GET(BL_VERSION_MAJOR, BL_VERSION_MINOR, BL_VERSION_REV)
 
-@timestamp_64_placeholder@
+@timepoint_placeholder@
 #endif

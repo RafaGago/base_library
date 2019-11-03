@@ -6,28 +6,28 @@
 #define BL_TSTAMP_MOCK_FOR_TESTS 1
 #include <bl/base/time.h>
 
-static inline bl_tstamp32 bl_tstamp32_get (void)
+static inline bl_timept32 bl_timept32_get (void)
 {
-  return (bl_tstamp32) mock();
+  return (bl_timept32) mock();
 }
 
-static inline bl_tstamp64 bl_tstamp64_get (void)
+static inline bl_timept64 bl_timept64_get (void)
 {
-  return (bl_tstamp64) mock();
+  return (bl_timept64) mock();
 }
 /*---------------------------------------------------------------------------*/
-#if !defined BL_TIMESTAMP_64BIT
-  static inline void tstamp_will_return (unsigned v)
+#if BL_TIMEPOINT_BITS == 32
+  static inline void timept_will_return (unsigned v)
   {
-    will_return (bl_tstamp32_get, bl_usec_to_tstamp32 (v));
+    will_return (bl_timept32_get, bl_usec_to_timept32 (v));
   }
-  #define bl_tstamp_get() bl_tstamp32_get()
+  #define bl_timept_get() bl_timept32_get()
 #else
-  static inline void tstamp_will_return (unsigned v)
+  static inline void timept_will_return (unsigned v)
   {
-    will_return (bl_tstamp64_get, bl_usec_to_tstamp64 (v));
+    will_return (bl_timept64_get, bl_usec_to_timept64 (v));
   }
-  #define bl_tstamp_get() bl_tstamp64_get()
+  #define bl_timept_get() bl_timept64_get()
 #endif
 /*---------------------------------------------------------------------------*/
 #include <bl/base/default_allocator.h>
@@ -71,7 +71,7 @@ static int bl_taskq_test_setup (void **state)
   c.alloc       = bl_get_default_alloc();
   c.last_id     = unset_id;
   c.last_err.bl = unset_err;
-  tstamp_will_return (0);
+  timept_will_return (0);
   bl_err err = bl_taskq_init (&c.tq, &c.alloc, queue_size, delayed_size);
   assert_true (err.bl == bl_ok);
   return 0;
@@ -107,27 +107,27 @@ static void bl_taskq_test_simple (void **state)
 static void bl_taskq_test_simple_delayed (void **state)
 {
   bl_taskq_id            id = 0;
-  bl_tstamp              tp_cancel;
+  bl_timept              tp_cancel;
   bl_taskq_test_context* c;
   bl_taskq_task          task;
   bl_err              err;
 
   c   = (bl_taskq_test_context*) *state;
   task = bl_taskq_task_rv (bl_taskq_callback, c);
-  tstamp_will_return (0);
+  timept_will_return (0);
   err = bl_taskq_post_delayed (c->tq, &id, &tp_cancel, task, 2000);
   assert_true (!err.bl);
-  tstamp_will_return (1000);
+  timept_will_return (1000);
   err = bl_taskq_try_run_one (c->tq);
   assert_true (err.bl == bl_nothing_to_do);
   assert_true (c->last_err.bl == unset_err);
   assert_true (c->last_id == unset_id);
-  tstamp_will_return (1999);
+  timept_will_return (1999);
   err = bl_taskq_try_run_one (c->tq);
   assert_true (err.bl == bl_nothing_to_do);
   assert_true (c->last_err.bl == unset_err);
   assert_true (c->last_id == unset_id);
-  tstamp_will_return (2000);
+  timept_will_return (2000);
   err = bl_taskq_try_run_one (c->tq);
   assert_true (!err.bl);
   assert_true (c->last_err.bl == bl_ok);
@@ -137,39 +137,39 @@ static void bl_taskq_test_simple_delayed (void **state)
 static void bl_taskq_test_two_delayed (void **state)
 {
   bl_taskq_id            id = 0, id2 = 0;
-  bl_tstamp              tp_cancel;
+  bl_timept              tp_cancel;
   bl_taskq_test_context* c;
   bl_taskq_task          task;
   bl_err              err;
 
   c   = (bl_taskq_test_context*) *state;
   task = bl_taskq_task_rv (bl_taskq_callback, c);
-  tstamp_will_return (0);
+  timept_will_return (0);
   err = bl_taskq_post_delayed (c->tq, &id, &tp_cancel, task, 2000);
   assert_true (!err.bl);
-  tstamp_will_return (1);
+  timept_will_return (1);
   err = bl_taskq_try_run_one (c->tq);
   assert_true (err.bl == bl_nothing_to_do);
   assert_true (c->last_err.bl == unset_err);
   assert_true (c->last_id == unset_id);
 
-  tstamp_will_return (2);
+  timept_will_return (2);
   err = bl_taskq_post_delayed (c->tq, &id2, &tp_cancel, task, 1000);
   assert_true (!err.bl);
-  tstamp_will_return (3);
-  tstamp_will_return (3);
+  timept_will_return (3);
+  timept_will_return (3);
   err = bl_taskq_try_run_one (c->tq);
   assert_true (err.bl == bl_nothing_to_do);
   assert_true (c->last_err.bl == unset_err);
   assert_true (c->last_id == unset_id);
 
-  tstamp_will_return (1999);
+  timept_will_return (1999);
   err = bl_taskq_try_run_one (c->tq);
   assert_true (!err.bl);
   assert_true (c->last_err.bl == bl_ok);
   assert_true (c->last_id == id2);
 
-  tstamp_will_return (2000);
+  timept_will_return (2000);
   err = bl_taskq_try_run_one (c->tq);
   assert_true (!err.bl);
   assert_true (c->last_err.bl == bl_ok);
@@ -179,29 +179,31 @@ static void bl_taskq_test_two_delayed (void **state)
 static void bl_taskq_test_two_delayed_same_tp (void **state)
 {
   bl_taskq_id            id  = 0, id2 = 0;
-  bl_tstamp              tp_cancel;
+  bl_timept              tp_cancel;
   bl_taskq_test_context* c;
   bl_taskq_task          task;
   bl_err              err;
 
   c   = (bl_taskq_test_context*) *state;
   task = bl_taskq_task_rv (bl_taskq_callback, c);
-  tstamp_will_return (0);
+
+  timept_will_return (0);
   err = bl_taskq_post_delayed (c->tq, &id, &tp_cancel, task, 2000);
   assert_true (!err.bl);
 
-  tstamp_will_return (1);
+  timept_will_return (1);
   err = bl_taskq_post_delayed (c->tq, &id2, &tp_cancel, task, 1999);
   assert_true (!err.bl);
 
-  tstamp_will_return (1999);
-  tstamp_will_return (1999);
+  timept_will_return (1999);
+  timept_will_return (1999);
+
   err = bl_taskq_try_run_one (c->tq);
   assert_true (err.bl == bl_nothing_to_do);
   assert_true (c->last_err.bl == unset_err);
   assert_true (c->last_id == unset_id);
 
-  tstamp_will_return (2000);
+  timept_will_return (2000);
   err = bl_taskq_try_run_one (c->tq);
   assert_true (!err.bl);
   assert_true (c->last_err.bl == bl_ok);
@@ -216,17 +218,19 @@ static void bl_taskq_test_two_delayed_same_tp (void **state)
 static void bl_taskq_test_delayed_expired_on_first_run (void **state)
 {
   bl_taskq_id            id = 0;
-  bl_tstamp              tp_cancel;
+  bl_timept              tp_cancel;
   bl_taskq_test_context* c;
   bl_taskq_task          task;
   bl_err              err;
 
   c   = (bl_taskq_test_context*) *state;
   task = bl_taskq_task_rv (bl_taskq_callback, c);
-  tstamp_will_return (0);
+
+  timept_will_return (0);
   err = bl_taskq_post_delayed (c->tq, &id, &tp_cancel, task, 2000);
   assert_true (!err.bl);
-  tstamp_will_return (2000);
+  timept_will_return (2000);
+
   err = bl_taskq_try_run_one (c->tq);
   assert_true (!err.bl);
   assert_true (c->last_err.bl == bl_ok);
@@ -247,23 +251,24 @@ static void bl_taskq_test_queue_overflow (void **state)
 static void bl_taskq_test_delayed_queue_overflow (void **state)
 {
   bl_taskq_id            id[delayed_size + 1];
-  bl_tstamp              tp_cancel;
+  bl_timept              tp_cancel;
   bl_taskq_test_context* c;
   bl_taskq_task          task;
   bl_err              err;
 
   c   = (bl_taskq_test_context*) *state;
   task = bl_taskq_task_rv (bl_taskq_callback, c);
-  tstamp_will_return (0);
-  tstamp_will_return (1);
-  tstamp_will_return (2);
+  timept_will_return (0);
+  timept_will_return (1);
+  timept_will_return (2);
 
   for (bl_uword i = 0; i < bl_arr_elems (id); ++i) {
     err = bl_taskq_post_delayed (c->tq, &id[i], &tp_cancel, task, 2000);
     assert_true (!err.bl);
   }
-  tstamp_will_return (3);
-  tstamp_will_return (4);
+  timept_will_return (3);
+  timept_will_return (4);
+
   err = bl_taskq_try_run_one (c->tq);
   assert_true (!err.bl);
   /*user is resposible of not overflowing the timer queue*/
@@ -274,13 +279,13 @@ static void bl_taskq_test_delayed_queue_overflow (void **state)
 static void bl_taskq_test_post_try_cancel_delayed (void **state)
 {
   bl_taskq_id            id = 0;
-  bl_tstamp              tp_cancel;
+  bl_timept              tp_cancel;
   bl_taskq_test_context* c;
   bl_taskq_task          task;
   bl_err              err;
 
-  tstamp_will_return (0);
-  tstamp_will_return (1);
+  timept_will_return (0);
+  timept_will_return (1);
 
   c   = (bl_taskq_test_context*) *state;
   task = bl_taskq_task_rv (bl_taskq_callback, c);
@@ -302,8 +307,8 @@ static void bl_taskq_test_post_try_cancel_delayed (void **state)
 static void bl_taskq_run_one_timeout (void **state)
 {
   bl_taskq_test_context* c = (bl_taskq_test_context*) *state;
-  tstamp_will_return (0);
-  tstamp_will_return (0);
+  timept_will_return (0);
+  timept_will_return (0);
   bl_err err = bl_taskq_run_one (c->tq, BL_SCHED_TMIN_US + 1);
   assert_true (err.bl == bl_timeout);
 }
@@ -311,9 +316,10 @@ static void bl_taskq_run_one_timeout (void **state)
 static void bl_taskq_run_one_timeout_under_sched (void **state)
 {
   bl_taskq_test_context* c = (bl_taskq_test_context*) *state;
-  tstamp_will_return (0);
-  tstamp_will_return (BL_SCHED_TMIN_US - 1);
-  tstamp_will_return (BL_SCHED_TMIN_US);
+  timept_will_return (0);
+  timept_will_return (BL_SCHED_TMIN_US - 1);
+  timept_will_return (BL_SCHED_TMIN_US);
+
   bl_err err = bl_taskq_run_one (c->tq, BL_SCHED_TMIN_US);
   assert_true (err.bl == bl_timeout);
 }
@@ -321,7 +327,7 @@ static void bl_taskq_run_one_timeout_under_sched (void **state)
 static void bl_taskq_run_one_pending_delayed (void **state)
 {
   bl_taskq_id            id;
-  bl_tstamp              tp_cancel;
+  bl_timept              tp_cancel;
   bl_taskq_test_context* c;
   bl_taskq_task          task;
   bl_err              err;
@@ -329,11 +335,11 @@ static void bl_taskq_run_one_pending_delayed (void **state)
   c   = (bl_taskq_test_context*) *state;
   task = bl_taskq_task_rv (bl_taskq_callback, c);
 
-  tstamp_will_return (0); /*bl_taskq_post_delayed*/
-  tstamp_will_return (0); /*bl_taskq_try_run_one*/
-  tstamp_will_return (0); /*bl_taskq_run_one, init expiration*/
-  tstamp_will_return (1); /*bl_taskq_run_one, calc sem timeout*/
-  tstamp_will_return ((BL_SCHED_TMIN_US * 2) - 1); /*bl_taskq_try_run_one
+  timept_will_return (0); /*bl_taskq_post_delayed*/
+  timept_will_return (0); /*bl_taskq_try_run_one*/
+  timept_will_return (0); /*bl_taskq_run_one, init expiration*/
+  timept_will_return (1); /*bl_taskq_run_one, calc sem timeout*/
+  timept_will_return ((BL_SCHED_TMIN_US * 2) - 1); /*bl_taskq_try_run_one
                                                            after sem wake up*/
   err = bl_taskq_post_delayed(
     c->tq, &id, &tp_cancel, task, BL_SCHED_TMIN_US * 2

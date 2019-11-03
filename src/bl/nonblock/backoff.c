@@ -19,10 +19,10 @@ void bl_nonblock_backoff_init(
   bl_nonblock_backoff* nb,
   bl_uword             spin_max,
   bl_uword             yield_max,
-  bl_toffset           sleep_us_init,
-  bl_toffset           sleep_mul,
-  bl_toffset           sleep_div,
-  bl_toffset           sleep_us_max
+  bl_timeoft           sleep_us_init,
+  bl_timeoft           sleep_mul,
+  bl_timeoft           sleep_div,
+  bl_timeoft           sleep_us_max
   )
 {
   bl_assert (sleep_us_init > 0);
@@ -39,25 +39,25 @@ void bl_nonblock_backoff_init(
 }
 /*----------------------------------------------------------------------------*/
 BL_NONBLOCK_EXPORT
-void bl_nonblock_backoff_init_default (bl_nonblock_backoff* nb, bl_toffset sleep_us_max)
+void bl_nonblock_backoff_init_default (bl_nonblock_backoff* nb, bl_timeoft sleep_us_max)
 {
    bl_nonblock_backoff_init (nb, 40, 20, BL_SCHED_TMIN_US, 1, 3, sleep_us_max);
 }
 /*----------------------------------------------------------------------------*/
-static bl_toffset nonblock_get_next_sleep_ns (bl_nonblock_backoff* nb)
+static bl_timeoft nonblock_get_next_sleep_ns (bl_nonblock_backoff* nb)
 {
-  bl_toffset nsleep = nb->sleep_ns;
+  bl_timeoft nsleep = nb->sleep_ns;
   bl_i64 add        = nsleep * 2048;
   add           *= nb->sleep_mul;
   add           /= nb->sleep_div;
-  nsleep        += (bl_toffset) add / 2048;
+  nsleep        += (bl_timeoft) add / 2048;
   nsleep         = bl_max (nb->sleep_ns, nsleep);
   nsleep         = bl_min (nb->sleep_ns_max, nsleep);
   return nsleep;
 }
 /*----------------------------------------------------------------------------*/
 BL_NONBLOCK_EXPORT
-bl_toffset bl_nonblock_backoff_next_sleep_us (bl_nonblock_backoff* nb)
+bl_timeoft bl_nonblock_backoff_next_sleep_us (bl_nonblock_backoff* nb)
 {
   if (nb->spin < nb->spin_max || nb->yield < nb->yield_max) {
     return 0;

@@ -48,12 +48,12 @@ extern BL_SERIAL_EXPORT void bl_serial_stop (bl_serial* s);
 /* This call is to be called from just one thread. 0 = nonblocking. No partial
   reads are returned in case of a timeout */
 extern BL_SERIAL_EXPORT bl_err bl_serial_read(
-  bl_serial* s, bl_memr rbuff, bl_toffset timeout_us
+  bl_serial* s, bl_memr rbuff, bl_timeoft timeout_us
   );
 /*----------------------------------------------------------------------------*/
 /* This call is to be called from just one thread.*/
 extern BL_SERIAL_EXPORT bl_err bl_serial_write(
-  bl_serial* s, bl_memr wbuff, bl_u32* written, bl_toffset timeout_us
+  bl_serial* s, bl_memr wbuff, bl_u32* written, bl_timeoft timeout_us
   );
 /*----------------------------------------------------------------------------*/
 extern BL_SERIAL_EXPORT bl_err bl_serial_ioctl_get(

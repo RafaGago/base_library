@@ -1,5 +1,5 @@
-#ifndef __BL_TIMESTAMP_H__
-#define __BL_TIMESTAMP_H__
+#ifndef __BL_TIMEPOINT_H__
+#define __BL_TIMEPOINT_H__
 
 /*----------------------------------------------------------------------------*/
 #include <bl/base/platform.h>
@@ -9,30 +9,30 @@
 /*---------------------------------------------------------------------------*/
 /* 32 bit */
 /*---------------------------------------------------------------------------*/
-typedef bl_u32 bl_tstamp32;
-typedef bl_i32 bl_tstamp32diff;
-typedef bl_u32 bl_toffset32;
+typedef bl_u32 bl_timept32;
+typedef bl_i32 bl_timept32diff;
+typedef bl_u32 bl_timeoft32;
 /*---------------------------------------------------------------------------*/
-static inline bl_tstamp32diff
-  bl_tstamp32_get_diff (bl_tstamp32 a, bl_tstamp32 b)
+static inline bl_timept32diff
+  bl_timept32_get_diff (bl_timept32 a, bl_timept32 b)
 {
   bl_static_assert(
     bl_has_two_comp_arithmetic,
     "this is just valid on systems with complement of two arithmetic"
     );
-  return (bl_tstamp32diff) (a - b);
+  return (bl_timept32diff) (a - b);
 }
 /*---------------------------------------------------------------------------*/
-#define bl_tstamp32_max_safe_add_sub ((bl_utype_max (bl_tstamp32) >> 1) - 1)
+#define bl_timept32_max_safe_add_sub ((bl_utype_max (bl_timept32) >> 1) - 1)
 /*---------------------------------------------------------------------------*/
-static inline bl_tstamp32 bl_tstamp32_max (bl_tstamp32 a, bl_tstamp32 b)
+static inline bl_timept32 bl_timept32_max (bl_timept32 a, bl_timept32 b)
 {
-  return bl_tstamp32_get_diff (a, b) >= 0 ? a : b;
+  return bl_timept32_get_diff (a, b) >= 0 ? a : b;
 }
 /*---------------------------------------------------------------------------*/
-static inline bl_tstamp32 bl_tstamp32_min (bl_tstamp32 a, bl_tstamp32 b)
+static inline bl_timept32 bl_timept32_min (bl_timept32 a, bl_timept32 b)
 {
-  return bl_tstamp32_get_diff (a, b) <= 0 ? a : b;
+  return bl_timept32_get_diff (a, b) <= 0 ? a : b;
 }
 /*---------------------------------------------------------------------------*/
 /*the BL_FMT_TSTAMP printf format macro requires including
@@ -50,30 +50,30 @@ static inline bl_tstamp32 bl_tstamp32_min (bl_tstamp32 a, bl_tstamp32 b)
 /*---------------------------------------------------------------------------*/
 /* 64 bit */
 /*---------------------------------------------------------------------------*/
-typedef bl_u64 bl_tstamp64;
-typedef bl_i64 bl_tstamp64diff;
-typedef bl_u64 bl_toffset64;
+typedef bl_u64 bl_timept64;
+typedef bl_i64 bl_timept64diff;
+typedef bl_u64 bl_timeoft64;
 /*---------------------------------------------------------------------------*/
-static inline bl_tstamp64diff
-  bl_tstamp64_get_diff (bl_tstamp64 a, bl_tstamp64 b)
+static inline bl_timept64diff
+  bl_timept64_get_diff (bl_timept64 a, bl_timept64 b)
 {
   bl_static_assert(
     bl_has_two_comp_arithmetic,
     "this is just valid on systems with complement of two arithmetic"
     );
-  return (bl_tstamp64diff) (a - b);
+  return (bl_timept64diff) (a - b);
 }
 /*---------------------------------------------------------------------------*/
-#define bl_tstamp64_max_safe_add_sub ((bl_utype_max (bl_tstamp64) >> 1) - 1)
+#define bl_timept64_max_safe_add_sub ((bl_utype_max (bl_timept64) >> 1) - 1)
 /*---------------------------------------------------------------------------*/
-static inline bl_tstamp64 bl_tstamp64_max (bl_tstamp64 a, bl_tstamp64 b)
+static inline bl_timept64 bl_timept64_max (bl_timept64 a, bl_timept64 b)
 {
-  return bl_tstamp64_get_diff (a, b) >= 0 ? a : b;
+  return bl_timept64_get_diff (a, b) >= 0 ? a : b;
 }
 /*---------------------------------------------------------------------------*/
-static inline bl_tstamp64 bl_tstamp64_min (bl_tstamp64 a, bl_tstamp64 b)
+static inline bl_timept64 bl_timept64_min (bl_timept64 a, bl_timept64 b)
 {
-  return bl_tstamp64_get_diff (a, b) <= 0 ? a : b;
+  return bl_timept64_get_diff (a, b) <= 0 ? a : b;
 }
 /*---------------------------------------------------------------------------*/
 /*the BL_FMT_TSTAMP printf format macro requires including
@@ -91,16 +91,16 @@ static inline bl_tstamp64 bl_tstamp64_min (bl_tstamp64 a, bl_tstamp64 b)
 /*---------------------------------------------------------------------------*/
 /* common */
 /*---------------------------------------------------------------------------*/
-#if !defined BL_TIMESTAMP_64BIT
+#if BL_TIMEPOINT_BITS == 32
 
-typedef bl_tstamp32     bl_tstamp;
-typedef bl_tstamp32diff bl_tstampdiff;
-typedef bl_toffset32    bl_toffset;
+typedef bl_timept32     bl_timept;
+typedef bl_timept32diff bl_timeptdiff;
+typedef bl_timeoft32    bl_timeoft;
 
-#define bl_tstamp_get_diff(x, y)   bl_tstamp32_get_diff (x, y)
-#define bl_tstamp_max_safe_add_sub bl_tstamp32_max_safe_add_sub
-#define bl_tstamp_max(x, y)        bl_tstamp32_max (x, y)
-#define bl_tstamp_min(x, y)        bl_tstamp32_min (x, y)
+#define bl_timept_get_diff(x, y)   bl_timept32_get_diff (x, y)
+#define bl_timept_max_safe_add_sub bl_timept32_max_safe_add_sub
+#define bl_timept_max(x, y)        bl_timept32_max (x, y)
+#define bl_timept_min(x, y)        bl_timept32_min (x, y)
 
 #define BL_FMT_TSTAMP       BL_FMT_TSTAMP32
 #define BL_FMT_TSTAMPDIFF   BL_FMT_TSTAMP32DIFF
@@ -114,16 +114,16 @@ typedef bl_toffset32    bl_toffset;
 #define FMT_TSTAMPOFFSET FMT_TSTAMP32OFFSET
 #endif
 
-#else /* 64 bit timestamps */
+#else /* 64 bit timepoints */
 
-typedef bl_tstamp64     bl_tstamp;
-typedef bl_tstamp64diff bl_tstampdiff;
-typedef bl_toffset64    bl_toffset;
+typedef bl_timept64     bl_timept;
+typedef bl_timept64diff bl_timeptdiff;
+typedef bl_timeoft64    bl_timeoft;
 
-#define bl_tstamp_get_diff(x, y)   bl_tstamp64_get_diff (x, y)
-#define bl_tstamp_max_safe_add_sub bl_tstamp64_max_safe_add_sub
-#define bl_tstamp_max(x, y)        bl_tstamp64_max (x, y)
-#define bl_tstamp_min(x, y)        bl_tstamp64_min (x, y)
+#define bl_timept_get_diff(x, y)   bl_timept64_get_diff (x, y)
+#define bl_timept_max_safe_add_sub bl_timept64_max_safe_add_sub
+#define bl_timept_max(x, y)        bl_timept64_max (x, y)
+#define bl_timept_min(x, y)        bl_timept64_min (x, y)
 
 #define BL_FMT_TSTAMP       BL_FMT_TSTAMP64
 #define BL_FMT_TSTAMPDIFF   BL_FMT_TSTAMP64DIFF
@@ -137,40 +137,40 @@ typedef bl_toffset64    bl_toffset;
 #define FMT_TSTAMPOFFSET FMT_TSTAMP64OFFSET
 #endif
 
-#endif /* 64 bit timestamps */
+#endif /* 64 bit timepoints */
 
 /*---------------------------------------------------------------------------*/
 #if defined (BL_TSTAMP_CUSTOM_INCLUDE)
   #include BL_TSTAMP_CUSTOM_INCLUDE
 #elif defined (BL_TSTAMP_MOCK_FOR_TESTS)
-  #include <bl/base/impl/timestamp_to_mock.h>
+  #include <bl/base/impl/timepoint_to_mock.h>
 #elif defined (BL_POSIX)
-  #include <bl/base/impl/timestamp_posix.h>
+  #include <bl/base/impl/timepoint_posix.h>
 #elif defined (BL_WINDOWS)
-  #include <bl/base/impl/timestamp_windows.h>
+  #include <bl/base/impl/timepoint_windows.h>
 #else
-  #error "no bl_tstamp implementation available"
+  #error "no bl_timept implementation available"
 #endif
 /*---------------------------------------------------------------------------*/
-/* Default timestamp */
+/* Default timepoint */
 /*---------------------------------------------------------------------------*/
 #if !defined BL_TSTAMP_MOCK_FOR_TESTS
-#if !defined BL_TIMESTAMP_64BIT
+#if BL_TIMEPOINT_BITS == 32
 
-#define bl_tstamp_get_freq()           bl_tstamp32_get_freq()
-#define bl_tstamp_get()                bl_tstamp32_get()
-#define bl_tstamp_sysclock_get_freq()  bl_tstamp32_sysclock_get_freq()
-#define bl_tstamp_sysclock_get()       bl_tstamp32_sysclock_get()
-#define bl_tstamp_sysclock_to_epoch(t) bl_tstamp32_sysclock_to_epoch (t)
+#define bl_timept_get_freq()           bl_timept32_get_freq()
+#define bl_timept_get()                bl_timept32_get()
+#define bl_timept_sysclock_get_freq()  bl_timept32_sysclock_get_freq()
+#define bl_timept_sysclock_get()       bl_timept32_sysclock_get()
+#define bl_timept_sysclock_to_epoch(t) bl_timept32_sysclock_to_epoch (t)
 
 #else
 
-#define bl_tstamp_get_freq()           bl_tstamp64_get_freq()
-#define bl_tstamp_get()                bl_tstamp64_get()
-#define bl_tstamp_sysclock_get_freq()  bl_tstamp64_sysclock_get_freq()
-#define bl_tstamp_sysclock_get()       bl_tstamp64_sysclock_get()
-#define bl_tstamp_sysclock_to_epoch(t) bl_tstamp64_sysclock_to_epoch (t)
+#define bl_timept_get_freq()           bl_timept64_get_freq()
+#define bl_timept_get()                bl_timept64_get()
+#define bl_timept_sysclock_get_freq()  bl_timept64_sysclock_get_freq()
+#define bl_timept_sysclock_get()       bl_timept64_sysclock_get()
+#define bl_timept_sysclock_to_epoch(t) bl_timept64_sysclock_to_epoch (t)
 
-#endif /* #if !defined (BL_TIMESTAMP_64BIT) */
+#endif /* #if BL_TIMEPOINT_BITS == 32 */
 #endif /* #if !defined BL_TSTAMP_MOCK_FOR_TESTS */
-#endif /*__BL_TIMESTAMP_H__*/
+#endif /*__BL_TIMEPOINT_H__*/

@@ -21,29 +21,29 @@
 /*
  This header adds the next time functions in two variants, 32 and 64 bit,
  suffixed with the 32/64 suffixes. There is an unsuffixed variant that is
- selected by defining "BL_TIMESTAMP_64BIT".
+ selected by defining BL_TIMEPOINT_BITS to 32 or 64
 
  All the functions, types or definitions described here are available with
- and without suffix, e.g. there is bl_tstamp32, bl_tstamp64 and bl_tstamp.
+ and without suffix, e.g. there is bl_timept32, bl_timept64 and bl_timept.
  ---------------------------------------------------------------
- bl_tstamp:
+ bl_timept:
   An unsigned type representing some time units and intended to measure
   time periods. It can wrap and is compared using signed conversion.
 
- bl_tstampdiff:
-  The signed counterpart of "bl_tstamp". Its absolute value can be safely added
-  or substracted to a bl_tstamp.
+ bl_timeptdiff:
+  The signed counterpart of "bl_timept". Its absolute value can be safely added
+  or substracted to a bl_timept.
 
- bl_toffset:
+ bl_timeoft:
   An unsigned type representing time in time units (sec, usec ...).
 
   ---------------------------------------------------------------
  BL_FMT_TSTAMP, BL_FMT_TSTAMPDIFF and BL_FMT_TSTAMPOFF define the printf
-  integer format string for the bl_tstamp, bl_tstampdiff and bl_tstampoffset
+  integer format string for the bl_timept, bl_timeptdiff and bl_timeptimeoft
   types.
 
   ---------------------------------------------------------------
-  bl_tstampdiff bl_tstamp_get_diff (bl_tstamp a, bl_tstamp b)
+  bl_timeptdiff bl_timept_get_diff (bl_timept a, bl_timept b)
 
   Returns:
     negative: a is before b (a smaller than b)
@@ -75,118 +75,118 @@
   As can be observed, the expiration wraps around for each given value at
   half the data type resolution (7 bits in this case) minus one, so the result
   of this comparison is absolutely time dependant and wraps. Nothing new;
-  every timestamp wraps at some point (64 bit timestamps can take several
+  every timepoint wraps at some point (64 bit timepoints can take several
   hundred years to wrap with nanosecond resolution. This is designed mostly
   to be able to use small data types for short periods of time e.g.
   on microcontrollers).
 
  ---------------------------------------------------------------
-  static inline bl_tstamp bl_tstamp_max (bl_tstamp a, bl_tstamp b);
-  static inline bl_tstamp bl_tstamp_min (bl_tstamp a, bl_tstamp b);
+  static inline bl_timept bl_timept_max (bl_timept a, bl_timept b);
+  static inline bl_timept bl_timept_min (bl_timept a, bl_timept b);
 
   Select one of the input values.
 
  ---------------------------------------------------------------
- "static inline bl_tstamp bl_tstamp_get (void)"
+ "static inline bl_timept bl_timept_get (void)"
 
-  Gets the current timestamp of a monotonic clock. The reference point is
+  Gets the current timepoint of a monotonic clock. The reference point is
   arbitrary (maybe system boot time) but the clock is always guarenteed to
   advance.
  ---------------------------------------------------------------
- "static inline bl_u64 bl_tstamp_get_freq (void)"
+ "static inline bl_u64 bl_timept_get_freq (void)"
 
-  Gets the frequency (in Hz) at which the time base of the timestamp is opera-
+  Gets the frequency (in Hz) at which the time base of the timepoint is opera-
   ting in. This function may be defined as a macro if the value is known
   at compile time (Don't try to take the address of the "function").
 
-  On most cases you may want to use the "bl_tstamp_to_sec/msec/usec/nsec"
+  On most cases you may want to use the "bl_timept_to_sec/msec/usec/nsec"
   function series instead of doing conversions manually.
 
  ---------------------------------------------------------------
- "static inline bl_tstamp bl_tstamp_sysclock_get (void)"
+ "static inline bl_timept bl_timept_sysclock_get (void)"
 
-  Gets the current timestamp of a system clock. The reference point is
+  Gets the current timepoint of a system clock. The reference point is
   arbitrary (the one returned by the OS).
 
   On Unix derivatives this is based on CLOCK_REALTIME, on Windows this is
   implemented through a call to "GetSystemTimeAsFileTime".
 
-  Be aware that sysclock timestamps don't need to be on the same units of its
+  Be aware that sysclock timepoints don't need to be on the same units of its
   underlying call.
  ---------------------------------------------------------------
  "static inline bl_u64 bl_get_sysclock_freq (void)"
 
-  Gets the frequency (in Hz) at which the time base of the timestamp is opera-
+  Gets the frequency (in Hz) at which the time base of the timepoint is opera-
   ting in. This function may be defined as a macro if the value is known
   at compile time (Don't try to take the address of the "function").
 
   ---------------------------------------------------------------
- "static inline bl_tstamp bl_tstamp_sysclock_to_epoch (bl_tstamp)"
+ "static inline bl_timept bl_timept_sysclock_to_epoch (bl_timept)"
 
   Makes a sysclock call to be referenced to UNIX epoch. This is a no-op on UNIX
   OSes.
  ---------------------------------------------------------------
- "static inline bl_toffset bl_tstamp_to_sec (bl_tstamp ts)"
- "static inline bl_toffset bl_tstamp_to_msec (bl_tstamp ts)"
- "static inline bl_toffset bl_tstamp_to_usec (bl_tstamp ts)"
- "static inline bl_toffset bl_tstamp_to_nsec (bl_tstamp ts)"
- "static inline bl_toffset bl_tstamp_sysclock_to_sec (bl_tstamp ts)"
- "static inline bl_toffset bl_tstamp_sysclock_to_msec (bl_tstamp ts)"
- "static inline bl_toffset bl_tstamp_sysclock_to_usec (bl_tstamp ts)"
- "static inline bl_toffset bl_tstamp_sysclock_to_nsec (bl_tstamp ts)"
+ "static inline bl_timeoft bl_timept_to_sec (bl_timept ts)"
+ "static inline bl_timeoft bl_timept_to_msec (bl_timept ts)"
+ "static inline bl_timeoft bl_timept_to_usec (bl_timept ts)"
+ "static inline bl_timeoft bl_timept_to_nsec (bl_timept ts)"
+ "static inline bl_timeoft bl_timept_sysclock_to_sec (bl_timept ts)"
+ "static inline bl_timeoft bl_timept_sysclock_to_msec (bl_timept ts)"
+ "static inline bl_timeoft bl_timept_sysclock_to_usec (bl_timept ts)"
+ "static inline bl_timeoft bl_timept_sysclock_to_nsec (bl_timept ts)"
 
-   Convert a raw timestamp to a value representing time e.g:
+   Convert a raw timepoint to a value representing time e.g:
 
-    bl_tstamp prev     = bl_tstamp_get();
-    bl_tstamp now      = bl_tstamp_get();
-    bl_word elapsed_ns = bl_tstamp_to_nsec (now - prev);
+    bl_timept prev     = bl_timept_get();
+    bl_timept now      = bl_timept_get();
+    bl_word elapsed_ns = bl_timept_to_nsec (now - prev);
  ---------------------------------------------------------------
- "static inline bl_toffset bl_tstamp_to_sec_ceil (bl_tstamp ts)"
- "static inline bl_toffset bl_tstamp_to_msec_ceil (bl_tstamp ts)"
- "static inline bl_toffset bl_tstamp_to_usec_ceil (bl_tstamp ts)"
- "static inline bl_toffset bl_tstamp_to_nsec_ceil (bl_tstamp ts)"
- "static inline bl_toffset bl_tstamp_sysclock_to_sec_ceil (bl_tstamp ts)"
- "static inline bl_toffset bl_tstamp_sysclock_to_msec_ceil (bl_tstamp ts)"
- "static inline bl_toffset bl_tstamp_sysclock_to_usec_ceil (bl_tstamp ts)"
- "static inline bl_toffset bl_tstamp_sysclock_to_nsec_ceil (bl_tstamp ts)"
+ "static inline bl_timeoft bl_timept_to_sec_ceil (bl_timept ts)"
+ "static inline bl_timeoft bl_timept_to_msec_ceil (bl_timept ts)"
+ "static inline bl_timeoft bl_timept_to_usec_ceil (bl_timept ts)"
+ "static inline bl_timeoft bl_timept_to_nsec_ceil (bl_timept ts)"
+ "static inline bl_timeoft bl_timept_sysclock_to_sec_ceil (bl_timept ts)"
+ "static inline bl_timeoft bl_timept_sysclock_to_msec_ceil (bl_timept ts)"
+ "static inline bl_timeoft bl_timept_sysclock_to_usec_ceil (bl_timept ts)"
+ "static inline bl_timeoft bl_timept_sysclock_to_nsec_ceil (bl_timept ts)"
 
     Same as above, but the values are rounded to the ceiling.
  ---------------------------------------------------------------
- "static inline bl_tstamp bl_sec_to_tstamp (bl_toffset sec_min)"
- "static inline bl_tstamp bl_msec_to_tstamp (bl_toffset msec_min)"
- "static inline bl_tstamp bl_usec_to_tstamp (bl_toffset usec_min)"
- "static inline bl_tstamp bl_nsec_to_tstamp (bl_toffset nsec_min)"
- "static inline bl_tstamp bl_sec_to_tstamp_sysclock (bl_toffset sec_min)"
- "static inline bl_tstamp bl_msec_to_tstamp_sysclock (bl_toffset msec_min)"
- "static inline bl_tstamp bl_usec_to_tstamp_sysclock (bl_toffset usec_min)"
- "static inline bl_tstamp bl_nsec_to_tstamp_sysclock (bl_toffset nsec_min)"
+ "static inline bl_timept bl_sec_to_timept (bl_timeoft sec_min)"
+ "static inline bl_timept bl_msec_to_timept (bl_timeoft msec_min)"
+ "static inline bl_timept bl_usec_to_timept (bl_timeoft usec_min)"
+ "static inline bl_timept bl_nsec_to_timept (bl_timeoft nsec_min)"
+ "static inline bl_timept bl_sec_to_timept_sysclock (bl_timeoft sec_min)"
+ "static inline bl_timept bl_msec_to_timept_sysclock (bl_timeoft msec_min)"
+ "static inline bl_timept bl_usec_to_timept_sysclock (bl_timeoft usec_min)"
+ "static inline bl_timept bl_nsec_to_timept_sysclock (bl_timeoft nsec_min)"
 
    Gets an offset that is AT LEAST the given amount which can be added or
-   subtracted to a timestamp.
+   subtracted to a timepoint.
 
    Be aware that values are rounded up to the next clock resolution step
    (except 0).
 
-   In other bl_words, if on one hypothetical system the timestamps have a 1ms
+   In other bl_words, if on one hypothetical system the timepoints have a 1ms
    resolution trying to get a 1ns offset will effectively yield a 1ms offset.
 
    Be aware that this can have very high cummulative errors, e.g on the pre-
    vious system getting the offset of (what it seems to be) "1ns" and adding
-   it up three times will increment the timestamp 3ms instead of 3ns.
+   it up three times will increment the timepoint 3ms instead of 3ns.
 
    If one wants to get the timer resolution this call can give it:
 
-   "bl_tstamp_to_nsec_ceil (bl_nsec_to_tstamp (1))"
+   "bl_timept_to_nsec_ceil (bl_nsec_to_timept (1))"
 
  ---------------------------------------------------------------
- "static inline bl_toffset bl_sec_to_tstamp_max (void)"
- "static inline bl_toffset bl_msec_to_tstamp_max (void)"
- "static inline bl_toffset bl_usec_to_tstamp_max (void)"
- "static inline bl_toffset bl_nsec_to_tstamp_max (void)"
- "static inline bl_toffset bl_sec_to_tstamp_sysclock_max (void)"
- "static inline bl_toffset bl_msec_to_tstamp_sysclock_max (void)"
- "static inline bl_toffset bl_usec_to_tstamp_sysclock_max (void)"
- "static inline bl_toffset bl_nsec_to_tstamp_sysclock_max (void)"
+ "static inline bl_timeoft bl_sec_to_timept_max (void)"
+ "static inline bl_timeoft bl_msec_to_timept_max (void)"
+ "static inline bl_timeoft bl_usec_to_timept_max (void)"
+ "static inline bl_timeoft bl_nsec_to_timept_max (void)"
+ "static inline bl_timeoft bl_sec_to_timept_sysclock_max (void)"
+ "static inline bl_timeoft bl_msec_to_timept_sysclock_max (void)"
+ "static inline bl_timeoft bl_usec_to_timept_sysclock_max (void)"
+ "static inline bl_timeoft bl_nsec_to_timept_sysclock_max (void)"
 
    Get the maximum input value that any of the functions above can take.
    This function group may be defined as macros if all values are known
@@ -197,6 +197,6 @@
 
  ---------------------------------------------------------------
 */
-#include <bl/base/impl/timestamp.h>
+#include <bl/base/impl/timepoint.h>
 /*----------------------------------------------------------------------------*/
 #endif /* __BL_TIME_H__ */

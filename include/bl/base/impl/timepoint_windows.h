@@ -1,5 +1,5 @@
-#ifndef __TIMESTAMP_WINDOWS_H__
-#define __TIMESTAMP_WINDOWS_H__
+#ifndef __TIMEPOINT_WINDOWS_H__
+#define __TIMEPOINT_WINDOWS_H__
 
 /* this file is made to be included from <bl/base/time.h>, it is just
    to avoid clutter on that file, hence the lack of some includes to make it
@@ -26,79 +26,79 @@ static inline bl_u64 bl_qpc_get_freq (void)
 /*---------------------------------------------------------------------------*/
 /* 64 bit */
 /*---------------------------------------------------------------------------*/
-static inline bl_tstamp64 bl_tstamp64_get_freq (void)
+static inline bl_timept64 bl_timept64_get_freq (void)
 {
   return bl_qpc_get_freq();
 }
 /*---------------------------------------------------------------------------*/
-static inline bl_tstamp64 bl_tstamp64_get (void)
+static inline bl_timept64 bl_timept64_get (void)
 {
   LARGE_INTEGER t;
   bl_assert_always (QueryPerformanceCounter (&t) != 0);
-  return (bl_tstamp64) t.QuadPart;
+  return (bl_timept64) t.QuadPart;
 }
 /*---------------------------------------------------------------------------*/
-#include <bl/base/impl/timestamp64_funcs_arbitrary_base.h>
+#include <bl/base/impl/timepoint64_funcs_arbitrary_base.h>
 /*---------------------------------------------------------------------------*/
-static inline bl_tstamp64 bl_tstamp64_sysclock_get (void)
+static inline bl_timept64 bl_timept64_sysclock_get (void)
 {
   FILETIME t;
   bl_u64 f = bl_qpc_get_freq();
   GetSystemTimeAsFileTime (&t);
   bl_u64 res = (bl_u64) t.dwLowDateTime | (((bl_u64) t.dwHighDateTime) << 32);
   res *= 100; /*to nsec*/
-  return (bl_tstamp64) res;
+  return (bl_timept64) res;
 }
 /*---------------------------------------------------------------------------*/
-#define bl_tstamp64_sysclock_get_freq() bl_nsec_in_sec
+#define bl_timept64_sysclock_get_freq() bl_nsec_in_sec
 /*---------------------------------------------------------------------------*/
-static inline bl_tstamp64 bl_tstamp64_sysclock_to_epoch (bl_tstamp t)
+static inline bl_timept64 bl_timept64_sysclock_to_epoch (bl_timept t)
 {
   return t - (116444736000000000LL * 100);
 }
 /*---------------------------------------------------------------------------*/
-#include <bl/base/impl/timestamp64_sysclock_funcs_nanosecond_base.h>
+#include <bl/base/impl/timepoint64_sysclock_funcs_nanosecond_base.h>
 /*---------------------------------------------------------------------------*/
 /* 32 bit */
 /*---------------------------------------------------------------------------*/
-static inline bl_tstamp32 bl_tstamp32_get_freq (void)
+static inline bl_timept32 bl_timept32_get_freq (void)
 {
-  return (bl_tstamp32) bl_tstamp64_get_freq();
+  return (bl_timept32) bl_timept64_get_freq();
 }
 /*---------------------------------------------------------------------------*/
-static inline bl_tstamp32 bl_tstamp32_get (void)
+static inline bl_timept32 bl_timept32_get (void)
 {
-  return (bl_tstamp32) bl_tstamp32_get();
+  return (bl_timept32) bl_timept32_get();
 }
 /*---------------------------------------------------------------------------*/
-#include <bl/base/impl/timestamp32_funcs_arbitrary_base.h>
+#include <bl/base/impl/timepoint32_funcs_arbitrary_base.h>
 /*---------------------------------------------------------------------------*/
-static inline bl_tstamp32 bl_tstamp32_sysclock_get (void)
+static inline bl_timept32 bl_timept32_sysclock_get (void)
 {
   FILETIME t;
   bl_u64 f = bl_qpc_get_freq();
   GetSystemTimeAsFileTime (&t);
   bl_u64 res = (bl_u64) t.dwLowDateTime | (((bl_u64) t.dwHighDateTime) << 32);
   res /= bl_usec_in_sec * 10; /*to sec*/
-  return (bl_tstamp32) res;
+  return (bl_timept32) res;
 }
 /*---------------------------------------------------------------------------*/
-static inline bl_tstamp32 bl_tstamp32_sysclock_to_epoch (bl_tstamp32 t)
+static inline bl_timept32 bl_timept32_sysclock_to_epoch (bl_timept32 t)
 {
-  return (bl_tstamp32)(t - (116444736000000000LL / (bl_usec_in_sec * 10)));
+  return (bl_timept32)(t - (116444736000000000LL / (bl_usec_in_sec * 10)));
 }
 /*---------------------------------------------------------------------------*/
-#define bl_tstamp32_sysclock_get_freq() 1
+#define bl_timept32_sysclock_get_freq() 1
 /*---------------------------------------------------------------------------*/
-#include <bl/base/impl/timestamp32_sysclock_funcs_second_base.h>
+#include <bl/base/impl/timepoint32_sysclock_funcs_second_base.h>
 /*----------------------------------------------------------------------------*/
-/* timestamp bases. */
+/* timepoint bases. */
 /*----------------------------------------------------------------------------*/
-#include <bl/base/impl/timestamp_funcs_arbitrary_base.h>
-#if !defined BL_TIMESTAMP_64BIT
-  #include <bl/base/impl/generated/timestamp/timestamp_sysclock_funcs_second_base.h>
+#include <bl/base/impl/timepoint_funcs_arbitrary_base.h>
+#if BL_TIMEPOINT_BITS == 32
+  #include <bl/base/impl/generated/timepoint/timepoint_sysclock_funcs_second_base.h>
 #else
-  #include <bl/base/impl/generated/timestamp/timestamp_funcs_nanosecond_base.h>
-#endif /* #if !defined (BL_TIMESTAMP_64BIT) */
+  #include <bl/base/impl/generated/timepoint/timepoint_funcs_nanosecond_base.h>
+#endif /* #if BL_TIMEPOINT_BITS == 32 */
 /*----------------------------------------------------------------------------*/
-#endif /* __TIMESTAMP_WINDOWS_H__ */
+#endif /* __TIMEPOINT_WINDOWS_H__ */

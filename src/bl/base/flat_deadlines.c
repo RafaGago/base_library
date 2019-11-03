@@ -2,9 +2,9 @@
 #include <bl/base/deadline.h>
 
 /*--------------------------------------------------------------------------*/
-static inline bl_tstamp get_fdbl_tstamp (void const* v)
+static inline bl_timept get_fdbl_timept (void const* v)
 {
-  return *((bl_tstamp*) v);
+  return *((bl_timept*) v);
 }
 /*--------------------------------------------------------------------------*/
 static bl_word bl_flat_deadlines_ordering_func(
@@ -13,18 +13,18 @@ static bl_word bl_flat_deadlines_ordering_func(
 {
   bl_flat_deadlines* l = (bl_flat_deadlines*) context;
   return bl_deadline_compare(
-    get_fdbl_tstamp (a) - l->time_offset, get_fdbl_tstamp (b) - l->time_offset
+    get_fdbl_timept (a) - l->time_offset, get_fdbl_timept (b) - l->time_offset
     );
 }
 /*--------------------------------------------------------------------------*/
 BL_EXPORT void const* bl_flat_deadlines_get_head_if_expired(
   bl_flat_deadlines* dl,
   bl_uword           elem_size,
-  bool               dont_acquire_new_tstamp,
-  bl_tstamp          now
+  bool               dont_acquire_new_timept,
+  bl_timept          now
   )
 {
-  bl_tstamp const* d = (bl_tstamp*) bl_flat_deadlines_get_head (dl, elem_size);
+  bl_timept const* d = (bl_timept*) bl_flat_deadlines_get_head (dl, elem_size);
 
   if (!d) {
     return nullptr;
@@ -32,10 +32,10 @@ BL_EXPORT void const* bl_flat_deadlines_get_head_if_expired(
   if (bl_unlikely (bl_deadline_expired_explicit (*d, dl->time_offset))) {
     return (void*) d;
   }
-  /* as the list ordering rotates to allow timestamp wrap around (and O(1) */
+  /* as the list ordering rotates to allow timepoint wrap around (and O(1) */
   /* lookup for the next expired candidate) it is wrong to move the rotation */
   /*   offset while still having outdated items on the list */
-  dl->time_offset = (dont_acquire_new_tstamp) ? now : bl_tstamp_get();
+  dl->time_offset = (dont_acquire_new_timept) ? now : bl_timept_get();
   return (void*)
     bl_deadline_expired_explicit (*d, dl->time_offset) ? d : nullptr;
 }
@@ -81,7 +81,7 @@ BL_EXPORT bool bl_flat_deadlines_try_get_and_drop(
     }
     ++idx;
   }
-  while (idx < size && get_fdbl_tstamp (f) == get_fdbl_tstamp (find));
+  while (idx < size && get_fdbl_timept (f) == get_fdbl_timept (find));
   return false;
 success:
   memcpy (dst, f, elem_size);

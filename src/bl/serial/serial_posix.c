@@ -464,7 +464,7 @@ BL_SERIAL_EXPORT void bl_serial_stop (bl_serial* s)
 }
 /*----------------------------------------------------------------------------*/
 BL_SERIAL_EXPORT bl_err bl_serial_read(
-  bl_serial* s, bl_memr rbuff, bl_toffset timeout_us
+  bl_serial* s, bl_memr rbuff, bl_timeoft timeout_us
   )
 {
   bl_assert (s);
@@ -492,7 +492,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_read(
     return bl_mkok();
   }
 
-  bl_tstamp deadline = 0;
+  bl_timept deadline = 0;
   bl_err err      = bl_mkok();
   if (timeout_us != 0) {
     err =  bl_deadline_init (&deadline, timeout_us);
@@ -509,14 +509,14 @@ BL_SERIAL_EXPORT bl_err bl_serial_read(
     if (rd != 0) {
       continue;
     }
-    bl_tstampdiff diff = (timeout_us != 0) ?
-      bl_deadline_compare (deadline, bl_tstamp_get()) : -1;
+    bl_timeptdiff diff = (timeout_us != 0) ?
+      bl_deadline_compare (deadline, bl_timept_get()) : -1;
       /*context switches from here to the pselect will be suboptimal*/
     if (diff <= 0) {
       err = bl_mkerr (bl_timeout);
       goto rollback;
     }
-    bl_uword us_pending = bl_tstamp_to_usec_ceil ((bl_tstamp) diff);
+    bl_uword us_pending = bl_timept_to_usec_ceil ((bl_timept) diff);
 
     fd_set fds;
     FD_ZERO (&fds);
@@ -544,7 +544,7 @@ rollback:
 }
 /*----------------------------------------------------------------------------*/
 BL_SERIAL_EXPORT bl_err bl_serial_write(
-  bl_serial* s, bl_memr wbuff, bl_u32* written, bl_toffset timeout_us
+  bl_serial* s, bl_memr wbuff, bl_u32* written, bl_timeoft timeout_us
   )
 {
   bl_assert (s);
@@ -557,7 +557,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_write(
   }
 
   *written        = 0;
-  bl_tstamp deadline = 0;
+  bl_timept deadline = 0;
   bl_err err      = bl_mkok();
   if (timeout_us != 0) {
     err = bl_deadline_init (&deadline, timeout_us);
@@ -575,12 +575,12 @@ BL_SERIAL_EXPORT bl_err bl_serial_write(
     struct timespec t;
     struct timespec* t_ptr = nullptr;
     if (timeout_us != 0) {
-      bl_tstampdiff diff = bl_deadline_compare (deadline, bl_tstamp_get());
+      bl_timeptdiff diff = bl_deadline_compare (deadline, bl_timept_get());
       if (diff <= 0) {
         err = bl_mkerr (bl_timeout);
         goto end;
       }
-      bl_uword us_pending = bl_tstamp_to_usec_ceil ((bl_tstamp) diff);
+      bl_uword us_pending = bl_timept_to_usec_ceil ((bl_timept) diff);
       t.tv_sec  = us_pending / bl_usec_in_sec;
       t.tv_nsec = (us_pending - (t.tv_sec * bl_usec_in_sec)) * bl_nsec_in_usec;
       t_ptr     = &t;

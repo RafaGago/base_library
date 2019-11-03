@@ -92,7 +92,7 @@ semaphores, etc), the algorithms may not be lock-free.
 
 Depends on: base, nonblock
 
-A queue for worker/event dispatcher threads. Based on wrapping timestamps orde-
+A queue for worker/event dispatcher threads. Based on wrapping timepoints orde-
 red in an array based associative container, some lockfree queues and a
 semaphore.
 
@@ -113,7 +113,7 @@ avoids some segfaults found in some (major) POSIX implementations.
 ------------------------------------------
 
 Additional time functions that make no sense as header-only because they require
-logic and state. Only enabled when the "timestamp_64bit" meson option is true.
+logic and state. Only enabled when the "timepoint_64bit" meson option is true.
 It adds:
 
 - Conversion from monotonic to calendar time.

@@ -34,12 +34,12 @@ wait_thread_context;
 typedef struct thread_context {
   bl_tm_sem*            sem;
   pthread_barrier_t*    barrier;
-  bl_atomic_uword*         force_abort;
-  bl_uword                 id;
-  bl_uword                 remaining;
-  bl_u32                   wait_us;
+  bl_atomic_uword*      force_abort;
+  bl_uword              id;
+  bl_uword              remaining;
+  bl_u32                wait_us;
   bl_err                last_error;
-  bl_tstamp                elapsed;
+  bl_timept             elapsed;
   bool                  is_signaler;
   signal_thread_context s;
   wait_thread_context   w;
@@ -64,7 +64,7 @@ static inline void signaler_wait (thread_context* c)
   if (c->wait_us == 0) {
     return;
   }
-  bl_tstamp d;
+  bl_timept d;
   bl_deadline_init (&d, c->wait_us);
   while (!bl_deadline_expired (d)) {
     for (bl_uword i = 0; i < 600; ++i) {
@@ -140,14 +140,14 @@ int thread (void* context)
       "on " thcon_hdr ": barrier error %d", thcon_hdr_v (c), barrier_err
       );
   }
-  bl_tstamp start = bl_tstamp_get();
+  bl_timept start = bl_timept_get();
   if (c->is_signaler) {
     run_signaler (c);
   }
   else {
     run_waiter (c);
   }
-  c->elapsed = bl_tstamp_get() - start;
+  c->elapsed = bl_timept_get() - start;
   return 0;
 }
 /*----------------------------------------------------------------------------*/
@@ -184,14 +184,14 @@ bool join_thread_and_print (thread_context* c, bl_thread* t)
     printf(
       " sig thr finished: us=%"BL_FMT_TSTAMP", overflows=%"BL_FMT_UWORD" " thcon_hdr
       "\n",
-      bl_tstamp_to_usec (c->elapsed), c->s.overflow, thcon_hdr_v (c)
+      bl_timept_to_usec (c->elapsed), c->s.overflow, thcon_hdr_v (c)
       );
   }
   else {
     printf(
       " wait thr finished: us=%"BL_FMT_TSTAMP", timeouts=%"BL_FMT_UWORD" " thcon_hdr
       "\n",
-      bl_tstamp_to_usec (c->elapsed), c->w.timed_out, thcon_hdr_v (c)
+      bl_timept_to_usec (c->elapsed), c->w.timed_out, thcon_hdr_v (c)
       );
   }
   return true;
