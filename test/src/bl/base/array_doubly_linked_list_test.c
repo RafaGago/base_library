@@ -1,6 +1,6 @@
 #include <bl/cmocka_pre.h>
 
-#include <bl/base/impl/array_doubly_linked_list_u8.h>
+#include <bl/base/impl/generated/array_doubly_linked_list_u8.h>
 
 #include <bl/base/utility.h>
 #include <bl/base/to_type_containing.h>

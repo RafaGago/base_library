@@ -2,8 +2,7 @@
 This file is used for autogeneration and is invalid C. The extension is kept to
 make the code editor color the syntax.
 
-To regenerate use scripts/autogenerator.sh:
-autogenerator.sh -f <THIS_FILE> -r TYPE=u8 -r TYPE=u16 -r TYPE=u32 -r TYPE=u64
+To regenerate use scripts/autogenerate.sh:
 
 This is BAD, but IMO it was worse to have criptic-macro based generic data
 structures. This library is designed to be statically linked, so some of the
@@ -11,7 +10,7 @@ code has different translation units which can be easily discarded by the
 linker.
 */
 /*---------------------------------------------------------------------------*/
-/* AUTOGENERATE: include/bl/base/impl/array_linked_list_{TYPE}.h */
+/* AUTOGENERATE: include/bl/base/impl/generated/array_linked_list_{TYPE}.h */
 /*---------------------------------------------------------------------------*/
 #ifndef __BL_ARRAY_LINKED_LIST_{TYPE}_H__
 #define __BL_ARRAY_LINKED_LIST_{TYPE}_H__
@@ -143,10 +142,10 @@ extern BL_EXPORT bl_alnls_{TYPE}_it
 #endif /* #define __BL_ARRAY_LINKED_LIST_{TYPE}_H__ */
 
 /*---------------------------------------------------------------------------*/
-/* AUTOGENERATE: src/bl/base/alnls/array_linked_list_{TYPE}_basic.c */
+/* AUTOGENERATE: src/bl/base/generated/alnls/array_linked_list_{TYPE}_basic.c */
 /*---------------------------------------------------------------------------*/
 
-#include <bl/base/impl/array_linked_list_{TYPE}.h>
+#include <bl/base/impl/generated/array_linked_list_{TYPE}.h>
 
 BL_EXPORT void bl_alnls_{TYPE}_init_impl(
   bl_alnls_{TYPE}* l, bl_{TYPE}* nodes, bl_uword nodes_capacity
@@ -207,10 +206,10 @@ BL_EXPORT bl_alnls_{TYPE}_it
   return prev_head;
 }
 /*---------------------------------------------------------------------------*/
-/* AUTOGENERATE: src/bl/base/alnls/array_linked_list_{TYPE}_extended.c */
+/* AUTOGENERATE: src/bl/base/generated/alnls/array_linked_list_{TYPE}_extended.c */
 /*---------------------------------------------------------------------------*/
 
-#include <bl/base/impl/array_linked_list_{TYPE}.h>
+#include <bl/base/impl/generated/array_linked_list_{TYPE}.h>
 
 static void bl_alnls_{TYPE}_find_two_previous_nodes(
   bl_alnls_{TYPE}*    l,

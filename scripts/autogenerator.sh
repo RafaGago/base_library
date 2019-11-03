@@ -145,8 +145,8 @@ for KEYVALUES in $REPLACEMENTS; do
   for KEYVALUE in $KEYVALUES; do
     #Restore spaces
     KEYVALUE=$(echo $KEYVALUE | sed "s|$SPACE_ENCODING| |g")
-    KEY=$(echo $KEYVALUE | sed 's|\([^=]*\)=[^=]*|\1|g')
-    VAL=$(echo $KEYVALUE | sed 's|[^=]*=\([^=]*\)|\1|g')
+    KEY=$(echo $KEYVALUE | cut -d = -f 1)
+    VAL=$(echo $KEYVALUE | cut -d = -f 2)
     if [[ -z $KEY ]]; then
       errcho "no valid KEY in: $KEYVALUE"
       exit 1

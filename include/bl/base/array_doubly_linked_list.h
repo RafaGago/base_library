@@ -16,10 +16,10 @@
   For further usage reference see the unit tests for this type.
 */
 /*---------------------------------------------------------------------------*/
-#include <bl/base/impl/array_doubly_linked_list_u8.h>
-#include <bl/base/impl/array_doubly_linked_list_u16.h>
-#include <bl/base/impl/array_doubly_linked_list_u32.h>
-#include <bl/base/impl/array_doubly_linked_list_u64.h>
+#include <bl/base/impl/generated/array_doubly_linked_list_u8.h>
+#include <bl/base/impl/generated/array_doubly_linked_list_u16.h>
+#include <bl/base/impl/generated/array_doubly_linked_list_u32.h>
+#include <bl/base/impl/generated/array_doubly_linked_list_u64.h>
 
 #endif /* __BL_ARRAY_DOUBLY_LINKED_LIST_H__ */
 
