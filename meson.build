@@ -289,7 +289,7 @@ if not get_option ('bare')
             link_args           : test_link_args,
             dependencies        : threads
         ))
-    executable(
+    tqs = executable(
         'bl-taskqueue-stress',
         taskqueue_stress_test_srcs,
         include_directories : test_include_dirs,
@@ -297,6 +297,7 @@ if not get_option ('bare')
         link_with           : [ base_lib, nonblock_lib ],
         dependencies        : threads
         )
+    test ('taskqueue-stress', tqs, args : [ '2' ])
 endif
 
 # - serial ---------------------------------------------------------------------
