@@ -54,10 +54,6 @@ relacy_path = 'gitmodules/relacy'
 cflags = [ '-D_GNU_SOURCE' ]
 lib_cflags = []
 test_cflags = []
-host_system = host_machine.system()
-if host_system == 'linux'
-    cflags += [ '-DBL_USE_CLOCK_MONOTONIC_RAW' ]
-endif
 
 if get_option ('sharedlib')
     libtype = 'shared_library'
@@ -75,6 +71,7 @@ endif
 
 test_link_args = [ libcmocka_path ]
 
+host_system = host_machine.system()
 if host_system == 'windows'
     test_link_args += ['-lwinmm.lib'] # Untested
 endif
@@ -88,6 +85,13 @@ if get_option ('timepoint_64bit')
 else
     cflags += [ '-DBL_TIMEPOINT_BITS=32' ]
     cdata.set ('timepoint_placeholder', '#define BL_TIMEPOINT_BITS 32')
+endif
+
+if host_system == 'linux'
+    cflags += [ '-DBL_USE_CLOCK_MONOTONIC_RAW' ]
+    cdata.set ('clock_placeholder', '#define BL_USE_CLOCK_MONOTONIC_RAW')
+else
+    cdata.set ('clock_placeholder', '/* #define BL_USE_CLOCK_MONOTONIC_RAW */')
 endif
 
 cdata.set ('version', version)

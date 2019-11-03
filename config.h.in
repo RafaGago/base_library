@@ -19,4 +19,5 @@
   BL_VERSION_GET(BL_VERSION_MAJOR, BL_VERSION_MINOR, BL_VERSION_REV)
 
 @timepoint_placeholder@
+@clock_placeholder@
 #endif
