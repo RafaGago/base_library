@@ -2,9 +2,9 @@
 #include <bl/base/deadline.h>
 
 /*--------------------------------------------------------------------------*/
-static inline bl_timept get_fdbl_timept (void const* v)
+static inline bl_timept32 get_fdbl_timept32 (void const* v)
 {
-  return *((bl_timept*) v);
+  return *((bl_timept32*) v);
 }
 /*--------------------------------------------------------------------------*/
 static bl_word bl_flat_deadlines_ordering_func(
@@ -12,8 +12,9 @@ static bl_word bl_flat_deadlines_ordering_func(
   )
 {
   bl_flat_deadlines* l = (bl_flat_deadlines*) context;
-  return bl_deadline_compare(
-    get_fdbl_timept (a) - l->time_offset, get_fdbl_timept (b) - l->time_offset
+  return bl_deadline32_compare(
+    get_fdbl_timept32 (a) - l->time_offset,
+    get_fdbl_timept32 (b) - l->time_offset
     );
 }
 /*--------------------------------------------------------------------------*/
@@ -21,23 +22,24 @@ BL_EXPORT void const* bl_flat_deadlines_get_head_if_expired(
   bl_flat_deadlines* dl,
   bl_uword           elem_size,
   bool               dont_acquire_new_timept,
-  bl_timept          now
+  bl_timept32        now
   )
 {
-  bl_timept const* d = (bl_timept*) bl_flat_deadlines_get_head (dl, elem_size);
+  bl_timept32 const* d =
+    (bl_timept32*) bl_flat_deadlines_get_head (dl, elem_size);
 
   if (!d) {
     return nullptr;
   }
-  if (bl_unlikely (bl_deadline_expired_explicit (*d, dl->time_offset))) {
+  if (bl_unlikely (bl_deadline32_expired_explicit (*d, dl->time_offset))) {
     return (void*) d;
   }
   /* as the list ordering rotates to allow timepoint wrap around (and O(1) */
   /* lookup for the next expired candidate) it is wrong to move the rotation */
   /*   offset while still having outdated items on the list */
-  dl->time_offset = (dont_acquire_new_timept) ? now : bl_timept_get();
+  dl->time_offset = (dont_acquire_new_timept) ? now : bl_timept32_get();
   return (void*)
-    bl_deadline_expired_explicit (*d, dl->time_offset) ? d : nullptr;
+    bl_deadline32_expired_explicit (*d, dl->time_offset) ? d : nullptr;
 }
 /*--------------------------------------------------------------------------*/
 BL_EXPORT bl_err bl_flat_deadlines_insert(
@@ -81,7 +83,7 @@ BL_EXPORT bool bl_flat_deadlines_try_get_and_drop(
     }
     ++idx;
   }
-  while (idx < size && get_fdbl_timept (f) == get_fdbl_timept (find));
+  while (idx < size && get_fdbl_timept32 (f) == get_fdbl_timept32 (find));
   return false;
 success:
   memcpy (dst, f, elem_size);

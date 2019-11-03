@@ -12,7 +12,7 @@ extern "C" {
 typedef bl_flat_deadlines bl_taskq_delayed;
 /*---------------------------------------------------------------------------*/
 typedef struct bl_taskq_delayed_entry {
-  bl_timept     time;
+  bl_timept32   time;
   bl_taskq_task task;
   bl_u32        id;
 }

@@ -6,8 +6,8 @@
 #include <bl/base/utility.h>
 /*---------------------------------------------------------------------------*/
 typedef struct bl_flat_deadlines_content {
-  bl_timept time;
-  int    id;
+  bl_timept32 time;
+  int         id;
 }
 bl_flat_deadlines_content;
 /*---------------------------------------------------------------------------*/
@@ -51,10 +51,10 @@ static void bl_flat_deadlines_o1_regular_insertion (void **state)
 
   bl_static_assert_ns (bl_arr_elems (e) == bl_flat_deadlines_test_elems);
 
-  bl_deadline_init_explicit (&e[0].time, 0, 1000);
+  bl_deadline32_init_explicit (&e[0].time, 0, 1000);
   e[0].id = 0;
 
-  bl_deadline_init_explicit (&e[1].time, 0, 2000);
+  bl_deadline32_init_explicit (&e[1].time, 0, 2000);
   e[1].id = 1;
 
   bl_err err = fdl_insert (&c->dl, &e[1]);
@@ -65,18 +65,18 @@ static void bl_flat_deadlines_o1_regular_insertion (void **state)
   assert_true (err.bl == bl_would_overflow);
 
   const bl_flat_deadlines_content* v =
-    fdl_get_head_if_expired (&c->dl, true, bl_usec_to_timept (999));
+    fdl_get_head_if_expired (&c->dl, true, bl_usec_to_timept32 (999));
   assert_true (v == nullptr);
 
-  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_timept (1000));
+  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_timept32 (1000));
   assert_true (v != nullptr);
   assert_true (v->id == 0);
   fdl_drop_head (&c->dl);
 
-  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_timept (1999));
+  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_timept32 (1999));
   assert_true (v == nullptr);
 
-  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_timept (2000));
+  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_timept32 (2000));
   assert_true (v != nullptr);
   assert_true (v->id == 1);
   fdl_drop_head (&c->dl);
@@ -87,17 +87,17 @@ static void bl_flat_deadlines_o1_regular_insertion_wrap (void **state)
   bl_flat_deadlines_context* c = (bl_flat_deadlines_context*) *state;
   bl_flat_deadlines_content e[2];
 
-  const bl_timept near_wrap =
-    bl_utype_max (bl_timept) - bl_usec_to_timept (1500);
+  const bl_timept32 near_wrap =
+    bl_utype_max (bl_timept32) - bl_usec_to_timept32 (1500);
 
   bl_static_assert_ns (bl_arr_elems (e) == bl_flat_deadlines_test_elems);
 
   c->dl.time_offset = near_wrap;
 
-  bl_deadline_init_explicit (&e[0].time, near_wrap, 1000);
+  bl_deadline32_init_explicit (&e[0].time, near_wrap, 1000);
   e[0].id = 0;
 
-  bl_deadline_init_explicit (&e[1].time, near_wrap, 2000); /*integer wrap*/
+  bl_deadline32_init_explicit (&e[1].time, near_wrap, 2000); /*integer wrap*/
   e[1].id = 1;
 
   bl_err err = fdl_insert (&c->dl, &e[1]);
@@ -109,26 +109,26 @@ static void bl_flat_deadlines_o1_regular_insertion_wrap (void **state)
 
   const bl_flat_deadlines_content* v =
     fdl_get_head_if_expired(
-      &c->dl, true, near_wrap + bl_usec_to_timept (999)
+      &c->dl, true, near_wrap + bl_usec_to_timept32 (999)
       );
   assert_true (v == nullptr);
 
   v = fdl_get_head_if_expired(
-    &c->dl, true, near_wrap + bl_usec_to_timept (1000)
+    &c->dl, true, near_wrap + bl_usec_to_timept32 (1000)
     );
   assert_true (v != nullptr);
   assert_true (v->id == 0);
   fdl_drop_head (&c->dl);
 
-  /*deliberate bl_timept overflow*/
+  /*deliberate bl_timept32 overflow*/
   v = fdl_get_head_if_expired(
-    &c->dl, true, near_wrap + bl_usec_to_timept (1999)
+    &c->dl, true, near_wrap + bl_usec_to_timept32 (1999)
     );
   assert_true (v == nullptr);
 
-  /*deliberate bl_timept overflow*/
+  /*deliberate bl_timept32 overflow*/
   v = fdl_get_head_if_expired(
-    &c->dl, true, near_wrap + bl_usec_to_timept (2000)
+    &c->dl, true, near_wrap + bl_usec_to_timept32 (2000)
     );
   assert_true (v != nullptr);
   assert_true (v->id == 1);
@@ -142,10 +142,10 @@ static void bl_flat_deadlines_cancellation (void **state)
 
   bl_static_assert_ns (bl_arr_elems (e) == bl_flat_deadlines_test_elems);
 
-  bl_deadline_init_explicit (&e[0].time, 0, 1000);
+  bl_deadline32_init_explicit (&e[0].time, 0, 1000);
   e[0].id = 0;
 
-  bl_deadline_init_explicit (&e[1].time, 0, 2000);
+  bl_deadline32_init_explicit (&e[1].time, 0, 2000);
   e[1].id = 1;
 
   bl_err err = fdl_insert (&c->dl, &e[1]);
@@ -175,10 +175,10 @@ static void bl_flat_deadlines_duplicate_deadline (void **state)
 
   bl_static_assert_ns (bl_arr_elems (e) == bl_flat_deadlines_test_elems);
 
-  bl_deadline_init_explicit (&e[0].time, 0, 1000);
+  bl_deadline32_init_explicit (&e[0].time, 0, 1000);
   e[0].id = 0;
 
-  bl_deadline_init_explicit (&e[1].time, 0, 1000);
+  bl_deadline32_init_explicit (&e[1].time, 0, 1000);
   e[1].id = 1;
 
   bl_err err = fdl_insert (&c->dl, &e[0]);
@@ -189,15 +189,15 @@ static void bl_flat_deadlines_duplicate_deadline (void **state)
   assert_true (err.bl == bl_would_overflow);
 
   const bl_flat_deadlines_content* v =
-    fdl_get_head_if_expired (&c->dl, true, bl_usec_to_timept (999));
+    fdl_get_head_if_expired (&c->dl, true, bl_usec_to_timept32 (999));
   assert_true (v == nullptr);
 
-  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_timept (1000));
+  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_timept32 (1000));
   assert_true (v != nullptr);
   assert_true (v->id == 0);
   fdl_drop_head (&c->dl);
 
-  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_timept (1000));
+  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_timept32 (1000));
   assert_true (v != nullptr);
   assert_true (v->id == 1);
   fdl_drop_head (&c->dl);
@@ -210,10 +210,10 @@ static void bl_flat_deadlines_duplicate_deadline_deletion (void **state)
 
   bl_static_assert_ns (bl_arr_elems (e) == bl_flat_deadlines_test_elems);
 
-  bl_deadline_init_explicit (&e[0].time, 0, 1000);
+  bl_deadline32_init_explicit (&e[0].time, 0, 1000);
   e[0].id = 0;
 
-  bl_deadline_init_explicit (&e[1].time, 0, 1000);
+  bl_deadline32_init_explicit (&e[1].time, 0, 1000);
   e[1].id = 1;
 
   bl_err err = fdl_insert (&c->dl, &e[1]);
@@ -224,7 +224,7 @@ static void bl_flat_deadlines_duplicate_deadline_deletion (void **state)
   assert_true (err.bl == bl_would_overflow);
 
   const bl_flat_deadlines_content* v = fdl_get_head_if_expired(
-    &c->dl, true, bl_usec_to_timept (999)
+    &c->dl, true, bl_usec_to_timept32 (999)
     );
   assert_true (v == nullptr);
 
@@ -236,7 +236,7 @@ static void bl_flat_deadlines_duplicate_deadline_deletion (void **state)
   res = fdl_try_get_and_drop (&c->dl, &cancel, &e[0]);
   assert_true (!res);
 
-  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_timept (1000));
+  v = fdl_get_head_if_expired (&c->dl, true, bl_usec_to_timept32 (1000));
   assert_true (v != nullptr);
   assert_true (v->id == 1);
   fdl_drop_head (&c->dl);

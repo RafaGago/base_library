@@ -1,14 +1,19 @@
 #ifndef __BL_FLAT_DEADLINES_H__
 #define __BL_FLAT_DEADLINES_H__
 
-/*represents a fixed-size array-based associative structure with
-  wrapping/overflowing timepoints. It can substitute time wheels in some cases.
+/*
+  A structure to store time points with attached data ordered by time point.
+  Useful to implement time wheels, timeouts, etc.
+
+  It is implemented as an arrray-based ordered circular buffer. This is
+  optimized for adding items at the front or the bottom and for small to medium
+  sized datasets.
 
   As this is a structure to manage deadlines it should be updated frequently
-  (through "get_head_if_expired") to avoid letting the underlying bl_timept
-  unsigned integer advance half its resolution
-
-  It can contain structs with custom data attached (see content_type parameter).
+  (through "get_head_if_expired") to avoid letting the underlying bl_timept32
+  unsigned integer advance half of its resolution. To check formally how often
+  it must called, divide (((bl_u32) -1) / bl_timept_get_freq()) seconds. It will
+  usually be a value up from a minute, most often over 30 minutes.
  */
 #include <stddef.h>
 
@@ -23,8 +28,8 @@
 
 /*--------------------------------------------------------------------------*/
 typedef struct bl_flat_deadlines {
-  bl_oringb list;
-  bl_timept time_offset;
+  bl_oringb   list;
+  bl_timept32 time_offset;
 }
 bl_flat_deadlines;
 /*--------------------------------------------------------------------------*/
@@ -32,7 +37,7 @@ bl_flat_deadlines;
 typedef bl_word (*flat_dealines_value_cmp_func) (void const* a, void const* b);
 /*--------------------------------------------------------------------------*/
 static inline bl_err bl_flat_deadlines_init_extern(
-  bl_flat_deadlines* fd, bl_timept now, void* mem, bl_uword capacity
+  bl_flat_deadlines* fd, bl_timept32 now, void* mem, bl_uword capacity
   )
 {
   fd->time_offset = now;
@@ -42,7 +47,7 @@ static inline bl_err bl_flat_deadlines_init_extern(
 static inline bl_err bl_flat_deadlines_init(
   bl_flat_deadlines*  fd,
   bl_uword            elem_size,
-  bl_timept           now,
+  bl_timept32         now,
   bl_uword            capacity,
   bl_alloc_tbl const* alloc
   )
@@ -71,7 +76,7 @@ extern BL_EXPORT void const* bl_flat_deadlines_get_head_if_expired(
   bl_flat_deadlines* fd,
   bl_uword           elem_size,
   bool               dont_acquire_new_timept,
-  bl_timept          now
+  bl_timept32        now
   );
 /*--------------------------------------------------------------------------*/
 extern BL_EXPORT bl_err bl_flat_deadlines_insert(
@@ -103,7 +108,7 @@ extern BL_EXPORT bool bl_flat_deadlines_try_get_and_drop(
 at offset 0. It can contain custom fields declared after.
 
 struct content_type {
-  bl_timept timepoint;
+  bl_timept32 timepoint;
   <your fields>
 };
 
@@ -118,12 +123,12 @@ bl_static_assert_outside_func( \
   ); \
 \
 bl_static_assert_outside_func( \
-  bl_sizeof_member (content_type, time) == sizeof (bl_timept), \
-  "\"content_type\" must contain a field named \"time\" of type bl_timept."\
+  bl_sizeof_member (content_type, time) == sizeof (bl_timept32), \
+  "\"content_type\" must contain a field named \"time\" of type bl_timept32."\
   ); \
 \
 static inline bl_err prefix##_init_extern( \
-  bl_flat_deadlines* fd, bl_timept now, content_type* mem, bl_uword capacity \
+  bl_flat_deadlines* fd, bl_timept32 now, content_type* mem, bl_uword capacity \
   ) \
 { \
   return bl_flat_deadlines_init_extern (fd, now, (void*) mem, capacity); \
@@ -131,8 +136,8 @@ static inline bl_err prefix##_init_extern( \
 \
 static inline bl_err prefix##_init( \
   bl_flat_deadlines*  fd,\
-  bl_timept           now,\
-  bl_uword               capacity,\
+  bl_timept32         now,\
+  bl_uword            capacity,\
   bl_alloc_tbl const* alloc \
   ) \
 { \
@@ -226,7 +231,7 @@ static inline void prefix##_drop_tail (bl_flat_deadlines* fd) \
 } \
 \
 static inline content_type const* prefix##_get_head_if_expired( \
-  bl_flat_deadlines* dl, bool dont_acquire_new_timept, bl_timept now \
+  bl_flat_deadlines* dl, bool dont_acquire_new_timept, bl_timept32 now \
   ) \
 { \
   return (content_type*) bl_flat_deadlines_get_head_if_expired( \

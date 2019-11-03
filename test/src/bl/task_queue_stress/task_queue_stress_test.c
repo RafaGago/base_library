@@ -20,8 +20,8 @@
 #include <bl/base/semaphore_linux.c>
 /*----------------------------------------------------------------------------*/
 #define thread_count       8
-#define tq_list_size       bl_pow2_u (16)
-#define tq_delayed_size    bl_pow2_u (4)
+#define tq_list_size       bl_pow2_u (19)
+#define tq_delayed_size    bl_pow2_u (8)
 #define iteration_elements 100000
 /*----------------------------------------------------------------------------*/
 enum thr_type_e{
@@ -90,7 +90,7 @@ void task_callback_delayed (bl_err err, bl_taskq_id id, void* context)
 int producer_thread_regular (producer_thread_data* td)
 {
   bl_taskq_id id;
-  bl_err   err;
+  bl_err      err;
 
   while (td->remaining) {
     err = bl_taskq_post (td->tq, &id, bl_taskq_task_rv (task_callback, td->wd));
@@ -116,8 +116,8 @@ int producer_thread_regular (producer_thread_data* td)
 int producer_thread_delayed (producer_thread_data* td, bl_u32 timeout_us)
 {
   bl_taskq_id id;
-  bl_err   err;
-  bl_timept   tp_cancel;
+  bl_err      err;
+  bl_timept32 tp_cancel;
 
   while (td->remaining) {
     err = bl_taskq_post_delayed(
@@ -174,8 +174,8 @@ int producer_thread_delayed_cancel(
   )
 {
   bl_taskq_id id;
-  bl_err   err;
-  bl_timept   tp_cancel;
+  bl_err      err;
+  bl_timept32 tp_cancel;
 
   while (td->remaining) {
     err = bl_taskq_post_delayed(
@@ -270,10 +270,10 @@ int main (int argc, char* argv[])
   bl_thread                   producer_th[thread_count];
   bl_thread                   consumer_th;
   bl_sem                      sem;
-  bl_uword                       iterations;
+  bl_uword                    iterations;
   bool                        infinite_iterations;
-  bl_taskq*                      tq;
-  bl_alloc_tbl                   alloc;
+  bl_taskq*                   tq;
+  bl_alloc_tbl                alloc;
 
   alloc = bl_get_default_alloc();
 
@@ -400,7 +400,7 @@ int main (int argc, char* argv[])
             bl_taskq_delayed_entry const* f =
               bl_taskq_delayed_at (&tq->delayed, j);
             printf(
-              "delayed list element %"BL_FMT_UWORD" timepoint: %"BL_FMT_TSTAMP"\n",
+              "delayed list element %"BL_FMT_UWORD" timepoint: %"BL_FMT_TSTAMP32"\n",
                j,
                f->time
               );

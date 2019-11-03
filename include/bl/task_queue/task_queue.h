@@ -34,7 +34,7 @@ typedef void (*bl_taskq_task_func)(
 /*---------------------------------------------------------------------------*/
 typedef struct bl_taskq_task {
   bl_taskq_task_func func;
-  void*           context;
+  void*              context;
 }
 bl_taskq_task;
 /*---------------------------------------------------------------------------*/
@@ -125,20 +125,20 @@ extern BL_TASKQ_EXPORT
 extern BL_TASKQ_EXPORT bl_err bl_taskq_post_delayed_abs(
   bl_taskq*     tq,
   bl_taskq_id*  id,
-  bl_timept     abs_time_point,
+  bl_timept32   abs_time_point,
   bl_taskq_task task
   );
 /*---------------------------------------------------------------------------*/
 static inline bl_err bl_taskq_post_delayed(
   bl_taskq*     tq,
   bl_taskq_id*  id,
-  bl_timept*    abs_time_point_out,
+  bl_timept32*  abs_time_point_out,
   bl_taskq_task task,
   bl_u32        delay_us
   )
 {
   bl_assert (abs_time_point_out);
-  *abs_time_point_out = bl_timept_get() + bl_usec_to_timept (delay_us);
+  *abs_time_point_out = bl_timept32_get() + bl_usec_to_timept32 (delay_us);
   return bl_taskq_post_delayed_abs (tq, id, *abs_time_point_out, task);
 }
 /*---------------------------------------------------------------------------*/
@@ -163,7 +163,7 @@ static inline bl_err bl_taskq_post_delayed(
 /*---------------------------------------------------------------------------*/
 extern BL_TASKQ_EXPORT
    bl_err bl_taskq_post_try_cancel_delayed(
-    bl_taskq* tq, bl_taskq_id id, bl_timept abs_time_point
+    bl_taskq* tq, bl_taskq_id id, bl_timept32 abs_time_point
     );
 /*---------------------------------------------------------------------------*/
 /*
