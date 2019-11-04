@@ -116,7 +116,6 @@ base_srcs = [
     'src/bl/base/autoarray.c',
     'src/bl/base/thread_micro_sleep.c',
     'src/bl/base/hex_string.c',
-    'src/bl/base/timepoint_funcs_arbitrary_base.c',
     'src/bl/base/string.c',
     'src/bl/base/dynamic_string.c',
     'src/bl/base/dynamic_string_replace.c',
@@ -124,6 +123,7 @@ base_srcs = [
     'src/bl/base/ringbuffer_extended.c',
     'src/bl/base/ordered_ringbuffer.c',
     'src/bl/base/flat_deadlines.c',
+    'src/bl/base/error.c',
     'src/bl/base/generated/alnls/array_linked_list_u8_basic.c',
     'src/bl/base/generated/alnls/array_linked_list_u8_extended.c',
     'src/bl/base/generated/alnls/array_linked_list_u16_basic.c',
@@ -136,7 +136,8 @@ base_srcs = [
     'src/bl/base/generated/adlnls/array_doubly_linked_list_u16_basic.c',
     'src/bl/base/generated/adlnls/array_doubly_linked_list_u32_basic.c',
     'src/bl/base/generated/adlnls/array_doubly_linked_list_u64_basic.c',
-    'src/bl/base/error.c',
+    'src/bl/base/generated/time/timept32_funcs_arbitrary_base.c',
+    'src/bl/base/generated/time/timept64_funcs_arbitrary_base.c',
 ]
 base_test_srcs = [
     'test/src/bl/base/hex_string_test.c',

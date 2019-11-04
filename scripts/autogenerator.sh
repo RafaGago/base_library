@@ -144,9 +144,9 @@ for KEYVALUES in $REPLACEMENTS; do
   SED_CMD=""
   for KEYVALUE in $KEYVALUES; do
     #Restore spaces
-    KEYVALUE=$(echo $KEYVALUE | sed "s|$SPACE_ENCODING| |g")
-    KEY=$(echo $KEYVALUE | cut -d = -f 1)
-    VAL=$(echo $KEYVALUE | cut -d = -f 2)
+    KEYVALUE=$(echo "$KEYVALUE" | sed "s|$SPACE_ENCODING| |g")
+    KEY=$(echo "$KEYVALUE" | cut -d = -f 1)
+    VAL=$(echo "$KEYVALUE" | cut -d = -f 2)
     if [[ -z $KEY ]]; then
       errcho "no valid KEY in: $KEYVALUE"
       exit 1
@@ -154,10 +154,18 @@ for KEYVALUES in $REPLACEMENTS; do
     if [[ ! -z $SED_CMD ]]; then
       SED_CMD=$SED_CMD";"
     fi
+    KEYUP=${KEY}_UPPER
+    KEYLO=${KEY}_LOWER
+    VALUP="$(echo "$VAL" | tr '[:lower:]' '[:upper:]')"
+    VALLO="$(echo "$VAL" | tr '[:upper:]' '[:lower:]')"
+
     SED_CMD=$SED_CMD" s|\{$KEY\}|${VAL}|g"
+    SED_CMD=$SED_CMD" ; s|\{$KEYUP\}|${VALUP}|g"
+    SED_CMD=$SED_CMD" ; s|\{$KEYLO\}|${VALLO}|g"
   done
   cat $FILE | sed -r "$SED_CMD" > $TMP
   split_files $TMP
   rm $TMP
 done
+
 

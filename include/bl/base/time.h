@@ -103,7 +103,7 @@
   function series instead of doing conversions manually.
 
  ---------------------------------------------------------------
- "static inline bl_timept bl_timept_sysclock_get (void)"
+ "static inline bl_timept bl_sysclock_get (void)"
 
   Gets the current timepoint of a system clock. The reference point is
   arbitrary (the one returned by the OS).
@@ -121,7 +121,7 @@
   at compile time (Don't try to take the address of the "function").
 
   ---------------------------------------------------------------
- "static inline bl_timept bl_timept_sysclock_to_epoch (bl_timept)"
+ "static inline bl_timept bl_sysclock_to_epoch (bl_timept)"
 
   Makes a sysclock call to be referenced to UNIX epoch. This is a no-op on UNIX
   OSes.
@@ -130,10 +130,10 @@
  "static inline bl_timeoft bl_timept_to_msec (bl_timept ts)"
  "static inline bl_timeoft bl_timept_to_usec (bl_timept ts)"
  "static inline bl_timeoft bl_timept_to_nsec (bl_timept ts)"
- "static inline bl_timeoft bl_timept_sysclock_to_sec (bl_timept ts)"
- "static inline bl_timeoft bl_timept_sysclock_to_msec (bl_timept ts)"
- "static inline bl_timeoft bl_timept_sysclock_to_usec (bl_timept ts)"
- "static inline bl_timeoft bl_timept_sysclock_to_nsec (bl_timept ts)"
+ "static inline bl_timeoft bl_sysclock_to_sec (bl_timept ts)"
+ "static inline bl_timeoft bl_sysclock_to_msec (bl_timept ts)"
+ "static inline bl_timeoft bl_sysclock_to_usec (bl_timept ts)"
+ "static inline bl_timeoft bl_sysclock_to_nsec (bl_timept ts)"
 
    Convert a raw timepoint to a value representing time e.g:
 
@@ -145,10 +145,10 @@
  "static inline bl_timeoft bl_timept_to_msec_ceil (bl_timept ts)"
  "static inline bl_timeoft bl_timept_to_usec_ceil (bl_timept ts)"
  "static inline bl_timeoft bl_timept_to_nsec_ceil (bl_timept ts)"
- "static inline bl_timeoft bl_timept_sysclock_to_sec_ceil (bl_timept ts)"
- "static inline bl_timeoft bl_timept_sysclock_to_msec_ceil (bl_timept ts)"
- "static inline bl_timeoft bl_timept_sysclock_to_usec_ceil (bl_timept ts)"
- "static inline bl_timeoft bl_timept_sysclock_to_nsec_ceil (bl_timept ts)"
+ "static inline bl_timeoft bl_sysclock_to_sec_ceil (bl_timept ts)"
+ "static inline bl_timeoft bl_sysclock_to_msec_ceil (bl_timept ts)"
+ "static inline bl_timeoft bl_sysclock_to_usec_ceil (bl_timept ts)"
+ "static inline bl_timeoft bl_sysclock_to_nsec_ceil (bl_timept ts)"
 
     Same as above, but the values are rounded to the ceiling.
  ---------------------------------------------------------------
@@ -156,10 +156,10 @@
  "static inline bl_timept bl_msec_to_timept (bl_timeoft msec_min)"
  "static inline bl_timept bl_usec_to_timept (bl_timeoft usec_min)"
  "static inline bl_timept bl_nsec_to_timept (bl_timeoft nsec_min)"
- "static inline bl_timept bl_sec_to_timept_sysclock (bl_timeoft sec_min)"
- "static inline bl_timept bl_msec_to_timept_sysclock (bl_timeoft msec_min)"
- "static inline bl_timept bl_usec_to_timept_sysclock (bl_timeoft usec_min)"
- "static inline bl_timept bl_nsec_to_timept_sysclock (bl_timeoft nsec_min)"
+ "static inline bl_timept bl_sec_to_sysclock (bl_timeoft sec_min)"
+ "static inline bl_timept bl_msec_to_sysclock (bl_timeoft msec_min)"
+ "static inline bl_timept bl_usec_to_sysclock (bl_timeoft usec_min)"
+ "static inline bl_timept bl_nsec_to_sysclock (bl_timeoft nsec_min)"
 
    Gets an offset that is AT LEAST the given amount which can be added or
    subtracted to a timepoint.
@@ -183,10 +183,10 @@
  "static inline bl_timeoft bl_msec_to_timept_max (void)"
  "static inline bl_timeoft bl_usec_to_timept_max (void)"
  "static inline bl_timeoft bl_nsec_to_timept_max (void)"
- "static inline bl_timeoft bl_sec_to_timept_sysclock_max (void)"
- "static inline bl_timeoft bl_msec_to_timept_sysclock_max (void)"
- "static inline bl_timeoft bl_usec_to_timept_sysclock_max (void)"
- "static inline bl_timeoft bl_nsec_to_timept_sysclock_max (void)"
+ "static inline bl_timeoft bl_sec_to_ysclock_max (void)"
+ "static inline bl_timeoft bl_msec_to_sysclock_max (void)"
+ "static inline bl_timeoft bl_usec_to_sysclock_max (void)"
+ "static inline bl_timeoft bl_nsec_to_sysclock_max (void)"
 
    Get the maximum input value that any of the functions above can take.
    This function group may be defined as macros if all values are known

@@ -4,20 +4,12 @@
 /*---------------------------------------------------------------------------*/
 #define bl_timept32_get_freq() bl_usec_in_sec
 
-#include <bl/base/impl/generated/timepoint/timepoint32_funcs_microsecond_base.h>
-#include <bl/base/impl/generated/timepoint/timepoint32_sysclock_funcs_second_base.h>
+#include <bl/base/impl/generated/time/timept32_funcs_microsecond_base.h>
+#include <bl/base/impl/generated/time/sysclock32_funcs_second_base.h>
 /*---------------------------------------------------------------------------*/
 #define bl_timept64_get_freq() bl_nsec_in_sec
 
-#include <bl/base/impl/generated/timepoint/timepoint64_funcs_nanosecond_base.h>
-#include <bl/base/impl/generated/timepoint/timepoint64_sysclock_funcs_nanosecond_base.h>
-/*---------------------------------------------------------------------------*/
-#if BL_TIMEPOINT_BITS == 32
-  #include <bl/base/impl/generated/timepoint/timepoint_funcs_microsecond_base.h>
-  #include <bl/base/impl/generated/timepoint/timepoint_sysclock_funcs_second_base.h>
-#else
-  #include <bl/base/impl/generated/timepoint/timepoint_funcs_nanosecond_base.h>
-  #include <bl/base/impl/generated/timepoint/timepoint_sysclock_funcs_nanosecond_base.h>
-#endif
+#include <bl/base/impl/generated/time/timept64_funcs_nanosecond_base.h>
+#include <bl/base/impl/generated/time/sysclock64_funcs_nanosecond_base.h>
 /*---------------------------------------------------------------------------*/
 #endif

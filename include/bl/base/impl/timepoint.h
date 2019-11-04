@@ -154,23 +154,31 @@ typedef bl_timeoft64    bl_timeoft;
 /*---------------------------------------------------------------------------*/
 /* Default timepoint */
 /*---------------------------------------------------------------------------*/
+#if BL_TIMEPOINT_BITS == 32
+  #include <bl/base/impl/generated/time/timept_funcs_from_timept32.h>
+  #include <bl/base/impl/generated/time/sysclock_funcs_from_sysclock32.h>
+#else
+  #include <bl/base/impl/generated/time/timept_funcs_from_timept64.h>
+  #include <bl/base/impl/generated/time/sysclock_funcs_from_sysclock64.h>
+#endif
+
 #if !defined BL_TSTAMP_MOCK_FOR_TESTS
 #if BL_TIMEPOINT_BITS == 32
 
-#define bl_timept_get_freq()           bl_timept32_get_freq()
-#define bl_timept_get()                bl_timept32_get()
-#define bl_timept_sysclock_get_freq()  bl_timept32_sysclock_get_freq()
-#define bl_timept_sysclock_get()       bl_timept32_sysclock_get()
-#define bl_timept_sysclock_to_epoch(t) bl_timept32_sysclock_to_epoch (t)
+#define bl_timept_get_freq()    bl_timept32_get_freq()
+#define bl_timept_get()         bl_timept32_get()
+#define bl_sysclock_get_freq()  bl_sysclock32_get_freq()
+#define bl_sysclock_get()       bl_sysclock32_get()
+#define bl_sysclock_to_epoch(t) bl_sysclock32_to_epoch (t)
 
 #else
 
-#define bl_timept_get_freq()           bl_timept64_get_freq()
-#define bl_timept_get()                bl_timept64_get()
-#define bl_timept_sysclock_get_freq()  bl_timept64_sysclock_get_freq()
-#define bl_timept_sysclock_get()       bl_timept64_sysclock_get()
-#define bl_timept_sysclock_to_epoch(t) bl_timept64_sysclock_to_epoch (t)
-
+#define bl_timept_get_freq()    bl_timept64_get_freq()
+#define bl_timept_get()         bl_timept64_get()
+#define bl_sysclock_get_freq()  bl_sysclock64_get_freq()
+#define bl_sysclock_get()       bl_sysclock64_get()
+#define bl_sysclock_to_epoch(t) bl_sysclock64_to_epoch (t)
 #endif /* #if BL_TIMEPOINT_BITS == 32 */
+
 #endif /* #if !defined BL_TSTAMP_MOCK_FOR_TESTS */
 #endif /*__BL_TIMEPOINT_H__*/

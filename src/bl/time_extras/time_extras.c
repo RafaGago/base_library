@@ -230,12 +230,12 @@ static bl_timeoft bl_timept_to_sysclock_diff_ns_impl(sysclockdiff* sc)
 {
   double diff[BL_TIME_QSAMPLES];
   double sys_to_ns =
-    (double) bl_nsec_in_sec / (double) bl_timept_sysclock_get_freq();
+    (double) bl_nsec_in_sec / (double) bl_sysclock_get_freq();
 
   bl_thread_yield(); /* context switching in-between minimization attempt.*/
   for (bl_uword i = 0; i < bl_arr_elems (diff); ++i) {
     bl_timept t = sc->get();
-    bl_timept s = bl_timept_sysclock_get();
+    bl_timept s = bl_sysclock_get();
     bl_processor_pause();
     diff[i]  = (((double) s) * sys_to_ns) - ((double) sc->to_nsec (t));
   }

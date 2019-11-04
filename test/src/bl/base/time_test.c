@@ -11,7 +11,7 @@
   sleeping the thread*/
 
 /*---------------------------------------------------------------------------*/
-static void timepoint32_not_very_broken (void **state)
+static void timept32_not_very_broken (void **state)
 {
   enum {
     sleep_us = 70000,
@@ -26,7 +26,7 @@ static void timepoint32_not_very_broken (void **state)
   assert_true (us >= sleep_us && us <= ubound);
 }
 /*---------------------------------------------------------------------------*/
-static void timepoint32_maxes (void **state)
+static void timept32_maxes (void **state)
 {
   bl_timept32 v;
   bl_timeoft32 max;
@@ -48,7 +48,7 @@ static void timepoint32_maxes (void **state)
   assert_true (v <= bl_timept32_max_safe_add_sub);
 }
 /*---------------------------------------------------------------------------*/
-static void timepoint64_not_very_broken (void **state)
+static void timept64_not_very_broken (void **state)
 {
   enum {
     sleep_us = 70000,
@@ -63,7 +63,7 @@ static void timepoint64_not_very_broken (void **state)
   assert_true (us >= sleep_us && us <= ubound);
 }
 /*---------------------------------------------------------------------------*/
-static void timepoint64_maxes (void **state)
+static void timept64_maxes (void **state)
 {
   bl_timept64 v;
   bl_timeoft64 max;
@@ -86,10 +86,10 @@ static void timepoint64_maxes (void **state)
 }
 /*---------------------------------------------------------------------------*/
 static const struct CMUnitTest tests[] = {
-  cmocka_unit_test (timepoint32_not_very_broken),
-  cmocka_unit_test (timepoint32_maxes),
-  cmocka_unit_test (timepoint64_not_very_broken),
-  cmocka_unit_test (timepoint64_maxes),
+  cmocka_unit_test (timept32_not_very_broken),
+  cmocka_unit_test (timept32_maxes),
+  cmocka_unit_test (timept64_not_very_broken),
+  cmocka_unit_test (timept64_maxes),
 };
 /*---------------------------------------------------------------------------*/
 int time_tests ()

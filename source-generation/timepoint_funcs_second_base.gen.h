@@ -8,29 +8,29 @@ This is BAD, but IMO it was worse to have criptic-macro based generic data
 structures.
 */
 /*---------------------------------------------------------------------------*/
-/* AUTOGENERATE: include/bl/base/impl/generated/time/{CLOCKNAME}_funcs_nanosecond_base.h */
+/* AUTOGENERATE: include/bl/base/impl/generated/time/{CLOCKNAME}_funcs_second_base.h */
 /*---------------------------------------------------------------------------*/
-#ifndef __BL_{CLOCKNAME_UPPER}_FNS_NANOSECOND_BASE_H__
-#define __BL_{CLOCKNAME_UPPER}_FNS_NANOSECOND_BASE_H__
+#ifndef __BL_{CLOCKNAME_UPPER}_FNS_SECOND_BASE_H__
+#define __BL_{CLOCKNAME_UPPER}_FNS_SECOND_BASE_H__
 
 /*this file will be included from other files that have the missing defines*/
 #include <bl/base/static_integer_math.h>
 #include <bl/base/assert.h>
 /*---------------------------------------------------------------------------*/
-#define BL_{CLOCKNAME_UPPER}_HAS_NANOSECOND_BASE 1
+#define BL_{CLOCKNAME_UPPER}_HAS_SECOND_BASE 1
 #define BL_{CLOCKNAME_UPPER}_BITS (sizeof (bl_timept{BITS}) * 8)
 /*---------------------------------------------------------------------------*/
 #define bl_{CLOCKNAME}_to_sec_priv(ts)\
-  ((bl_timeoft{BITS}) (ts / bl_nsec_in_sec))
+  ((bl_timeoft{BITS}) ts)
 
 #define bl_{CLOCKNAME}_to_msec_priv(ts)\
-  ((bl_timeoft{BITS}) (ts / bl_nsec_in_msec))
+  (((bl_timeoft{BITS}) ts) * bl_msec_in_sec)
 
 #define bl_{CLOCKNAME}_to_usec_priv(ts)\
-  ((bl_timeoft{BITS}) (ts / bl_nsec_in_usec))
+  (((bl_timeoft{BITS}) ts) * bl_usec_in_sec)
 
 #define bl_{CLOCKNAME}_to_nsec_priv(ts)\
-  ((bl_timeoft{BITS}) ts)
+  (((bl_timeoft{BITS}) ts) * bl_nsec_in_sec)
 /*---------------------------------------------------------------------------*/
 #define bl_sec_to_{CLOCKNAME}_max()\
   bl_{CLOCKNAME}_to_sec_priv (bl_timept{BITS}_max_safe_add_sub)
@@ -66,47 +66,47 @@ static inline bl_timeoft{BITS} bl_{CLOCKNAME}_to_nsec (bl_timept{BITS} ts)
 /*---------------------------------------------------------------------------*/
 static inline bl_timeoft{BITS} bl_{CLOCKNAME}_to_sec_ceil (bl_timept{BITS} ts)
 {
-  return (bl_timeoft{BITS}) bl_div_ceil (ts, bl_nsec_in_sec);
+  return (bl_timeoft{BITS}) ts;
 }
 
 static inline bl_timeoft{BITS} bl_{CLOCKNAME}_to_msec_ceil (bl_timept{BITS} ts)
 {
-  return (bl_timeoft{BITS}) bl_div_ceil (ts, bl_nsec_in_msec);
+  return (bl_timeoft{BITS}) (ts * bl_msec_in_sec);
 }
 
 static inline bl_timeoft{BITS} bl_{CLOCKNAME}_to_usec_ceil (bl_timept{BITS} ts)
 {
-  return (bl_timeoft{BITS}) bl_div_ceil (ts, bl_nsec_in_usec);
+  return (bl_timeoft{BITS}) (ts * bl_usec_in_sec);
 }
 
 static inline bl_timeoft{BITS} bl_{CLOCKNAME}_to_nsec_ceil (bl_timept{BITS} ts)
 {
-  return (bl_timeoft{BITS}) (ts);
+  return (bl_timeoft{BITS}) (ts * bl_nsec_in_sec);
 }
 /*---------------------------------------------------------------------------*/
 static inline bl_timept{BITS} bl_sec_to_{CLOCKNAME} (bl_timeoft{BITS} sec)
 {
   bl_assert (sec <= bl_sec_to_{CLOCKNAME}_max());
-  return ((bl_timept{BITS}) sec) * bl_nsec_in_sec;
+  return ((bl_timept{BITS}) sec);
 }
 
 static inline bl_timept{BITS} bl_msec_to_{CLOCKNAME} (bl_timeoft{BITS} msec)
 {
   bl_assert (msec <= bl_msec_to_{CLOCKNAME}_max());
-  return ((bl_timept{BITS}) msec) * bl_nsec_in_msec;
+  return bl_div_ceil (((bl_timept{BITS}) msec), bl_msec_in_sec);
 }
 
 static inline bl_timept{BITS} bl_usec_to_{CLOCKNAME} (bl_timeoft{BITS} usec)
 {
   bl_assert (usec <= bl_usec_to_{CLOCKNAME}_max());
-  return ((bl_timept{BITS}) usec) * bl_nsec_in_usec;
+  return bl_div_ceil (((bl_timept{BITS}) usec), bl_usec_in_sec);
 }
 
 static inline bl_timept{BITS} bl_nsec_to_{CLOCKNAME} (bl_timeoft{BITS} nsec)
 {
   bl_assert (nsec <= bl_nsec_to_{CLOCKNAME}_max());
-  return (bl_timept{BITS}) nsec;
+  return bl_div_ceil (((bl_timept{BITS}) nsec), bl_nsec_in_sec);
 }
 /*---------------------------------------------------------------------------*/
 
-#endif /*__BL_{CLOCKNAME_UPPER}_FNS_NANOSECOND_BASE_H__*/
+#endif /*#ifndef __BL_{CLOCKNAME_UPPER}_FNS_SECOND_BASE_H__*/

@@ -27,22 +27,22 @@ static inline bl_timept32 bl_timept32_get (void)
    ((((bl_u64) t.tv_sec) * bl_usec_in_sec) + (t.tv_nsec / bl_nsec_in_usec));
 }
 /*---------------------------------------------------------------------------*/
-#define bl_timept32_sysclock_get_freq() 1
+#define bl_sysclock32_get_freq() 1
 /*---------------------------------------------------------------------------*/
-static inline bl_timept32 bl_timept32_sysclock_get (void)
+static inline bl_timept32 bl_sysclock32_get (void)
 {
   struct timespec t;
   clock_gettime (CLOCK_REALTIME, &t);
   return (bl_timept32) t.tv_sec;
 }
 /*---------------------------------------------------------------------------*/
-static inline bl_timept32 bl_timept32_sysclock_to_epoch (bl_timept32 t)
+static inline bl_timept32 bl_sysclock32_to_epoch (bl_timept32 t)
 {
   return t;
 }
 /*---------------------------------------------------------------------------*/
-#include <bl/base/impl/generated/timepoint/timepoint32_funcs_microsecond_base.h>
-#include <bl/base/impl/generated/timepoint/timepoint32_sysclock_funcs_second_base.h>
+#include <bl/base/impl/generated/time/timept32_funcs_microsecond_base.h>
+#include <bl/base/impl/generated/time/sysclock32_funcs_second_base.h>
 /*---------------------------------------------------------------------------*/
 /* 64 bit */
 /*---------------------------------------------------------------------------*/
@@ -55,32 +55,22 @@ static inline bl_timept64 bl_timept64_get (void)
   return (((bl_u64) t.tv_sec) * bl_nsec_in_sec) + t.tv_nsec;
 }
 /*---------------------------------------------------------------------------*/
-#define bl_timept64_sysclock_get_freq() bl_nsec_in_sec
+#define bl_sysclock64_get_freq() bl_nsec_in_sec
 /*---------------------------------------------------------------------------*/
-static inline bl_timept64 bl_timept64_sysclock_get (void)
+static inline bl_timept64 bl_sysclock64_get (void)
 {
   struct timespec t;
   clock_gettime (CLOCK_REALTIME, &t);
   return (((bl_u64) t.tv_sec) * bl_nsec_in_sec) + t.tv_nsec;
 }
 /*---------------------------------------------------------------------------*/
-static inline bl_timept64 bl_timept64_sysclock_to_epoch (bl_timept64 t)
+static inline bl_timept64 bl_sysclock64_to_epoch (bl_timept64 t)
 {
   return t;
 }
 /*---------------------------------------------------------------------------*/
-#include <bl/base/impl/generated/timepoint/timepoint64_funcs_nanosecond_base.h>
-#include <bl/base/impl/generated/timepoint/timepoint64_sysclock_funcs_nanosecond_base.h>
-/*----------------------------------------------------------------------------*/
-/* timepoint bases. */
-/*----------------------------------------------------------------------------*/
-#if BL_TIMEPOINT_BITS == 32
-  #include <bl/base/impl/generated/timepoint/timepoint_funcs_microsecond_base.h>
-  #include <bl/base/impl/generated/timepoint/timepoint_sysclock_funcs_second_base.h>
-#else
-  #include <bl/base/impl/generated/timepoint/timepoint_funcs_nanosecond_base.h>
-  #include <bl/base/impl/generated/timepoint/timepoint_sysclock_funcs_nanosecond_base.h>
-#endif
+#include <bl/base/impl/generated/time/timept64_funcs_nanosecond_base.h>
+#include <bl/base/impl/generated/time/sysclock64_funcs_nanosecond_base.h>
 /*---------------------------------------------------------------------------*/
 /* private. for internal use */
 /*---------------------------------------------------------------------------*/
@@ -100,5 +90,6 @@ static inline struct timespec bl_timespec_us_from_now (bl_u32 usec, int clock)
   bl_timespec_normalize (&t);
   return t;
 }
+/*---------------------------------------------------------------------------*/
 
 #endif /* __BL_TIMEPOINT_POSIX_H__ */
