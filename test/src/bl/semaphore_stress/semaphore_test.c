@@ -182,14 +182,14 @@ bool join_thread_and_print (thread_context* c, bl_thread* t)
   }
   if (c->is_signaler) {
     printf(
-      " sig thr finished: us=%"BL_FMT_TSTAMP", overflows=%"BL_FMT_UWORD" " thcon_hdr
+      " sig thr finished: us=%"BL_FMT_TPOINT", overflows=%"BL_FMT_UWORD" " thcon_hdr
       "\n",
       bl_timept_to_usec (c->elapsed), c->s.overflow, thcon_hdr_v (c)
       );
   }
   else {
     printf(
-      " wait thr finished: us=%"BL_FMT_TSTAMP", timeouts=%"BL_FMT_UWORD" " thcon_hdr
+      " wait thr finished: us=%"BL_FMT_TPOINT", timeouts=%"BL_FMT_UWORD" " thcon_hdr
       "\n",
       bl_timept_to_usec (c->elapsed), c->w.timed_out, thcon_hdr_v (c)
       );

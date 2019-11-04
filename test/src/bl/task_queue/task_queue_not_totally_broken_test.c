@@ -3,7 +3,7 @@
 #include <bl/base/platform.h>
 #include <bl/cmocka_pre.h>
 /*---------------------------------------------------------------------------*/
-#define BL_TSTAMP_MOCK_FOR_TESTS 1
+#define BL_TPOINT_MOCK_FOR_TESTS 1
 #include <bl/base/time.h>
 /*---------------------------------------------------------------------------*/
 static inline bl_timept32 bl_timept32_get (void)

@@ -395,12 +395,12 @@ int main (int argc, char* argv[])
             bl_taskq_delayed_size (&tq->delayed)
             );
           bl_timept curr = bl_timept_get();
-          printf ("current timepoint %"BL_FMT_TSTAMP"\n", curr);
+          printf ("current timepoint %"BL_FMT_TPOINT"\n", curr);
           for (bl_uword j = 0; j < bl_taskq_delayed_size (&tq->delayed); ++j) {
             bl_taskq_delayed_entry const* f =
               bl_taskq_delayed_at (&tq->delayed, j);
             printf(
-              "delayed list element %"BL_FMT_UWORD" timepoint: %"BL_FMT_TSTAMP32"\n",
+              "delayed list element %"BL_FMT_UWORD" timepoint: %"BL_FMT_TPOINT32"\n",
                j,
                f->time
               );

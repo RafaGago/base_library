@@ -114,7 +114,7 @@ static sysclockdiff timepoint_sysdata = {
   (bl_atomic_u64) MAGIC_NAN, &t_get_noinline, &t_to_nsec_noinline
 };
 /*----------------------------------------------------------------------------*/
-#ifdef BL_HAS_CPU_TSTAMP
+#ifdef BL_HAS_CPU_TPOINT
 /*----------------------------------------------------------------------------*/
 static bl_timept cpu_t_get_noinline (void)
 {
@@ -193,7 +193,7 @@ static bl_err timepoint_cpu_init (void)
   return bl_mkok();
 }
 /*----------------------------------------------------------------------------*/
-#endif /*#ifdef BL_HAS_CPU_TSTAMP*/
+#endif /*#ifdef BL_HAS_CPU_TPOINT*/
 /*----------------------------------------------------------------------------*/
 BL_TIME_EXTRAS_EXPORT bl_err bl_time_extras_init (void)
 {
@@ -212,7 +212,7 @@ BL_TIME_EXTRAS_EXPORT bl_err bl_time_extras_init (void)
     /*insane clock. unable to proceed */
     return bl_mkerr (bl_error);
   }
-#ifdef BL_HAS_CPU_TSTAMP
+#ifdef BL_HAS_CPU_TPOINT
   return timepoint_cpu_init();
 #else
   return bl_mkok();
@@ -254,7 +254,7 @@ BL_TIME_EXTRAS_EXPORT bl_timeoft bl_timept_to_sysclock_diff_ns (void)
   return bl_timept_to_sysclock_diff_ns_impl (&timepoint_sysdata);
 }
 /*----------------------------------------------------------------------------*/
-#ifdef BL_HAS_CPU_TSTAMP
+#ifdef BL_HAS_CPU_TPOINT
 /*----------------------------------------------------------------------------*/
 BL_TIME_EXTRAS_EXPORT bl_timeoft bl_cpu_timept_to_nsec (bl_timept t)
 {
@@ -272,4 +272,4 @@ BL_TIME_EXTRAS_EXPORT bl_timeoft bl_cpu_timept_to_sysclock_diff_ns (void)
   return bl_timept_to_sysclock_diff_ns_impl (&cputimepoint_sysdata);
 }
 /*----------------------------------------------------------------------------*/
-#endif /* #ifdef BL_HAS_CPU_TSTAMP */
+#endif /* #ifdef BL_HAS_CPU_TPOINT */

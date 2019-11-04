@@ -35,17 +35,17 @@ static inline bl_timept32 bl_timept32_min (bl_timept32 a, bl_timept32 b)
   return bl_timept32_get_diff (a, b) <= 0 ? a : b;
 }
 /*---------------------------------------------------------------------------*/
-/*the BL_FMT_TSTAMP printf format macro requires including
+/*the BL_FMT_TPOINT printf format macro requires including
  "integer_printf_format.h" for it to be correctly expanded*/
-#define BL_FMT_TSTAMP32       BL_FMT_U32
-#define BL_FMT_TSTAMP32DIFF   BL_FMT_I32
-#define BL_FMT_TSTAMP32OFF    BL_FMT_U32
-#define BL_FMT_TSTAMP32OFFSET BL_FMT_TSTAMP32OFF
+#define BL_FMT_TPOINT32       BL_FMT_U32
+#define BL_FMT_TPOINT32DIFF   BL_FMT_I32
+#define BL_FMT_TPOINT32OFF    BL_FMT_U32
+#define BL_FMT_TPOINT32OFFSET BL_FMT_TPOINT32OFF
 #ifdef BL_UNPREFIXED_PRINTF_FORMATS
-#define FMT_TSTAMP32       BL_FMT_TSTAMP32
-#define FMT_TSTAMP32DIFF   BL_FMT_TSTAMP32DIFF
-#define FMT_TSTAMP32OFF    BL_FMT_TSTAMP32OFF
-#define FMT_TSTAMP32OFFSET BL_FMT_TSTAMP32OFFSET
+#define FMT_TPOINT32       BL_FMT_TPOINT32
+#define FMT_TPOINT32DIFF   BL_FMT_TPOINT32DIFF
+#define FMT_TPOINT32OFF    BL_FMT_TPOINT32OFF
+#define FMT_TPOINT32OFFSET BL_FMT_TPOINT32OFFSET
 #endif
 /*---------------------------------------------------------------------------*/
 /* 64 bit */
@@ -76,17 +76,17 @@ static inline bl_timept64 bl_timept64_min (bl_timept64 a, bl_timept64 b)
   return bl_timept64_get_diff (a, b) <= 0 ? a : b;
 }
 /*---------------------------------------------------------------------------*/
-/*the BL_FMT_TSTAMP printf format macro requires including
+/*the BL_FMT_TPOINT printf format macro requires including
  "integer_printf_format.h" for it to be correctly expanded*/
-#define BL_FMT_TSTAMP64       BL_FMT_U64
-#define BL_FMT_TSTAMP64DIFF   BL_FMT_I64
-#define BL_FMT_TSTAMP64OFF    BL_FMT_U64
-#define BL_FMT_TSTAMP64OFFSET BL_FMT_TSTAMP64OFF
+#define BL_FMT_TPOINT64       BL_FMT_U64
+#define BL_FMT_TPOINT64DIFF   BL_FMT_I64
+#define BL_FMT_TPOINT64OFF    BL_FMT_U64
+#define BL_FMT_TPOINT64OFFSET BL_FMT_TPOINT64OFF
 #ifdef BL_UNPREFIXED_PRINTF_FORMATS
-#define FMT_TSTAMP64       BL_FMT_TSTAMP64
-#define FMT_TSTAMP64DIFF   BL_FMT_TSTAMP64DIFF
-#define FMT_TSTAMP64OFF    BL_FMT_TSTAMP64OFF
-#define FMT_TSTAMP64OFFSET BL_FMT_TSTAMP64OFFSET
+#define FMT_TPOINT64       BL_FMT_TPOINT64
+#define FMT_TPOINT64DIFF   BL_FMT_TPOINT64DIFF
+#define FMT_TPOINT64OFF    BL_FMT_TPOINT64OFF
+#define FMT_TPOINT64OFFSET BL_FMT_TPOINT64OFFSET
 #endif
 /*---------------------------------------------------------------------------*/
 /* common */
@@ -102,16 +102,16 @@ typedef bl_timeoft32    bl_timeoft;
 #define bl_timept_max(x, y)        bl_timept32_max (x, y)
 #define bl_timept_min(x, y)        bl_timept32_min (x, y)
 
-#define BL_FMT_TSTAMP       BL_FMT_TSTAMP32
-#define BL_FMT_TSTAMPDIFF   BL_FMT_TSTAMP32DIFF
-#define BL_FMT_TSTAMPOFF    BL_FMT_TSTAMP32OFF
-#define BL_FMT_TSTAMPOFFSET BL_FMT_TSTAMP32OFFSET
+#define BL_FMT_TPOINT       BL_FMT_TPOINT32
+#define BL_FMT_TPOINTDIFF   BL_FMT_TPOINT32DIFF
+#define BL_FMT_TPOINTOFF    BL_FMT_TPOINT32OFF
+#define BL_FMT_TPOINTOFFSET BL_FMT_TPOINT32OFFSET
 
 #ifdef BL_UNPREFIXED_PRINTF_FORMATS
-#define FMT_TSTAMP       FMT_TSTAMP32
-#define FMT_TSTAMPDIFF   FMT_TSTAMP32DIFF
-#define FMT_TSTAMPOFF    FMT_TSTAMP32OFF
-#define FMT_TSTAMPOFFSET FMT_TSTAMP32OFFSET
+#define FMT_TPOINT       FMT_TPOINT32
+#define FMT_TPOINTDIFF   FMT_TPOINT32DIFF
+#define FMT_TPOINTOFF    FMT_TPOINT32OFF
+#define FMT_TPOINTOFFSET FMT_TPOINT32OFFSET
 #endif
 
 #else /* 64 bit timepoints */
@@ -125,24 +125,24 @@ typedef bl_timeoft64    bl_timeoft;
 #define bl_timept_max(x, y)        bl_timept64_max (x, y)
 #define bl_timept_min(x, y)        bl_timept64_min (x, y)
 
-#define BL_FMT_TSTAMP       BL_FMT_TSTAMP64
-#define BL_FMT_TSTAMPDIFF   BL_FMT_TSTAMP64DIFF
-#define BL_FMT_TSTAMPOFF    BL_FMT_TSTAMP64OFF
-#define BL_FMT_TSTAMPOFFSET BL_FMT_TSTAMP64OFFSET
+#define BL_FMT_TPOINT       BL_FMT_TPOINT64
+#define BL_FMT_TPOINTDIFF   BL_FMT_TPOINT64DIFF
+#define BL_FMT_TPOINTOFF    BL_FMT_TPOINT64OFF
+#define BL_FMT_TPOINTOFFSET BL_FMT_TPOINT64OFFSET
 
 #ifdef BL_UNPREFIXED_PRINTF_FORMATS
-#define FMT_TSTAMP       FMT_TSTAMP64
-#define FMT_TSTAMPDIFF   FMT_TSTAMP64DIFF
-#define FMT_TSTAMPOFF    FMT_TSTAMP64OFF
-#define FMT_TSTAMPOFFSET FMT_TSTAMP64OFFSET
+#define FMT_TPOINT       FMT_TPOINT64
+#define FMT_TPOINTDIFF   FMT_TPOINT64DIFF
+#define FMT_TPOINTOFF    FMT_TPOINT64OFF
+#define FMT_TPOINTOFFSET FMT_TPOINT64OFFSET
 #endif
 
 #endif /* 64 bit timepoints */
 
 /*---------------------------------------------------------------------------*/
-#if defined (BL_TSTAMP_CUSTOM_INCLUDE)
-  #include BL_TSTAMP_CUSTOM_INCLUDE
-#elif defined (BL_TSTAMP_MOCK_FOR_TESTS)
+#if defined (BL_TPOINT_CUSTOM_INCLUDE)
+  #include BL_TPOINT_CUSTOM_INCLUDE
+#elif defined (BL_TPOINT_MOCK_FOR_TESTS)
   #include <bl/base/impl/timepoint_to_mock.h>
 #elif defined (BL_POSIX)
   #include <bl/base/impl/timepoint_posix.h>
@@ -162,7 +162,7 @@ typedef bl_timeoft64    bl_timeoft;
   #include <bl/base/impl/generated/time/sysclock_funcs_from_sysclock64.h>
 #endif
 
-#if !defined BL_TSTAMP_MOCK_FOR_TESTS
+#if !defined BL_TPOINT_MOCK_FOR_TESTS
 #if BL_TIMEPOINT_BITS == 32
 
 #define bl_timept_get_freq()    bl_timept32_get_freq()
@@ -180,5 +180,5 @@ typedef bl_timeoft64    bl_timeoft;
 #define bl_sysclock_to_epoch(t) bl_sysclock64_to_epoch (t)
 #endif /* #if BL_TIMEPOINT_BITS == 32 */
 
-#endif /* #if !defined BL_TSTAMP_MOCK_FOR_TESTS */
+#endif /* #if !defined BL_TPOINT_MOCK_FOR_TESTS */
 #endif /*__BL_TIMEPOINT_H__*/

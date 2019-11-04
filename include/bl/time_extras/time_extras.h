@@ -47,7 +47,7 @@ extern BL_TIME_EXTRAS_EXPORT bl_timeoft bl_timept_to_sysclock_diff_ns (void);
 
 #include <bl/base/atomic.h>
 
-#define BL_HAS_CPU_TSTAMP 1
+#define BL_HAS_CPU_TPOINT 1
 /*----------------------------------------------------------------------------*/
 static inline bl_timept bl_cpu_timept_get (void)
 {
@@ -73,12 +73,12 @@ extern BL_TIME_EXTRAS_EXPORT bl_timeoft
   bl_cpu_timept_to_sysclock_diff_ns (void);
 /*----------------------------------------------------------------------------*/
 #else /*  defined (BL_INTEL_AMD_PC) */
-#define BL_HAS_CPU_TSTAMP 0
+#define BL_HAS_CPU_TPOINT 0
 #endif /* else  defined (BL_INTEL_AMD_PC) */
 /*----------------------------------------------------------------------------*/
 /*f_timept represents the fastest monotonic clock available on the platform  */
 
-#if BL_HAS_CPU_TSTAMP == 1
+#if BL_HAS_CPU_TPOINT == 1
 
 #define bl_f_timept_get()                 bl_cpu_timept_get()
 #define bl_f_timept_get_fast()            bl_cpu_timept_get_fast()
@@ -86,7 +86,7 @@ extern BL_TIME_EXTRAS_EXPORT bl_timeoft
 #define bl_f_timept_get_freq()            bl_cpu_timept_get_freq()
 #define bl_f_timept_to_sysclock_diff_ns() bl_cpu_timept_to_sysclock_diff_ns()
 
-#else /* BL_HAS_CPU_TSTAMP == 1 */
+#else /* BL_HAS_CPU_TPOINT == 1 */
 
 #define bl_f_timept_get()                 bl_timept_get()
 #define bl_f_timept_get_fast()            bl_timept_get()
@@ -94,7 +94,7 @@ extern BL_TIME_EXTRAS_EXPORT bl_timeoft
 #define bl_f_timept_get_freq()            bl_stamp_get_freq()
 #define bl_f_timept_to_sysclock_diff_ns() bl_stamp_to_sysclock_diff_ns()
 
-#endif /* else BL_HAS_CPU_TSTAMP == 1 */
+#endif /* else BL_HAS_CPU_TPOINT == 1 */
 
 #ifdef __cplusplus
 } /* extern "C" { */

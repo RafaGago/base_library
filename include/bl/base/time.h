@@ -38,7 +38,7 @@
   An unsigned type representing time in time units (sec, usec ...).
 
   ---------------------------------------------------------------
- BL_FMT_TSTAMP, BL_FMT_TSTAMPDIFF and BL_FMT_TSTAMPOFF define the printf
+ BL_FMT_TPOINT, BL_FMT_TPOINTDIFF and BL_FMT_TPOINTOFF define the printf
   integer format string for the bl_timept, bl_timeptdiff and bl_timeptimeoft
   types.
 

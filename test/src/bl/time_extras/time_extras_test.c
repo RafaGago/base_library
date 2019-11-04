@@ -33,7 +33,7 @@ static void bl_timept_to_sysclock_diff_test (void **state)
   assert_int_equal (diff / bl_nsec_in_msec, diff2 / bl_nsec_in_msec);
 }
 /*---------------------------------------------------------------------------*/
-#ifdef BL_HAS_CPU_TSTAMP
+#ifdef BL_HAS_CPU_TPOINT
 /*---------------------------------------------------------------------------*/
 static void bl_cpu_timept_vs_timept_test (void **state)
 {
@@ -74,11 +74,11 @@ static void bl_cpu_timept_to_sysclock_diff_test (void **state)
   /*drifting less than 1ms between calls*/
   assert_int_equal (diff / bl_nsec_in_msec, diff2 / bl_nsec_in_msec);
 }
-#endif /* #ifdef BL_HAS_CPU_TSTAMP */
+#endif /* #ifdef BL_HAS_CPU_TPOINT */
 /*---------------------------------------------------------------------------*/
 static const struct CMUnitTest tests[] = {
   cmocka_unit_test(bl_timept_to_sysclock_diff_test),
-#ifdef BL_HAS_CPU_TSTAMP
+#ifdef BL_HAS_CPU_TPOINT
   cmocka_unit_test(bl_cpu_timept_vs_timept_test),
   cmocka_unit_test(bl_cpu_timept_to_sysclock_diff_test),
 #endif
