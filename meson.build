@@ -369,6 +369,7 @@ endif
 if get_option ('timepoint_64bit')
     t_extras_srcs = [
         'src/bl/time_extras/time_extras.c',
+        'src/bl/time_extras/generated/cpu_timept_funcs_arbitrary_base.c',
     ]
     t_extras_test_srcs = [
         'test/src/bl/time_extras/time_extras_test.c',

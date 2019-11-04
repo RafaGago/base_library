@@ -8,7 +8,7 @@ This is BAD, but IMO it was worse to have criptic-macro based generic data
 structures.
 */
 /*---------------------------------------------------------------------------*/
-/* AUTOGENERATE: include/bl/{HDR_PREFIX}/generated/time/{CLOCKNAME}_funcs_arbitrary_base.h */
+/* AUTOGENERATE: include/bl/{HDR_PREFIX}/{CLOCKNAME}_funcs_arbitrary_base.h */
 /*---------------------------------------------------------------------------*/
 #ifndef __BL_{CLOCKNAME_UPPER}_FNS_ARBITRARY_BASE_H__
 #define __BL_{CLOCKNAME_UPPER}_FNS_ARBITRARY_BASE_H__
@@ -60,12 +60,12 @@ static inline bl_timeoft{BITS} bl_{CLOCKNAME}_to_msec_ceil (bl_timept{BITS} ts)
 
 static inline bl_timeoft{BITS} bl_{CLOCKNAME}_to_usec_ceil (bl_timept{BITS} ts)
 {
-  return bl_{CLOCKNAME}_to_ceil_time_private (ts, bl_usec_in_sec);
+  return bl_{CLOCKNAME}_to_time_ceil_private (ts, bl_usec_in_sec);
 }
 
 static inline bl_timeoft{BITS} bl_{CLOCKNAME}_to_nsec_ceil (bl_timept{BITS} ts)
 {
-  return bl_{CLOCKNAME}_to_ceil_time_private (ts, bl_nsec_in_sec);
+  return bl_{CLOCKNAME}_to_time_ceil_private (ts, bl_nsec_in_sec);
 }
 /*---------------------------------------------------------------------------*/
 static inline bl_timeoft{BITS} bl_sec_to_{CLOCKNAME}_max (void)
@@ -114,13 +114,13 @@ static inline bl_timept{BITS} bl_nsec_to_{CLOCKNAME} (bl_timeoft{BITS} nsec)
 #endif /* #ifndef __BL_{CLOCKNAME_UPPER}_FNS_ARBITRARY_BASE_H__*/
 
 /*---------------------------------------------------------------------------*/
-/* AUTOGENERATE: src/bl/{SRC_PREFIX}/generated/time/{CLOCKNAME}_funcs_arbitrary_base.c */
+/* AUTOGENERATE: src/bl/{SRC_PREFIX}/{CLOCKNAME}_funcs_arbitrary_base.c */
 /*---------------------------------------------------------------------------*/
 #include <bl/{INCLUDE_SRC}>
 #ifdef BL_{CLOCKNAME_UPPER}_HAS_ARBITRARY_BASE
 /*---------------------------------------------------------------------------*/
 {EXPORT} bl_timeoft{BITS}
-  bl_{CLOCKNAME}_to_time_private (bl_timept{BITS} ts, bl_u32 factor)
+  bl_{CLOCKNAME}_to_time_private (bl_timept{BITS} ts, bl_u{BITS} factor)
 {
   bl_u64 f   = bl_{CLOCKNAME}_get_freq();
   bl_u64 sec = ts / f;
@@ -129,7 +129,7 @@ static inline bl_timept{BITS} bl_nsec_to_{CLOCKNAME} (bl_timeoft{BITS} nsec)
 }
 /*---------------------------------------------------------------------------*/
 {EXPORT} bl_timeoft{BITS}
-  bl_{CLOCKNAME}_to_time_ceil_private (bl_timept{BITS} ts, bl_u32 factor)
+  bl_{CLOCKNAME}_to_time_ceil_private (bl_timept{BITS} ts, bl_u{BITS} factor)
 {
   bl_u64 f   = bl_{CLOCKNAME}_get_freq();
   bl_u64 sec = ts / f;
@@ -138,7 +138,7 @@ static inline bl_timept{BITS} bl_nsec_to_{CLOCKNAME} (bl_timeoft{BITS} nsec)
 }
 /*---------------------------------------------------------------------------*/
 {EXPORT} bl_timept{BITS}
-  bl_time_to_{CLOCKNAME}_private (bl_timeoft{BITS} amt, bl_u32 factor)
+  bl_time_to_{CLOCKNAME}_private (bl_timeoft{BITS} amt, bl_u{BITS} factor)
 {
   bl_u64     f   = bl_{CLOCKNAME}_get_freq();
   bl_timeoft sec = amt / factor;

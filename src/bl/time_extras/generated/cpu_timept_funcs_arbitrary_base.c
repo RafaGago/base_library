@@ -4,36 +4,36 @@ scripts/autogenerator.sh -f source-generation/timepoint_funcs_arbitrary_base.gen
 
 Don't edit.
 */
-/* AUTOGENERATE: src/bl/base/generated/time/timept64_funcs_arbitrary_base.c */
+/* AUTOGENERATE: src/bl/time_extras/generated/cpu_timept_funcs_arbitrary_base.c */
 /*---------------------------------------------------------------------------*/
-#include <bl/base/time.h>
-#ifdef BL_TIMEPT64_HAS_ARBITRARY_BASE
+#include <bl/time_extras/time_extras.h>
+#ifdef BL_CPU_TIMEPT_HAS_ARBITRARY_BASE
 /*---------------------------------------------------------------------------*/
-BL_EXPORT bl_timeoft64
-  bl_timept64_to_time_private (bl_timept64 ts, bl_u64 factor)
+BL_TIME_EXTRAS_EXPORT bl_timeoft64
+  bl_cpu_timept_to_time_private (bl_timept64 ts, bl_u64 factor)
 {
-  bl_u64 f   = bl_timept64_get_freq();
+  bl_u64 f   = bl_cpu_timept_get_freq();
   bl_u64 sec = ts / f;
   bl_u64 rem = ts % f;
   return (bl_timeoft64) (sec * factor) + ((rem * factor) / f);
 }
 /*---------------------------------------------------------------------------*/
-BL_EXPORT bl_timeoft64
-  bl_timept64_to_time_ceil_private (bl_timept64 ts, bl_u64 factor)
+BL_TIME_EXTRAS_EXPORT bl_timeoft64
+  bl_cpu_timept_to_time_ceil_private (bl_timept64 ts, bl_u64 factor)
 {
-  bl_u64 f   = bl_timept64_get_freq();
+  bl_u64 f   = bl_cpu_timept_get_freq();
   bl_u64 sec = ts / f;
   bl_u64 rem = ts % f;
   return (bl_timeoft64) (sec * factor) + bl_div_ceil (rem * factor, f);
 }
 /*---------------------------------------------------------------------------*/
-BL_EXPORT bl_timept64
-  bl_time_to_timept64_private (bl_timeoft64 amt, bl_u64 factor)
+BL_TIME_EXTRAS_EXPORT bl_timept64
+  bl_time_to_cpu_timept_private (bl_timeoft64 amt, bl_u64 factor)
 {
-  bl_u64     f   = bl_timept64_get_freq();
+  bl_u64     f   = bl_cpu_timept_get_freq();
   bl_timeoft sec = amt / factor;
   bl_timeoft rem = amt % factor;
   return (bl_timept64) (sec * f) + bl_div_ceil (rem * f, factor);
 }
 /*---------------------------------------------------------------------------*/
-#endif /* #ifdef BL_TIMEPT64_HAS_ARBITRARY_BASE */
+#endif /* #ifdef BL_CPU_TIMEPT_HAS_ARBITRARY_BASE */

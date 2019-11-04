@@ -25,10 +25,10 @@ static void bl_timept_to_sysclock_diff_test (void **state)
   double ns_49y_epoch = 49. * 12. * 30.41 * 24. * 60. * 60. * 1000000000.;
   double ns_80y_epoch = 80. * 12. * 30.41 * 24. * 60. * 60. * 1000000000.;
 
-  bl_timeoft diff = bl_timept_to_sysclock_diff_ns();
+  bl_timeoft64 diff = bl_timept64_to_sysclock64_diff_ns();
   assert_true (diff > (bl_u64) ns_49y_epoch);
   assert_true (diff < (bl_u64) ns_80y_epoch);
-  bl_timeoft diff2 = bl_timept_to_sysclock_diff_ns();
+  bl_timeoft64 diff2 = bl_timept64_to_sysclock64_diff_ns();
   /*drifting less than 1ms between calls*/
   assert_int_equal (diff / bl_nsec_in_msec, diff2 / bl_nsec_in_msec);
 }
@@ -67,12 +67,12 @@ static void bl_cpu_timept_to_sysclock_diff_test (void **state)
   double ns_49y_epoch = 49. * 12. * 30.41 * 24. * 60. * 60. * 1000000000.;
   double ns_80y_epoch = 80. * 12. * 30.41 * 24. * 60. * 60. * 1000000000.;
 
-  bl_timeoft diff = bl_cpu_timept_to_sysclock_diff_ns();
+  bl_timeoft64 diff = bl_cpu_timept_to_sysclock64_diff_ns();
   assert_true (diff > (bl_u64) ns_49y_epoch);
   assert_true (diff < (bl_u64) ns_80y_epoch);
-  bl_timeoft diff2 = bl_cpu_timept_to_sysclock_diff_ns();
-  /*drifting less than 1ms between calls*/
-  assert_int_equal (diff / bl_nsec_in_msec, diff2 / bl_nsec_in_msec);
+  bl_timeoft64 diff2 = bl_cpu_timept_to_sysclock64_diff_ns();
+  /*drifting less than 10ms between calls*/
+  assert_true (diff2 - diff <= 10 * bl_nsec_in_msec);
 }
 #endif /* #ifdef BL_HAS_CPU_TPOINT */
 /*---------------------------------------------------------------------------*/

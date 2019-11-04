@@ -116,7 +116,7 @@ static sysclockdiff timepoint_sysdata = {
 /*----------------------------------------------------------------------------*/
 #ifdef BL_HAS_CPU_TPOINT
 /*----------------------------------------------------------------------------*/
-static bl_timept cpu_t_get_noinline (void)
+static bl_timept64 cpu_t_get_noinline (void)
 {
   return bl_cpu_timept_get();
 }
@@ -183,7 +183,7 @@ static bl_err timepoint_cpu_init (void)
     )
   {
     /*trying to set an initial value on "ts_to_sys_ns"*/
-    bl_cpu_timept_to_sysclock_diff_ns();
+    bl_cpu_timept_to_sysclock64_diff_ns();
     ++attempts;
   }
   if (IS_MAGIC_NAN (bl_atomic_u64_load_rlx (&cputimepoint_sysdata.to_sys_ns))) {
@@ -205,7 +205,7 @@ BL_TIME_EXTRAS_EXPORT bl_err bl_time_extras_init (void)
     )
   {
     /*trying to set an initial value on "ts_to_sys_ns"*/
-    bl_timept_to_sysclock_diff_ns();
+    bl_timept64_to_sysclock64_diff_ns();
     ++attempts;
   }
   if (IS_MAGIC_NAN (bl_atomic_u64_load_rlx (&timepoint_sysdata.to_sys_ns))) {
@@ -226,7 +226,7 @@ BL_TIME_EXTRAS_EXPORT void bl_time_extras_destroy (void)
   */
 }
 /*----------------------------------------------------------------------------*/
-static bl_timeoft bl_timept_to_sysclock_diff_ns_impl(sysclockdiff* sc)
+static bl_timeoft64 bl_timept_to_sysclock_diff_ns_impl (sysclockdiff* sc)
 {
   double diff[BL_TIME_QSAMPLES];
   double sys_to_ns =
@@ -246,28 +246,22 @@ static bl_timeoft bl_timept_to_sysclock_diff_ns_impl(sysclockdiff* sc)
     /*good enough dataset. success.*/
     bl_atomic_u64_store_rlx(&sc->to_sys_ns, (bl_u64) avg);
   }
-  return (bl_timeoft) bl_atomic_u64_load_rlx (&sc->to_sys_ns);
+  return (bl_timeoft64) bl_atomic_u64_load_rlx (&sc->to_sys_ns);
 }
 /*----------------------------------------------------------------------------*/
-BL_TIME_EXTRAS_EXPORT bl_timeoft bl_timept_to_sysclock_diff_ns (void)
+BL_TIME_EXTRAS_EXPORT bl_timeoft64 bl_timept64_to_sysclock64_diff_ns (void)
 {
   return bl_timept_to_sysclock_diff_ns_impl (&timepoint_sysdata);
 }
 /*----------------------------------------------------------------------------*/
 #ifdef BL_HAS_CPU_TPOINT
 /*----------------------------------------------------------------------------*/
-BL_TIME_EXTRAS_EXPORT bl_timeoft bl_cpu_timept_to_nsec (bl_timept t)
-{
-  return (bl_timeoft)
-    (((double) t * (double) bl_nsec_in_sec) / (double) bl_cpu_timept_get_freq());
-}
-/*----------------------------------------------------------------------------*/
 BL_TIME_EXTRAS_EXPORT bl_u64 bl_cpu_timept_get_freq (void)
 {
   return bl_atomic_u64_load_rlx (&cpu_timept_freq);
 }
 /*----------------------------------------------------------------------------*/
-BL_TIME_EXTRAS_EXPORT bl_timeoft bl_cpu_timept_to_sysclock_diff_ns (void)
+BL_TIME_EXTRAS_EXPORT bl_timeoft bl_cpu_timept_to_sysclock64_diff_ns (void)
 {
   return bl_timept_to_sysclock_diff_ns_impl (&cputimepoint_sysdata);
 }

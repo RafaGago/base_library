@@ -22,7 +22,8 @@ extern "C" {
 
    This function tries to empirically acquire information about the clocks by
    doing measurements. It can rarely fail if the scheduler repeatedly preeempts
-   some critical points inside.
+   some critical points inside. This is done by measuring and interpreting the
+   data in a not-completely-naive way.
 */
 extern BL_TIME_EXTRAS_EXPORT bl_err bl_time_extras_init (void);
 /*----------------------------------------------------------------------------*/
@@ -35,7 +36,8 @@ extern BL_TIME_EXTRAS_EXPORT void bl_time_extras_destroy (void);
 /* Returns the difference in nanoseconds between the "bl_timept" monotonic
    clock vs the calendar clock "bl_sysclock". This is useful to convert
    monotonic to calendar time. */
-extern BL_TIME_EXTRAS_EXPORT bl_timeoft bl_timept_to_sysclock_diff_ns (void);
+extern BL_TIME_EXTRAS_EXPORT
+  bl_timeoft64 bl_timept64_to_sysclock64_diff_ns (void);
 /*----------------------------------------------------------------------------*/
 #if defined (BL_INTEL_AMD_PC)
 /*----------------------------------------------------------------------------*/
@@ -49,28 +51,28 @@ extern BL_TIME_EXTRAS_EXPORT bl_timeoft bl_timept_to_sysclock_diff_ns (void);
 
 #define BL_HAS_CPU_TPOINT 1
 /*----------------------------------------------------------------------------*/
-static inline bl_timept bl_cpu_timept_get (void)
+static inline bl_timept64 bl_cpu_timept_get (void)
 {
   _mm_mfence();
   return __rdtsc();
 }
-/* the fast version is suitable for timepointing only, not for measurements, as
+/* the fast version is suitable for timestamping only, not for measurements, as
 it allows instruction reordering by the compiler */
 /*----------------------------------------------------------------------------*/
-static inline bl_timept bl_cpu_timept_get_fast (void)
+static inline bl_timept64 bl_cpu_timept_get_fast (void)
 {
   return __rdtsc();
 }
-/*----------------------------------------------------------------------------*/
-extern BL_TIME_EXTRAS_EXPORT bl_timeoft bl_cpu_timept_to_nsec (bl_timept t);
 /*----------------------------------------------------------------------------*/
 extern BL_TIME_EXTRAS_EXPORT bl_u64 bl_cpu_timept_get_freq (void);
 /*----------------------------------------------------------------------------*/
 /* Returns the difference in nanoseconds between the "bl_cpu_timept" monotonic
    clock vs the calendar clock "bl_sysclock". This is useful to convert
-   monotonic to calendar time.*/
-extern BL_TIME_EXTRAS_EXPORT bl_timeoft
-  bl_cpu_timept_to_sysclock_diff_ns (void);
+   monotonic to calendar time. This is done by measuring and interpreting the
+   data in a not-completely-naive way.
+   */
+extern BL_TIME_EXTRAS_EXPORT bl_timeoft64
+  bl_cpu_timept_to_sysclock64_diff_ns (void);
 /*----------------------------------------------------------------------------*/
 #else /*  defined (BL_INTEL_AMD_PC) */
 #define BL_HAS_CPU_TPOINT 0
@@ -80,19 +82,22 @@ extern BL_TIME_EXTRAS_EXPORT bl_timeoft
 
 #if BL_HAS_CPU_TPOINT == 1
 
-#define bl_f_timept_get()                 bl_cpu_timept_get()
-#define bl_f_timept_get_fast()            bl_cpu_timept_get_fast()
-#define bl_f_stamp_to_nsec(t)             bl_cpu_timept_to_nsec (t)
-#define bl_f_timept_get_freq()            bl_cpu_timept_get_freq()
-#define bl_f_timept_to_sysclock_diff_ns() bl_cpu_timept_to_sysclock_diff_ns()
+#define bl_fast_timept_get()                   bl_cpu_timept_get()
+#define bl_fast_timept_get_fast()              bl_cpu_timept_get_fast()
+#define bl_fast_timept_get_freq()              bl_cpu_timept_get_freq()
+#define bl_fast_timept_to_sysclock64_diff_ns() bl_cpu_timept_to_sysclock64_diff_ns()
+
+#include <bl/time_extras/generated/cpu_timept_funcs_arbitrary_base.h>
+#include <bl/time_extras/generated/fast_timept_funcs_from_cpu_timept.h>
 
 #else /* BL_HAS_CPU_TPOINT == 1 */
 
-#define bl_f_timept_get()                 bl_timept_get()
-#define bl_f_timept_get_fast()            bl_timept_get()
-#define bl_f_timept_to_nsec(t)            bl_stamp_to_nsec (t)
-#define bl_f_timept_get_freq()            bl_stamp_get_freq()
-#define bl_f_timept_to_sysclock_diff_ns() bl_stamp_to_sysclock_diff_ns()
+#define bl_fast_timept_get()                 bl_timept64_get()
+#define bl_fast_timept_get_fast()            bl_timept64_get()
+#define bl_fast_timept_get_freq()            bl_timept64_get_freq()
+#define bl_fast_timept_to_sysclock_diff_ns() bl_timept64_to_sysclock64_diff_ns()
+
+#include <bl/time_extras/generated/fast_timept_funcs_from_timept64.h>
 
 #endif /* else BL_HAS_CPU_TPOINT == 1 */
 

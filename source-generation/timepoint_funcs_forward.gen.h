@@ -8,7 +8,7 @@ This is BAD, but IMO it was worse to have criptic-macro based generic data
 structures.
 */
 /*---------------------------------------------------------------------------*/
-/* AUTOGENERATE: include/bl/base/impl/generated/time/{DSTCLK}_funcs_from_{SRCCLK}.h */
+/* AUTOGENERATE: include/bl/{HDR_PREFIX}/{DSTCLK}_funcs_from_{SRCCLK}.h */
 /*---------------------------------------------------------------------------*/
 #ifndef __BL_{DSTCLK_UPPER}_FUNC_FROM_{SRCCLK_UPPER}_
 #define __BL_{DSTCLK_UPPER}_FUNC_FROM_{SRCCLK_UPPER}_
