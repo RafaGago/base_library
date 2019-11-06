@@ -16,9 +16,13 @@ static inline void timept_will_return (unsigned v)
   will_return (bl_timept32_get, bl_usec_to_timept32 (v));
 }
 /*---------------------------------------------------------------------------*/
-/* these are just to make deadline compile */
+/* these are just to make deadline compile and silence warnings */
 #define bl_timept64_get() 0
 #define bl_timept_get() 0
+
+#define bl_sysclock64_get() 0
+#define bl_sysclock32_get() 0
+#define bl_sysclock_get() 0
 /*---------------------------------------------------------------------------*/
 #include <bl/base/default_allocator.h>
 #include <bl/base/flat_deadlines.c> /* rebuild here to link with the mock */

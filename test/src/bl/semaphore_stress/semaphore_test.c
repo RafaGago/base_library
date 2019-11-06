@@ -65,10 +65,10 @@ static inline void signaler_wait (thread_context* c)
     return;
   }
   bl_timept d;
-  bl_deadline_init (&d, c->wait_us);
-  while (!bl_deadline_expired (d)) {
+  bl_timept_deadline_init_usec (&d, c->wait_us);
+  while (!bl_timept_deadline_expired (d)) {
     for (bl_uword i = 0; i < 600; ++i) {
-      if (bl_deadline_expired (d)) {
+      if (bl_timept_deadline_expired (d)) {
         return;
       }
     }

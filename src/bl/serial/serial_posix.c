@@ -495,7 +495,8 @@ BL_SERIAL_EXPORT bl_err bl_serial_read(
   bl_timept deadline = 0;
   bl_err err      = bl_mkok();
   if (timeout_us != 0) {
-    err =  bl_deadline_init (&deadline, timeout_us);
+    static_assert(BL_TIMEPT_BASE <= BL_MICROSECOND_BASE ,"paco");
+    err =  bl_timept_deadline_init_usec (&deadline, timeout_us);
     if (err.bl) {
       goto rollback;
     }
@@ -510,7 +511,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_read(
       continue;
     }
     bl_timeptdiff diff = (timeout_us != 0) ?
-      bl_deadline_compare (deadline, bl_timept_get()) : -1;
+      bl_timept_deadline_compare (deadline, bl_timept_get()) : -1;
       /*context switches from here to the pselect will be suboptimal*/
     if (diff <= 0) {
       err = bl_mkerr (bl_timeout);
@@ -560,7 +561,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_write(
   bl_timept deadline = 0;
   bl_err err      = bl_mkok();
   if (timeout_us != 0) {
-    err = bl_deadline_init (&deadline, timeout_us);
+    err = bl_timept_deadline_init_usec (&deadline, timeout_us);
     if (err.bl) {
       return err;
     }
@@ -575,7 +576,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_write(
     struct timespec t;
     struct timespec* t_ptr = nullptr;
     if (timeout_us != 0) {
-      bl_timeptdiff diff = bl_deadline_compare (deadline, bl_timept_get());
+      bl_timeptdiff diff = bl_timept_deadline_compare (deadline, bl_timept_get());
       if (diff <= 0) {
         err = bl_mkerr (bl_timeout);
         goto end;

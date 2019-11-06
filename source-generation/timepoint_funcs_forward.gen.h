@@ -12,21 +12,8 @@ structures.
 /*---------------------------------------------------------------------------*/
 #ifndef __BL_{DSTCLK_UPPER}_FUNC_FROM_{SRCCLK_UPPER}_
 #define __BL_{DSTCLK_UPPER}_FUNC_FROM_{SRCCLK_UPPER}_
-
 /*---------------------------------------------------------------------------*/
-#if defined (BL_{SRCCLK_UPPER}_HAS_NANOSECOND_BASE)
-  #define BL_{DSTCLK_UPPER}_HAS_NANOSECOND_BASE 1
-#elif defined (BL_{SRCCLK_UPPER}_HAS_MICROSECOND_BASE)
-  #define BL_{DSTCLK_UPPER}_HAS_MICROSECOND_BASE 1
-#elif defined (BL_{SRCCLK_UPPER}_HAS_MILLISECOND_BASE)
-  #define BL_{DSTCLK_UPPER}_HAS_MILLISECOND_BASE 1
-#elif defined (BL_{SRCCLK_UPPER}_HAS_SECOND_BASE)
-  #define BL_{DSTCLK_UPPER}_HAS_SECOND_BASE 1
-#elif defined (BL_{SRCCLK_UPPER}_HAS_ARBITRARY_BASE)
-  #define BL_{DSTCLK_UPPER}_HAS_ARBITRARY_BASE 1
-#else
-  #error "Couldn't determine time base of BL_{SRCCLK_UPPER}"
-#endif
+#define BL_{DSTCLK_UPPER}_BASE BL_{SRCCLK_UPPER}_BASE
 #define BL_{DSTCLK_UPPER}_BITS BL_{SRCCLK_UPPER}_BITS
 /*---------------------------------------------------------------------------*/
 #define bl_sec_to_{DSTCLK}_max()  bl_sec_to_{SRCCLK}_max()

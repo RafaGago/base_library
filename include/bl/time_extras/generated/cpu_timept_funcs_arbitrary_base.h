@@ -9,11 +9,12 @@ Don't edit.
 #ifndef __BL_CPU_TIMEPT_FNS_ARBITRARY_BASE_H__
 #define __BL_CPU_TIMEPT_FNS_ARBITRARY_BASE_H__
 
-/*this file will be included from other files that have the missing defines*/
+/* Common time conversions for the cpu_timept clock*/
+
 #include <bl/time_extras/libexport.h>
 
-#define BL_CPU_TIMEPT_HAS_ARBITRARY_BASE 1
-#define BL_CPU_TIMEPT_BITS (sizeof (bl_timept64) * 8)
+#define BL_CPU_TIMEPT_BASE BL_ARBITRARY_BASE
+#define BL_CPU_TIMEPT_BITS 64
 /*---------------------------------------------------------------------------*/
 extern BL_TIME_EXTRAS_EXPORT bl_timeoft64
   bl_cpu_timept_to_time_private (bl_timept64 ts, bl_u64 factor);

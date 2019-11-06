@@ -49,7 +49,7 @@ extern BL_TIME_EXTRAS_EXPORT
 
 #include <bl/base/atomic.h>
 
-#define BL_HAS_CPU_TPOINT 1
+#define BL_HAS_CPU_TIMEPT 1
 /*----------------------------------------------------------------------------*/
 static inline bl_timept64 bl_cpu_timept_get (void)
 {
@@ -75,12 +75,12 @@ extern BL_TIME_EXTRAS_EXPORT bl_timeoft64
   bl_cpu_timept_to_sysclock64_diff_ns (void);
 /*----------------------------------------------------------------------------*/
 #else /*  defined (BL_INTEL_AMD_PC) */
-#define BL_HAS_CPU_TPOINT 0
+#define BL_HAS_CPU_TIMEPT 0
 #endif /* else  defined (BL_INTEL_AMD_PC) */
 /*----------------------------------------------------------------------------*/
 /*f_timept represents the fastest monotonic clock available on the platform  */
 
-#if BL_HAS_CPU_TPOINT == 1
+#if BL_HAS_CPU_TIMEPT == 1
 
 #define bl_fast_timept_get()                   bl_cpu_timept_get()
 #define bl_fast_timept_get_fast()              bl_cpu_timept_get_fast()
@@ -90,7 +90,7 @@ extern BL_TIME_EXTRAS_EXPORT bl_timeoft64
 #include <bl/time_extras/generated/cpu_timept_funcs_arbitrary_base.h>
 #include <bl/time_extras/generated/fast_timept_funcs_from_cpu_timept.h>
 
-#else /* BL_HAS_CPU_TPOINT == 1 */
+#else /* BL_HAS_CPU_TIMEPT == 1 */
 
 #define bl_fast_timept_get()                 bl_timept64_get()
 #define bl_fast_timept_get_fast()            bl_timept64_get()
@@ -99,7 +99,7 @@ extern BL_TIME_EXTRAS_EXPORT bl_timeoft64
 
 #include <bl/time_extras/generated/fast_timept_funcs_from_timept64.h>
 
-#endif /* else BL_HAS_CPU_TPOINT == 1 */
+#endif /* else BL_HAS_CPU_TIMEPT == 1 */
 
 #ifdef __cplusplus
 } /* extern "C" { */

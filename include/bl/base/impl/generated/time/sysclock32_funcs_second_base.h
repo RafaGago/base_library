@@ -9,12 +9,13 @@ Don't edit.
 #ifndef __BL_SYSCLOCK32_FNS_SECOND_BASE_H__
 #define __BL_SYSCLOCK32_FNS_SECOND_BASE_H__
 
-/*this file will be included from other files that have the missing defines*/
+/* Common time conversions for the sysclock32 clock*/
+
 #include <bl/base/static_integer_math.h>
 #include <bl/base/assert.h>
 /*---------------------------------------------------------------------------*/
-#define BL_SYSCLOCK32_HAS_SECOND_BASE 1
-#define BL_SYSCLOCK32_BITS (sizeof (bl_timept32) * 8)
+#define BL_SYSCLOCK32_BASE BL_SECOND_BASE
+#define BL_SYSCLOCK32_BITS 32
 /*---------------------------------------------------------------------------*/
 #define bl_sysclock32_to_sec_priv(ts)\
   ((bl_timeoft32) ts)

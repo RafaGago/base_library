@@ -179,7 +179,7 @@ BL_TASKQ_EXPORT bl_err bl_taskq_run_one (bl_taskq* tq, bl_u32 timeout_us)
   bool   has_deadline = timeout_us != bl_taskq_no_timeout;
   bl_timept32 deadline     = 0;
   if (has_deadline) {
-    err = bl_deadline32_init (&deadline, timeout_us);
+    err = bl_timept32_deadline_init_usec (&deadline, timeout_us);
     if (bl_unlikely (err.bl)) {
       return err;
     }
@@ -193,7 +193,7 @@ BL_TASKQ_EXPORT bl_err bl_taskq_run_one (bl_taskq* tq, bl_u32 timeout_us)
 
     if (dhead) {
       if (has_deadline) {
-        deadline = bl_deadline_min (deadline, dhead->time);
+        deadline = bl_timept32_deadline_min (deadline, dhead->time);
       }
       else {
         has_deadline = true;
@@ -203,7 +203,7 @@ BL_TASKQ_EXPORT bl_err bl_taskq_run_one (bl_taskq* tq, bl_u32 timeout_us)
     bl_u32 sem_us;
     if (has_deadline) {
       bl_timept32 now = bl_timept32_get();
-      if (!bl_deadline32_expired_explicit (deadline, now)) {
+      if (!bl_timept32_deadline_expired_explicit (deadline, now)) {
         sem_us = bl_timept32_to_usec_ceil (deadline - now);
       }
       else {

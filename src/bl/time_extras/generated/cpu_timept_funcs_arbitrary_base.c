@@ -7,7 +7,7 @@ Don't edit.
 /* AUTOGENERATE: src/bl/time_extras/generated/cpu_timept_funcs_arbitrary_base.c */
 /*---------------------------------------------------------------------------*/
 #include <bl/time_extras/time_extras.h>
-#ifdef BL_CPU_TIMEPT_HAS_ARBITRARY_BASE
+#if BL_CPU_TIMEPT_BASE == BL_ARBITRARY_BASE
 /*---------------------------------------------------------------------------*/
 BL_TIME_EXTRAS_EXPORT bl_timeoft64
   bl_cpu_timept_to_time_private (bl_timept64 ts, bl_u64 factor)
@@ -36,4 +36,4 @@ BL_TIME_EXTRAS_EXPORT bl_timept64
   return (bl_timept64) (sec * f) + bl_div_ceil (rem * f, factor);
 }
 /*---------------------------------------------------------------------------*/
-#endif /* #ifdef BL_CPU_TIMEPT_HAS_ARBITRARY_BASE */
+#endif /* #if BL_CPU_TIMEPT_BASE == BL_ARBITRARY_BASE */

@@ -13,12 +13,13 @@ structures.
 #ifndef __BL_{CLOCKNAME_UPPER}_FNS_SECOND_BASE_H__
 #define __BL_{CLOCKNAME_UPPER}_FNS_SECOND_BASE_H__
 
-/*this file will be included from other files that have the missing defines*/
+/* Common time conversions for the {CLOCKNAME} clock*/
+
 #include <bl/base/static_integer_math.h>
 #include <bl/base/assert.h>
 /*---------------------------------------------------------------------------*/
-#define BL_{CLOCKNAME_UPPER}_HAS_SECOND_BASE 1
-#define BL_{CLOCKNAME_UPPER}_BITS (sizeof (bl_timept{BITS}) * 8)
+#define BL_{CLOCKNAME_UPPER}_BASE BL_SECOND_BASE
+#define BL_{CLOCKNAME_UPPER}_BITS {BITS}
 /*---------------------------------------------------------------------------*/
 #define bl_{CLOCKNAME}_to_sec_priv(ts)\
   ((bl_timeoft{BITS}) ts)

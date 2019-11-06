@@ -8,21 +8,8 @@ Don't edit.
 /*---------------------------------------------------------------------------*/
 #ifndef __BL_SYSCLOCK_FUNC_FROM_SYSCLOCK32_
 #define __BL_SYSCLOCK_FUNC_FROM_SYSCLOCK32_
-
 /*---------------------------------------------------------------------------*/
-#if defined (BL_SYSCLOCK32_HAS_NANOSECOND_BASE)
-  #define BL_SYSCLOCK_HAS_NANOSECOND_BASE 1
-#elif defined (BL_SYSCLOCK32_HAS_MICROSECOND_BASE)
-  #define BL_SYSCLOCK_HAS_MICROSECOND_BASE 1
-#elif defined (BL_SYSCLOCK32_HAS_MILLISECOND_BASE)
-  #define BL_SYSCLOCK_HAS_MILLISECOND_BASE 1
-#elif defined (BL_SYSCLOCK32_HAS_SECOND_BASE)
-  #define BL_SYSCLOCK_HAS_SECOND_BASE 1
-#elif defined (BL_SYSCLOCK32_HAS_ARBITRARY_BASE)
-  #define BL_SYSCLOCK_HAS_ARBITRARY_BASE 1
-#else
-  #error "Couldn't determine time base of BL_SYSCLOCK32"
-#endif
+#define BL_SYSCLOCK_BASE BL_SYSCLOCK32_BASE
 #define BL_SYSCLOCK_BITS BL_SYSCLOCK32_BITS
 /*---------------------------------------------------------------------------*/
 #define bl_sec_to_sysclock_max()  bl_sec_to_sysclock32_max()

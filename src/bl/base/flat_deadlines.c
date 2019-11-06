@@ -12,7 +12,7 @@ static bl_word bl_flat_deadlines_ordering_func(
   )
 {
   bl_flat_deadlines* l = (bl_flat_deadlines*) context;
-  return bl_deadline32_compare(
+  return bl_timept32_deadline_compare(
     get_fdbl_timept32 (a) - l->time_offset,
     get_fdbl_timept32 (b) - l->time_offset
     );
@@ -31,7 +31,9 @@ BL_EXPORT void const* bl_flat_deadlines_get_head_if_expired(
   if (!d) {
     return nullptr;
   }
-  if (bl_unlikely (bl_deadline32_expired_explicit (*d, dl->time_offset))) {
+  if (bl_unlikely (bl_timept32_deadline_expired_explicit(
+    *d, dl->time_offset))
+    ) {
     return (void*) d;
   }
   /* as the list ordering rotates to allow timepoint wrap around (and O(1) */
@@ -39,7 +41,7 @@ BL_EXPORT void const* bl_flat_deadlines_get_head_if_expired(
   /*   offset while still having outdated items on the list */
   dl->time_offset = (dont_acquire_new_timept) ? now : bl_timept32_get();
   return (void*)
-    bl_deadline32_expired_explicit (*d, dl->time_offset) ? d : nullptr;
+    bl_timept32_deadline_expired_explicit (*d, dl->time_offset) ? d : nullptr;
 }
 /*--------------------------------------------------------------------------*/
 BL_EXPORT bl_err bl_flat_deadlines_insert(

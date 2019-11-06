@@ -13,11 +13,12 @@ structures.
 #ifndef __BL_{CLOCKNAME_UPPER}_FNS_ARBITRARY_BASE_H__
 #define __BL_{CLOCKNAME_UPPER}_FNS_ARBITRARY_BASE_H__
 
-/*this file will be included from other files that have the missing defines*/
+/* Common time conversions for the {CLOCKNAME} clock*/
+
 #include <bl/{INCLUDE_HDR}>
 
-#define BL_{CLOCKNAME_UPPER}_HAS_ARBITRARY_BASE 1
-#define BL_{CLOCKNAME_UPPER}_BITS (sizeof (bl_timept{BITS}) * 8)
+#define BL_{CLOCKNAME_UPPER}_BASE BL_ARBITRARY_BASE
+#define BL_{CLOCKNAME_UPPER}_BITS {BITS}
 /*---------------------------------------------------------------------------*/
 extern {EXPORT} bl_timeoft{BITS}
   bl_{CLOCKNAME}_to_time_private (bl_timept{BITS} ts, bl_u{BITS} factor);
@@ -117,7 +118,7 @@ static inline bl_timept{BITS} bl_nsec_to_{CLOCKNAME} (bl_timeoft{BITS} nsec)
 /* AUTOGENERATE: src/bl/{SRC_PREFIX}/{CLOCKNAME}_funcs_arbitrary_base.c */
 /*---------------------------------------------------------------------------*/
 #include <bl/{INCLUDE_SRC}>
-#ifdef BL_{CLOCKNAME_UPPER}_HAS_ARBITRARY_BASE
+#if BL_{CLOCKNAME_UPPER}_BASE == BL_ARBITRARY_BASE
 /*---------------------------------------------------------------------------*/
 {EXPORT} bl_timeoft{BITS}
   bl_{CLOCKNAME}_to_time_private (bl_timept{BITS} ts, bl_u{BITS} factor)
@@ -146,4 +147,4 @@ static inline bl_timept{BITS} bl_nsec_to_{CLOCKNAME} (bl_timeoft{BITS} nsec)
   return (bl_timept{BITS}) (sec * f) + bl_div_ceil (rem * f, factor);
 }
 /*---------------------------------------------------------------------------*/
-#endif /* #ifdef BL_{CLOCKNAME_UPPER}_HAS_ARBITRARY_BASE */
+#endif /* #if BL_{CLOCKNAME_UPPER}_BASE == BL_ARBITRARY_BASE */

@@ -140,6 +140,12 @@ typedef bl_timeoft64    bl_timeoft;
 #endif /* 64 bit timepoints */
 
 /*---------------------------------------------------------------------------*/
+#define BL_ARBITRARY_BASE -1
+#define BL_NANOSECOND_BASE 120
+#define BL_MICROSECOND_BASE 123
+#define BL_MILLISECOND_BASE 126
+#define BL_SECOND_BASE 129
+/*---------------------------------------------------------------------------*/
 #if defined (BL_TPOINT_CUSTOM_INCLUDE)
   #include BL_TPOINT_CUSTOM_INCLUDE
 #elif defined (BL_TPOINT_MOCK_FOR_TESTS)

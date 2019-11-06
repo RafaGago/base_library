@@ -9,12 +9,13 @@ Don't edit.
 #ifndef __BL_TIMEPT32_FNS_MICROSECOND_BASE_H__
 #define __BL_TIMEPT32_FNS_MICROSECOND_BASE_H__
 
-/*this file will be included from other files that have the missing defines*/
+/* Common time conversions for the timept32 clock*/
+
 #include <bl/base/static_integer_math.h>
 #include <bl/base/assert.h>
 /*---------------------------------------------------------------------------*/
-#define BL_TIMEPT32_HAS_MICROSECOND_BASE 1
-#define BL_TIMEPT32_BITS (sizeof (bl_timept32) * 8)
+#define BL_TIMEPT32_BASE BL_MICROSECOND_BASE
+#define BL_TIMEPT32_BITS 32
 /*---------------------------------------------------------------------------*/
 #define bl_timept32_to_sec_priv(ts)\
   ((bl_timeoft32) (ts / bl_usec_in_sec))

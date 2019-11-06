@@ -9,12 +9,13 @@ Don't edit.
 #ifndef __BL_SYSCLOCK64_FNS_NANOSECOND_BASE_H__
 #define __BL_SYSCLOCK64_FNS_NANOSECOND_BASE_H__
 
-/*this file will be included from other files that have the missing defines*/
+/* Common time conversions for the sysclock64 clock*/
+
 #include <bl/base/static_integer_math.h>
 #include <bl/base/assert.h>
 /*---------------------------------------------------------------------------*/
-#define BL_SYSCLOCK64_HAS_NANOSECOND_BASE 1
-#define BL_SYSCLOCK64_BITS (sizeof (bl_timept64) * 8)
+#define BL_SYSCLOCK64_BASE BL_NANOSECOND_BASE
+#define BL_SYSCLOCK64_BITS 64
 /*---------------------------------------------------------------------------*/
 #define bl_sysclock64_to_sec_priv(ts)\
   ((bl_timeoft64) (ts / bl_nsec_in_sec))

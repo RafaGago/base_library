@@ -8,21 +8,8 @@ Don't edit.
 /*---------------------------------------------------------------------------*/
 #ifndef __BL_FAST_TIMEPT_FUNC_FROM_CPU_TIMEPT_
 #define __BL_FAST_TIMEPT_FUNC_FROM_CPU_TIMEPT_
-
 /*---------------------------------------------------------------------------*/
-#if defined (BL_CPU_TIMEPT_HAS_NANOSECOND_BASE)
-  #define BL_FAST_TIMEPT_HAS_NANOSECOND_BASE 1
-#elif defined (BL_CPU_TIMEPT_HAS_MICROSECOND_BASE)
-  #define BL_FAST_TIMEPT_HAS_MICROSECOND_BASE 1
-#elif defined (BL_CPU_TIMEPT_HAS_MILLISECOND_BASE)
-  #define BL_FAST_TIMEPT_HAS_MILLISECOND_BASE 1
-#elif defined (BL_CPU_TIMEPT_HAS_SECOND_BASE)
-  #define BL_FAST_TIMEPT_HAS_SECOND_BASE 1
-#elif defined (BL_CPU_TIMEPT_HAS_ARBITRARY_BASE)
-  #define BL_FAST_TIMEPT_HAS_ARBITRARY_BASE 1
-#else
-  #error "Couldn't determine time base of BL_CPU_TIMEPT"
-#endif
+#define BL_FAST_TIMEPT_BASE BL_CPU_TIMEPT_BASE
 #define BL_FAST_TIMEPT_BITS BL_CPU_TIMEPT_BITS
 /*---------------------------------------------------------------------------*/
 #define bl_sec_to_fast_timept_max()  bl_sec_to_cpu_timept_max()

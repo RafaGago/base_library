@@ -7,7 +7,7 @@ Don't edit.
 /* AUTOGENERATE: src/bl/base/generated/time/timept32_funcs_arbitrary_base.c */
 /*---------------------------------------------------------------------------*/
 #include <bl/base/time.h>
-#ifdef BL_TIMEPT32_HAS_ARBITRARY_BASE
+#if BL_TIMEPT32_BASE == BL_ARBITRARY_BASE
 /*---------------------------------------------------------------------------*/
 BL_EXPORT bl_timeoft32
   bl_timept32_to_time_private (bl_timept32 ts, bl_u32 factor)
@@ -36,4 +36,4 @@ BL_EXPORT bl_timept32
   return (bl_timept32) (sec * f) + bl_div_ceil (rem * f, factor);
 }
 /*---------------------------------------------------------------------------*/
-#endif /* #ifdef BL_TIMEPT32_HAS_ARBITRARY_BASE */
+#endif /* #if BL_TIMEPT32_BASE == BL_ARBITRARY_BASE */

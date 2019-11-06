@@ -8,21 +8,8 @@ Don't edit.
 /*---------------------------------------------------------------------------*/
 #ifndef __BL_TIMEPT_FUNC_FROM_TIMEPT64_
 #define __BL_TIMEPT_FUNC_FROM_TIMEPT64_
-
 /*---------------------------------------------------------------------------*/
-#if defined (BL_TIMEPT64_HAS_NANOSECOND_BASE)
-  #define BL_TIMEPT_HAS_NANOSECOND_BASE 1
-#elif defined (BL_TIMEPT64_HAS_MICROSECOND_BASE)
-  #define BL_TIMEPT_HAS_MICROSECOND_BASE 1
-#elif defined (BL_TIMEPT64_HAS_MILLISECOND_BASE)
-  #define BL_TIMEPT_HAS_MILLISECOND_BASE 1
-#elif defined (BL_TIMEPT64_HAS_SECOND_BASE)
-  #define BL_TIMEPT_HAS_SECOND_BASE 1
-#elif defined (BL_TIMEPT64_HAS_ARBITRARY_BASE)
-  #define BL_TIMEPT_HAS_ARBITRARY_BASE 1
-#else
-  #error "Couldn't determine time base of BL_TIMEPT64"
-#endif
+#define BL_TIMEPT_BASE BL_TIMEPT64_BASE
 #define BL_TIMEPT_BITS BL_TIMEPT64_BITS
 /*---------------------------------------------------------------------------*/
 #define bl_sec_to_timept_max()  bl_sec_to_timept64_max()

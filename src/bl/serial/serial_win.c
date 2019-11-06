@@ -19,10 +19,8 @@
 #include <bl/base/include_windows.h>
 #include <bl/base/error.h>
 #include <bl/base/time.h>
-#include <bl/base/deadline.h>
 #include <bl/base/ringbuffer.h>
 #include <bl/base/integer.h>
-#include <bl/base/deadline.h>
 #include <bl/base/static_integer_math.h>
 
 #include <bl/serial/serial.h>

@@ -51,10 +51,10 @@ static void bl_flat_deadlines_o1_regular_insertion (void **state)
 
   bl_static_assert_ns (bl_arr_elems (e) == bl_flat_deadlines_test_elems);
 
-  bl_deadline32_init_explicit (&e[0].time, 0, 1000);
+  bl_timept32_deadline_init_usec_explicit (&e[0].time, 0, 1000);
   e[0].id = 0;
 
-  bl_deadline32_init_explicit (&e[1].time, 0, 2000);
+  bl_timept32_deadline_init_usec_explicit (&e[1].time, 0, 2000);
   e[1].id = 1;
 
   bl_err err = fdl_insert (&c->dl, &e[1]);
@@ -94,10 +94,10 @@ static void bl_flat_deadlines_o1_regular_insertion_wrap (void **state)
 
   c->dl.time_offset = near_wrap;
 
-  bl_deadline32_init_explicit (&e[0].time, near_wrap, 1000);
+  bl_timept32_deadline_init_usec_explicit (&e[0].time, near_wrap, 1000);
   e[0].id = 0;
 
-  bl_deadline32_init_explicit (&e[1].time, near_wrap, 2000); /*integer wrap*/
+  bl_timept32_deadline_init_usec_explicit (&e[1].time, near_wrap, 2000); /*integer wrap*/
   e[1].id = 1;
 
   bl_err err = fdl_insert (&c->dl, &e[1]);
@@ -142,10 +142,10 @@ static void bl_flat_deadlines_cancellation (void **state)
 
   bl_static_assert_ns (bl_arr_elems (e) == bl_flat_deadlines_test_elems);
 
-  bl_deadline32_init_explicit (&e[0].time, 0, 1000);
+  bl_timept32_deadline_init_usec_explicit (&e[0].time, 0, 1000);
   e[0].id = 0;
 
-  bl_deadline32_init_explicit (&e[1].time, 0, 2000);
+  bl_timept32_deadline_init_usec_explicit (&e[1].time, 0, 2000);
   e[1].id = 1;
 
   bl_err err = fdl_insert (&c->dl, &e[1]);
@@ -175,10 +175,10 @@ static void bl_flat_deadlines_duplicate_deadline (void **state)
 
   bl_static_assert_ns (bl_arr_elems (e) == bl_flat_deadlines_test_elems);
 
-  bl_deadline32_init_explicit (&e[0].time, 0, 1000);
+  bl_timept32_deadline_init_usec_explicit (&e[0].time, 0, 1000);
   e[0].id = 0;
 
-  bl_deadline32_init_explicit (&e[1].time, 0, 1000);
+  bl_timept32_deadline_init_usec_explicit (&e[1].time, 0, 1000);
   e[1].id = 1;
 
   bl_err err = fdl_insert (&c->dl, &e[0]);
@@ -210,10 +210,10 @@ static void bl_flat_deadlines_duplicate_deadline_deletion (void **state)
 
   bl_static_assert_ns (bl_arr_elems (e) == bl_flat_deadlines_test_elems);
 
-  bl_deadline32_init_explicit (&e[0].time, 0, 1000);
+  bl_timept32_deadline_init_usec_explicit (&e[0].time, 0, 1000);
   e[0].id = 0;
 
-  bl_deadline32_init_explicit (&e[1].time, 0, 1000);
+  bl_timept32_deadline_init_usec_explicit (&e[1].time, 0, 1000);
   e[1].id = 1;
 
   bl_err err = fdl_insert (&c->dl, &e[1]);
