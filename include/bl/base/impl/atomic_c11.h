@@ -11,40 +11,40 @@
 #include <stdatomic.h>
 /*---------------------------------------------------------------------------*/
 typedef atomic_uintptr_t bl_atomic_uword;
-bl_static_assert_outside_func_ns(
+bl_static_assert_global_ns(
   sizeof (bl_atomic_uword) == sizeof (bl_uword)
   );
-bl_static_assert_outside_func_ns(
+bl_static_assert_global_ns(
   bl_alignof (bl_atomic_uword) == bl_alignof (bl_uword)
   );
-bl_static_assert_outside_func_ns (ATOMIC_POINTER_LOCK_FREE == 2);
+bl_static_assert_global_ns (ATOMIC_POINTER_LOCK_FREE == 2);
 /*---------------------------------------------------------------------------*/
 typedef atomic_intptr_t bl_atomic_word;
-bl_static_assert_outside_func_ns(
+bl_static_assert_global_ns(
   sizeof (bl_atomic_word) == sizeof (bl_word)
   );
-bl_static_assert_outside_func_ns(
+bl_static_assert_global_ns(
   bl_alignof (bl_atomic_word) == bl_alignof (bl_word)
   );
-bl_static_assert_outside_func_ns (ATOMIC_POINTER_LOCK_FREE == 2);
+bl_static_assert_global_ns (ATOMIC_POINTER_LOCK_FREE == 2);
 /*---------------------------------------------------------------------------*/
 typedef atomic_uint bl_atomic_u32;
-bl_static_assert_outside_func_ns(
+bl_static_assert_global_ns(
   sizeof (bl_atomic_u32) == sizeof (bl_u32)
   );
-bl_static_assert_outside_func_ns(
+bl_static_assert_global_ns(
   bl_alignof (bl_atomic_u32) == bl_alignof (bl_u32)
   );
-bl_static_assert_outside_func_ns (ATOMIC_INT_LOCK_FREE == 2);
+bl_static_assert_global_ns (ATOMIC_INT_LOCK_FREE == 2);
 /*---------------------------------------------------------------------------*/
 typedef atomic_ulong bl_atomic_u64;
-bl_static_assert_outside_func_ns(
+bl_static_assert_global_ns(
   sizeof (bl_atomic_u64) == sizeof (bl_u64)
   );
-bl_static_assert_outside_func_ns(
+bl_static_assert_global_ns(
   bl_alignof (bl_atomic_u64) == bl_alignof (bl_u64)
   );
-bl_static_assert_outside_func_ns (ATOMIC_LONG_LOCK_FREE == 2);
+bl_static_assert_global_ns (ATOMIC_LONG_LOCK_FREE == 2);
 /*---------------------------------------------------------------------------*/
 #define bl_mo_relaxed  memory_order_relaxed
 #define bl_mo_consume  memory_order_consume

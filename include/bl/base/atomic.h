@@ -18,13 +18,13 @@
 #endif
 /*---------------------------------------------------------------------------*/
 #ifndef BL_ATOMIC_USE_RELACY
-  bl_static_assert_outside_func_ns(
+  bl_static_assert_global_ns(
     sizeof (bl_atomic_uword)  == sizeof (bl_uword)
     );
-  bl_static_assert_outside_func_ns(
+  bl_static_assert_global_ns(
     sizeof (bl_atomic_word)  == sizeof (bl_word)
     );
-  bl_static_assert_outside_func_ns(
+  bl_static_assert_global_ns(
     sizeof (bl_atomic_u32)  == sizeof (bl_u32)
     );
 #endif

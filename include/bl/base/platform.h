@@ -156,13 +156,13 @@
   #define nullptr NULL
 #endif
 /*---------------------------------------------------------------------------*/
-bl_static_assert_outside_func ((bool) 1 == true, "bool type check failed");
-bl_static_assert_outside_func ((bool) 0 == false, "bool type check failed");
+bl_static_assert_global ((bool) 1 == true, "bool type check failed");
+bl_static_assert_global ((bool) 0 == false, "bool type check failed");
 
 #if BL_WORDSIZE <= 32
-  bl_static_assert_outside_func ((int) nullptr == 0, "nullptr check failed");
+  bl_static_assert_global ((int) nullptr == 0, "nullptr check failed");
 #else
-  bl_static_assert_outside_func ((long) nullptr == 0, "nullptr check failed");
+  bl_static_assert_global ((long) nullptr == 0, "nullptr check failed");
 #endif
 /*---------------------------------------------------------------------------*/
 #if defined (BL_WINDOWS)

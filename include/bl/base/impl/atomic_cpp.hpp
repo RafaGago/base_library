@@ -53,9 +53,7 @@ bl_mem_order;
 /*---------------------------------------------------------------------------*/
 /* bl_uword */
 /*---------------------------------------------------------------------------*/
-bl_static_assert_outside_func_ns(
-  bl_cbl_pp_atomic_size_align_checker<bl_uword>::ok
-  );
+bl_static_assert_global_ns (bl_cbl_pp_atomic_size_align_checker<bl_uword>::ok);
 /*---------------------------------------------------------------------------*/
 static inline void bl_atomic_uword_store(
   volatile bl_atomic_uword* a, bl_uword v, bl_mem_order o
@@ -141,9 +139,7 @@ static inline bl_uword bl_atomic_uword_fetch_and(
 /*---------------------------------------------------------------------------*/
 /* bl_word */
 /*---------------------------------------------------------------------------*/
-bl_static_assert_outside_func_ns(
-  bl_cbl_pp_atomic_size_align_checker<bl_word>::ok
-  );
+bl_static_assert_global_ns (bl_cbl_pp_atomic_size_align_checker<bl_word>::ok);
 /*---------------------------------------------------------------------------*/
 static inline void bl_atomic_word_store(
   volatile bl_atomic_word* a, bl_word v, bl_mem_order o
@@ -229,7 +225,7 @@ static inline bl_word bl_atomic_word_fetch_and(
 /*---------------------------------------------------------------------------*/
 /* bl_u32 */
 /*---------------------------------------------------------------------------*/
-bl_static_assert_outside_func_ns (bl_cbl_pp_atomic_size_align_checker<bl_u32>::ok);
+bl_static_assert_global_ns (bl_cbl_pp_atomic_size_align_checker<bl_u32>::ok);
 /*---------------------------------------------------------------------------*/
 static inline void bl_atomic_u32_store(
   volatile bl_atomic_u32* a, bl_u32 v, bl_mem_order o
@@ -315,7 +311,7 @@ static inline bl_u32 bl_atomic_u32_fetch_and(
 /*---------------------------------------------------------------------------*/
 /* bl_u64 */
 /*---------------------------------------------------------------------------*/
-bl_static_assert_outside_func_ns(bl_cbl_pp_atomic_size_align_checker<bl_u64>::ok);
+bl_static_assert_global_ns(bl_cbl_pp_atomic_size_align_checker<bl_u64>::ok);
 /*---------------------------------------------------------------------------*/
 static inline void bl_atomic_u64_store(
   volatile bl_atomic_u64* a, bl_u64 v, bl_mem_order o

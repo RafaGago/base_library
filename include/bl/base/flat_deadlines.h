@@ -117,12 +117,12 @@ struct content_type {
 ----------------------------------------------------------------------------*/
 #define bl_define_flat_deadlines_funcs(prefix, content_type, cmpeq_func) \
 \
-bl_static_assert_outside_func( \
+bl_static_assert_global( \
   offsetof (content_type, time) == 0, \
   "\"content_type\" must contain a field named \"time\" at offset 0."\
   ); \
 \
-bl_static_assert_outside_func( \
+bl_static_assert_global( \
   bl_sizeof_member (content_type, time) == sizeof (bl_timept32), \
   "\"content_type\" must contain a field named \"time\" of type bl_timept32."\
   ); \

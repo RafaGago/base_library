@@ -14,11 +14,11 @@
 #define bl_static_assert_ns(cond) bl_static_assert (cond, "")
 
 #if BL_HAS_STATIC_ASSERT == 1
-  #define bl_static_assert_outside_func(cond, str) bl_static_assert (cond, str)
-  #define bl_static_assert_outside_func_ns(cond) bl_static_assert_ns (cond)
+  #define bl_static_assert_global(cond, str) bl_static_assert (cond, str)
+  #define bl_static_assert_global_ns(cond) bl_static_assert_ns (cond)
 #else
-  #define bl_static_assert_outside_func(cond, str) /* warning ? */
-  #define bl_static_assert_outside_func_ns(cond) /* warning ? */
+  #define bl_static_assert_global(cond, str) /* warning ? */
+  #define bl_static_assert_global(cond) /* warning ? */
 #endif
 
 #endif /* __BL_STATIC_ASSERT_H__ */
