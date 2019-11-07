@@ -12,6 +12,10 @@
 #include <bl/base/utility.h>
 #include <bl/base/dynarray.h> /*needs "bl_dynarray_resize"*/
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*a dynamic array seen as a collection of data */
 
 /*---------------------------------------------------------------------------*/
@@ -228,5 +232,9 @@ void prefix##_drop (prefix* d, bl_uword idx)\
   prefix##_drop_n (d, idx, 1);\
 }
 /*--------------------------------------------------------------------------*/
+#ifdef __cplusplus
+} //extern "C" {
+#endif
+
 #endif /* __BL_AUTO_ARRAY_H__ */
 

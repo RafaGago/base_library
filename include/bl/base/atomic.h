@@ -171,5 +171,5 @@
 #define bl_atomic_u64_fetch_and_rlx(a, v)\
   bl_atomic_u64_fetch_and (a, v, bl_mo_relaxed)
 /*---------------------------------------------------------------------------*/
-#endif /* __BL_ATOMIC_H__ */
 
+#endif /* __BL_ATOMIC_H__ */

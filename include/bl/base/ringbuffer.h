@@ -11,6 +11,9 @@
 #include <bl/base/allocator.h>
 #include <bl/base/utility.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*-----------------------------------------------------------------------------
 A simple bl_ringbuffer implementation for fixed sizes that are powers of two.
 
@@ -312,5 +315,9 @@ static inline void prefix##_drop_range(\
 {\
   bl_ringb_drop_range (rb, sizeof (content_type), idx, element_count);\
 }
+
+#ifdef __cplusplus
+} //extern "C" {
+#endif
 
 #endif

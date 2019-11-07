@@ -10,6 +10,9 @@
 #include <bl/base/allocator.h>
 #include <bl/base/libexport.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*---------------------------------------------------------------------------*/
 #define bl_dynarray_foreach(prefix, content_type, instance_ptr, varname)\
   for(\
@@ -179,7 +182,10 @@ bl_err prefix##_from_file(\
   *d_elems_written /= sizeof *d->arr;\
   return err;\
 }\
-/*--------------------------------------------------------------------------*/\
+/*--------------------------------------------------------------------------*/
+#ifdef __cplusplus
+}  //extern "C" {
+#endif
 
 #endif /* __BL_DYN_ARRAY_H__ */
 

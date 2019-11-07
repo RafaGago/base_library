@@ -41,5 +41,5 @@ struct bl_align_anonymous_priv_join {
   (((offset_to_max_align_addr) + bl_alignof (type) - 1) &\
    ~(bl_alignof (type) - 1))
 /*---------------------------------------------------------------------------*/
-#endif /* __BL_ALIGNMENT_H__ */
 
+#endif /* __BL_ALIGNMENT_H__ */

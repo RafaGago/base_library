@@ -5,6 +5,9 @@
 #include <bl/base/libexport.h>
 #include <bl/base/integer.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*---------------------------------------------------------------------------*/
 #if BL_WORDSIZE >= 32
 /*the BL_FMT_ERR printf format macro requires including "integer_printf_format.h"
@@ -91,4 +94,8 @@ static inline bl_err bl_mkok (void)
 /*---------------------------------------------------------------------------*/
 extern BL_EXPORT char const* bl_strerror (bl_err e);
 /*---------------------------------------------------------------------------*/
+#ifdef __cplusplus
+} //extern "C" {
+#endif
+
 #endif /*BL_ERROR_H*/

@@ -6,6 +6,10 @@
 #include <bl/base/libexport.h>
 #include <bl/base/allocator.h>
 #include <bl/base/assert.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*------------------------------------------------------------------------------
 bl_vasprintf_ext: vasprintf with reallocation and offset (append) capabilities.
 
@@ -80,5 +84,9 @@ extern BL_EXPORT int bl_asprintf(
   char **str, bl_alloc_tbl const* alloc, const char *format, ...
   );
 /*----------------------------------------------------------------------------*/
+
+#ifdef __cplusplus
+} //extern "C" {
+#endif
 
 #endif /* __BL_STRING_H__ */

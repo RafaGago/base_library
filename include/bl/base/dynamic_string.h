@@ -8,6 +8,10 @@
 #include <bl/base/allocator.h>
 #include <bl/base/dynarray.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* A near trivial dynamic string for small string sizes */
 
 /* one of the functions on ctype.h */
@@ -320,4 +324,8 @@ static inline bl_dstr bl_dstr_init_rv (bl_alloc_tbl const* alloc)
   return r;
 }
 /*---------------------------------------------------------------------------*/
+#ifdef __cplusplus
+} //extern "C" {
+#endif
+
 #endif
