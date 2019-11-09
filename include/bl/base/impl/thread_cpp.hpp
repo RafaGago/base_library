@@ -10,6 +10,7 @@
 #endif
 
 #include <thread>
+#include <mutex>
 #include <type_traits>
 
 #include <bl/base/assert.h>
@@ -60,6 +61,67 @@ static inline decltype(((std::thread*) 0)->native_handle())
   bl_thread_native_handle (bl_thread& t)
 {
   return ((std::thread*) &t)->native_handle();
+}
+/*----------------------------------------------------------------------------*/
+typedef std::mutex bl_mutex;
+/*----------------------------------------------------------------------------*/
+static inline bl_err bl_mutex_init (bl_mutex* m)
+{
+  bl_assert (m);
+  try {
+    new ((std::mutex*) m) std::mutex();
+    return bl_mkok();
+  }
+  catch (...) {
+    return bl_mkerr (bl_error);
+  }
+}
+/*----------------------------------------------------------------------------*/
+static inline bl_err bl_mutex_destroy (bl_mutex* m)
+{
+  bl_assert (m);
+  try {
+    m->~mutex(); /* try/catch in case it is tried to be removed twice */
+    return bl_mkok();
+  }
+  catch (...) {
+    return bl_mkerr (bl_error);
+  }
+}
+/*----------------------------------------------------------------------------*/
+static inline bl_err bl_mutex_lock (bl_mutex* m)
+{
+  bl_assert (m);
+  try {
+    m->lock();
+    return bl_mkok();
+  }
+  catch (...) {
+    return bl_mkerr (bl_error);
+  }
+}
+/*----------------------------------------------------------------------------*/
+static inline bl_err bl_mutex_trylock (bl_mutex* m)
+{
+  bl_assert (m);
+  try {
+    return m->try_lock() ? bl_mkok() : bl_mkerr (bl_busy);
+  }
+  catch (...) {
+    return bl_mkerr (bl_error);
+  }
+}
+/*----------------------------------------------------------------------------*/
+static inline bl_err bl_mutex_unlock (bl_mutex* m)
+{
+  bl_assert (m);
+  try {
+    m->unlock();
+    return bl_mkok();
+  }
+  catch (...) {
+    return bl_mkerr (bl_error);
+  }
 }
 /*----------------------------------------------------------------------------*/
 

@@ -74,6 +74,38 @@ static inline bl_thread bl_thread_native_handle (bl_thread t)
   return t;
 }
 /*----------------------------------------------------------------------------*/
+typedef mtx_t bl_mutex;
+/*----------------------------------------------------------------------------*/
+static inline bl_err bl_mutex_init (bl_mutex* m)
+{
+  bl_assert (m);
+  return bl_thread_error_convert (mtx_init (m, mtx_plain));
+}
+/*----------------------------------------------------------------------------*/
+static inline bl_err bl_mutex_destroy (bl_mutex* m)
+{
+  bl_assert (m);
+  return bl_thread_error_convert (mtx_destroy (m));
+}
+/*----------------------------------------------------------------------------*/
+static inline bl_err bl_mutex_lock (bl_mutex* m)
+{
+  bl_assert (m);
+  return bl_thread_error_convert (mtx_lock (m));
+}
+/*----------------------------------------------------------------------------*/
+static inline bl_err bl_mutex_trylock (bl_mutex* m)
+{
+  bl_assert (m);
+  return bl_thread_error_convert (mtx_trylock (m));
+}
+/*----------------------------------------------------------------------------*/
+static inline bl_err bl_mutex_unlock (bl_mutex* m)
+{
+  bl_assert (m);
+  return bl_thread_error_convert (mtx_unlock (m));
+}
+/*----------------------------------------------------------------------------*/
 
 #endif /* __BL_CC_THREAD_H__ */
 

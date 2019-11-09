@@ -40,8 +40,47 @@ static inline bl_thread bl_thread_native_handle (bl_thread t)
   return t;
 }
 /*----------------------------------------------------------------------------*/
+typedef pthread_mutex_t bl_mutex;
+/*----------------------------------------------------------------------------*/
+static inline bl_err bl_mutex_init (bl_mutex* m)
+{
+  bl_assert (m);
+  int err = pthread_mutex_init (m, nullptr);
+  return !err ? bl_mkok() : bl_mkerr_sys (bl_error, err);
+}
+/*----------------------------------------------------------------------------*/
+static inline bl_err bl_mutex_destroy (bl_mutex* m)
+{
+  bl_assert (m);
+  int err = pthread_mutex_destroy (m);
+  return !err ? bl_mkok() : bl_mkerr_sys (bl_error, err);
+}
+/*----------------------------------------------------------------------------*/
+static inline bl_err bl_mutex_lock (bl_mutex* m)
+{
+  bl_assert (m);
+  int err = pthread_mutex_lock (m);
+  return !err ? bl_mkok() : bl_mkerr_sys (bl_error, err);
+}
+/*----------------------------------------------------------------------------*/
+static inline bl_err bl_mutex_trylock (bl_mutex* m)
+{
+  bl_assert (m);
+  int err = pthread_mutex_trylock (m);
+  if (!err) {
+    return bl_mkok();
+  }
+  return bl_mkerr_sys (err == EBUSY ? bl_busy : bl_error, err);
+}
+/*----------------------------------------------------------------------------*/
+static inline bl_err bl_mutex_unlock (bl_mutex* m)
+{
+  bl_assert (m);
+  int err = pthread_mutex_unlock (m);
+  return !err ? bl_mkok() : bl_mkerr_sys (bl_error, err);
+}
+/*----------------------------------------------------------------------------*/
 
 #include <bl/base/impl/tss_posix.h>
 
 #endif /* __POSIX_THREAD_H__ */
-
