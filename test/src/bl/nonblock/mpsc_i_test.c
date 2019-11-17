@@ -43,13 +43,13 @@ static void bl_mpsc_i_produce_consume (void **state)
   bl_err err;
   for (bl_uword i = 0; i < bl_arr_elems (c->nodes); ++i) {
     err = bl_mpsc_i_consume (&c->q, &node, tag_bits);
-    assert_true (err.bl == bl_ok);
+    assert_true (err.own == bl_ok);
     assert_true (bl_mpsc_i_node_get_tag (node, tag_bits) == (i & mask));
     testnode* tn = bl_to_type_containing (node, n, testnode);
     assert_true (tn->v == i);
   }
   err = bl_mpsc_i_consume (&c->q, &node, tag_bits);
-  assert_true (err.bl == bl_empty);
+  assert_true (err.own == bl_empty);
 }
 /*---------------------------------------------------------------------------*/
 static void bl_mpsc_i_multiproduce_consume (void **state)
@@ -72,13 +72,13 @@ static void bl_mpsc_i_multiproduce_consume (void **state)
   bl_err err;
   for (bl_uword i = 0; i < bl_arr_elems (c->nodes); ++i) {
     err = bl_mpsc_i_consume (&c->q, &node, tag_bits);
-    assert_true (err.bl == bl_ok);
+    assert_true (err.own == bl_ok);
     assert_true (bl_mpsc_i_node_get_tag (node, tag_bits) == (i & mask));
     testnode* tn = bl_to_type_containing (node, n, testnode);
     assert_true (tn->v == i);
   }
   err = bl_mpsc_i_consume (&c->q, &node, tag_bits);
-  assert_true (err.bl == bl_empty);
+  assert_true (err.own == bl_empty);
 }
 /*---------------------------------------------------------------------------*/
 static const struct CMUnitTest tests[] = {

@@ -187,7 +187,7 @@ bl_err prefix##_insert_tail(\
       (bl_autoarray_stub*) d, d->size + 1, sizeof *d->arr, alloc\
       );\
   }\
-  if (!err.bl) {\
+  if (!err.own) {\
     *prefix##_end (d) = *c;\
     ++d->size;\
   }\

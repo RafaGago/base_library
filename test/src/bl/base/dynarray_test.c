@@ -20,7 +20,7 @@ static void bl_dynarray_init (void **state)
 {
   bl_u32_darr  d;
   bl_alloc_tbl t = bl_get_default_alloc();
-  assert_true (bl_u32_darr_init (&d, 0, &t).bl == bl_ok);
+  assert_true (bl_u32_darr_init (&d, 0, &t).own == bl_ok);
   assert_true (bl_u32_darr_size (&d) == 0);
   bl_u32_darr_destroy (&d, &t);
 }
@@ -29,7 +29,7 @@ static void bl_dynarray_init_non_0 (void **state)
 {
   bl_u32_darr  d;
   bl_alloc_tbl t = bl_get_default_alloc();
-  assert_true (bl_u32_darr_init (&d, 4, &t).bl == bl_ok);
+  assert_true (bl_u32_darr_init (&d, 4, &t).own == bl_ok);
   assert_true (bl_u32_darr_size (&d) == 4);
   bl_u32_darr_destroy (&d, &t);
 }
@@ -39,13 +39,13 @@ static void bl_dynarray_resize_test (void **state)
   const bl_uword sz = 4;
   bl_u32_darr    d;
   bl_alloc_tbl t = bl_get_default_alloc();
-  assert_true (bl_u32_darr_init (&d, sz, &t).bl == bl_ok);
+  assert_true (bl_u32_darr_init (&d, sz, &t).own == bl_ok);
   assert_true (bl_u32_darr_size (&d) == sz);
 
   for (bl_u32 i = 0; i < sz; ++i) {
     *bl_u32_darr_at (&d, i) = i;
   }
-  assert_true (bl_u32_darr_resize (&d, sz + 1, &t).bl == bl_ok);
+  assert_true (bl_u32_darr_resize (&d, sz + 1, &t).own == bl_ok);
   assert_true (bl_u32_darr_size (&d) == sz + 1);
   for (bl_u32 i = 0; i < sz; ++i) {
     assert_true (*bl_u32_darr_at (&d, i) == i);
@@ -59,7 +59,7 @@ static void bl_dynarray_from_file_test (void **state)
   const bl_uword sz = 4;
   bl_u8_darr d;
   bl_alloc_tbl t = bl_get_default_alloc();
-  assert_true (bl_u8_darr_init (&d, sz, &t).bl == bl_ok);
+  assert_true (bl_u8_darr_init (&d, sz, &t).own == bl_ok);
   memset (bl_u8_darr_at (&d, 0), 0, sz);
 
   FILE* f = fopen (fname, "w");
@@ -74,7 +74,7 @@ static void bl_dynarray_from_file_test (void **state)
   bl_uword wr;
   assert_int_equal(
     bl_ok,
-    bl_u8_darr_from_file (&d, &wr, sz - 1, 7, f, 0, &t).bl
+    bl_u8_darr_from_file (&d, &wr, sz - 1, 7, f, 0, &t).own
     );
   fclose (f);
   remove(fname);

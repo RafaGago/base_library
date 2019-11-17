@@ -34,7 +34,7 @@ BL_EXPORT bl_err bl_autoarray_insert_n(
   if (required > d->capacity) {
     err = bl_autoarray_set_rounded_capacity (d, required, elem_size, alloc);
   }
-  if (!err.bl) {
+  if (!err.own) {
     bl_u8* arr = (bl_u8*) d->arr;
     memmove(
       arr + ((idx + c_count) * elem_size),

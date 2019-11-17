@@ -87,7 +87,7 @@ static inline bl_err bl_dstr_replace_gt_match_no_alloc(
   bl_uword diff  = replace_len - match_len;
   bl_uword bytes = bl_dstr_len (s) + (found * diff);
   bl_err err  = bl_dstr_set_capacity (s, bl_max (bytes, bl_dstr_get_capacity (s)));
-  if (err.bl) {
+  if (err.own) {
     bl_dstr_destroy (s); /* the string was modified */
     return err;
   }
@@ -144,7 +144,7 @@ static inline bl_err bl_dstr_replace_gt_match(
     }
     if (bl_u32arr_size (&matches) <= found) {
       bl_err err = bl_u32arr_grow (&matches, 32, s->alloc);
-      if (err.bl) {
+      if (err.own) {
         goto destroy_bl_dynarray;
       }
     }
@@ -158,7 +158,7 @@ static inline bl_err bl_dstr_replace_gt_match(
   bl_uword diff  = replace_len - match_len;
   bl_uword bytes = bl_dstr_len (s) + (found * diff);
   err         = bl_dstr_set_capacity (s, bl_max (bytes, bl_dstr_get_capacity (s)));
-  if (err.bl) {
+  if (err.own) {
     goto destroy_bl_dynarray;
   }
   char* rptr_prev   = s->da.str + bl_dstr_len (s);

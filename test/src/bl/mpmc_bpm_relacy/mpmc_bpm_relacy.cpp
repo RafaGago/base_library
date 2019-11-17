@@ -230,7 +230,7 @@ struct bl_mpmc_bpm_test : rl::test_suite<bl_mpmc_bpm_test, THREADS>
 #endif
     slottype* c;
     bl_err err =  q.produce_prepare (&c, slots);
-    if (err.bl == bl_ok) {
+    if (err.own == bl_ok) {
       c[0].v($) = CONSTANT + slots;
       for (bl_uword i = 1; i < slots; ++i) {
         /*simulating usage of seq as raw data*/
@@ -248,7 +248,7 @@ struct bl_mpmc_bpm_test : rl::test_suite<bl_mpmc_bpm_test, THREADS>
     bl_u32       ticket;
     bl_uword     slots;
     bl_err err = q.consume_prepare (&c, &ticket, &slots);
-    if (err.bl == bl_ok) {
+    if (err.own == bl_ok) {
       consumed_slots += slots;
       RL_ASSERT (c[0].v($) == CONSTANT + slots);
       for (bl_uword i = 1; i < slots; ++i) {
@@ -368,7 +368,7 @@ struct bl_mpmc_bpm_test : rl::test_suite<bl_mpmc_bpm_test, THREADS>
       bl_alignof (slottype),
       false
       );
-    RL_ASSERT (!err.bl);
+    RL_ASSERT (!err.own);
     cell = (slottype*) q.mem;
     /*giving initial values to the array*/
     for (bl_uword i = 0; i < (SLOTS + SLOTS - 2); ++i) {
@@ -441,7 +441,7 @@ struct bl_mpmc_bpm_test : rl::test_suite<bl_mpmc_bpm_test, THREADS>
     bl_mpmc_b_op op;
     bl_u8*       mem;
     bl_err    err = bl_mpmc_bpm_produce_prepare (&q, &op, &mem, slots);
-    if (err.bl == bl_ok) {
+    if (err.own == bl_ok) {
       slottype* c = (slottype*) (mem - sizeof (bl_atomic_u32));
       c[0].v($) = CONSTANT + slots;
       for (bl_uword i = 1; i < slots; ++i) {
@@ -460,7 +460,7 @@ struct bl_mpmc_bpm_test : rl::test_suite<bl_mpmc_bpm_test, THREADS>
     bl_u8*       mem;
     bl_u32       slots;
     bl_err    err = bl_mpmc_bpm_consume_prepare (&q, &op, &mem, &slots);
-    if (err.bl == bl_ok) {
+    if (err.own == bl_ok) {
       slottype* c = (slottype*) (mem - sizeof (bl_atomic_u32));
       consumed_slots += slots;
       RL_ASSERT (c[0].v($) == CONSTANT + slots);

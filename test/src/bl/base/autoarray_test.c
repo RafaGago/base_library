@@ -62,7 +62,7 @@ static void bl_autoarray_init (void **state)
 {
   bl_u32_darr d;
   alloc_data a = get_alloc();
-  assert_true (bl_u32_darr_init (&d, 0, &a.alloc).bl == bl_ok);
+  assert_true (bl_u32_darr_init (&d, 0, &a.alloc).own == bl_ok);
   assert_true (a.realloc_count == 0);
   assert_true (a.dealloc_count == 1);
   assert_true (bl_u32_darr_capacity (&d) == 0);
@@ -74,7 +74,7 @@ static void bl_autoarray_init_non_0 (void **state)
 {
   bl_u32_darr d;
   alloc_data a = get_alloc();
-  assert_true (bl_u32_darr_init (&d, 4, &a.alloc).bl == bl_ok);
+  assert_true (bl_u32_darr_init (&d, 4, &a.alloc).own == bl_ok);
   assert_true (bl_u32_darr_capacity (&d) >= 4);
   bl_u32_darr_destroy (&d, &a.alloc);
 }
@@ -84,11 +84,11 @@ static void bl_autoarray_basic (void **state)
   const bl_u32 data[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
   bl_u32_darr    d;
   alloc_data a = get_alloc();
-  assert_true (bl_u32_darr_init (&d, 0, &a.alloc).bl == bl_ok);
+  assert_true (bl_u32_darr_init (&d, 0, &a.alloc).own == bl_ok);
   assert_true (bl_u32_darr_capacity (&d) == 0);
 
   for (bl_u32 i = 0; i < bl_arr_elems (data); ++i) {
-    assert_true (bl_u32_darr_insert_tail (&d, &data[i], &a.alloc).bl == bl_ok);
+    assert_true (bl_u32_darr_insert_tail (&d, &data[i], &a.alloc).own == bl_ok);
   }
   assert_true (bl_u32_darr_size (&d) == bl_arr_elems (data));
   assert_true (bl_u32_darr_capacity (&d) >= bl_arr_elems (data));
@@ -106,14 +106,14 @@ static void bl_autoarray_tail_insert (void **state)
   const bl_u32 tail[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
   bl_u32_darr    d;
   alloc_data a = get_alloc();
-  assert_true (bl_u32_darr_init (&d, 0, &a.alloc).bl == bl_ok);
+  assert_true (bl_u32_darr_init (&d, 0, &a.alloc).own == bl_ok);
   assert_true (bl_u32_darr_capacity (&d) == 0);
 
   for (bl_u32 i = 0; i < bl_arr_elems (data); ++i) {
-    assert_true (bl_u32_darr_insert_tail (&d, &data[i], &a.alloc).bl == bl_ok);
+    assert_true (bl_u32_darr_insert_tail (&d, &data[i], &a.alloc).own == bl_ok);
   }
   assert_true(
-    bl_u32_darr_insert_tail_n (&d, tail, bl_arr_elems (tail), &a.alloc).bl == bl_ok
+    bl_u32_darr_insert_tail_n (&d, tail, bl_arr_elems (tail), &a.alloc).own == bl_ok
     );
   assert_true(
     bl_u32_darr_size (&d) == bl_arr_elems (data) + bl_arr_elems (tail)
@@ -139,17 +139,17 @@ static void bl_autoarray_middle_insert (void **state)
   const bl_u32 expected[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
   bl_u32_darr    d;
   alloc_data a = get_alloc();
-  assert_true (bl_u32_darr_init (&d, 0, &a.alloc).bl == bl_ok);
+  assert_true (bl_u32_darr_init (&d, 0, &a.alloc).own == bl_ok);
   assert_true (bl_u32_darr_capacity (&d) == 0);
 
   assert_true(
     bl_u32_darr_insert_tail_n(
       &d, data, bl_arr_elems (data), &a.alloc
-      ).bl == bl_ok
+      ).own == bl_ok
     );
   assert_true (bl_u32_darr_insert_n(
     &d, new_data[0], new_data, bl_arr_elems (new_data), &a.alloc
-    ).bl == bl_ok);
+    ).own == bl_ok);
 
   assert_true (bl_u32_darr_size (&d) == bl_arr_elems (expected));
   assert_memory_equal (bl_u32_darr_beg (&d), expected, bl_arr_elems (expected));
@@ -162,13 +162,13 @@ static void bl_autoarray_middle_drop (void **state)
   const bl_u32 expected[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
   bl_u32_darr    d;
   alloc_data a = get_alloc();
-  assert_true (bl_u32_darr_init (&d, 0, &a.alloc).bl == bl_ok);
+  assert_true (bl_u32_darr_init (&d, 0, &a.alloc).own == bl_ok);
   assert_true (bl_u32_darr_capacity (&d) == 0);
 
   assert_true(
     bl_u32_darr_insert_tail_n(
       &d, data, bl_arr_elems (data), &a.alloc
-      ).bl == bl_ok
+      ).own == bl_ok
     );
   bl_u32_darr_drop_n (&d ,4, 4);
 
@@ -183,13 +183,13 @@ static void bl_autoarray_tail_drop (void **state)
   const bl_u32 expected[] = { 0, 1, 2, 3, 4, 5, 6 };
   bl_u32_darr    d;
   alloc_data a = get_alloc();
-  assert_true (bl_u32_darr_init (&d, 0, &a.alloc).bl == bl_ok);
+  assert_true (bl_u32_darr_init (&d, 0, &a.alloc).own == bl_ok);
   assert_true (bl_u32_darr_capacity (&d) == 0);
 
   assert_true(
     bl_u32_darr_insert_tail_n(
       &d, data, bl_arr_elems (data), &a.alloc
-      ).bl == bl_ok
+      ).own == bl_ok
     );
   bl_u32_darr_drop_tail_n (&d ,4);
 
@@ -203,13 +203,13 @@ static void bl_autoarray_insert_alloc_failure (void **state)
   const bl_u32 data[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
   bl_u32_darr    d;
   alloc_data a = get_alloc();
-  assert_true (bl_u32_darr_init (&d, 0, &a.alloc).bl == bl_ok);
+  assert_true (bl_u32_darr_init (&d, 0, &a.alloc).own == bl_ok);
   assert_true (bl_u32_darr_capacity (&d) == 0);
 
   assert_true(
     bl_u32_darr_insert_tail_n(
       &d, data, bl_arr_elems (data), &a.alloc
-      ).bl == bl_ok
+      ).own == bl_ok
     );
   assert_true (bl_u32_darr_size (&d) == bl_arr_elems (data));
   bl_uword capacity = bl_u32_darr_capacity (&d);
@@ -218,7 +218,7 @@ static void bl_autoarray_insert_alloc_failure (void **state)
   assert_true(
     bl_u32_darr_insert_n(
       &d, 2, data, bl_arr_elems (data), &a.alloc
-      ).bl == bl_alloc
+      ).own == bl_alloc
     );
   assert_true (bl_u32_darr_size (&d) == bl_arr_elems (data));
   assert_true (bl_u32_darr_capacity (&d) == capacity);
@@ -231,13 +231,13 @@ static void bl_autoarray_insert_tail_alloc_failure (void **state)
   const bl_u32 data[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
   bl_u32_darr    d;
   alloc_data a = get_alloc();
-  assert_true (bl_u32_darr_init (&d, 0, &a.alloc).bl == bl_ok);
+  assert_true (bl_u32_darr_init (&d, 0, &a.alloc).own == bl_ok);
   assert_true (bl_u32_darr_capacity (&d) == 0);
 
   assert_true(
     bl_u32_darr_insert_tail_n(
       &d, data, bl_arr_elems (data), &a.alloc
-      ).bl == bl_ok
+      ).own == bl_ok
     );
   assert_true (bl_u32_darr_size (&d) == bl_arr_elems (data));
   bl_uword capacity = bl_u32_darr_capacity (&d);
@@ -246,7 +246,7 @@ static void bl_autoarray_insert_tail_alloc_failure (void **state)
   assert_true(
     bl_u32_darr_insert_tail_n(
       &d, data, bl_arr_elems (data), &a.alloc
-      ).bl == bl_alloc
+      ).own == bl_alloc
     );
   assert_true (bl_u32_darr_size (&d) == bl_arr_elems (data));
   assert_true (bl_u32_darr_capacity (&d) == capacity);

@@ -88,8 +88,8 @@ retry:
     signaler_wait (c);
     force_abort = bl_atomic_uword_load_rlx (c->force_abort);
     err = bl_tm_sem_signal (c->sem);
-    if (err.bl) {
-      if (err.bl == bl_would_overflow) {
+    if (err.own) {
+      if (err.own == bl_would_overflow) {
         ++c->s.overflow;
         if (!force_abort) {
           goto retry;
@@ -99,7 +99,7 @@ retry:
         printf(
           "on " thcon_hdr ": semaphore error %" BL_FMT_ERR,
           thcon_hdr_v (c),
-          err.bl
+          err.own
            );
         break;
       }
@@ -115,15 +115,15 @@ static inline void run_waiter (thread_context* c)
   bl_err err;
   do {
     err = bl_tm_sem_wait (c->sem, c->wait_us);
-    if (err.bl && err.bl != bl_timeout) {
+    if (err.own && err.own != bl_timeout) {
       printf(
         "on " thcon_hdr ": semaphore error %" BL_FMT_ERR,
         thcon_hdr_v (c),
-        err.bl
+        err.own
         );
       break;
     }
-    c->w.timed_out += (bl_uword)(err.bl == bl_timeout);
+    c->w.timed_out += (bl_uword)(err.own == bl_timeout);
   }
   while (--c->remaining);
   c->last_error = err;
@@ -135,7 +135,7 @@ int thread (void* context)
   int barrier_err   = pthread_barrier_wait (c->barrier);
 
   if (barrier_err && barrier_err != PTHREAD_BARRIER_SERIAL_THREAD) {
-    c->last_error.bl = barrier_err;
+    c->last_error.own = barrier_err;
     printf(
       "on " thcon_hdr ": barrier error %d", thcon_hdr_v (c), barrier_err
       );
@@ -160,10 +160,10 @@ bool launch_threads(
   for (i = 0; i < bl_arr_elems (*thr); ++i) {
     bl_err err = bl_thread_init (&(*thr_id)[i], thread, &(*thr)[i]);
     (*thr)[i].c.id = (*thr_id)[i];
-    if (err.bl) {
+    if (err.own) {
       printf(
         "error %"BL_FMT_ERR" on thread initialization, shutting down process",
-         err.bl
+         err.own
          );
       return false;
     }
@@ -174,9 +174,9 @@ bool launch_threads(
 bool join_thread_and_print (thread_context* c, bl_thread* t)
 {
   bl_err err = bl_thread_join (t);
-  if (err.bl) {
+  if (err.own) {
     printf(
-      "error %"BL_FMT_ERR" on thread join, shutting down process", err.bl
+      "error %"BL_FMT_ERR" on thread join, shutting down process", err.own
       );
     return false;
   }
@@ -350,10 +350,10 @@ int main (int argc, char* argv[])
     printf ("iterations: infinite\n");
   }
   err = bl_tm_sem_init (&sem);
-  if (err.bl) { return err.bl; }
+  if (err.own) { return err.own; }
 
-  err.bl = pthread_barrier_init (&barrier, nullptr, bl_arr_elems (thr));
-  if (err.bl) {
+  err.own = pthread_barrier_init (&barrier, nullptr, bl_arr_elems (thr));
+  if (err.own) {
     goto sem_destroy;
   }
   while (infinite_iterations || iterations--) {
@@ -362,15 +362,15 @@ int main (int argc, char* argv[])
     setup_signal_overflow_test (&thr, subtest_size);
     bl_atomic_uword_store_rlx (&force_abort, false);
     if (!launch_threads (&thr, &thr_id)) {
-      err.bl = __LINE__;
+      err.own = __LINE__;
       goto barrier_destroy;
     }
     if (!join_threads_and_show_results (&thr, &thr_id, false, &force_abort)) {
-      err.bl = __LINE__;
+      err.own = __LINE__;
       goto barrier_destroy;
     }
     if (!check_print_sem_status (&sem, true)) {
-      err.bl = __LINE__;
+      err.own = __LINE__;
       goto barrier_destroy;
     }
 
@@ -378,15 +378,15 @@ int main (int argc, char* argv[])
     setup_timeout_only_test (&thr, subtest_size / 6);
     bl_atomic_uword_store_rlx (&force_abort, false);
     if (!launch_threads (&thr, &thr_id)) {
-      err.bl = __LINE__;
+      err.own = __LINE__;
       goto barrier_destroy;
     }
     if (!join_threads_and_show_results (&thr, &thr_id, true, &force_abort)) {
-      err.bl = __LINE__;
+      err.own = __LINE__;
       goto barrier_destroy;
     }
     if (!check_print_sem_status (&sem, true)) {
-      err.bl = __LINE__;
+      err.own = __LINE__;
       goto barrier_destroy;
     }
 
@@ -394,15 +394,15 @@ int main (int argc, char* argv[])
     setup_waiter_timeout_test (&thr, subtest_size / 6);
     bl_atomic_uword_store_rlx (&force_abort, false);
     if (!launch_threads (&thr, &thr_id)) {
-      err.bl = __LINE__;
+      err.own = __LINE__;
       goto barrier_destroy;
     }
     if (!join_threads_and_show_results (&thr, &thr_id, true, &force_abort)) {
-      err.bl = __LINE__;
+      err.own = __LINE__;
       goto barrier_destroy;
     }
     if (!check_print_sem_status (&sem, false)) {
-      err.bl = __LINE__;
+      err.own = __LINE__;
       goto barrier_destroy;
     }
     bl_tm_sem_init (&sem);
@@ -414,7 +414,7 @@ barrier_destroy:
 sem_destroy:
   bl_tm_sem_destroy (&sem);
 
-  return err.bl;
+  return err.own;
 }
 /*----------------------------------------------------------------------------*/
 #else

@@ -73,7 +73,7 @@ static void bl_mpmc_bt_init_test (void **state)
     sizeof (bl_mpmc_bt_type),
     bl_alignof (bl_mpmc_bt_type)
     );
-  assert_true (!err.bl);
+  assert_true (!err.own);
   bl_mpmc_bt_destroy (&c->q, &c->alloc);
 }
 /*---------------------------------------------------------------------------*/
@@ -88,7 +88,7 @@ static void bl_mpmc_bt_init_alloc_fail_test (void **state)
     sizeof (bl_mpmc_bt_type),
     bl_alignof (bl_mpmc_bt_type)
     );
-  assert_true (err.bl == bl_alloc);
+  assert_true (err.own == bl_alloc);
 }
 /*---------------------------------------------------------------------------*/
 static void bl_mpmc_bt_init_too_small_test (void **state)
@@ -101,7 +101,7 @@ static void bl_mpmc_bt_init_too_small_test (void **state)
     sizeof (bl_mpmc_bt_type),
     bl_alignof (bl_mpmc_bt_type)
     );
-  assert_true (err.bl == bl_invalid);
+  assert_true (err.own == bl_invalid);
 }
 /*---------------------------------------------------------------------------*/
 static void bl_mpmc_bt_init_too_big_test (void **state)
@@ -114,7 +114,7 @@ static void bl_mpmc_bt_init_too_big_test (void **state)
     sizeof (bl_mpmc_bt_type),
     bl_alignof (bl_mpmc_bt_type)
     );
-  assert_true (err.bl == bl_invalid);
+  assert_true (err.own == bl_invalid);
 }
 /*---------------------------------------------------------------------------*/
 static void bl_mpmc_bt_mpw_mpr (void **state)
@@ -123,21 +123,21 @@ static void bl_mpmc_bt_mpw_mpr (void **state)
   bl_mpmc_b_op op;
   bl_mpmc_bt_type v;
   for (bl_mpmc_bt_type i = 0; i < bl_arr_elems (c->buff); ++i) {
-     assert_true (bl_mpmc_bt_produce (&c->q, &op, &i).bl == bl_ok);
+     assert_true (bl_mpmc_bt_produce (&c->q, &op, &i).own == bl_ok);
      assert_true (bl_mpmc_b_ticket_decode (op) == i);
      assert_true (bl_mpmc_b_sig_decode (op) == 0);
   }
   assert_true(
-    bl_mpmc_bt_produce (&c->q, &op, &v).bl == bl_would_overflow
+    bl_mpmc_bt_produce (&c->q, &op, &v).own == bl_would_overflow
     );
   for (bl_mpmc_bt_type i = 0; i < bl_arr_elems (c->buff); ++i) {
-    assert_true (bl_mpmc_bt_consume(&c->q, &op, &v).bl == bl_ok);
+    assert_true (bl_mpmc_bt_consume(&c->q, &op, &v).own == bl_ok);
     assert_true (v == i);
     assert_true (bl_mpmc_b_ticket_decode (op) == i);
     assert_true (bl_mpmc_b_sig_decode (op) == 0);
   }
   assert_true(
-    bl_mpmc_bt_consume (&c->q, &op, &v).bl == bl_empty
+    bl_mpmc_bt_consume (&c->q, &op, &v).own == bl_empty
   );
 }
 /*---------------------------------------------------------------------------*/
@@ -153,21 +153,21 @@ static void bl_mpmc_bt_mpw_mpr_wrap (void **state)
        j += bl_arr_elems (c->buff)
      ) {
     for (bl_mpmc_bt_type i = 0; i < bl_arr_elems (c->buff); ++i) {
-       assert_true (bl_mpmc_bt_produce (&c->q, &op, &i).bl == bl_ok);
+       assert_true (bl_mpmc_bt_produce (&c->q, &op, &i).own == bl_ok);
        assert_true (bl_mpmc_b_ticket_decode (op) == i + j);
        assert_true (bl_mpmc_b_sig_decode (op) == 0);
     }
     assert_true(
-      bl_mpmc_bt_produce (&c->q, &op, &v).bl == bl_would_overflow
+      bl_mpmc_bt_produce (&c->q, &op, &v).own == bl_would_overflow
       );
     for (bl_mpmc_bt_type i = 0; i < bl_arr_elems (c->buff); ++i) {
-      assert_true (bl_mpmc_bt_consume (&c->q, &op, &v).bl == bl_ok);
+      assert_true (bl_mpmc_bt_consume (&c->q, &op, &v).own == bl_ok);
       assert_true (v == i);
       assert_true (bl_mpmc_b_ticket_decode (op) == i + j);
       assert_true (bl_mpmc_b_sig_decode (op) == 0);
     }
     assert_true(
-      bl_mpmc_bt_consume (&c->q, &op, &v).bl == bl_empty
+      bl_mpmc_bt_consume (&c->q, &op, &v).own == bl_empty
     );
   }
 }
@@ -179,21 +179,21 @@ static void bl_mpmc_bt_spw_spr (void **state)
   bl_mpmc_b_op op;
   bl_mpmc_bt_type  v;
   for (bl_mpmc_bt_type i = 0; i < bl_arr_elems (c->buff); ++i) {
-     assert_true (bl_mpmc_bt_produce_sp (&c->q, &op, &i).bl == bl_ok);
+     assert_true (bl_mpmc_bt_produce_sp (&c->q, &op, &i).own == bl_ok);
      assert_true (bl_mpmc_b_ticket_decode (op) == i);
      assert_true (bl_mpmc_b_sig_decode (op) == 0);
   }
   assert_true(
-    bl_mpmc_bt_produce_sp (&c->q, &op, &v).bl == bl_would_overflow
+    bl_mpmc_bt_produce_sp (&c->q, &op, &v).own == bl_would_overflow
     );
   for (bl_mpmc_bt_type i = 0; i < bl_arr_elems (c->buff); ++i) {
-    assert_true (bl_mpmc_bt_consume_sc (&c->q, &op, &v).bl == bl_ok);
+    assert_true (bl_mpmc_bt_consume_sc (&c->q, &op, &v).own == bl_ok);
     assert_true (v == i);
     assert_true (bl_mpmc_b_ticket_decode (op) == i);
     assert_true (bl_mpmc_b_sig_decode (op) == 0);
   }
   assert_true(
-    bl_mpmc_bt_consume_sc (&c->q, &op, &v).bl == bl_empty
+    bl_mpmc_bt_consume_sc (&c->q, &op, &v).own == bl_empty
   );
 }
 /*---------------------------------------------------------------------------*/
@@ -208,21 +208,21 @@ static void bl_mpmc_bt_spw_spr_wrap (void **state)
        j += bl_arr_elems (c->buff)
      ) {
     for (bl_mpmc_bt_type i = 0; i < bl_arr_elems (c->buff); ++i) {
-       assert_true (bl_mpmc_bt_produce_sp (&c->q, &op, &i).bl == bl_ok);
+       assert_true (bl_mpmc_bt_produce_sp (&c->q, &op, &i).own == bl_ok);
        assert_true (bl_mpmc_b_ticket_decode (op) == i + j);
        assert_true (bl_mpmc_b_sig_decode (op) == 0);
     }
     assert_true(
-      bl_mpmc_bt_produce_sp (&c->q, &op, &v).bl == bl_would_overflow
+      bl_mpmc_bt_produce_sp (&c->q, &op, &v).own == bl_would_overflow
       );
     for (bl_mpmc_bt_type i = 0; i < bl_arr_elems (c->buff); ++i) {
-      assert_true (bl_mpmc_bt_consume_sc (&c->q, &op, &v).bl == bl_ok);
+      assert_true (bl_mpmc_bt_consume_sc (&c->q, &op, &v).own == bl_ok);
       assert_true (v == i);
       assert_true (bl_mpmc_b_ticket_decode (op) == i + j);
       assert_true (bl_mpmc_b_sig_decode (op) == 0);
     }
     assert_true(
-      bl_mpmc_bt_consume_sc (&c->q, &op, &v).bl == bl_empty
+      bl_mpmc_bt_consume_sc (&c->q, &op, &v).own == bl_empty
     );
   }
 }
@@ -238,24 +238,24 @@ static void bl_mpmc_bt_producer_signals_set (void **state)
 
   exp = 0;
   err = bl_mpmc_bt_producer_signal_try_set (&c->q, &exp, 1);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (exp == 0);
 
   exp = 0;
   err = bl_mpmc_bt_producer_signal_try_set (&c->q, &exp, 2);
-  assert_true (err.bl == bl_preconditions);
+  assert_true (err.own == bl_preconditions);
   assert_true (exp == 1);
 
   exp = 1;
   err = bl_mpmc_bt_producer_signal_try_set (&c->q, &exp, 2);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (exp == 1);
 
-  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
+  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).own == bl_ok);
   assert_true (bl_mpmc_b_sig_decode (op) == 2);
   assert_true (bl_mpmc_b_ticket_decode (op) == 0);
 
-  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
+  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).own == bl_ok);
   assert_true (bl_mpmc_b_sig_decode (op) == 2);
   assert_true (bl_mpmc_b_ticket_decode (op) == 1);
 }
@@ -268,29 +268,29 @@ static void bl_mpmc_bt_consumer_signals_set (void **state)
   bl_mpmc_b_sig   exp;
   bl_err       err;
 
-  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
-  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
+  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).own == bl_ok);
+  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).own == bl_ok);
 
   exp = 0;
   err = bl_mpmc_bt_consumer_signal_try_set (&c->q, &exp, 1);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (exp == 0);
 
   exp = 0;
   err = bl_mpmc_bt_consumer_signal_try_set (&c->q, &exp, 2);
-  assert_true (err.bl == bl_preconditions);
+  assert_true (err.own == bl_preconditions);
   assert_true (exp == 1);
 
   exp = 1;
   err = bl_mpmc_bt_consumer_signal_try_set (&c->q, &exp, 2);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (exp == 1);
 
-  assert_true (bl_mpmc_bt_consume (&c->q, &op, &v).bl == bl_ok);
+  assert_true (bl_mpmc_bt_consume (&c->q, &op, &v).own == bl_ok);
   assert_true (bl_mpmc_b_sig_decode (op) == 2);
   assert_true (bl_mpmc_b_ticket_decode (op) == 0);
 
-  assert_true (bl_mpmc_bt_consume (&c->q, &op, &v).bl == bl_ok);
+  assert_true (bl_mpmc_bt_consume (&c->q, &op, &v).own == bl_ok);
   assert_true (bl_mpmc_b_sig_decode (op) == 2);
   assert_true (bl_mpmc_b_ticket_decode (op) == 1);
 }
@@ -304,32 +304,32 @@ static void bl_mpmc_bt_producer_signals_set_tmatch (void **state)
 
   exp = bl_mpmc_b_op_encode (bl_mpmc_b_first_op, 0);
   err = bl_mpmc_bt_producer_signal_try_set_tmatch (&c->q, &exp, 1);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (bl_mpmc_b_ticket_decode (exp) == bl_mpmc_b_first_op);
   assert_true (bl_mpmc_b_sig_decode (exp) == 0);
 
   exp = bl_mpmc_b_op_encode (bl_mpmc_b_first_op, 0); /*incorrect signal*/
   err = bl_mpmc_bt_producer_signal_try_set_tmatch (&c->q, &exp, 2);
-  assert_true (err.bl == bl_preconditions);
+  assert_true (err.own == bl_preconditions);
   assert_true (bl_mpmc_b_ticket_decode (exp) == bl_mpmc_b_first_op);
   assert_true (bl_mpmc_b_sig_decode (exp) == 1);
 
   exp = bl_mpmc_b_op_encode (1, 1); /*incorrect transaction*/
   err = bl_mpmc_bt_producer_signal_try_set_tmatch (&c->q, &exp, 2);
-  assert_true (err.bl == bl_preconditions);
+  assert_true (err.own == bl_preconditions);
   assert_true (bl_mpmc_b_ticket_decode (exp) == bl_mpmc_b_first_op);
   assert_true (bl_mpmc_b_sig_decode (exp) == 1);
 
   err = bl_mpmc_bt_producer_signal_try_set_tmatch (&c->q, &exp, 2);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (bl_mpmc_b_ticket_decode (exp) == bl_mpmc_b_first_op);
   assert_true (bl_mpmc_b_sig_decode (exp) == 1);
 
-  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
+  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).own == bl_ok);
   assert_true (bl_mpmc_b_sig_decode (op) == 2);
   assert_true (bl_mpmc_b_ticket_decode (op) == 0);
 
-  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
+  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).own == bl_ok);
   assert_true (bl_mpmc_b_sig_decode (op) == 2);
   assert_true (bl_mpmc_b_ticket_decode (op) == 1);
 }
@@ -341,37 +341,37 @@ static void bl_mpmc_bt_consumer_signals_set_tmatch (void **state)
   bl_mpmc_bt_type v = 0;
   bl_err       err;
 
-  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
-  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
+  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).own == bl_ok);
+  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).own == bl_ok);
 
   exp = bl_mpmc_b_op_encode (bl_mpmc_b_first_op, 0);
   err = bl_mpmc_bt_consumer_signal_try_set_tmatch (&c->q, &exp, 1);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (bl_mpmc_b_ticket_decode (exp) == bl_mpmc_b_first_op);
   assert_true (bl_mpmc_b_sig_decode (exp) == 0);
 
   exp = bl_mpmc_b_op_encode (bl_mpmc_b_first_op, 0); /*incorrect signal*/
   err = bl_mpmc_bt_consumer_signal_try_set_tmatch (&c->q, &exp, 2);
-  assert_true (err.bl == bl_preconditions);
+  assert_true (err.own == bl_preconditions);
   assert_true (bl_mpmc_b_ticket_decode (exp) == bl_mpmc_b_first_op);
   assert_true (bl_mpmc_b_sig_decode (exp) == 1);
 
   exp = bl_mpmc_b_op_encode (1, 1); /*incorrect transaction*/
   err = bl_mpmc_bt_consumer_signal_try_set_tmatch (&c->q, &exp, 2);
-  assert_true (err.bl == bl_preconditions);
+  assert_true (err.own == bl_preconditions);
   assert_true (bl_mpmc_b_ticket_decode (exp) == bl_mpmc_b_first_op);
   assert_true (bl_mpmc_b_sig_decode (exp) == 1);
 
   err = bl_mpmc_bt_consumer_signal_try_set_tmatch (&c->q, &exp, 2);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (bl_mpmc_b_ticket_decode (exp) == bl_mpmc_b_first_op);
   assert_true (bl_mpmc_b_sig_decode (exp) == 1);
 
-  assert_true (bl_mpmc_bt_consume (&c->q, &op, &v).bl == bl_ok);
+  assert_true (bl_mpmc_bt_consume (&c->q, &op, &v).own == bl_ok);
   assert_true (bl_mpmc_b_sig_decode (op) == 2);
   assert_true (bl_mpmc_b_ticket_decode (op) == 0);
 
-  assert_true (bl_mpmc_bt_consume (&c->q, &op, &v).bl == bl_ok);
+  assert_true (bl_mpmc_bt_consume (&c->q, &op, &v).own == bl_ok);
   assert_true (bl_mpmc_b_sig_decode (op) == 2);
   assert_true (bl_mpmc_b_ticket_decode (op) == 1);
 }
@@ -386,19 +386,19 @@ static void bl_mpmc_bt_producer_fallback (void **state)
 
   exp = 0;
   err = bl_mpmc_bt_producer_signal_try_set (&c->q, &exp, 1);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
 
   err = bl_mpmc_bt_produce_fallback (&c->q, &op, &v, (bl_mpmc_b_sig) -1, 1);
-  assert_true (err.bl == bl_preconditions);
+  assert_true (err.own == bl_preconditions);
   assert_true (bl_mpmc_b_sig_decode (op) == 1);
 
   err = bl_mpmc_bt_produce_fallback (&c->q, &op, &v, (bl_mpmc_b_sig) -1, 2);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (bl_mpmc_b_sig_decode (op) == 1);
   assert_true (bl_mpmc_b_ticket_decode (op) == 0);
 
   err = bl_mpmc_bt_produce_fallback (&c->q, &op, &v, (bl_mpmc_b_sig) -1, 2);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (bl_mpmc_b_sig_decode (op) == 1);
   assert_true (bl_mpmc_b_ticket_decode (op) == 1);
 }
@@ -411,24 +411,24 @@ static void bl_mpmc_bt_consumer_fallback (void **state)
   bl_mpmc_b_sig   exp;
   bl_err       err;
 
-  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
-  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
+  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).own == bl_ok);
+  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).own == bl_ok);
 
   exp = 0;
   err = bl_mpmc_bt_consumer_signal_try_set (&c->q, &exp, 1);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
 
   err = bl_mpmc_bt_consume_fallback (&c->q, &op, &v, (bl_mpmc_b_sig) -1, 1);
-  assert_true (err.bl == bl_preconditions);
+  assert_true (err.own == bl_preconditions);
   assert_true (bl_mpmc_b_sig_decode (op) == 1);
 
   err = bl_mpmc_bt_consume_fallback (&c->q, &op, &v, (bl_mpmc_b_sig) -1, 2);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (bl_mpmc_b_sig_decode (op) == 1);
   assert_true (bl_mpmc_b_ticket_decode (op) == 0);
 
   err = bl_mpmc_bt_consume_fallback (&c->q, &op, &v, (bl_mpmc_b_sig) -1, 2);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (bl_mpmc_b_sig_decode (op) == 1);
   assert_true (bl_mpmc_b_ticket_decode (op) == 1);
 }
@@ -443,14 +443,14 @@ static void bl_mpmc_bt_producer_signal_change (void **state)
 
   exp = 0;
   err = bl_mpmc_bt_producer_signal_try_set (&c->q, &exp, 1);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
 
   err = bl_mpmc_bt_produce_sig (&c->q, &op, &v, 2);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (bl_mpmc_b_sig_decode (op) == 1);
 
   err = bl_mpmc_bt_produce_sig (&c->q, &op, &v, 3);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (bl_mpmc_b_sig_decode (op) == 2);
 }
 /*---------------------------------------------------------------------------*/
@@ -462,19 +462,19 @@ static void bl_mpmc_bt_consumer_signal_change (void **state)
   bl_mpmc_b_sig   exp;
   bl_err       err;
 
-  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
-  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).bl == bl_ok);
+  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).own == bl_ok);
+  assert_true (bl_mpmc_bt_produce (&c->q, &op, &v).own == bl_ok);
 
   exp = 0;
   err = bl_mpmc_bt_consumer_signal_try_set (&c->q, &exp, 1);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
 
   err = bl_mpmc_bt_consume_sig (&c->q, &op, &v, 2);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (bl_mpmc_b_sig_decode (op) == 1);
 
   err = bl_mpmc_bt_consume_sig (&c->q, &op, &v, 3);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (bl_mpmc_b_sig_decode (op) == 2);
 }
 /*---------------------------------------------------------------------------*/

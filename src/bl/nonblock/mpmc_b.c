@@ -123,7 +123,7 @@ static bl_err bl_mpmc_b_prepare_sig_fallback_m(
     bl_err err = bl_mpmc_b_prepare_m_check_ver(
       q, now, data, op_cmp_offset, nodata_error
       );
-    if (err.bl == bl_ok) {
+    if (err.own == bl_ok) {
       bl_mpmc_b_op next =
         bl_mpmc_b_op_encode (now + 1, replace_sig ? sig : signow);
       if (bl_atomic_u32_weak_cas_rlx (op_var, &now, next)) {
@@ -131,7 +131,7 @@ static bl_err bl_mpmc_b_prepare_sig_fallback_m(
         return err;
       }
     }
-    else if (err.bl == bl_busy){
+    else if (err.own == bl_busy){
       now = bl_atomic_u32_load_rlx (op_var);
     }
     else {
@@ -156,12 +156,12 @@ static bl_err bl_mpmc_b_prepare_s(
   bl_err err = bl_mpmc_b_prepare_m_check_ver(
     q, now, data, op_cmp_offset, nodata_error
     );
-  if (err.bl == bl_ok) {
+  if (err.own == bl_ok) {
     *op = now;
     bl_atomic_u32_store_rlx (op_var, bl_mpmc_b_op_encode (now + 1, 0));
     return err;
   }
-  bl_assert (err.bl == nodata_error.bl);
+  bl_assert (err.own == nodata_error.own);
   return err;
 }
 /*----------------------------------------------------------------------------*/
@@ -187,7 +187,7 @@ BL_NONBLOCK_EXPORT bl_err bl_mpmc_b_fifo_produce_prepare_is_ready(
   bl_err err = bl_mpmc_b_prepare_m_check_ver(
     q, op, data, 0, bl_mkerr (bl_would_overflow)
     );
-  if (bl_likely (err.bl != bl_would_overflow)) {
+  if (bl_likely (err.own != bl_would_overflow)) {
     return err;
   }
   /* if the counter has advanced more than the slot count either:

@@ -210,7 +210,7 @@ delayed tasks to be scheduled):
     ...
     bl_taskq* tq = ...;
     bl_err err = bl_mkok();
-    while (!err.bl || err.bl == bl_taskq_timeout) {
+    while (!err.own || err.own == bl_taskq_timeout) {
       err = bl_taskq_run_one (tq, 1000000);
     }
     ->bl_taskq ready to destroy
@@ -231,10 +231,10 @@ shut down procedure example2. Will cancel tasks when noticing the blocking:
     bl_taskq* tq  = ...;
     int* run = ...;
     err = bl_mkok();
-    while ((!err.bl || err.bl == bl_taskq_timeout) && *run) {
+    while ((!err.own || err.own == bl_taskq_timeout) && *run) {
       err = bl_taskq_run_one (tq, 1000000);
     }
-    while (!err.bl) {
+    while (!err.own) {
       err = bl_taskq_try_cancel (tq);
     }
     ->bl_taskq ready to destroy

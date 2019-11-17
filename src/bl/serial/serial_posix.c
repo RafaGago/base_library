@@ -340,7 +340,7 @@ try_again:
   bl_err err = bl_mkerr_sys(
     tcgetattr (s->fd, &options) >= 0 ? bl_ok : bl_file, errno
     );
-  if (err.bl) {
+  if (err.own) {
     goto close;
   }
     /*raw mode / no echo / binary */
@@ -357,7 +357,7 @@ try_again:
   }
   else {
     err = try_set_nonstandard_baudrate (s, cfg->baudrate);
-    if (err.bl) {
+    if (err.own) {
       goto close;
     }
   }
@@ -444,7 +444,7 @@ try_again:
   err = bl_mkerr_sys(
     tcsetattr (s->fd, TCSANOW, &options) >= 0 ? bl_ok : bl_invalid, errno
     );
-  if (err.bl) {
+  if (err.own) {
     goto close;
   }
   return bl_mkok();
@@ -497,7 +497,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_read(
   if (timeout_us != 0) {
     static_assert(BL_TIMEPT_BASE <= BL_MICROSECOND_BASE ,"paco");
     err =  bl_timept_deadline_init_usec (&deadline, timeout_us);
-    if (err.bl) {
+    if (err.own) {
       goto rollback;
     }
   }
@@ -562,7 +562,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_write(
   bl_err err      = bl_mkok();
   if (timeout_us != 0) {
     err = bl_timept_deadline_init_usec (&deadline, timeout_us);
-    if (err.bl) {
+    if (err.own) {
       return err;
     }
   }

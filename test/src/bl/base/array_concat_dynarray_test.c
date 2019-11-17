@@ -26,7 +26,7 @@ static void ac_bl_dynarray_one_expand (void **state)
   bl_u32_acdarr_init (&d, arr, bl_arr_elems (arr));
   assert_true (bl_u32_acdarr_size (&d) == bl_arr_elems (arr));
   assert_int_equal(
-    bl_u32_acdarr_resize (&d, bl_arr_elems (arr) * 2, &t).bl, bl_ok
+    bl_u32_acdarr_resize (&d, bl_arr_elems (arr) * 2, &t).own, bl_ok
     );
   for (bl_uword i = 0; i < bl_u32_acdarr_size (&d); ++i) {
     *bl_u32_acdarr_at (&d, i) = i;
@@ -48,13 +48,13 @@ static void ac_bl_dynarray_two_expand (void **state)
   bl_u32_acdarr_init (&d, arr, bl_arr_elems (arr));
   assert_true (bl_u32_acdarr_size (&d) == bl_arr_elems (arr));
   assert_int_equal(
-    bl_u32_acdarr_resize (&d, bl_arr_elems (arr) * 2, &t).bl, bl_ok
+    bl_u32_acdarr_resize (&d, bl_arr_elems (arr) * 2, &t).own, bl_ok
     );
   for (bl_uword i = 0; i < bl_u32_acdarr_size (&d); ++i) {
     *bl_u32_acdarr_at (&d, i) = i;
   }
   assert_int_equal(
-    bl_u32_acdarr_resize (&d, bl_arr_elems (arr) * 3, &t).bl, bl_ok
+    bl_u32_acdarr_resize (&d, bl_arr_elems (arr) * 3, &t).own, bl_ok
     );
   for (bl_uword i = bl_arr_elems (arr) * 2; i < bl_u32_acdarr_size (&d); ++i) {
     *bl_u32_acdarr_at (&d, i) = i;
@@ -76,13 +76,13 @@ static void ac_bl_dynarray_one_shrink (void **state)
   bl_u32_acdarr_init (&d, arr, bl_arr_elems (arr));
   assert_true (bl_u32_acdarr_size (&d) == bl_arr_elems (arr));
   assert_int_equal(
-    bl_u32_acdarr_resize (&d, bl_arr_elems (arr) * 2, &t).bl, bl_ok
+    bl_u32_acdarr_resize (&d, bl_arr_elems (arr) * 2, &t).own, bl_ok
     );
   for (bl_uword i = 0; i < bl_u32_acdarr_size (&d); ++i) {
     *bl_u32_acdarr_at (&d, i) = i;
   }
   assert_int_equal(
-    bl_u32_acdarr_resize (&d, (bl_arr_elems (arr) * 2) - 2, &t).bl, bl_ok
+    bl_u32_acdarr_resize (&d, (bl_arr_elems (arr) * 2) - 2, &t).own, bl_ok
     );
   for (bl_uword i = 0; i < bl_arr_elems (arr); ++i) {
     assert_int_equal (arr[i], i);

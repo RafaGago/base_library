@@ -144,7 +144,7 @@ Example usage snippet:
   bl_mpmc_b_op op;
   bl_u8*       data;
   bl_err err = bl_mpmc_b_produce_prepare (q, &op, &data);
-  if (err.bl) {
+  if (err.own) {
     return err;
   }
   write_data_for_consumers (data, bl_mpmc_b_slot_payload (q));
@@ -223,8 +223,8 @@ Example snippet:
   do {
     err = bl_mpmc_b_fifo_produce_prepare_is_ready (q, op, &data);
   }
-  while (err.bl == bl_would_overflow);
-  if (!err.bl) {
+  while (err.own == bl_would_overflow);
+  if (!err.own) {
     write_data_for_consumers (data, bl_mpmc_b_slot_payload (q));
     bl_mpmc_b_produce_commit (q, op);
   }

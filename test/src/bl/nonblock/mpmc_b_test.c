@@ -48,7 +48,7 @@ static void bl_mpmc_b_test_queue_fill (void **state)
   bl_mpmc_b_op op;
   for (bl_mpmc_b_type i = 0; i < bl_arr_elems (c->buff); ++i) {
      bl_u8* mem;
-     assert_true (bl_mpmc_b_produce_prepare (&c->q, &op, &mem).bl == bl_ok);
+     assert_true (bl_mpmc_b_produce_prepare (&c->q, &op, &mem).own == bl_ok);
      *((bl_mpmc_b_type*) mem) = i;
      assert_true (bl_mpmc_b_ticket_decode (op) == i);
      assert_true (bl_mpmc_b_sig_decode (op) == 0);
@@ -87,7 +87,7 @@ static void bl_mpmc_b_init_test (void **state)
     sizeof (bl_mpmc_b_type),
     bl_alignof (bl_mpmc_b_type)
     );
-  assert_true (!err.bl);
+  assert_true (!err.own);
   bl_mpmc_b_destroy (&c->q, &c->alloc);
 }
 /*---------------------------------------------------------------------------*/
@@ -102,7 +102,7 @@ static void bl_mpmc_b_init_alloc_fail_test (void **state)
     sizeof (bl_mpmc_b_type),
     bl_alignof (bl_mpmc_b_type)
     );
-  assert_true (err.bl == bl_alloc);
+  assert_true (err.own == bl_alloc);
 }
 /*---------------------------------------------------------------------------*/
 static void bl_mpmc_b_init_too_small_test (void **state)
@@ -115,7 +115,7 @@ static void bl_mpmc_b_init_too_small_test (void **state)
     sizeof (bl_mpmc_b_type),
     bl_alignof (bl_mpmc_b_type)
     );
-  assert_true (err.bl == bl_invalid);
+  assert_true (err.own == bl_invalid);
 }
 /*---------------------------------------------------------------------------*/
 static void bl_mpmc_b_init_too_big_test (void **state)
@@ -128,7 +128,7 @@ static void bl_mpmc_b_init_too_big_test (void **state)
     sizeof (bl_mpmc_b_type),
     bl_alignof (bl_mpmc_b_type)
     );
-  assert_true (err.bl == bl_invalid);
+  assert_true (err.own == bl_invalid);
 }
 /*---------------------------------------------------------------------------*/
 static void bl_mpmc_b_mpw_mpr (void **state)
@@ -137,24 +137,24 @@ static void bl_mpmc_b_mpw_mpr (void **state)
   bl_mpmc_b_op op;
   bl_u8* mem;
   for (bl_mpmc_b_type i = 0; i < bl_arr_elems (c->buff); ++i) {
-     assert_true (bl_mpmc_b_produce_prepare (&c->q, &op, &mem).bl == bl_ok);
+     assert_true (bl_mpmc_b_produce_prepare (&c->q, &op, &mem).own == bl_ok);
      *((bl_mpmc_b_type*) mem) = i;
      assert_true (bl_mpmc_b_ticket_decode (op) == i);
      assert_true (bl_mpmc_b_sig_decode (op) == 0);
      bl_mpmc_b_produce_commit (&c->q, op);
   }
   assert_true(
-    bl_mpmc_b_produce_prepare (&c->q, &op, &mem).bl == bl_would_overflow
+    bl_mpmc_b_produce_prepare (&c->q, &op, &mem).own == bl_would_overflow
     );
   for (bl_mpmc_b_type i = 0; i < bl_arr_elems (c->buff); ++i) {
-    assert_true (bl_mpmc_b_consume_prepare(&c->q, &op, &mem).bl == bl_ok);
+    assert_true (bl_mpmc_b_consume_prepare(&c->q, &op, &mem).own == bl_ok);
     assert_true (*((bl_mpmc_b_type*) mem) == i);
     assert_true (bl_mpmc_b_ticket_decode (op) == i);
     assert_true (bl_mpmc_b_sig_decode (op) == 0);
     bl_mpmc_b_consume_commit (&c->q, op);
   }
   assert_true(
-    bl_mpmc_b_consume_prepare (&c->q, &op, &mem).bl == bl_empty
+    bl_mpmc_b_consume_prepare (&c->q, &op, &mem).own == bl_empty
   );
 }
 /*---------------------------------------------------------------------------*/
@@ -170,24 +170,24 @@ static void bl_mpmc_b_mpw_mpr_wrap (void **state)
      ) {
     for (bl_mpmc_b_type i = 0; i < bl_arr_elems (c->buff); ++i) {
        bl_u8* mem;
-       assert_true (bl_mpmc_b_produce_prepare (&c->q, &op, &mem).bl == bl_ok);
+       assert_true (bl_mpmc_b_produce_prepare (&c->q, &op, &mem).own == bl_ok);
        *((bl_mpmc_b_type*) mem) = i;
        assert_true (bl_mpmc_b_ticket_decode (op) == i + j);
        assert_true (bl_mpmc_b_sig_decode (op) == 0);
        bl_mpmc_b_produce_commit (&c->q, op);
     }
     assert_true(
-      bl_mpmc_b_produce_prepare (&c->q, &op, &mem).bl == bl_would_overflow
+      bl_mpmc_b_produce_prepare (&c->q, &op, &mem).own == bl_would_overflow
       );
     for (bl_mpmc_b_type i = 0; i < bl_arr_elems (c->buff); ++i) {
-      assert_true (bl_mpmc_b_consume_prepare (&c->q, &op, &mem).bl == bl_ok);
+      assert_true (bl_mpmc_b_consume_prepare (&c->q, &op, &mem).own == bl_ok);
       assert_true (*((bl_mpmc_b_type*) mem) == i);
       assert_true (bl_mpmc_b_ticket_decode (op) == i + j);
       assert_true (bl_mpmc_b_sig_decode (op) == 0);
       bl_mpmc_b_consume_commit (&c->q, op);
     }
     assert_true(
-      bl_mpmc_b_consume_prepare (&c->q, &op, &mem).bl == bl_empty
+      bl_mpmc_b_consume_prepare (&c->q, &op, &mem).own == bl_empty
     );
   }
 }
@@ -199,24 +199,24 @@ static void bl_mpmc_b_spw_spr (void **state)
   bl_mpmc_b_op op;
   bl_u8* mem;
   for (bl_mpmc_b_type i = 0; i < bl_arr_elems (c->buff); ++i) {
-     assert_true (bl_mpmc_b_produce_prepare_sp (&c->q, &op, &mem).bl == bl_ok);
+     assert_true (bl_mpmc_b_produce_prepare_sp (&c->q, &op, &mem).own == bl_ok);
      *((bl_mpmc_b_type*) mem) = i;
      assert_true (bl_mpmc_b_ticket_decode (op) == i);
      assert_true (bl_mpmc_b_sig_decode (op) == 0);
      bl_mpmc_b_produce_commit (&c->q, op);
   }
   assert_true(
-    bl_mpmc_b_produce_prepare_sp (&c->q, &op, &mem).bl == bl_would_overflow
+    bl_mpmc_b_produce_prepare_sp (&c->q, &op, &mem).own == bl_would_overflow
     );
   for (bl_mpmc_b_type i = 0; i < bl_arr_elems (c->buff); ++i) {
-    assert_true (bl_mpmc_b_consume_prepare_sc (&c->q, &op, &mem).bl == bl_ok);
+    assert_true (bl_mpmc_b_consume_prepare_sc (&c->q, &op, &mem).own == bl_ok);
     assert_true (*((bl_mpmc_b_type*) mem) == i);
     assert_true (bl_mpmc_b_ticket_decode (op) == i);
     assert_true (bl_mpmc_b_sig_decode (op) == 0);
     bl_mpmc_b_consume_commit (&c->q, op);
   }
   assert_true(
-    bl_mpmc_b_consume_prepare_sc (&c->q, &op, &mem).bl == bl_empty
+    bl_mpmc_b_consume_prepare_sc (&c->q, &op, &mem).own == bl_empty
   );
 }
 /*---------------------------------------------------------------------------*/
@@ -232,7 +232,7 @@ static void bl_mpmc_b_spw_spr_wrap (void **state)
      ) {
     for (bl_mpmc_b_type i = 0; i < bl_arr_elems (c->buff); ++i) {
        assert_true(
-        bl_mpmc_b_produce_prepare_sp (&c->q, &op, &mem).bl == bl_ok
+        bl_mpmc_b_produce_prepare_sp (&c->q, &op, &mem).own == bl_ok
         );
        *((bl_mpmc_b_type*) mem) = i;
        assert_true (bl_mpmc_b_ticket_decode (op) == i + j);
@@ -240,17 +240,17 @@ static void bl_mpmc_b_spw_spr_wrap (void **state)
        bl_mpmc_b_produce_commit (&c->q, op);
     }
     assert_true(
-      bl_mpmc_b_produce_prepare_sp (&c->q, &op, &mem).bl == bl_would_overflow
+      bl_mpmc_b_produce_prepare_sp (&c->q, &op, &mem).own == bl_would_overflow
       );
     for (bl_mpmc_b_type i = 0; i < bl_arr_elems (c->buff); ++i) {
-      assert_true (bl_mpmc_b_consume_prepare_sc (&c->q, &op, &mem).bl == bl_ok);
+      assert_true (bl_mpmc_b_consume_prepare_sc (&c->q, &op, &mem).own == bl_ok);
       assert_true (*((bl_mpmc_b_type*) mem) == i);
       assert_true (bl_mpmc_b_ticket_decode (op) == i + j);
       assert_true (bl_mpmc_b_sig_decode (op) == 0);
       bl_mpmc_b_consume_commit (&c->q, op);
     }
     assert_true(
-      bl_mpmc_b_consume_prepare_sc (&c->q, &op, &mem).bl == bl_empty
+      bl_mpmc_b_consume_prepare_sc (&c->q, &op, &mem).own == bl_empty
     );
   }
 }
@@ -266,25 +266,25 @@ static void bl_mpmc_b_producer_signals_set (void **state)
 
   exp = 0;
   err = bl_mpmc_b_producer_signal_try_set (&c->q, &exp, 1);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (exp == 0);
 
   exp = 0;
   err = bl_mpmc_b_producer_signal_try_set (&c->q, &exp, 2);
-  assert_true (err.bl == bl_preconditions);
+  assert_true (err.own == bl_preconditions);
   assert_true (exp == 1);
 
   exp = 1;
   err = bl_mpmc_b_producer_signal_try_set (&c->q, &exp, 2);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (exp == 1);
 
-  assert_true (bl_mpmc_b_produce_prepare (&c->q, &op, &mem).bl == bl_ok);
+  assert_true (bl_mpmc_b_produce_prepare (&c->q, &op, &mem).own == bl_ok);
   bl_mpmc_b_produce_commit (&c->q, op);
   assert_true (bl_mpmc_b_sig_decode (op) == 2);
   assert_true (bl_mpmc_b_ticket_decode (op) == 0);
 
-  assert_true (bl_mpmc_b_produce_prepare (&c->q, &op, &mem).bl == bl_ok);
+  assert_true (bl_mpmc_b_produce_prepare (&c->q, &op, &mem).own == bl_ok);
   bl_mpmc_b_produce_commit (&c->q, op);
   assert_true (bl_mpmc_b_sig_decode (op) == 2);
   assert_true (bl_mpmc_b_ticket_decode (op) == 1);
@@ -302,25 +302,25 @@ static void bl_mpmc_b_consumer_signals_set (void **state)
 
   exp = 0;
   err = bl_mpmc_b_consumer_signal_try_set (&c->q, &exp, 1);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (exp == 0);
 
   exp = 0;
   err = bl_mpmc_b_consumer_signal_try_set (&c->q, &exp, 2);
-  assert_true (err.bl == bl_preconditions);
+  assert_true (err.own == bl_preconditions);
   assert_true (exp == 1);
 
   exp = 1;
   err = bl_mpmc_b_consumer_signal_try_set (&c->q, &exp, 2);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (exp == 1);
 
-  assert_true (bl_mpmc_b_consume_prepare (&c->q, &op, &mem).bl == bl_ok);
+  assert_true (bl_mpmc_b_consume_prepare (&c->q, &op, &mem).own == bl_ok);
   bl_mpmc_b_consume_commit (&c->q, op);
   assert_true (bl_mpmc_b_sig_decode (op) == 2);
   assert_true (bl_mpmc_b_ticket_decode (op) == 0);
 
-  assert_true (bl_mpmc_b_consume_prepare (&c->q, &op, &mem).bl == bl_ok);
+  assert_true (bl_mpmc_b_consume_prepare (&c->q, &op, &mem).own == bl_ok);
   bl_mpmc_b_consume_commit (&c->q, op);
   assert_true (bl_mpmc_b_sig_decode (op) == 2);
   assert_true (bl_mpmc_b_ticket_decode (op) == 1);
@@ -335,33 +335,33 @@ static void bl_mpmc_b_producer_signals_set_tmatch (void **state)
 
   exp = bl_mpmc_b_op_encode (bl_mpmc_b_first_op, 0);
   err = bl_mpmc_b_producer_signal_try_set_tmatch (&c->q, &exp, 1);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (bl_mpmc_b_ticket_decode (exp) == bl_mpmc_b_first_op);
   assert_true (bl_mpmc_b_sig_decode (exp) == 0);
 
   exp = bl_mpmc_b_op_encode (bl_mpmc_b_first_op, 0); /*incorrect signal*/
   err = bl_mpmc_b_producer_signal_try_set_tmatch (&c->q, &exp, 2);
-  assert_true (err.bl == bl_preconditions);
+  assert_true (err.own == bl_preconditions);
   assert_true (bl_mpmc_b_ticket_decode (exp) == bl_mpmc_b_first_op);
   assert_true (bl_mpmc_b_sig_decode (exp) == 1);
 
   exp = bl_mpmc_b_op_encode (2, 1); /*incorrect transaction*/
   err = bl_mpmc_b_producer_signal_try_set_tmatch (&c->q, &exp, 2);
-  assert_true (err.bl == bl_preconditions);
+  assert_true (err.own == bl_preconditions);
   assert_true (bl_mpmc_b_ticket_decode (exp) == bl_mpmc_b_first_op);
   assert_true (bl_mpmc_b_sig_decode (exp) == 1);
 
   err = bl_mpmc_b_producer_signal_try_set_tmatch (&c->q, &exp, 2);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (bl_mpmc_b_ticket_decode (exp) == bl_mpmc_b_first_op);
   assert_true (bl_mpmc_b_sig_decode (exp) == 1);
 
-  assert_true (bl_mpmc_b_produce_prepare(&c->q, &op, &mem).bl == bl_ok);
+  assert_true (bl_mpmc_b_produce_prepare(&c->q, &op, &mem).own == bl_ok);
   bl_mpmc_b_produce_commit (&c->q, op);
   assert_true (bl_mpmc_b_sig_decode (op) == 2);
   assert_true (bl_mpmc_b_ticket_decode (op) == 0);
 
-  assert_true (bl_mpmc_b_produce_prepare(&c->q, &op, &mem).bl == bl_ok);
+  assert_true (bl_mpmc_b_produce_prepare(&c->q, &op, &mem).own == bl_ok);
   bl_mpmc_b_produce_commit (&c->q, op);
   assert_true (bl_mpmc_b_sig_decode (op) == 2);
   assert_true (bl_mpmc_b_ticket_decode (op) == 1);
@@ -378,33 +378,33 @@ static void bl_mpmc_b_consumer_signals_set_tmatch (void **state)
 
   exp = bl_mpmc_b_op_encode (bl_mpmc_b_first_op, 0);
   err = bl_mpmc_b_consumer_signal_try_set_tmatch (&c->q, &exp, 1);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (bl_mpmc_b_ticket_decode (exp) == bl_mpmc_b_first_op);
   assert_true (bl_mpmc_b_sig_decode (exp) == 0);
 
   exp = bl_mpmc_b_op_encode (bl_mpmc_b_first_op, 0); /*incorrect signal*/
   err = bl_mpmc_b_consumer_signal_try_set_tmatch (&c->q, &exp, 2);
-  assert_true (err.bl == bl_preconditions);
+  assert_true (err.own == bl_preconditions);
   assert_true (bl_mpmc_b_ticket_decode (exp) == bl_mpmc_b_first_op);
   assert_true (bl_mpmc_b_sig_decode (exp) == 1);
 
   exp = bl_mpmc_b_op_encode (1, 1); /*incorrect transaction*/
   err = bl_mpmc_b_consumer_signal_try_set_tmatch (&c->q, &exp, 2);
-  assert_true (err.bl == bl_preconditions);
+  assert_true (err.own == bl_preconditions);
   assert_true (bl_mpmc_b_ticket_decode (exp) == bl_mpmc_b_first_op);
   assert_true (bl_mpmc_b_sig_decode (exp) == 1);
 
   err = bl_mpmc_b_consumer_signal_try_set_tmatch (&c->q, &exp, 2);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   assert_true (bl_mpmc_b_ticket_decode (exp) == bl_mpmc_b_first_op);
   assert_true (bl_mpmc_b_sig_decode (exp) == 1);
 
-  assert_true (bl_mpmc_b_consume_prepare(&c->q, &op, &mem).bl == bl_ok);
+  assert_true (bl_mpmc_b_consume_prepare(&c->q, &op, &mem).own == bl_ok);
   bl_mpmc_b_consume_commit (&c->q, op);
   assert_true (bl_mpmc_b_sig_decode (op) == 2);
   assert_true (bl_mpmc_b_ticket_decode (op) == 0);
 
-  assert_true (bl_mpmc_b_consume_prepare(&c->q, &op, &mem).bl == bl_ok);
+  assert_true (bl_mpmc_b_consume_prepare(&c->q, &op, &mem).own == bl_ok);
   bl_mpmc_b_consume_commit (&c->q, op);
   assert_true (bl_mpmc_b_sig_decode (op) == 2);
   assert_true (bl_mpmc_b_ticket_decode (op) == 1);
@@ -420,20 +420,20 @@ static void bl_mpmc_b_producer_fallback (void **state)
 
   exp = 0;
   err = bl_mpmc_b_producer_signal_try_set (&c->q, &exp, 1);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
 
   err = bl_mpmc_b_produce_prepare_fallback (&c->q, &op, &mem, (bl_mpmc_b_sig) -1, 1);
-  assert_true (err.bl == bl_preconditions);
+  assert_true (err.own == bl_preconditions);
   assert_true (bl_mpmc_b_sig_decode (op) == 1);
 
   err = bl_mpmc_b_produce_prepare_fallback (&c->q, &op, &mem, (bl_mpmc_b_sig) -1, 2);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   bl_mpmc_b_produce_commit (&c->q, op);
   assert_true (bl_mpmc_b_sig_decode (op) == 1);
   assert_true (bl_mpmc_b_ticket_decode (op) == 0);
 
   err = bl_mpmc_b_produce_prepare_fallback (&c->q, &op, &mem, (bl_mpmc_b_sig) -1, 2);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   bl_mpmc_b_produce_commit (&c->q, op);
   assert_true (bl_mpmc_b_sig_decode (op) == 1);
   assert_true (bl_mpmc_b_ticket_decode (op) == 1);
@@ -451,18 +451,18 @@ static void bl_mpmc_b_consumer_fallback (void **state)
 
   exp = 0;
   err = bl_mpmc_b_consumer_signal_try_set (&c->q, &exp, 1);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
 
   err = bl_mpmc_b_consume_prepare_fallback(
     &c->q, &op, &mem, (bl_mpmc_b_sig) -1, 1
     );
-  assert_true (err.bl == bl_preconditions);
+  assert_true (err.own == bl_preconditions);
   assert_true (bl_mpmc_b_sig_decode (op) == 1);
 
   err = bl_mpmc_b_consume_prepare_fallback(
     &c->q, &op, &mem, (bl_mpmc_b_sig) -1, 2
     );
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   bl_mpmc_b_consume_commit (&c->q, op);
   assert_true (bl_mpmc_b_sig_decode (op) == 1);
   assert_true (bl_mpmc_b_ticket_decode (op) == 0);
@@ -470,7 +470,7 @@ static void bl_mpmc_b_consumer_fallback (void **state)
   err = bl_mpmc_b_consume_prepare_fallback(
     &c->q, &op, &mem, (bl_mpmc_b_sig) -1, 2
     );
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   bl_mpmc_b_consume_commit (&c->q, op);
   assert_true (bl_mpmc_b_sig_decode (op) == 1);
   assert_true (bl_mpmc_b_ticket_decode (op) == 1);
@@ -486,15 +486,15 @@ static void bl_mpmc_b_producer_signal_change (void **state)
 
   exp = 0;
   err = bl_mpmc_b_producer_signal_try_set (&c->q, &exp, 1);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
 
   err = bl_mpmc_b_produce_prepare_sig (&c->q, &op, &mem, 2);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   bl_mpmc_b_produce_commit (&c->q, op);
   assert_true (bl_mpmc_b_sig_decode (op) == 1);
 
   err = bl_mpmc_b_produce_prepare_sig (&c->q, &op, &mem, 3);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   bl_mpmc_b_produce_commit (&c->q, op);
   assert_true (bl_mpmc_b_sig_decode (op) == 2);
 }
@@ -511,15 +511,15 @@ static void bl_mpmc_b_consumer_signal_change (void **state)
 
   exp = 0;
   err = bl_mpmc_b_consumer_signal_try_set (&c->q, &exp, 1);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
 
   err = bl_mpmc_b_consume_prepare_sig (&c->q, &op, &mem, 2);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   bl_mpmc_b_consume_commit (&c->q, op);
   assert_true (bl_mpmc_b_sig_decode (op) == 1);
 
   err = bl_mpmc_b_consume_prepare_sig (&c->q, &op, &mem, 3);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   bl_mpmc_b_consume_commit (&c->q, op);
   assert_true (bl_mpmc_b_sig_decode (op) == 2);
 }
@@ -533,12 +533,12 @@ static void bl_mpmc_b_fifo_produce_empty_queue (void **state)
 
   bl_mpmc_b_fifo_produce_prepare (&c->q, &op);
   err = bl_mpmc_b_fifo_produce_prepare_is_ready (&c->q, op, &mem);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   *((bl_mpmc_b_type*) mem) = 0;
   assert_true (bl_mpmc_b_ticket_decode (op) == 0);
   bl_mpmc_b_produce_commit (&c->q, op);
 
-  assert_true (bl_mpmc_b_consume_prepare (&c->q, &op, &mem).bl == bl_ok);
+  assert_true (bl_mpmc_b_consume_prepare (&c->q, &op, &mem).own == bl_ok);
   assert_true (*((bl_mpmc_b_type*) mem) == 0);
   assert_true (bl_mpmc_b_ticket_decode (op) == 0);
   assert_true (bl_mpmc_b_sig_decode (op) == 0);
@@ -556,22 +556,22 @@ static void bl_mpmc_b_fifo_produce_full_queue (void **state)
 
   bl_mpmc_b_fifo_produce_prepare (&c->q, &opfifo);
   err = bl_mpmc_b_fifo_produce_prepare_is_ready (&c->q, opfifo, &mem);
-  assert_true (err.bl == bl_would_overflow);
+  assert_true (err.own == bl_would_overflow);
   assert_true (bl_mpmc_b_ticket_decode (opfifo) == bl_arr_elems (c->buff));
 
-  assert_true (bl_mpmc_b_consume_prepare (&c->q, &op, &mem).bl == bl_ok);
+  assert_true (bl_mpmc_b_consume_prepare (&c->q, &op, &mem).own == bl_ok);
   assert_true (*((bl_mpmc_b_type*) mem) == 0);
   assert_true (bl_mpmc_b_ticket_decode (op) == 0);
   assert_true (bl_mpmc_b_sig_decode (op) == 0);
   bl_mpmc_b_consume_commit (&c->q, op);
 
   err = bl_mpmc_b_fifo_produce_prepare_is_ready (&c->q, opfifo, &mem);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
   *((bl_mpmc_b_type*) mem) = bl_arr_elems (c->buff);
   bl_mpmc_b_produce_commit (&c->q, opfifo);
 
   for (bl_mpmc_b_type i = 1; i < bl_arr_elems (c->buff) + 1; ++i) {
-    assert_true (bl_mpmc_b_consume_prepare(&c->q, &op, &mem).bl == bl_ok);
+    assert_true (bl_mpmc_b_consume_prepare(&c->q, &op, &mem).own == bl_ok);
     assert_true (*((bl_mpmc_b_type*) mem) == i);
     assert_true (bl_mpmc_b_ticket_decode (op) == i);
     assert_true (bl_mpmc_b_sig_decode (op) == 0);
@@ -586,12 +586,12 @@ static void bl_mpmc_b_producer_block (void **state)
   bl_u8*       mem;
   bl_err    err;
 
-  assert_true (bl_mpmc_b_produce_prepare (&c->q, &op, &mem).bl == bl_ok);
+  assert_true (bl_mpmc_b_produce_prepare (&c->q, &op, &mem).own == bl_ok);
   bl_mpmc_b_produce_commit (&c->q, op);
 
   bl_mpmc_b_block_producers (&c->q);
   err = bl_mpmc_b_produce_prepare (&c->q, &op, &mem);
-  assert_true (err.bl == bl_locked);
+  assert_true (err.own == bl_locked);
 }
 /*---------------------------------------------------------------------------*/
 static void bl_mpmc_b_producer_block_full_queue (void **state)
@@ -605,7 +605,7 @@ static void bl_mpmc_b_producer_block_full_queue (void **state)
 
   bl_mpmc_b_block_producers (&c->q);
   err = bl_mpmc_b_produce_prepare (&c->q, &op, &mem);
-  assert_true (err.bl == bl_locked);
+  assert_true (err.own == bl_locked);
 }
 /*---------------------------------------------------------------------------*/
 static void bl_mpmc_b_producer_block_fifo_produce (void **state)
@@ -622,10 +622,10 @@ static void bl_mpmc_b_producer_block_fifo_produce (void **state)
   bl_mpmc_b_fifo_produce_prepare (&c->q, &op2);
 
   err = bl_mpmc_b_fifo_produce_prepare_is_ready (&c->q, op1, &mem);
-  assert_true (err.bl == bl_ok);
+  assert_true (err.own == bl_ok);
 
   err = bl_mpmc_b_fifo_produce_prepare_is_ready (&c->q, op2, &mem);
-  assert_true (err.bl == bl_locked);
+  assert_true (err.own == bl_locked);
 }
 /*---------------------------------------------------------------------------*/
 static void bl_mpmc_b_producer_block_fifo_produce_full_queue (void **state)
@@ -642,7 +642,7 @@ static void bl_mpmc_b_producer_block_fifo_produce_full_queue (void **state)
   bl_mpmc_b_block_producers (&c->q);
 
   err = bl_mpmc_b_fifo_produce_prepare_is_ready (&c->q, op, &mem);
-  assert_true (err.bl == bl_locked);
+  assert_true (err.own == bl_locked);
 }
 /*---------------------------------------------------------------------------*/
 static const struct CMUnitTest tests[] = {

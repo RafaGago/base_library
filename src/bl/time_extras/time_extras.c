@@ -170,8 +170,8 @@ static bl_err timepoint_cpu_init (void)
     ++attempts;
     err = bl_cpu_timept_freq_set();
   }
-  while (err.bl && attempts < BL_TIME_INIT_RETRY_ROUNDS);
-  if (err.bl) {
+  while (err.own && attempts < BL_TIME_INIT_RETRY_ROUNDS);
+  if (err.own) {
     /*insane clock. unable to proceed */
     return err;
   }

@@ -43,7 +43,7 @@ static bl_err bl_dstr_append_impl (bl_dstr *s, char const *str, bl_uword len)
   bl_uword oldlen = bl_dstr_len (s);
   bl_uword newlen = oldlen + len;
   bl_err err   = bl_dstr_resize_if (s, newlen);
-  if (!err.bl) {
+  if (!err.own) {
     memcpy (s->da.str + oldlen, str, len);
     s->da.str[newlen] = 0;
     s->len = newlen;
@@ -157,7 +157,7 @@ BL_EXPORT bl_err bl_dstr_insert_va(
   if (bl_dstr_len (s) != 0 && idx < bl_dstr_len (s) - 1) {
     bl_dstr newstr = bl_dstr_init_rv (s->alloc);
     err = bl_dstr_append_va_priv (&newstr, fmt, list);
-    if (err.bl) {
+    if (err.own) {
       goto done;
     }
     err = bl_dstr_insert_o (s, idx, &newstr);
@@ -240,7 +240,7 @@ BL_EXPORT bl_err bl_dstr_erase_head_tail_while(
   )
 {
   bl_err err = bl_dstr_erase_head_while(s, fn, fnres);
-  if (err.bl) {
+  if (err.own) {
     return err;
   }
   return bl_dstr_erase_tail_while(s, fn, fnres);
@@ -329,7 +329,7 @@ bl_err bl_dstr_append_file (bl_dstr *s, FILE* file, bl_uword file_read_limit)
   bl_err err = bl_dynarray_from_file(
     da, &written, s->len, 1, 1, file, file_read_limit, s->alloc
     );
-  if (!err.bl && written) {
+  if (!err.own && written) {
     s->len += written;
     s->da.str[s->len] = 0;
   }

@@ -4,13 +4,13 @@
 /*----------------------------------------------------------------------------*/
 BL_EXPORT char const* bl_strerror (bl_err e)
 {
-  if (e.bl == bl_ok) {
+  if (e.own == bl_ok) {
     return "ok";
   }
   if (e.sys) {
     return strerror (e.sys);
   }
-  switch (e.bl) {
+  switch (e.own) {
     case bl_error          : return "generic error";
     case bl_busy           : return "busy";
     case bl_empty          : return "empty";

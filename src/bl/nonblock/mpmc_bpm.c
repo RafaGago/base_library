@@ -285,7 +285,7 @@ BL_NONBLOCK_EXPORT bl_u8* bl_mpmc_bpm_alloc (bl_mpmc_bpm* q, bl_uword slots)
   bl_u8*       mem;
   bl_mpmc_b_op op;
   bl_err err = bl_mpmc_bpm_produce_prepare (q, &op, &mem, slots);
-  if (bl_unlikely (err.bl)) {
+  if (bl_unlikely (err.own)) {
     return nullptr;
   }
   bl_mpmc_bpm_produce_commit (q, op, mem, slots);

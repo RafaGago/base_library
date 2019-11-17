@@ -9,7 +9,7 @@
 /*---------------------------------------------------------------------------*/
 static int setup (void** state)
 {
-  return bl_time_extras_init().bl;
+  return bl_time_extras_init().own;
 }
 /*---------------------------------------------------------------------------*/
 static int teardown (void** state)

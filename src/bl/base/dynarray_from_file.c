@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
 #include <bl/base/platform.h>
 #include <bl/base/assert.h>
@@ -51,7 +52,7 @@ static bl_err bl_dynarray_from_file_realloc_if(
       return bl_mkerr (bl_range);
     }
     bl_err err = bl_dynarray_resize (d, newsize, 1, alloc);
-    if (bl_unlikely (err.bl)) {
+    if (bl_unlikely (err.own)) {
       return err;
     }
   }
@@ -100,12 +101,12 @@ BL_EXPORT bl_err bl_dynarray_from_file(
     err = bl_dynarray_from_file_realloc_if(
       d, d_offset, d_overalloc, d_realloc_multiple_of, total, alloc
       );
-    if (err.bl) {
+    if (err.own) {
       return err;
     }
     *d_written = fread (((bl_u8*) d->arr) + d_offset, 1, total, fp);
     err.sys = (bl_err_uint) errno;
-    err.bl  = ferror (fp) == 0 ? bl_ok : bl_file;
+    err.own  = ferror (fp) == 0 ? bl_ok : bl_file;
     return err;
   }
   else {
@@ -133,7 +134,7 @@ BL_EXPORT bl_err bl_dynarray_from_file(
       read_bytes = read (fd, b + total, next_read);
       if (bl_unlikely (read_bytes < 0)) {
         err.sys = (bl_err_uint) errno;
-        err.bl  = bl_file;
+        err.own  = bl_file;
         goto dealloc;
       }
       total += read_bytes;
@@ -143,7 +144,7 @@ BL_EXPORT bl_err bl_dynarray_from_file(
     err = bl_dynarray_from_file_realloc_if(
       d, d_offset, d_overalloc, d_realloc_multiple_of, total, alloc
       );
-    if (err.bl) {
+    if (err.own) {
       goto dealloc;
     }
     memcpy (((bl_u8*) d->arr) + d_offset, b, total);

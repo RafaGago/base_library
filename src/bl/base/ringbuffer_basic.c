@@ -23,7 +23,7 @@ BL_EXPORT bl_err bl_ringb_init(
   )
 {
   bl_err err = bl_ringb_init_extern (rb, (void*) 1, capacity);
-  if (err.bl) {
+  if (err.own) {
     return err;
   }
   rb->stor = (bl_u8*) bl_alloc (alloc, capacity * elem_size);
