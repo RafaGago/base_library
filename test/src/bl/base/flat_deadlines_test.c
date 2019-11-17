@@ -4,6 +4,7 @@
 #include <bl/base/deadline.h>
 #include <bl/base/flat_deadlines.h>
 #include <bl/base/utility.h>
+
 /*---------------------------------------------------------------------------*/
 typedef struct bl_flat_deadlines_content {
   bl_timept32 time;
@@ -49,7 +50,9 @@ static void bl_flat_deadlines_o1_regular_insertion (void **state)
   bl_flat_deadlines_context* c = (bl_flat_deadlines_context*) *state;
   bl_flat_deadlines_content e[2];
 
-  bl_static_assert_ns (bl_arr_elems (e) == bl_flat_deadlines_test_elems);
+  bl_maybe_static_assert_ns_funcscope(
+    bl_arr_elems (e) == bl_flat_deadlines_test_elems
+    );
 
   bl_timept32_deadline_init_usec_explicit (&e[0].time, 0, 1000);
   e[0].id = 0;
@@ -90,7 +93,9 @@ static void bl_flat_deadlines_o1_regular_insertion_wrap (void **state)
   const bl_timept32 near_wrap =
     bl_utype_max (bl_timept32) - bl_usec_to_timept32 (1500);
 
-  bl_static_assert_ns (bl_arr_elems (e) == bl_flat_deadlines_test_elems);
+  bl_maybe_static_assert_ns_funcscope(
+    bl_arr_elems (e) == bl_flat_deadlines_test_elems
+    );
 
   c->dl.time_offset = near_wrap;
 
@@ -140,7 +145,9 @@ static void bl_flat_deadlines_cancellation (void **state)
   bl_flat_deadlines_context* c = (bl_flat_deadlines_context*) *state;
   bl_flat_deadlines_content e[2];
 
-  bl_static_assert_ns (bl_arr_elems (e) == bl_flat_deadlines_test_elems);
+  bl_maybe_static_assert_ns_funcscope(
+    bl_arr_elems (e) == bl_flat_deadlines_test_elems
+    );
 
   bl_timept32_deadline_init_usec_explicit (&e[0].time, 0, 1000);
   e[0].id = 0;
@@ -173,7 +180,9 @@ static void bl_flat_deadlines_duplicate_deadline (void **state)
   bl_flat_deadlines_context* c = (bl_flat_deadlines_context*) *state;
   bl_flat_deadlines_content e[2];
 
-  bl_static_assert_ns (bl_arr_elems (e) == bl_flat_deadlines_test_elems);
+  bl_maybe_static_assert_ns_funcscope(
+    bl_arr_elems (e) == bl_flat_deadlines_test_elems
+    );
 
   bl_timept32_deadline_init_usec_explicit (&e[0].time, 0, 1000);
   e[0].id = 0;
@@ -208,7 +217,9 @@ static void bl_flat_deadlines_duplicate_deadline_deletion (void **state)
   bl_flat_deadlines_context* c = (bl_flat_deadlines_context*) *state;
   bl_flat_deadlines_content e[2];
 
-  bl_static_assert_ns (bl_arr_elems (e) == bl_flat_deadlines_test_elems);
+  bl_maybe_static_assert_ns_funcscope(
+    bl_arr_elems (e) == bl_flat_deadlines_test_elems
+    );
 
   bl_timept32_deadline_init_usec_explicit (&e[0].time, 0, 1000);
   e[0].id = 0;

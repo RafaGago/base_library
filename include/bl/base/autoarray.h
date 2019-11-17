@@ -40,7 +40,7 @@ typedef struct bl_autoarray_stub {
 }
 bl_autoarray_stub;
 /*---------------------------------------------------------------------------*/
-bl_static_assert_global_ns(
+bl_static_assert_ns(
   offsetof (bl_autoarray_stub, capacity) == offsetof (bl_dynarray_stub, size)
   );
 /*---------------------------------------------------------------------------*/

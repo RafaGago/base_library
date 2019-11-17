@@ -55,6 +55,8 @@
 
   #define BL_HAS_ERRNO_H 0 /*for very backwards compatibility, can be improved*/
 
+  #define BL_HAS___COUNTER__ 1
+  #define bl_static_assert_private(c,s) static_assert(c,s)
 #endif
 /*---------------------------------------------------------------------------*/
 #if defined (__GNUC__) || defined (GCC) || defined (__clang__)
@@ -125,6 +127,15 @@
       #define BL_VISIBILITY_DEFAULT
       #define BL_VISIBILITY_HIDDEN
     #endif
+
+    #if !defined(__cplusplus)
+      #if BL_GCC >= BL_GCC_VER (4, 6, 0)
+        #define bl_static_assert_private(c,s) _Static_assert(c,s)
+      #endif
+    #else
+      #define bl_static_assert_private(c,s) static_assert(c,s)
+    #endif
+
   #else
     #define BL_COMPILER BL_CLANG
 
@@ -133,13 +144,19 @@
 
     #define BL_HAS_C11_STDALIGN(bl_compiler) 1
     #define BL_HAS_C11_ATOMICS(bl_compiler) 1
+
+    #if !defined(__cplusplus)
+      #define bl_static_assert_private(c,s) _Static_assert(c,s)
+    #else
+      #define bl_static_assert_private(c,s) static_assert(c,s)
+    #endif
   #endif
 
   #define BL_PRINTF_FORMAT(string_idx, va_args_idx) \
     __attribute__ ((format (printf, string_idx, va_args_idx)))
 
   #define BL_HAS_ERRNO_H 1
-
+  #define BL_HAS___COUNTER__ 1
 #endif
 /*---------------------------------------------------------------------------*/
 #if !defined (BL_COMPILER)
@@ -156,13 +173,13 @@
   #define nullptr NULL
 #endif
 /*---------------------------------------------------------------------------*/
-bl_static_assert_global ((bool) 1 == true, "bool type check failed");
-bl_static_assert_global ((bool) 0 == false, "bool type check failed");
+bl_static_assert ((bool) 1 == true, "bool type check failed");
+bl_static_assert ((bool) 0 == false, "bool type check failed");
 
 #if BL_WORDSIZE <= 32
-  bl_static_assert_global ((int) nullptr == 0, "nullptr check failed");
+  bl_static_assert ((int) nullptr == 0, "nullptr check failed");
 #else
-  bl_static_assert_global ((long) nullptr == 0, "nullptr check failed");
+  bl_static_assert ((long) nullptr == 0, "nullptr check failed");
 #endif
 /*---------------------------------------------------------------------------*/
 #if defined (BL_WINDOWS)

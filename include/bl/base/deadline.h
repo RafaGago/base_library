@@ -9,7 +9,7 @@
 #if BL_TIMEPT_BITS == 64
   #include <bl/base/impl/generated/time/timept_deadline_from_timept64.h>
 #else
-  bl_static_assert_global_ns (BL_TIMEPT_BITS == 32);
+  bl_static_assert_ns (BL_TIMEPT_BITS == 32);
   #include <bl/base/impl/generated/time/timept_deadline_from_timept32.h>
 #endif
 
@@ -18,7 +18,7 @@
 #if BL_SYSCLOCK_BITS == 64
   #include <bl/base/impl/generated/time/sysclock_deadline_from_sysclock64.h>
 #else
-  bl_static_assert_global_ns (BL_SYSCLOCK_BITS == 32);
+  bl_static_assert_ns (BL_SYSCLOCK_BITS == 32);
   #include <bl/base/impl/generated/time/sysclock_deadline_from_sysclock32.h>
 #endif
 

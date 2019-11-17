@@ -16,7 +16,7 @@ typedef bl_u32 bl_timeoft32;
 static inline bl_timept32diff
   bl_timept32_get_diff (bl_timept32 a, bl_timept32 b)
 {
-  bl_static_assert(
+  bl_static_assert_funcscope(
     bl_has_two_comp_arithmetic,
     "this is just valid on systems with complement of two arithmetic"
     );
@@ -57,7 +57,7 @@ typedef bl_u64 bl_timeoft64;
 static inline bl_timept64diff
   bl_timept64_get_diff (bl_timept64 a, bl_timept64 b)
 {
-  bl_static_assert(
+  bl_static_assert_funcscope(
     bl_has_two_comp_arithmetic,
     "this is just valid on systems with complement of two arithmetic"
     );
