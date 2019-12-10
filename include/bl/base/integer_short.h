@@ -32,11 +32,11 @@ typedef bl_ubig ubig;
 typedef bl_ibig ibig;
 #if BL_HAS_BIG_D2 == 1
 typedef bl_ubig_d2 ubig_d2;
-typedef bl_big_d2  big_d2;
+typedef bl_ibig_d2 ibig_d2;
 #endif
 #if BL_HAS_BIG_D4 == 1
 typedef bl_ubig_d4 ubig_d4;
-typedef bl_big_d4  big_d4;
+typedef bl_ibig_d4 ibig_d4;
 #endif
 
 #endif /* __BL_INTEGER_SHORT_H__ */
