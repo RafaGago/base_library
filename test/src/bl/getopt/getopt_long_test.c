@@ -455,7 +455,7 @@ static void getopt_long_empty_optional_arg_by_equal (void **state)
   assert_string_equal ("", bl_getopt_optarg (&s));
 }
 /*---------------------------------------------------------------------------*/
-#if defined (BL_POSIX) && 0
+#if BL_OS_IS_MOSTLY_POSIX && 0
 /*Check some weird behaviors*/
 
 #undef bl_no_argument
@@ -555,7 +555,7 @@ static const struct CMUnitTest tests[] = {
   cmocka_unit_test (getopt_long_optional_arg_by_equal),
   cmocka_unit_test (getopt_long_missing_optional_arg),
   cmocka_unit_test (getopt_long_empty_optional_arg_by_equal),
-#if defined (BL_POSIX) && 0
+#if BL_OS_IS_MOSTLY_POSIX && 0
   cmocka_unit_test (real_getopt_long_missing_required_arg),
   cmocka_unit_test (real_getopt_long_missing_required_arg_by_equal),
   cmocka_unit_test (real_getopt_long_missing_optional_arg),

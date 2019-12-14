@@ -41,7 +41,7 @@
 /*---------------------------------------------------------------------------*/
 typedef struct bl_empty_struct {} bl_empty_struct;
 /*---------------------------------------------------------------------------*/
-#ifdef BL_GCC
+#ifdef BL_COMPILER_IS (GCC) || BL_COMPILER_IS (CLANG)
   #define bl_likely(x)   __builtin_expect (!!(x), 1)
   #define bl_unlikely(x) __builtin_expect (!!(x), 0)
 #else

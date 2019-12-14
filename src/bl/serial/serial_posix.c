@@ -12,7 +12,7 @@
 /*----------------------------------------------------------------------------*/
 #include <bl/base/platform.h>
 
-#ifdef BL_POSIX
+#if BL_OS_IS_MOSTLY_POSIX
 
 #include <stdio.h>
 #include <string.h>
@@ -31,7 +31,7 @@
 #include <sysexits.h>
 #include <sys/param.h>*/
 
-#if defined (BL_LINUX)
+#if BL_OS_IS (LINUX)
 # include <linux/serial.h>
 #endif
 
@@ -256,7 +256,7 @@ static inline bl_err try_set_nonstandard_baudrate (bl_serial* s, bl_uword baudra
     );
 }
 /*----------------------------------------------------------------------------*/
-#elif defined (BL_LINUX) && defined (TIOCSSERIAL)
+#elif BL_OS_IS (LINUX) && defined (TIOCSSERIAL)
 static inline bl_err try_set_nonstandard_baudrate (bl_serial* s, bl_uword baudrate)
 {
   struct serial_struct ser;
@@ -696,4 +696,4 @@ BL_SERIAL_EXPORT bl_uword bl_serial_get_byte_time_ns (bl_serial_cfg const* cfg)
 } /*extern "C" {*/
 #endif
 
-#endif /* #ifdef BL_POSIX */
+#endif /* #if BL_OS_IS_MOSTLY_POSIX */

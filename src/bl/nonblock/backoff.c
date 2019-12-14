@@ -6,7 +6,7 @@
 
 #include <bl/nonblock/backoff.h>
 
-#ifdef BL_LINUX
+#if BL_OS_IS (LINUX)
 #include <time.h>
 #endif
 
@@ -87,7 +87,7 @@ void bl_nonblock_backoff_run (bl_nonblock_backoff* nb)
   }
   if (nb->yield < nb->yield_max || nb->sleep_ns_max / 1000 < BL_SCHED_TMIN_US) {
     ++nb->yield;
-#ifdef BL_LINUX
+#if BL_OS_IS (LINUX)
     /*Short sleep to avoid a potential sched_yield call to return immediately*/
     struct timespec t, rem;
     t.tv_sec  = 0;

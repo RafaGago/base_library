@@ -1,6 +1,6 @@
 #include <bl/base/platform.h>
 
-#ifdef BL_LINUX
+#if BL_OS_IS (LINUX)
 
 #include <bl/cmocka_pre.h>
 
@@ -96,11 +96,11 @@ int semaphore_not_totally_broken_tests (void)
   return cmocka_run_group_tests (tests, nullptr, nullptr);
 }
 /*---------------------------------------------------------------------------*/
-#else /*BL_LINUX*/
+#else /*BL_OS_IS (LINUX)*/
 /*---------------------------------------------------------------------------*/
 int semaphore_not_totally_broken_tests (void)
 {
   return 0;
 }
 /*---------------------------------------------------------------------------*/
-#endif /*BL_LINUX*/
+#endif /*BL_OS_IS (LINUX)*/

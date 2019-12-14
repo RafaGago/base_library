@@ -150,9 +150,9 @@ typedef bl_timeoft64    bl_timeoft;
   #include BL_TPOINT_CUSTOM_INCLUDE
 #elif defined (BL_TPOINT_MOCK_FOR_TESTS)
   #include <bl/base/impl/timepoint_to_mock.h>
-#elif defined (BL_POSIX)
+#elif BL_OS_IS_MOSTLY_POSIX
   #include <bl/base/impl/timepoint_posix.h>
-#elif defined (BL_WINDOWS)
+#elif BL_OS_IS (WINDOWS)
   #include <bl/base/impl/timepoint_windows.h>
 #else
   #error "no bl_timept implementation available"

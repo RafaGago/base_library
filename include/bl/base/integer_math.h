@@ -75,7 +75,7 @@ static inline bl_u8 bl_reverse_bits (bl_u8 val)
   return (bl_u8) v;
 }
 /*---------------------------------------------------------------------------*/
-#if defined (BL_GCC) || defined (BL_GCLANG)
+#if BL_COMPILER_IS (GCC) || BL_COMPILER_IS (CLANG)
   #include <bl/base/impl/integer_math_gcc_clang.h>
 #else
   #include <bl/base/impl/integer_math_generic.h>

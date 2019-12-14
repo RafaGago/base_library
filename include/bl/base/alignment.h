@@ -24,14 +24,14 @@ struct bl_align_anonymous_priv_join {
   offsetof (bl_align_anonymous_priv (type1, type2), b)
 /*---------------------------------------------------------------------------*/
 #include <bl/base/platform.h>
-#if BL_HAS_C11_STDALIGN (BL_COMPILER)
+#if BL_HAS_C11_STDALIGN
   #include <stdalign.h>
   #define bl_alignof(type) alignof(type)
 #elif defined (__cplusplus)
   /*TODO alignof might be available depending on the compiler version*/
   #include <type_traits>
   #define bl_alignof(type) std::alignment_of<type>::value
-#elif defined (BL_GCC)
+#elif BL_COMPILER_IS (GCC) || BL_COMPILER_IS (CLANG)
   #define bl_alignof(type) __alignof__(type)
 #else
   /*let the compiler generate errors just if the macro is used*/

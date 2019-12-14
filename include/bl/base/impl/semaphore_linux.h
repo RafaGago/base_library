@@ -3,7 +3,7 @@
 
 #include <bl/base/platform.h>
 /*----------------------------------------------------------------------------*/
-#ifndef BL_LINUX
+#if !BL_OS_IS (LINUX)
   #error "this file shouldn't be included on this platform"
 #endif
 /*----------------------------------------------------------------------------*/

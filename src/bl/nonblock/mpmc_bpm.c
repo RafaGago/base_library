@@ -292,7 +292,7 @@ BL_NONBLOCK_EXPORT bl_u8* bl_mpmc_bpm_alloc (bl_mpmc_bpm* q, bl_uword slots)
   return mem;
 }
 /*--------------------------- ------------------------------------------------*/
-#ifdef BL_POSIX
+#if BL_OS_IS_MOSTLY_POSIX
   #include <signal.h>
 #endif
 /*--------------------------- ------------------------------------------------*/
@@ -302,7 +302,7 @@ BL_NONBLOCK_EXPORT void bl_mpmc_bpm_dealloc (bl_mpmc_bpm* q, bl_u8* mem, bl_uwor
     return;
   }
   if (bl_unlikely (!bl_mpmc_bpm_allocation_is_in_range (q, mem))) {
-#ifdef BL_POSIX
+#if BL_OS_IS_MOSTLY_POSIX
     raise (SIGSEGV);
 #else
     bl_assert_always (false && "out of range");
@@ -313,7 +313,7 @@ BL_NONBLOCK_EXPORT void bl_mpmc_bpm_dealloc (bl_mpmc_bpm* q, bl_u8* mem, bl_uwor
     bl_atomic_u32_load_rlx ((bl_atomic_u32*) (mem - sizeof (bl_atomic_u32)));
   bl_uword slots_expected = (bl_mpmc_b_ticket_decode (op) - idx) & (q->slots - 1);
   if (slots != 0) {
-#ifdef BL_POSIX
+#if BL_OS_IS_MOSTLY_POSIX
     if (bl_unlikely (slots != slots_expected)) {
       raise (SIGSEGV);
     }

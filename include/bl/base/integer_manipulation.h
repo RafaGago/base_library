@@ -3,6 +3,7 @@
 
 #include <bl/base/assert.h>
 #include <bl/base/platform.h>
+#include <bl/base/endian.h>
 #include <bl/base/integer.h>
 
 #define bl_has_one_or_zero_bits_set(x) (!((x) & ((x) - 1)))
@@ -441,7 +442,7 @@ static inline bl_u8 bl_u64_get_bit_idx (bl_u64 non_zero_pow2)
 
 /*on gcc for non static calculations see __builtin_bswap16 32, ...*/
 
-#ifdef BL_ARCH_BIG_ENDIAN
+#if BL_ARCH_IS_BIG_ENDIAN
   #define bl_read_u64_be  bl_read_u64_low_mem_to_lsb
   #define bl_read_u64_le  bl_read_u64_low_mem_to_msb
   #define bl_write_u64_be bl_write_u64_low_mem_to_lsb
@@ -478,7 +479,7 @@ static inline bl_u8 bl_u64_get_bit_idx (bl_u64 non_zero_pow2)
   #define bl_init_u16_le  bl_init_u16_low_mem_to_msb
 #endif
 
-#ifdef BL_ARCH_LITTLE_ENDIAN
+#if BL_ARCH_IS_LITTLE_ENDIAN
   #define bl_read_u64_be  bl_read_u64_low_mem_to_msb
   #define bl_read_u64_le  bl_read_u64_low_mem_to_lsb
   #define bl_write_u64_be bl_write_u64_low_mem_to_msb
@@ -515,13 +516,13 @@ static inline bl_u8 bl_u64_get_bit_idx (bl_u64 non_zero_pow2)
   #define bl_init_u16_le  bl_init_u16_low_mem_to_lsb
 #endif
 
-  /*these are just to keep the syntax when refactoring someting from or to bl_u8*/
-  #define bl_read_u8_be  bl_read_u8
-  #define bl_read_u8_le  bl_read_u8
-  #define bl_write_u8_be bl_write_u8
-  #define bl_write_u8_le bl_write_u8
-  #define bl_init_u8_be  bl_init_u8
-  #define bl_init_u8_le  bl_init_u8
+/*these are just to keep the syntax when refactoring someting from or to bl_u8*/
+#define bl_read_u8_be  bl_read_u8
+#define bl_read_u8_le  bl_read_u8
+#define bl_write_u8_be bl_write_u8
+#define bl_write_u8_le bl_write_u8
+#define bl_init_u8_be  bl_init_u8
+#define bl_init_u8_le  bl_init_u8
 
 /*---------------------------------------------------------------------------*/
 #endif /*LGC_INTEGER_MANIPULATION_H*/

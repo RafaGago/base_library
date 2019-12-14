@@ -8,7 +8,7 @@
 #include <bl/base/dynarray.h>
 #include <bl/base/static_integer_math.h>
 
-#ifdef BL_POSIX
+#if BL_OS_IS_MOSTLY_POSIX
 
 #include <sys/types.h>
 #include <sys/stat.h>

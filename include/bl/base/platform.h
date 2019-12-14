@@ -3,199 +3,151 @@
 /*---------------------------------------------------------------------------*/
 /* Very useful: http://sourceforge.net/p/predef/wiki/Architectures/          */
 /*---------------------------------------------------------------------------*/
+#include <bl/base/os.h>
+#include <bl/base/arch.h>
+#include <bl/base/compiler.h>
 
-#ifdef _MSC_VER
-/*  #define BL_X86_64 1*/
-  #if defined (_WIN64) || defined (_WIN32) || defined (_WIN16)
-    #define BL_WINDOWS 1
+/* static assertions */
+#if BL_COMPILER_IS (GCC)
+  #if !defined(__cplusplus)
+    #if BL_COMPILER_VER_IS_GE (4, 6, 0)
+      #define bl_static_assert_private(c,s) _Static_assert (c, s)
+    #endif
   #else
-    #error "Unknown windows platform"
+    #define bl_static_assert_private(c,s) static_assert (c, s)
   #endif
+#elif BL_COMPILER_IS (MICROSOFT_VC)
+  #define bl_static_assert_private(c,s) static_assert (c, s)
+#elif BL_COMPILER_IS (CLANG)
+  #if !defined(__cplusplus)
+    #define bl_static_assert_private(c,s) _Static_assert (c,s)
+  #else
+    #define bl_static_assert_private(c,s) static_assert (c,s)
+  #endif
+#endif
 
-  #if defined(_WIN64) && !defined(_WIN16)
+#include <bl/base/static_assert.h>
+
+/* BL_WORDSIZE BL_WORDSIZE_MAX */
+#if BL_ARCH_IS (X86_64)
+  #if defined (__LP64__) || defined (_WIN64)
     #define BL_WORDSIZE     64
     #define BL_WORDSIZE_MAX 64
-  #elif defined (_WIN16)
-    #define BL_WORDSIZE     16
+  #else
+    #define BL_WORDSIZE     32
+    #define BL_WORDSIZE_MAX 64
+  #endif
+#elif BL_ARCH_IS (X86)
+  #define BL_WORDSIZE     32
+  #define BL_WORDSIZE_MAX 64
+#elif BL_ARCH_IS (IA64)
+  #define BL_WORDSIZE     64
+  #define BL_WORDSIZE_MAX 64
+#elif BL_ARCH_IS (ARM)
+  #if defined (__aarch64__) && (defined ( __LP64__) || defined (_WIN64))
+    #define BL_WORDSIZE     64
     #define BL_WORDSIZE_MAX 64
   #else
     #define BL_WORDSIZE     32
     #define BL_WORDSIZE_MAX 64
   #endif
-
-  #if defined (_ARM)
-    #define BL_ARM 1
-  #endif
-
-  #if defined (_M_IX86) || defined (_M_AMD64) || defined (_M_IA64)
-    #define BL_INTEL_AMD_PC 1
-  #endif
-
-  #define BL_MSC              _MSC_VER
-
-  #define BL_VSTUDIO_2015     1900
-  #define BL_VSTUDIO_2013     1800
-  #define BL_VSTUDIO_2012     1700
-  #define BL_VSTUDIO_2010     1600
-  #define BL_VSTUDIO_2008     1500
-  #define BL_VSTUDIO_2005     1400
-  #define BL_VSTUDIO_NET_2003 1310
-  #define BL_VSTUDIO_NET      1300
-  #define BL_VC_6             1200
-  #define BL_VC_5             1100
-
-  #define BL_COMPILER         BL_MSC
-
-  #define BL_HAS_C11_STDALIGN(bl_compiler) 0
-  #define BL_HAS_C11_ATOMICS(bl_compiler) 0
-
-  #define BL_VISIBILITY_DEFAULT
-  #define BL_VISIBILITY_HIDDEN
-  #define BL_PRINTF_FORMAT(string_idx, va_args_idx)
-
-  #define BL_HAS_ERRNO_H 0 /*for very backwards compatibility, can be improved*/
-
-  #define BL_HAS___COUNTER__ 1
-  #define bl_static_assert_private(c,s) static_assert(c,s)
-#endif
-/*---------------------------------------------------------------------------*/
-#if defined (__GNUC__) || defined (GCC) || defined (__clang__)
-
-  #if !defined (__clang__)
-    #define BL_GCC_VER(major, minor, patchlevel)\
-      ((major * 10000) + (minor * 100) + patchlevel)
-    #define BL_GCC BL_GCC_VER (__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
+#elif BL_ARCH_IS (POWERPC)
+  #if defined (__powerpc64__) || defined (_ARCH_PPC64)
+    #define BL_WORDSIZE     64
+    #define BL_WORDSIZE_MAX 64
   #else
-    #define BL_CLANG 1
-  #endif
-
-  #if defined (_WIN64) || defined (_WIN32) || defined (_WIN32)
-    #define BL_WINDOWS 1
-  #endif
-
-  #if defined (__linux__)
-    #define BL_LINUX 1
-    #define BL_POSIX 1
-  #endif
-
-  #if defined (__x86_64__)
-    #define BL_INTEL_AMD_PC 1
-    #if defined (__LP64__)
-      #define BL_WORDSIZE     64
-      #define BL_WORDSIZE_MAX 64
-    #else
-      #define BL_WORDSIZE     32
-      #define BL_WORDSIZE_MAX 64
-    #endif
-  #endif
-
-  #if defined (__i386__)
-    #define BL_INTEL_AMD_PC 1
     #define BL_WORDSIZE     32
     #define BL_WORDSIZE_MAX 64
   #endif
-
-  #if defined (__arm__)
-    #define BL_ARM 1
-    #if defined (__aarch64__)
-      #define BL_WORDSIZE     64
-      #define BL_WORDSIZE_MAX 64
-    #else
-      #define BL_WORDSIZE     32
-      #define BL_WORDSIZE_MAX 64
-    #endif
-  #endif
-
-#if 0 /*not sure about how to test on gcc (depends on glib)*/
-  #if BL_GCC >= BL_GCC_VER (4, 9, 0)
-    #define BL_HAS_C11_THREAD
-  #endif
+#else
+  #error "BL_WORDSIZE not implemented for this architecture"
 #endif
 
-  #if !defined (__clang__)
-    #define BL_COMPILER BL_GCC
+/* BL_PRAGMA_MESSAGE */
+#if BL_COMPILER_IS (GCC) || BL_COMPILER_IS (CLANG)
+  #include <bl/base/preprocessor_basic.h>
+  #define BL_PRAGMA_MESSAGE(x) \
+    _Pragma (bl_pp_to_str (message (x)))
+#elif BL_COMPILER_IS (MICROSOFT_VC)
+  #include <bl/base/preprocessor_basic.h>
+  #define BL_PRAGMA_MESSAGE(x) \
+    __pragma (message (__FILE__ "(" bl_pp_to_str (__LINE__) "): note: " x))
+#elif BL_COMPILER_IS (INTEL)
+  #include <bl/base/preprocessor_basic.h>
+  #define BL_PRAGMA_MESSAGE(x) \
+    __pragma (message (__FILE__ "(" bl_pp_to_str (__LINE__) "): note: " x))
+#else
+  #define BL_PRAGMA_MESSAGE(x)
+#endif
 
-    #define BL_HAS_C11_STDALIGN(bl_compiler)\
-      bl_compiler >= BL_GCC_VER (4, 7, 0)
-    #define BL_HAS_C11_ATOMICS(bl_compiler)\
-      bl_compiler >= BL_GCC_VER (4, 9, 0)
+/* C11 HEADER_AVAILABILITY (Q'n'D) */
+#if BL_COMPILER_IS (GCC) && (__STDC_VERSION__ >= 201112L)
+  /* this depends on the used stdlib, but given that 4.9 is very old as of 2019
+  and there is no legacy to maintain this might be OK */
+  #define BL_HAS_C11_STDALIGN BL_COMPILER_VER_IS_GE (4, 7, 0)
+  #define BL_HAS_C11_ATOMICS  BL_COMPILER_VER_IS_GE (4, 9, 0)
+  #define BL_HAS_C11_THREAD   BL_COMPILER_VER_IS_GE (4, 9, 0)
+#elif __STDC_VERSION__ >= 201112L
+  #define BL_HAS_C11_STDALIGN 1
+  #define BL_HAS_C11_ATOMICS 1
+  #define BL_HAS_C11_THREAD 1
+#else
+  #define BL_HAS_C11_STDALIGN 0
+  #define BL_HAS_C11_ATOMICS 0
+  #define BL_HAS_C11_THREAD 0
+#endif
 
-    #if BL_GCC >= BL_GCC_VER (4, 0, 0)
-      #define BL_VISIBILITY_DEFAULT __attribute__ ((visibility ("default")))
-      #define BL_VISIBILITY_HIDDEN __attribute__ ((visibility ("hidden")))
-    #else
-      #define BL_VISIBILITY_DEFAULT
-      #define BL_VISIBILITY_HIDDEN
-    #endif
+/* Regular header avialability*/
+#if BL_OS_IS_MOSTLY_POSIX
+  #define BL_HAS_ERRNO_H 1
+#else
+  /* this might have changed for e.g. Visual Studio...*/
+  #define BL_HAS_ERRNO_H 0
+#endif
 
-    #if !defined(__cplusplus)
-      #if BL_GCC >= BL_GCC_VER (4, 6, 0)
-        #define bl_static_assert_private(c,s) _Static_assert(c,s)
-      #endif
-    #else
-      #define bl_static_assert_private(c,s) static_assert(c,s)
-    #endif
-
-  #else
-    #define BL_COMPILER BL_CLANG
-
-    #define BL_VISIBILITY_DEFAULT __attribute__ ((visibility ("default")))
-    #define BL_VISIBILITY_HIDDEN __attribute__ ((visibility ("hidden")))
-
-    #define BL_HAS_C11_STDALIGN(bl_compiler) 1
-    #define BL_HAS_C11_ATOMICS(bl_compiler) 1
-
-    #if !defined(__cplusplus)
-      #define bl_static_assert_private(c,s) _Static_assert(c,s)
-    #else
-      #define bl_static_assert_private(c,s) static_assert(c,s)
-    #endif
-  #endif
-
+/* printf string format checking*/
+#if BL_COMPILER_IS (GCC) || BL_COMPILER_IS (CLANG)
   #define BL_PRINTF_FORMAT(string_idx, va_args_idx) \
     __attribute__ ((format (printf, string_idx, va_args_idx)))
+#else
+  #define BL_PRINTF_FORMAT(string_idx, va_args_idx)
+#endif
 
-  #define BL_HAS_ERRNO_H 1
+/* __COUNTER__ avaiability */
+#if BL_COMPILER_IS (GCC) || \
+  BL_COMPILER_IS (CLANG) || \
+  BL_COMPILER_IS (MICROSOFT_VC)
+
   #define BL_HAS___COUNTER__ 1
+#else
+  #define BL_HAS___COUNTER__ 0
 #endif
-/*---------------------------------------------------------------------------*/
-#if !defined (BL_COMPILER)
-  #error "unknown compiler or platform (you may just need to update this file)"
+
+/* visibility modifiers */
+#if (BL_COMPILER_IS (GCC) && BL_COMPILER_VER_IS_GE (4, 0, 0)) || \
+  BL_COMPILER_IS (CLANG)
+
+  #define BL_VISIBILITY_DEFAULT __attribute__ ((visibility ("default")))
+  #define BL_VISIBILITY_HIDDEN __attribute__ ((visibility ("hidden")))
+#else
+  #define BL_VISIBILITY_DEFAULT
+  #define BL_VISIBILITY_HIDDEN
 #endif
-/*---------------------------------------------------------------------------*/
-#define BL_ARCH_LITTLE_ENDIAN 1 /*good enough for now*/
-/*---------------------------------------------------------------------------*/
-#include <bl/base/static_assert.h>
-/*---------------------------------------------------------------------------*/
+
+/* bool/null */
 #ifndef __cplusplus
   #include <stdbool.h>
   #include <stddef.h>
   #define nullptr NULL
 #endif
-/*---------------------------------------------------------------------------*/
-bl_static_assert ((bool) 1 == true, "bool type check failed");
-bl_static_assert ((bool) 0 == false, "bool type check failed");
 
-#if BL_WORDSIZE <= 32
-  bl_static_assert ((int) nullptr == 0, "nullptr check failed");
-#else
-  bl_static_assert ((long) nullptr == 0, "nullptr check failed");
-#endif
-/*---------------------------------------------------------------------------*/
-#if defined (BL_WINDOWS)
+/* Os scheduling/time-quanta hint */
+#if BL_OS_IS (WINDOWS)
   #define BL_SCHED_TMIN_US 1000
-#elif defined (BL_LINUX)
+#elif BL_OS_IS (LINUX)
   #define BL_SCHED_TMIN_US 100
 #else
-  #error "define this for your the os"
+  #error "define this for this OS or pass it to the C preprocessor"
 #endif
 
-#if !defined (BL_WORDSIZE) || !defined (BL_WORDSIZE_MAX)
-  #error "define this for your platform"
-#endif
-
-#if BL_WORDSIZE > BL_WORDSIZE_MAX
-  #error "the bl_word size can't be bigger than the maximum bl_word size"
-#endif
-
-#endif /*EVK_PLATFORM_H_*/
+#endif /*_PLATFORM_H_*/

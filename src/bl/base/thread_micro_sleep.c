@@ -6,7 +6,7 @@
 #include <bl/base/libexport.h>
 
 /*----------------------------------------------------------------------------*/
-#if defined (BL_WINDOWS)
+#if BL_OS_IS (WINDOWS)
 
 #include <bl/base/static_integer_math.h>
 #include <bl/base/include_windows.h>
@@ -65,7 +65,7 @@ BL_EXPORT void bl_thread_usleep (bl_u32 us)
 } /*extern "C" { */
 #endif
 /*----------------------------------------------------------------------------*/
-#elif defined (BL_POSIX)
+#elif BL_OS_IS_MOSTLY_POSIX
 #include <errno.h>
 
 #if defined (__cplusplus)

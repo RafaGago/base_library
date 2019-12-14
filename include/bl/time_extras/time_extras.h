@@ -39,9 +39,9 @@ extern BL_TIME_EXTRAS_EXPORT void bl_time_extras_destroy (void);
 extern BL_TIME_EXTRAS_EXPORT
   bl_timeoft64 bl_timept64_to_sysclock64_diff_ns (void);
 /*----------------------------------------------------------------------------*/
-#if defined (BL_INTEL_AMD_PC)
+#if BL_ARCH_IS_X64_X86_IA64
 /*----------------------------------------------------------------------------*/
-#if BL_COMPILER == BL_MSC
+#if BL_COMPILER_IS (MICROSOFT_VC)
   #include <intrin.h>
 #else
   #include <x86intrin.h>
@@ -74,9 +74,9 @@ extern BL_TIME_EXTRAS_EXPORT bl_u64 bl_cpu_timept_get_freq (void);
 extern BL_TIME_EXTRAS_EXPORT bl_timeoft64
   bl_cpu_timept_to_sysclock64_diff_ns (void);
 /*----------------------------------------------------------------------------*/
-#else /*  defined (BL_INTEL_AMD_PC) */
+#else /*  BL_ARCH_IS_X64_X86_IA64 */
 #define BL_HAS_CPU_TIMEPT 0
-#endif /* else  defined (BL_INTEL_AMD_PC) */
+#endif /* BL_ARCH_IS_X64_X86_IA64 */
 /*----------------------------------------------------------------------------*/
 /*f_timept represents the fastest monotonic clock available on the platform  */
 

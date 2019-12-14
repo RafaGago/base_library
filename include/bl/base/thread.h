@@ -8,10 +8,10 @@
 /*---------------------------------------------------------------------------*/
 #if defined (__cplusplus)
   #include <bl/base/impl/thread_cpp.hpp>
-#elif defined (BL_HAS_C11_THREAD)
+#elif BL_HAS_C11_THREAD
   #include <bl/base/impl/thread_c11.h>
   /*enough for now for detecting posix...*/
-#elif (defined (__unix__) || (defined (__APPLE__) && defined (__MACH__)))
+#elif BL_OS_IS_MOSTLY_POSIX
   /*including <unistd.h> would define the _POSIX_VERSION, but this is enough
     for now...*/
   #include <bl/base/impl/thread_posix.h>
@@ -47,7 +47,7 @@ extern BL_EXPORT bl_uword bl_thread_min_sleep_us (void);
 extern BL_EXPORT void bl_thread_usleep (bl_u32 us);
 /*---------------------------------------------------------------------------*/
 
-#if defined BL_LINUX
+#if BL_OS_IS (LINUX)
 
 #include <sched.h>
 #include <pthread.h>
@@ -109,7 +109,7 @@ static inline bl_err bl_get_thread_affinity (bl_thread t, bl_affinity_mask* m)
   but C++ can't get a std::thread from this_thread. This may require a refactor
   of c++'s' bl_thread */
 
-#elif defined BL_WINDOWS
+#elif BL_OS_IS (WINDOWS)
 
 #include <bl/base/include_windows.h>
 /*---------------------------------------------------------------------------*/

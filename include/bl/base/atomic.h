@@ -9,9 +9,11 @@
   #include <bl/base/impl/atomic_relacy.hpp>
 #elif defined (__cplusplus)
   #include <bl/base/impl/atomic_cpp.hpp>
-#elif BL_HAS_C11_ATOMICS (BL_COMPILER)
+#elif BL_HAS_C11_ATOMICS
   #include <bl/base/impl/atomic_c11.h>
-#elif defined (BL_GCC) && BL_GCC >= BL_GCC_VER (4, 7, 0)
+#elif (BL_COMPILER_IS (GCC) && BL_COMPILER_VER_IS_GE (4, 7, 0)) || \
+  BL_COMPILER_IS (CLANG)
+
   #include <bl/base/impl/atomic_gcc.h>
 #else /*older "_sync" atomic builtins with full fences might be used on gcc*/
   #error "atomics unimplemented on this platform"

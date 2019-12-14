@@ -127,9 +127,9 @@ static inline bl_err bl_mutex_unlock (bl_mutex* m)
 
 }  /*extern "C" {*/
 
-#if defined (BL_POSIX)
+#if BL_OS_IS_MOSTLY_POSIX
   #include <bl/base/impl/tss_posix.h>
-#elif defined (BL_WINDOWS)
+#elif BL_OS_IS (WINDOWS)
   #include <bl/base/impl/tss_windows.h>
 #else
   #error "TSS unavailable on this platform"

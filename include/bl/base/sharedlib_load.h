@@ -3,7 +3,7 @@
 
 #include <bl/base/platform.h>
 
-#ifdef BL_POSIX
+#if BL_OS_IS_MOSTLY_POSIX
 
 #include <dlfcn.h>
 /*----------------------------------------------------------------------------*/
@@ -41,7 +41,7 @@ static inline char const* bl_sharedlib_last_sym_error (bl_sharedlib s)
 }
 /*----------------------------------------------------------------------------*/
 
-#elif defined (BL_WINDOWS)
+#elif BL_OS_IS (WINDOWS)
 
 #include <bl/base/include_windows.h>
 

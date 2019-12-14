@@ -1,7 +1,7 @@
 #include <bl/base/platform.h>
 #include <stdio.h>
 /*----------------------------------------------------------------------------*/
-#ifdef BL_LINUX
+#if BL_OS_IS (LINUX)
 
 #include <string.h>
 #include <pthread.h>
@@ -423,4 +423,4 @@ int main (int argc, char* argv[])
   printf ("unnecessary for this platform\n");
   return 0;
 }
-#endif /*BL_LINUX*/
+#endif /*BL_OS_IS (LINUX)*/

@@ -29,7 +29,7 @@ literal concatenations can be used (were needed when developing malc). */
 #define BL_FMT_X32 BL_FMT_L32 "x"
 #define BL_FMT_O32 BL_FMT_L32 "o"
 
-#if defined (BL_GCC) && (BL_WORDSIZE == 64)
+#if BL_COMPILER_IS (GCC) && (BL_WORDSIZE == 64)
   #define BL_FMT_L64 "l"
 #else
   /*FMTx64 may require fixing for other compilers depending on theirs stdint.h,

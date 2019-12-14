@@ -5,15 +5,13 @@
 
 #define BL_TASKQ_EXPORT
 
-#if defined (BL_GCC)
-  #if BL_GCC >= BL_GCC_VER (4, 0, 0)
-    #if !defined (BL_TASKQ_PRIVATE_SYMS)
-      #undef BL_TASKQ_EXPORT
-      #define BL_TASKQ_EXPORT  __attribute__ ((visibility ("default")))
-    #endif
+#if BL_COMPILER_IS (GCC) || BL_COMPILER_IS (CLANG)
+  #if !defined (BL_TASKQ_PRIVATE_SYMS)
+    #undef BL_TASKQ_EXPORT
+    #define BL_TASKQ_EXPORT BL_VISIBILITY_DEFAULT
   #endif
 
-#elif defined (BL_MSC)
+#elif BL_COMPILER_IS (MICROSOFT_VC)
   #if (defined (BL_TASKQ_SHAREDLIB_COMPILATION) &&\
     !defined (BL_TASKQ_SHAREDLIB_USING_DEF)) ||\
     (defined (BL_ALL_LIBS_SHAREDLIB_COMPILATION) &&\

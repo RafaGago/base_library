@@ -1,6 +1,6 @@
 #include <bl/base/platform.h>
 
-#ifdef BL_WINDOWS
+#if BL_OS_IS (WINDOWS)
 
 #include <bl/base/semaphore.h>
 #include <bl/base/time.h>
@@ -79,4 +79,4 @@ BL_EXPORT bl_err bl_tm_sem_wait (bl_sem* s, bl_u32 usec)
 } /*extern "C" {*/
 #endif
 
-#endif /* BL_WINDOWS */
+#endif /* BL_OS_IS (WINDOWS) */

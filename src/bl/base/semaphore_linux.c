@@ -1,6 +1,6 @@
 #include <bl/base/platform.h>
 
-#ifdef BL_LINUX
+#if BL_OS_IS (LINUX)
 /*----------------------------------------------------------------------------*/
 #include <unistd.h>
 #include <sys/syscall.h>
@@ -183,4 +183,4 @@ BL_EXPORT bl_err bl_tm_sem_destroy (bl_tm_sem* s)
 #ifdef __cplusplus
 } /*extern "C" {*/
 #endif
-#endif /* BL_LINUX */
+#endif /* BL_OS_IS (LINUX) */

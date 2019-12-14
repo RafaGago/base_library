@@ -49,8 +49,8 @@ static inline bool bl_atomic_uword_strong_cas(
   volatile bl_atomic_uword* a,
   bl_uword*              expected,
   bl_uword               desired,
-  bl_mem_order              success,
-  bl_mem_order              failure
+  bl_mem_order           success,
+  bl_mem_order           failure
   )
 {
   return __atomic_compare_exchange_n(
@@ -62,8 +62,8 @@ static inline bool bl_atomic_uword_weak_cas(
   volatile bl_atomic_uword* a,
   bl_uword*              expected,
   bl_uword               desired,
-  bl_mem_order              success,
-  bl_mem_order              failure
+  bl_mem_order           success,
+  bl_mem_order           failure
   )
 {
   return __atomic_compare_exchange_n(
@@ -204,7 +204,7 @@ static inline bl_u32 bl_atomic_u32_load(
   return __atomic_load_n (a, mo);
 }
 /*---------------------------------------------------------------------------*/
-static inline bl_u32 bl_atomic_uword_exchange(
+static inline bl_u32 bl_atomic_u32_exchange(
   volatile bl_atomic_u32* a, bl_u32 v, bl_mem_order mo
   )
 {
@@ -281,7 +281,7 @@ static inline bl_u64 bl_atomic_u64_load(
   return __atomic_load_n (a, mo);
 }
 /*---------------------------------------------------------------------------*/
-static inline bl_u64 bl_atomic_uword_exchange(
+static inline bl_u64 bl_atomic_u64_exchange(
   volatile bl_atomic_u64* a, bl_u64 v, bl_mem_order mo
   )
 {

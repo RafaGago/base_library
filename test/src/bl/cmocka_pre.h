@@ -21,7 +21,7 @@ extern "C" {
 } /*extern "C" {*/
 #endif
 
-#if defined (BL_MSC) && \
+#if BL_COMPILER_IS (MICROSOFT_VC) && \
     defined (__cplusplus) &&\
     defined (inline) && \
     defined (BL_DIDNT_HAVE_INLINE_MACRO)

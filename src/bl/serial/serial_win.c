@@ -12,7 +12,7 @@
 /*----------------------------------------------------------------------------*/
 #include <bl/base/platform.h>
 
-#ifdef BL_WINDOWS
+#if BL_OS_IS (WINDOWS)
 
 #include <string>
 
@@ -520,4 +520,4 @@ BL_SERIAL_EXPORT bl_uword bl_serial_get_byte_time_ns (bl_serial_cfg const* cfg)
 } /*extern "C" {*/
 #endif
 
-#endif /* #ifdef BL_WIN */
+#endif /* #if BL_OS_IS (WINDOWS) */

@@ -3,7 +3,7 @@
 /*---------------------------------------------------------------------------*/
 #include <bl/base/platform.h>
 /*---------------------------------------------------------------------------*/
-#ifdef _MSC_VER
+#if BL_COMPILER_IS (MICROSOFT_VC)
   #include <bl/base/include_windows.h>
   #if WINVER < 0x0600
     #error "Update this code. YieldProcessor may not be available"
@@ -11,16 +11,16 @@
   #define bl_processor_pause() YieldProcessor()
 #endif
 /*---------------------------------------------------------------------------*/
-#if defined (__GNUC__) || defined (GCC)
+#if (BL_COMPILER_IS (GCC) || BL_COMPILER_IS (CLANG))
 
   /*When looking to add platforms just search the "cpu_relax()" function on
     the Linux Kernel tree for hints.*/
-  #if defined (BL_INTEL_AMD_PC)
+  #if BL_ARCH_IS_X64_X86_IA64
     /*same opcode than PAUSE (_mm_pause): F3 90*/
     #define bl_processor_pause()  __asm__ __volatile__ ("rep;nop": : :"memory")
   #endif
 
-  #if defined (BL_ARM)
+  #if BL_ARCH_IS (ARM)
     /*will execute as NOP on processors that don't support the instruction:
        http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0489f/CIHEGBBF.html
      */
