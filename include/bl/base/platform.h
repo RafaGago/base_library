@@ -141,12 +141,15 @@
   #define nullptr NULL
 #endif
 
-/* Os scheduling/time-quanta hint */
-#if BL_OS_IS (WINDOWS)
-  #define BL_SCHED_TMIN_US 1000
-#elif BL_OS_IS (LINUX)
-  #define BL_SCHED_TMIN_US 100
-#else
+/* OS scheduling/time-quanta hint. Used on busy-wait loops */
+#if !defined (BL_SCHED_TMIN_US)
+  #if BL_OS_IS (WINDOWS)
+    #define BL_SCHED_TMIN_US 1000
+  #elif BL_OS_IS (LINUX)
+    #define BL_SCHED_TMIN_US 100
+  #endif
+#endif
+#if !defined (BL_SCHED_TMIN_US)
   #error "define this for this OS or pass it to the C preprocessor"
 #endif
 
