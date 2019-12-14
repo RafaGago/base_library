@@ -81,16 +81,18 @@
 #endif
 
 /* C11 HEADER_AVAILABILITY (Q'n'D) */
-#if BL_COMPILER_IS (GCC) && (__STDC_VERSION__ >= 201112L)
-  /* this depends on the used stdlib, but given that 4.9 is very old as of 2019
-  and there is no legacy to maintain this might be OK */
-  #define BL_HAS_C11_STDALIGN BL_COMPILER_VER_IS_GE (4, 7, 0)
-  #define BL_HAS_C11_ATOMICS  BL_COMPILER_VER_IS_GE (4, 9, 0)
-  #define BL_HAS_C11_THREAD   BL_COMPILER_VER_IS_GE (4, 9, 0)
-#elif __STDC_VERSION__ >= 201112L
+#if defined (__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)
+  #if defined (__STDC_NO_THREADS__)
+    #define BL_HAS_C11_THREAD 0
+  #else
+    #define BL_HAS_C11_THREAD 1
+  #endif
+  #if defined (__STDC_NO_ATOMICS__)
+    #define BL_HAS_C11_ATOMICS 0
+  #else
+    #define BL_HAS_C11_ATOMICS 1
+  #endif
   #define BL_HAS_C11_STDALIGN 1
-  #define BL_HAS_C11_ATOMICS 1
-  #define BL_HAS_C11_THREAD 1
 #else
   #define BL_HAS_C11_STDALIGN 0
   #define BL_HAS_C11_ATOMICS 0
