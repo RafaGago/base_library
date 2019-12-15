@@ -1,3 +1,5 @@
+#include <inttypes.h> // llabs
+
 #include <bl/cmocka_pre.h>
 
 #include <bl/base/thread.h>
@@ -45,10 +47,11 @@ static void bl_cpu_timept_vs_timept_test (void **state)
   atomic_sigfence (bl_mo_acq_rel);
 
   for (bl_uword i = 0; i < 20; ++i) {
-    bl_thread_usleep(5000);
+    bl_thread_usleep (5000);
     bl_timept t = bl_timept_get();
     /* this smoke test may fail spuriosly if the scheduler preempts this thread
-    here too many times. The 15 value is conservative enough.*/
+    here too many times. The 15 value is conservative enough to don't fail
+    often.*/
     bl_timept c = bl_cpu_timept_get();
     double ratio = (double) bl_cpu_timept_to_nsec (c - cprev);
     ratio       /= (double) bl_timept_to_nsec (t - tprev);
@@ -72,7 +75,7 @@ static void bl_cpu_timept_to_sysclock_diff_test (void **state)
   assert_true (diff < (bl_u64) ns_80y_epoch);
   bl_timeoft64 diff2 = bl_cpu_timept_to_sysclock64_diff_ns();
   /*drifting less than 10ms between calls*/
-  assert_true (diff2 - diff <= 10 * bl_nsec_in_msec);
+  assert_true (llabs (diff2 - diff) <= (10 * bl_nsec_in_msec));
 }
 #endif /* #ifdef BL_HAS_CPU_TIMEPT */
 /*---------------------------------------------------------------------------*/
