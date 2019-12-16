@@ -20,20 +20,6 @@ version       = version_minor + '.' + version_major + '.' + version_rev
 proj_dir          = meson.current_source_dir()
 build_helpers_dir = proj_dir + '/build_helpers'
 
-if not get_option ('bare')
-    message ('building cmocka')
-    res = run_command(
-        build_helpers_dir + '/build_cmake_project.sh',
-        proj_dir,
-        'cmocka',
-        'libcmocka.a',
-        '-DWITH_STATIC_LIB=on'
-        )
-    if res.returncode() != 0
-      error (res.stderr().strip())
-    endif
-endif
-
 proj_dir = meson.current_source_dir()
 
 include_dirs = [
@@ -41,10 +27,6 @@ include_dirs = [
 ]
 test_include_dirs  = include_dirs
 test_include_dirs += [ include_directories ('test/src') ]
-if not get_option ('bare')
-    test_include_dirs += [ include_directories ('dep/install/include') ]
-endif
-libcmocka_path = proj_dir + '/dep/install/lib/libcmocka.a'
 
 pkg_mod = import ('pkgconfig')
 install_subdir ('include/bl', install_dir : 'include')
@@ -69,8 +51,12 @@ if cc.get_id() == 'gcc' or cc.get_id() == 'clang'
     endif
 endif
 
-test_link_args = [ libcmocka_path ]
+if not get_option ('bare')
+    cmocka = subproject('cmocka')
+    cmocka_dep = cmocka.get_variable ('dep_cmocka')
+endif
 
+test_link_args = []
 host_system = host_machine.system()
 if host_system == 'windows'
     test_link_args += ['-lwinmm.lib'] # Untested
@@ -185,7 +171,7 @@ if not get_option ('bare')
             include_directories : test_include_dirs,
             link_with           : base_lib,
             link_args           : test_link_args,
-            dependencies        : threads
+            dependencies        : [threads, cmocka_dep]
         ))
     executable(
         'bl-base-sem-stress',
@@ -242,7 +228,7 @@ if not get_option ('bare')
             c_args              : cflags + test_cflags + ['-DBL_COMPILATION'],
             link_with           : [ base_lib, nonblock_lib] ,
             link_args           : test_link_args,
-            dependencies        : threads
+            dependencies        : [threads, cmocka_dep]
         ))
     executable(
         'bl-nonblock-mpmc-bpm-relacy',
@@ -292,7 +278,7 @@ if not get_option ('bare')
             c_args              : cflags + test_cflags + ['-DBL_COMPILATION'],
             link_with           : [ base_lib, nonblock_lib, taskqueue_lib ],
             link_args           : test_link_args,
-            dependencies        : threads
+            dependencies        : [threads, cmocka_dep]
         ))
     tqs = executable(
         'bl-taskqueue-stress',
@@ -362,6 +348,7 @@ if not get_option ('bare')
             c_args              : cflags + ['-DBL_COMPILATION'],
             include_directories : test_include_dirs,
             link_args           : test_link_args,
+            dependencies        : [cmocka_dep]
         ))
 endif
 
@@ -400,6 +387,7 @@ if get_option ('timepoint_64bit')
                 include_directories : test_include_dirs,
                 link_with           : [ base_lib , t_extras_lib ] ,
                 link_args           : test_link_args,
+                dependencies        : [cmocka_dep]
             ))
     endif
 endif
