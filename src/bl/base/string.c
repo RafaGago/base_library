@@ -30,7 +30,7 @@ BL_EXPORT int bl_vasprintf_ext(
     out_buff = in_buff;
   }
   else {
-    out_buff   = bl_alloc (alloc, str_alloc_size);
+    out_buff   = (char*) bl_alloc (alloc, str_alloc_size);
     do_realloc = 1;
     if (bl_unlikely (!out_buff)) {
       return -bl_alloc;
@@ -47,7 +47,7 @@ BL_EXPORT int bl_vasprintf_ext(
 
   int required_bytes  = str_offset + size + 1;
   char* out_buff_prev = out_buff;
-  out_buff = bl_realloc(
+  out_buff = (char*) bl_realloc(
     alloc, do_realloc ? out_buff : nullptr, required_bytes
     );
   if (bl_unlikely (!out_buff)) {

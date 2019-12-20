@@ -7,8 +7,8 @@ static void bl_ringb_move_forward(
   bl_ringb* rb, bl_uword elem_size, bl_uword start_elem, bl_uword end_elem
   )
 {
-  bl_u8* start = bl_ringb_at (rb, elem_size, start_elem);
-  bl_u8* end   = bl_ringb_at (rb, elem_size, end_elem);
+  bl_u8* start = (bl_u8*) bl_ringb_at (rb, elem_size, start_elem);
+  bl_u8* end   = (bl_u8*) bl_ringb_at (rb, elem_size, end_elem);
 
   if (start < end) {
     memmove (start + elem_size, start, end - start);
@@ -26,8 +26,8 @@ static void bl_ringb_move_backward(
   bl_ringb* rb, bl_uword elem_size, bl_uword start_elem, bl_uword end_elem
   )
 {
-  bl_u8* start = bl_ringb_at (rb, elem_size, start_elem);
-  bl_u8* end   = bl_ringb_at (rb, elem_size, end_elem);
+  bl_u8* start = (bl_u8*) bl_ringb_at (rb, elem_size, start_elem);
+  bl_u8* end   = (bl_u8*) bl_ringb_at (rb, elem_size, end_elem);
 
   if (start < end) {
     memmove (start, start + elem_size, end - start);

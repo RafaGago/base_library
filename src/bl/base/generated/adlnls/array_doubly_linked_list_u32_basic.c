@@ -9,6 +9,10 @@ Don't edit.
 
 #include <bl/base/impl/generated/array_doubly_linked_list_u32.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 BL_EXPORT void bl_adlnls_u32_init_impl(
   bl_adlnls_u32* l, bl_u32* nodes, bl_uword nodes_capacity
   )
@@ -166,3 +170,6 @@ BL_EXPORT bl_adlnls_u32_it bl_adlnls_u32_drop_tail (bl_adlnls_u32* l)
   return ret;
 }
 /*---------------------------------------------------------------------------*/
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif

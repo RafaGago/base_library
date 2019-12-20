@@ -9,6 +9,10 @@ Don't edit.
 
 #include <bl/base/impl/generated/array_linked_list_u8.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 BL_EXPORT void bl_alnls_u8_init_impl(
   bl_alnls_u8* l, bl_u8* nodes, bl_uword nodes_capacity
   )
@@ -68,3 +72,6 @@ BL_EXPORT bl_alnls_u8_it
   return prev_head;
 }
 /*---------------------------------------------------------------------------*/
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif

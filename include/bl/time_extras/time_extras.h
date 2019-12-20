@@ -47,7 +47,14 @@ extern BL_TIME_EXTRAS_EXPORT
   #include <x86intrin.h>
 #endif
 
+#ifdef __cplusplus
+} /* extern "C" { */
+#endif
+/* this may include C++ files, so we do it outside of the extern "C" block */
 #include <bl/base/atomic.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define BL_HAS_CPU_TIMEPT 1
 /*----------------------------------------------------------------------------*/

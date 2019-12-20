@@ -15,6 +15,10 @@ Don't edit.
 #include <bl/base/integer.h>
 #include <bl/base/utility.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef bl_u32 bl_adlnls_u32_it;
 /*---------------------------------------------------------------------------*/
 typedef struct bl_adlnls_u32_hook {
@@ -194,7 +198,9 @@ extern BL_EXPORT bl_adlnls_u32_it
 extern BL_EXPORT bl_adlnls_u32_it bl_adlnls_u32_drop_explicit(
   bl_adlnls_u32* l, bl_adlnls_u32_it n, bool return_previous
   );
-
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif
 #endif /* #define __BL_ARRAY_LINKED_LIST_u32_H__ */
 
 /*---------------------------------------------------------------------------*/

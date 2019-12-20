@@ -123,7 +123,7 @@ static void bl_u_first_set_lsb_mask_test (void** s)
     assert_true(
       bl_u64_first_set_lsb_mask(
         bl_utype_max (bl_u64) <<  i
-        ) == (((bl_u64) 1) << i)
+        ) == (((bl_u64) 1ull) << i)
       );
   }
   assert_true (bl_u64_first_set_lsb_mask (0) == 0);

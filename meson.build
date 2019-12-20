@@ -6,7 +6,7 @@ project(
     license: 'BSD-3',
     default_options: [
         'c_std=gnu99',
-        'cpp_std=gnu++11',
+        'cpp_std=c++11',
 #        'warning_level=1',
         'default_library=static'
         ]
@@ -44,7 +44,8 @@ else
 endif
 
 cc = meson.get_compiler ('c')
-if cc.get_id() == 'gcc' or cc.get_id() == 'clang'
+host_system = host_machine.system()
+if cc.get_id() == 'gcc' or cc.get_id() == 'clang' or cc.get_id() == 'intel'
     cflags += ['-fvisibility=hidden', '-fno-stack-protector']
     if get_option ('pic_statlibs') and libtype == 'static_library'
         lib_cflags += ['-fPIC']
@@ -56,10 +57,16 @@ if not get_option ('bare')
     cmocka_dep = cmocka.get_variable ('dep_cmocka')
 endif
 
-test_link_args = []
-host_system = host_machine.system()
+base_platform_deps = []
 if host_system == 'windows'
-    test_link_args += ['-lwinmm.lib'] # Untested
+    base_platform_deps += cc.find_library ('winmm')
+
+    if cc.get_id() == 'msvc' or \
+       cc.get_id() == 'intel-cl' or \
+       cc.get_id() == 'clang-cl'
+
+        cflags += ['/TP'] # compile C as C++
+    endif
 endif
 
 threads = dependency ('threads')
@@ -152,7 +159,8 @@ base_lib = build_target(
     target_type         : libtype,
     include_directories : include_dirs,
     c_args              : cflags + lib_cflags + ['-DBL_COMPILATION'],
-    install             : true
+    install             : true,
+    dependencies        : [base_platform_deps]
     )
 pkg_mod.generate(
     base_lib,
@@ -170,7 +178,6 @@ if not get_option ('bare')
             c_args              : cflags + test_cflags + ['-DBL_COMPILATION'],
             include_directories : test_include_dirs,
             link_with           : base_lib,
-            link_args           : test_link_args,
             dependencies        : [threads, cmocka_dep]
         ))
     executable(
@@ -227,7 +234,6 @@ if not get_option ('bare')
             include_directories : test_include_dirs,
             c_args              : cflags + test_cflags + ['-DBL_COMPILATION'],
             link_with           : [ base_lib, nonblock_lib] ,
-            link_args           : test_link_args,
             dependencies        : [threads, cmocka_dep]
         ))
     executable(
@@ -277,7 +283,6 @@ if not get_option ('bare')
             include_directories : test_include_dirs,
             c_args              : cflags + test_cflags + ['-DBL_COMPILATION'],
             link_with           : [ base_lib, nonblock_lib, taskqueue_lib ],
-            link_args           : test_link_args,
             dependencies        : [threads, cmocka_dep]
         ))
     tqs = executable(
@@ -347,7 +352,6 @@ if not get_option ('bare')
             getopt_test_srcs,
             c_args              : cflags + ['-DBL_COMPILATION'],
             include_directories : test_include_dirs,
-            link_args           : test_link_args,
             dependencies        : [cmocka_dep]
         ))
 endif
@@ -386,7 +390,6 @@ if get_option ('timepoint_64bit')
                 c_args              : cflags + ['-DBL_COMPILATION'],
                 include_directories : test_include_dirs,
                 link_with           : [ base_lib , t_extras_lib ] ,
-                link_args           : test_link_args,
                 dependencies        : [cmocka_dep]
             ))
     endif

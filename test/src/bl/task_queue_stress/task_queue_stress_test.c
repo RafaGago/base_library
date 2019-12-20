@@ -1,11 +1,14 @@
 #include <string.h>
 #include <stdio.h>
 
+#include <bl/base/integer_printf_format.h>
+#include <bl/base/error.h>
+
 #include <bl/task_queue/task_queue.h>
 
 #include <bl/base/utility.h>
 #include <bl/base/integer_math.h>
-#include <bl/base/integer_printf_format.h>
+
 #include <bl/base/processor_pause.h>
 #include <bl/base/cache.h>
 #include <bl/base/default_allocator.h>
@@ -106,7 +109,7 @@ int producer_thread_regular (producer_thread_data* td)
     }
     else {
       td->last_err = err;
-      printf ("error on producer, code: %"BL_FMT_ERR"\n", err.own);
+      printf ("error on producer, code: %" BL_FMT_ERR "\n", err.own);
       return 1;
     }
   }
@@ -121,12 +124,12 @@ int producer_thread_delayed (producer_thread_data* td, bl_u32 timeout_us)
 
   while (td->remaining) {
     err = bl_taskq_post_delayed(
-            td->tq,
-            &id,
-            &tp_cancel,
-            bl_taskq_task_rv (task_callback_delayed, td->wd),
-            timeout_us
-            );
+      td->tq,
+      &id,
+      &tp_cancel,
+      bl_taskq_task_rv (task_callback_delayed, td->wd),
+      timeout_us
+      );
     if (!err.own) {
       --td->remaining;
       continue;
@@ -241,7 +244,7 @@ int consumer_thread (void* context)
   }
   while (!err.own);
   if (err.own != bl_nothing_to_do) {
-    printf ("consumer exit with error:%"BL_FMT_ERR"\n", err.own);
+    printf ("consumer exit with error:%" BL_FMT_ERR "\n", err.own);
   }
   /*cancel all timed tasks planned for the future*/
   do {
@@ -257,7 +260,7 @@ void join_threads (bl_thread* thr, bl_uword thr_count)
   fflush (stdout);
   for (bl_uword i = 0; i < thr_count; ++i) {
     bl_thread_join (thr + i);
-    printf ("%"BL_FMT_UWORD" ", i);
+    printf ("%" BL_FMT_UWORD " ", i);
   }
   printf ("|");
 }
@@ -281,9 +284,9 @@ int main (int argc, char* argv[])
     printf ("usage: task_queue_stress_test [iterations]\n");
     return 1;
   }
-  sscanf (argv[1], "%"BL_FMT_UWORD, &iterations);
+  sscanf (argv[1], "%" BL_FMT_UWORD, &iterations);
   if (iterations < 0) {
-    printf ("wrong iteration count: %"BL_FMT_UWORD"\n", iterations);
+    printf ("wrong iteration count: %" BL_FMT_UWORD "\n", iterations);
     return 0;
   }
   infinite_iterations = (iterations == 0);
@@ -291,20 +294,20 @@ int main (int argc, char* argv[])
     printf ("iteration count: infinite\n");
   }
   else {
-    printf ("iteration count: %"BL_FMT_UWORD"\n", iterations);
+    printf ("iteration count: %" BL_FMT_UWORD "\n", iterations);
   }
   bl_err err = bl_sem_init (&sem);
   if (err.own) {
-    printf ("bl_sem_init err: %"BL_FMT_ERR"\n", err.own);
+    printf ("bl_sem_init err: %" BL_FMT_ERR "\n", err.own);
     return (int) err.own;
   }
 
   for (bl_uword itnum = 0; infinite_iterations || itnum < iterations; ++itnum) {
-    printf ("iteration %"BL_FMT_UWORD"\n", itnum);
+    printf ("iteration %" BL_FMT_UWORD "\n", itnum);
 
     err = bl_taskq_init (&tq, &alloc, tq_list_size, tq_delayed_size);
     if (err.own) {
-      printf ("bl_taskq_init err: %"BL_FMT_ERR"\n", err.own);
+      printf ("bl_taskq_init err: %" BL_FMT_ERR "\n", err.own);
       goto do_sem_destroy;
     }
     memset (pd, 0, sizeof pd);
@@ -355,14 +358,14 @@ int main (int argc, char* argv[])
     for (bl_uword i = 0; i < bl_arr_elems (pd); ++i) {
       if (pd[i].dat.last_err.own) {
         printf(
-         "error: thread %"BL_FMT_UWORD" has exited because of error %"BL_FMT_ERR"\n",
+         "error: thread %" BL_FMT_UWORD " has exited because of error %" BL_FMT_ERR "\n",
           i, pd[i].dat.last_err.own
           );
         err = pd[i].dat.last_err;
       }
       if (pd[i].dat.remaining) {
         printf(
-          "error: thread %"BL_FMT_UWORD" has %"BL_FMT_UWORD" remaining operations\n",
+          "error: thread %" BL_FMT_UWORD " has %" BL_FMT_UWORD " remaining operations\n",
            i,
            pd[i].dat.remaining
           );
@@ -370,7 +373,7 @@ int main (int argc, char* argv[])
       }
       if (wd[i].error_count > wd[i].expected_error_count) {
         printf(
-          "error: callback of thread %"BL_FMT_UWORD" invoked with error %"
+          "error: callback of thread %" BL_FMT_UWORD " invoked with error %"
           BL_FMT_UWORD" times\n",
            i, wd[i].error_count - wd[i].expected_error_count
           );
@@ -378,29 +381,29 @@ int main (int argc, char* argv[])
       }
       if (wd[i].received != iteration_elements) {
         printf(
-          "error: callback of thread %"BL_FMT_UWORD" missed %"BL_FMT_UWORD
+          "error: callback of thread %" BL_FMT_UWORD " missed %" BL_FMT_UWORD
           " invocations\n",
            i, iteration_elements - wd[i].received
           );
         bl_err ntd = bl_taskq_try_run_one (tq);
         if (ntd.own != bl_nothing_to_do) {
           printf(
-            "bl_taskq_try_run_one unexpected error code: %"BL_FMT_ERR"\n",
+            "bl_taskq_try_run_one unexpected error code: %" BL_FMT_ERR "\n",
             ntd.own
             );
         }
         if (bl_taskq_delayed_size (&tq->delayed) != 0) {
           printf(
-            "remaining elements on delayed list detected: %"BL_FMT_UWORD"\n",
+            "remaining elements on delayed list detected: %" BL_FMT_UWORD "\n",
             bl_taskq_delayed_size (&tq->delayed)
             );
           bl_timept curr = bl_timept_get();
-          printf ("current timepoint %"BL_FMT_TPOINT"\n", curr);
+          printf ("current timepoint %" BL_FMT_TPOINT "\n", curr);
           for (bl_uword j = 0; j < bl_taskq_delayed_size (&tq->delayed); ++j) {
             bl_taskq_delayed_entry const* f =
               bl_taskq_delayed_at (&tq->delayed, j);
             printf(
-              "delayed list element %"BL_FMT_UWORD" timepoint: %"BL_FMT_TPOINT32"\n",
+              "delayed list element %" BL_FMT_UWORD " timepoint: %" BL_FMT_TPOINT32 "\n",
                j,
                f->time
               );
@@ -410,16 +413,16 @@ int main (int argc, char* argv[])
       }
       overflow += pd[i].dat.overflow;
     }
-    printf (" %"BL_FMT_UWORD" overflows\n", overflow);
+    printf (" %" BL_FMT_UWORD " overflows\n", overflow);
     bl_err errd = bl_taskq_destroy (tq, &alloc);
     if (errd.own) {
-      printf ("bl_taskq_destroy err: %"BL_FMT_ERR"\n", errd.own);
+      printf ("bl_taskq_destroy err: %" BL_FMT_ERR "\n", errd.own);
     }
     if (err.own || errd.own) {
       goto do_sem_destroy;
     }
   }
-  printf ("ending, err: %"BL_FMT_ERR"\n", err.own);
+  printf ("ending, err: %" BL_FMT_ERR "\n", err.own);
 do_sem_destroy:
   bl_sem_destroy (&sem);
   return (int) err.own;

@@ -12,7 +12,7 @@
 #define bl_thread_local __declspec (thread)
 #define bl_tss_dtor_callconv WINAPI
 typedef DWORD bl_tss;
-typedef PFLS_CALLBACK_FUNCTION bl_tss_dtor_callconv;
+typedef PFLS_CALLBACK_FUNCTION bl_tss_cleanup_func;
 /*----------------------------------------------------------------------------*/
 static inline bl_err bl_tss_init (bl_tss* key, bl_tss_cleanup_func cleanup)
 {
@@ -27,7 +27,7 @@ static inline void bl_tss_destroy (bl_tss key)
 /*----------------------------------------------------------------------------*/
 static inline bl_err bl_tss_set (bl_tss key, void const* val)
 {
-  return bl_mkerr (FlsSetValue (key, val) ? bl_ok : bl_error);
+  return bl_mkerr (FlsSetValue (key, (PVOID) val) ? bl_ok : bl_error);
 }
 /*----------------------------------------------------------------------------*/
 static inline void* bl_tss_get (bl_tss key)

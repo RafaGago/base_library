@@ -21,6 +21,10 @@ linker.
 #include <bl/base/integer.h>
 #include <bl/base/utility.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef bl_{TYPE} bl_adlnls_{TYPE}_it;
 /*---------------------------------------------------------------------------*/
 typedef struct bl_adlnls_{TYPE}_hook {
@@ -201,6 +205,10 @@ extern BL_EXPORT bl_adlnls_{TYPE}_it bl_adlnls_{TYPE}_drop_explicit(
   bl_adlnls_{TYPE}* l, bl_adlnls_{TYPE}_it n, bool return_previous
   );
 
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif
+
 #endif /* #define __BL_ARRAY_LINKED_LIST_{TYPE}_H__ */
 
 /*---------------------------------------------------------------------------*/
@@ -208,6 +216,10 @@ extern BL_EXPORT bl_adlnls_{TYPE}_it bl_adlnls_{TYPE}_drop_explicit(
 /*---------------------------------------------------------------------------*/
 
 #include <bl/base/impl/generated/array_doubly_linked_list_{TYPE}.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 BL_EXPORT void bl_adlnls_{TYPE}_init_impl(
   bl_adlnls_{TYPE}* l, bl_{TYPE}* nodes, bl_uword nodes_capacity
@@ -366,3 +378,6 @@ BL_EXPORT bl_adlnls_{TYPE}_it bl_adlnls_{TYPE}_drop_tail (bl_adlnls_{TYPE}* l)
   return ret;
 }
 /*---------------------------------------------------------------------------*/
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif

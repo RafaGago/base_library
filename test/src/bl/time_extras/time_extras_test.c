@@ -1,4 +1,4 @@
-#include <inttypes.h> // llabs
+#include <inttypes.h> /* llabs */
 
 #include <bl/cmocka_pre.h>
 
@@ -19,6 +19,7 @@ static int teardown (void** state)
   bl_time_extras_destroy();
   return 0;
 }
+#include <stdio.h>
 /*---------------------------------------------------------------------------*/
 static void bl_timept_to_sysclock_diff_test (void **state)
 {
@@ -28,11 +29,13 @@ static void bl_timept_to_sysclock_diff_test (void **state)
   double ns_80y_epoch = 80. * 12. * 30.41 * 24. * 60. * 60. * 1000000000.;
 
   bl_timeoft64 diff = bl_timept64_to_sysclock64_diff_ns();
+  diff = bl_sysclock64_to_epoch (diff);
   assert_true (diff > (bl_u64) ns_49y_epoch);
   assert_true (diff < (bl_u64) ns_80y_epoch);
   bl_timeoft64 diff2 = bl_timept64_to_sysclock64_diff_ns();
-  /*drifting less than 1ms between calls*/
-  assert_int_equal (diff / bl_nsec_in_msec, diff2 / bl_nsec_in_msec);
+  diff2 = bl_sysclock64_to_epoch (diff2);
+  /*drifting less than 10ms between calls*/
+  assert_true (llabs (diff2 - diff) <= (10 * bl_nsec_in_msec));
 }
 /*---------------------------------------------------------------------------*/
 #ifdef BL_HAS_CPU_TIMEPT
@@ -71,9 +74,11 @@ static void bl_cpu_timept_to_sysclock_diff_test (void **state)
   double ns_80y_epoch = 80. * 12. * 30.41 * 24. * 60. * 60. * 1000000000.;
 
   bl_timeoft64 diff = bl_cpu_timept_to_sysclock64_diff_ns();
+  diff = bl_sysclock64_to_epoch (diff);
   assert_true (diff > (bl_u64) ns_49y_epoch);
   assert_true (diff < (bl_u64) ns_80y_epoch);
   bl_timeoft64 diff2 = bl_cpu_timept_to_sysclock64_diff_ns();
+  diff2 = bl_sysclock64_to_epoch (diff2);
   /*drifting less than 10ms between calls*/
   assert_true (llabs (diff2 - diff) <= (10 * bl_nsec_in_msec));
 }

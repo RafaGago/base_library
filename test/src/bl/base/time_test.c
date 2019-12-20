@@ -15,7 +15,7 @@ static void timept32_not_very_broken (void **state)
 {
   enum {
     sleep_us = 70000,
-    ubound   = 80000,
+    ubound   = 500000,
   };
   bl_timept32 start    = bl_timept32_get();
   bl_thread_usleep (sleep_us);
@@ -23,7 +23,9 @@ static void timept32_not_very_broken (void **state)
   bl_timept32diff diff = bl_timept32_get_diff (finish, start);
   assert_true (diff > 0);
   bl_timeoft32 us      = bl_timept32_to_usec ((bl_timept) diff);
-  assert_true (us >= sleep_us && us <= ubound);
+  assert_true (us >= sleep_us);
+  /* this test could fail on some situations depending on the system load*/
+  assert_true (us <= ubound);
 }
 /*---------------------------------------------------------------------------*/
 static void timept32_maxes (void **state)
@@ -52,7 +54,7 @@ static void timept64_not_very_broken (void **state)
 {
   enum {
     sleep_us = 70000,
-    ubound   = 80000,
+    ubound   = 500000,
   };
   bl_timept64 start    = bl_timept64_get();
   bl_thread_usleep (sleep_us);
@@ -60,7 +62,9 @@ static void timept64_not_very_broken (void **state)
   bl_timept64diff diff = bl_timept64_get_diff (finish, start);
   assert_true (diff > 0);
   bl_timeoft64 us      = bl_timept64_to_usec ((bl_timept) diff);
-  assert_true (us >= sleep_us && us <= ubound);
+  assert_true (us >= sleep_us);
+  /* this test could fail on some situations depending on the system load*/
+  assert_true (us <= ubound);
 }
 /*---------------------------------------------------------------------------*/
 static void timept64_maxes (void **state)

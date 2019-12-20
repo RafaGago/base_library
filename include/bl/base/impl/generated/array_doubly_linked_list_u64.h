@@ -15,6 +15,10 @@ Don't edit.
 #include <bl/base/integer.h>
 #include <bl/base/utility.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef bl_u64 bl_adlnls_u64_it;
 /*---------------------------------------------------------------------------*/
 typedef struct bl_adlnls_u64_hook {
@@ -194,7 +198,9 @@ extern BL_EXPORT bl_adlnls_u64_it
 extern BL_EXPORT bl_adlnls_u64_it bl_adlnls_u64_drop_explicit(
   bl_adlnls_u64* l, bl_adlnls_u64_it n, bool return_previous
   );
-
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif
 #endif /* #define __BL_ARRAY_LINKED_LIST_u64_H__ */
 
 /*---------------------------------------------------------------------------*/

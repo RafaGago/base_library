@@ -9,6 +9,7 @@ This still has the advantage that it provides the BL_FMT_Lxx macros, so
 literal concatenations can be used (were needed when developing malc). */
 
 #include <bl/base/platform.h>
+#include <bl/base/integer.h>
 
 #define BL_FMT_L8           "hh"
 #define BL_FMT_U8 BL_FMT_L8 "u"

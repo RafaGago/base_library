@@ -309,7 +309,7 @@ BL_EXPORT bl_uword bl_dstr_find_l(
   char const* rptr = bl_dstr_beg (s) + offset;
   char const* end  = bl_dstr_end (s);
   while (true) {
-    rptr = memchr (rptr, search[0], end - rptr);
+    rptr = (char const*) memchr (rptr, search[0], end - rptr);
     if (!rptr || (end - rptr) < search_len) {
       return bl_dstr_len (s);
     }

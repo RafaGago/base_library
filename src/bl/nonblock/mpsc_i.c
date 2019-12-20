@@ -55,8 +55,8 @@ BL_NONBLOCK_EXPORT bl_err bl_mpsc_i_consume(
         /* non empty, but a stable node that was used for contention detection
            (save a CAS) is found: skipping it. */
           q->head = second;
-          first   = second;
-          second  = bl_mpsc_i_node_get_next (second, tag_bits);
+          first  = second;
+          second = (bl_mpsc_i_node*) bl_mpsc_i_node_get_next (second, tag_bits);
       }
       else {
         return bl_mkerr (bl_empty);
@@ -82,7 +82,7 @@ BL_NONBLOCK_EXPORT bl_err bl_mpsc_i_consume(
   bl_mpsc_i_node_set (&q->stable_node, nullptr, 0, tag_bits);
   bl_mpsc_i_produce (q, &q->stable_node, tag_bits);
   /* remember that "produce" had mem barriers, the view now is consistent. */
-  second =  bl_mpsc_i_node_get_next (first, tag_bits);
+  second = (bl_mpsc_i_node*) bl_mpsc_i_node_get_next (first, tag_bits);
   if (second) {
     /* "first.next" points to either the stable node or something new that was
        pushed in between.*/

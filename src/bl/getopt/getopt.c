@@ -144,7 +144,7 @@ BL_GETOPT_EXPORT int bl_getopt_long(
     retval = match->val;
   }
 
-  char* value_separator_ptr = strchr (argptr, '=');
+  char* value_separator_ptr = (char*) strchr (argptr, '=');
   if (match->has_arg == bl_no_argument) {
     retval = value_separator_ptr ? '?' : retval;
     goto exit;

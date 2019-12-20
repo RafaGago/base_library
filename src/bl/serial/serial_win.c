@@ -182,7 +182,7 @@ BL_SERIAL_EXPORT bl_err bl_serial_start(
 {
   bl_assert (s && cfg);
   if (s->fd != INVALID_HANDLE_VALUE) {
-    return bl_mkerr (bl_not_allowed);
+    return bl_mkerr (bl_invalid);
   }
   if (!s || !cfg || !cfg->device_name) {
     return bl_mkerr (bl_invalid);
@@ -464,11 +464,11 @@ BL_SERIAL_EXPORT bl_err bl_serial_ioctl_set(
   case bl_dsr:        return bl_mkerr (bl_invalid);
   case bl_ri:         return bl_mkerr (bl_invalid);
   case bl_cd:         return bl_mkerr (bl_invalid);
-  case bl_send_break: return bl_unsupported;
+  case bl_send_break: return bl_mkerr (bl_unsupported);
   case bl_set_break:  fn = (val) ? SETBREAK : CLRBREAK; break;
   default:            return bl_mkerr (bl_invalid);
   }
-  return EscapeCommFunction (s->fd, fn) ? bl_ok : bl_error;
+  return bl_mkerr (EscapeCommFunction (s->fd, fn) ? bl_ok : bl_error);
 }
 /*----------------------------------------------------------------------------*/
 BL_SERIAL_EXPORT bl_uword bl_serial_get_bit_time_ns (bl_serial_cfg const* cfg)

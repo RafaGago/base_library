@@ -11,7 +11,7 @@
 #define COMMA() ,
 #define ARGS() 1000 COMMA() 1001
 
-bl_alloc_tbl alloc;
+static bl_alloc_tbl alloc;
 /*---------------------------------------------------------------------------*/
 static int run_vasnprintf_ex(
   char**      str,

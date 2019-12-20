@@ -21,6 +21,10 @@ linker.
 #include <bl/base/integer.h>
 #include <bl/base/utility.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef bl_{TYPE} bl_alnls_{TYPE}_it;
 /*---------------------------------------------------------------------------*/
 typedef struct bl_alnls_{TYPE} {
@@ -139,6 +143,9 @@ extern BL_EXPORT bl_alnls_{TYPE}_it
 extern BL_EXPORT bl_alnls_{TYPE}_it
   bl_alnls_{TYPE}_drop_tail (bl_alnls_{TYPE}* l);
 
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif
 #endif /* #define __BL_ARRAY_LINKED_LIST_{TYPE}_H__ */
 
 /*---------------------------------------------------------------------------*/
@@ -146,6 +153,10 @@ extern BL_EXPORT bl_alnls_{TYPE}_it
 /*---------------------------------------------------------------------------*/
 
 #include <bl/base/impl/generated/array_linked_list_{TYPE}.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 BL_EXPORT void bl_alnls_{TYPE}_init_impl(
   bl_alnls_{TYPE}* l, bl_{TYPE}* nodes, bl_uword nodes_capacity
@@ -205,11 +216,18 @@ BL_EXPORT bl_alnls_{TYPE}_it
   --l->size;
   return prev_head;
 }
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif
 /*---------------------------------------------------------------------------*/
 /* AUTOGENERATE: src/bl/base/generated/alnls/array_linked_list_{TYPE}_extended.c */
 /*---------------------------------------------------------------------------*/
 
 #include <bl/base/impl/generated/array_linked_list_{TYPE}.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 static void bl_alnls_{TYPE}_find_two_previous_nodes(
   bl_alnls_{TYPE}*    l,
@@ -294,4 +312,8 @@ BL_EXPORT bl_alnls_{TYPE}_it
   --l->size;
   return tail;
 }
+
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif
 /*---------------------------------------------------------------------------*/

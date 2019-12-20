@@ -24,8 +24,7 @@ static inline int is_fifo (FILE* fp)
 /*---------------------------------------------------------------------------*/
 #else
 /*---------------------------------------------------------------------------*/
-#define PIPE_BUF 1
-#define is_fifo(...) 0 /* TBI */
+#define is_fifo(...) 0
 /*---------------------------------------------------------------------------*/
 #endif
 /*---------------------------------------------------------------------------*/
@@ -107,15 +106,15 @@ BL_EXPORT bl_err bl_dynarray_from_file(
     *d_written = fread (((bl_u8*) d->arr) + d_offset, 1, total, fp);
     err.sys = (bl_err_uint) errno;
     err.own  = ferror (fp) == 0 ? bl_ok : bl_file;
-    return err;
   }
+#if BL_OS_IS_MOSTLY_POSIX
   else {
-    bl_uword alloc_size   = 0;
-    bl_uword total        = 0;
-    void* b            = NULL;
-    ssize_t read_bytes = 0;
-    bl_uword next_read    = 0;
-    int fd             = fileno (fp);
+    bl_uword alloc_size = 0;
+    bl_uword total      = 0;
+    void* b             = NULL;
+    bl_word  read_bytes = 0;
+    bl_uword next_read  = 0;
+    int fd              = fileno (fp);
 
     do {
       void* bprev = b;
@@ -131,7 +130,7 @@ BL_EXPORT bl_err bl_dynarray_from_file(
         next_read  = bl_min (total + PIPE_BUF, fp_read_limit);
         next_read -= total;
       }
-      read_bytes = read (fd, b + total, next_read);
+      read_bytes = read (fd, ((bl_u8*) b) + total, next_read);
       if (bl_unlikely (read_bytes < 0)) {
         err.sys = (bl_err_uint) errno;
         err.own  = bl_file;
@@ -151,7 +150,8 @@ BL_EXPORT bl_err bl_dynarray_from_file(
     *d_written = total;
   dealloc:
     free (b);
-    return err;
   }
+#endif
+  return err;
 }
 /*---------------------------------------------------------------------------*/

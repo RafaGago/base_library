@@ -134,13 +134,9 @@ Under development.
 
 -Windows:
 
- Buildsystem moved to meson, untested.
+ All the tests pass on Windows.
 
  Serial is untested.
-
- Getopt is untested (but it contanins no platform specific code...)
-
- time_extras is untested
 
 Credits and Used resources
 ==========================
@@ -156,7 +152,7 @@ Credits and Used resources
   working there.
 
 Build on Linux
-=================
+==============
 
 To install "meson" on debian based systems:
 
@@ -183,7 +179,22 @@ To install on your system directories
 Build on Windows
 ===============
 
-If you are planning to run the unit tests you need CMake, as cmocka uses it
-as its build system.
+Acquire meson and ninja, if you are already using Python on Windows you may want
+to intall meson by using a python package manager (e.g. pip) and Ninja
+separately.
 
-2. TODO (meson untested on Windows)
+If you don't the easiest way to add all the dependecies is to download meson +
+Ninja as an MSI installer from meson's site:
+
+https://mesonbuild.com/Getting-meson.html
+
+Once you have meson installed the same steps as on Linux apply. Notice that:
+
+* meson can generate Visual Studio solutions.
+* If you use meson with Ninja and the Microsoft compiler you need to export the
+  Visual Studio environment before. This is done by running "vcvarsall.bat" or
+  "vcvars32.bat/vcvars64.bat" depending on the Visual Studio version you have
+  installed. In my machine with 2019 Community it lies in:
+
+  "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+

@@ -9,6 +9,10 @@ Don't edit.
 
 #include <bl/base/impl/generated/array_linked_list_u8.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 static void bl_alnls_u8_find_two_previous_nodes(
   bl_alnls_u8*    l,
   bl_alnls_u8_it* prev,
@@ -93,3 +97,6 @@ BL_EXPORT bl_alnls_u8_it
   return tail;
 }
 /*---------------------------------------------------------------------------*/
+#ifdef __cplusplus
+} /*extern "C" {*/
+#endif
