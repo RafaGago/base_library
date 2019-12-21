@@ -13,10 +13,10 @@
 #include <mutex>
 #include <type_traits>
 
+#include <bl/base/platform.h>
 #include <bl/base/assert.h>
 #include <bl/base/error.h>
 #include <bl/base/integer.h>
-#include <bl/base/platform.h>
 
 extern "C" {
 /*---------------------------------------------------------------------------*/
@@ -31,11 +31,11 @@ static inline bl_err bl_thread_init(
   )
 {
   bl_assert (t);
-  try {
+  BL_TRY {
     new ((std::thread*) t) std::thread (f, context);
     return bl_mkok();
   }
-  catch (...) {
+  BL_CATCH (...) {
     return bl_mkerr (bl_error);
   }
 }
@@ -48,11 +48,11 @@ static inline void bl_thread_yield (void)
 static inline bl_err bl_thread_join (bl_thread* t)
 {
   bl_assert (t);
-  try {
+  BL_TRY {
     ((std::thread*) t)->join();
     return bl_mkok();
   }
-  catch (...) {
+  BL_CATCH (...) {
     return bl_mkerr (bl_error);
   }
 }
@@ -68,11 +68,11 @@ typedef std::mutex bl_mutex;
 static inline bl_err bl_mutex_init (bl_mutex* m)
 {
   bl_assert (m);
-  try {
+  BL_TRY {
     new ((std::mutex*) m) std::mutex();
     return bl_mkok();
   }
-  catch (...) {
+  BL_CATCH (...) {
     return bl_mkerr (bl_error);
   }
 }
@@ -80,11 +80,11 @@ static inline bl_err bl_mutex_init (bl_mutex* m)
 static inline bl_err bl_mutex_destroy (bl_mutex* m)
 {
   bl_assert (m);
-  try {
+  BL_TRY {
     m->~mutex(); /* try/catch in case it is tried to be removed twice */
     return bl_mkok();
   }
-  catch (...) {
+  BL_CATCH (...) {
     return bl_mkerr (bl_error);
   }
 }
@@ -92,11 +92,11 @@ static inline bl_err bl_mutex_destroy (bl_mutex* m)
 static inline bl_err bl_mutex_lock (bl_mutex* m)
 {
   bl_assert (m);
-  try {
+  BL_TRY {
     m->lock();
     return bl_mkok();
   }
-  catch (...) {
+  BL_CATCH (...) {
     return bl_mkerr (bl_error);
   }
 }
@@ -104,10 +104,10 @@ static inline bl_err bl_mutex_lock (bl_mutex* m)
 static inline bl_err bl_mutex_trylock (bl_mutex* m)
 {
   bl_assert (m);
-  try {
+  BL_TRY {
     return m->try_lock() ? bl_mkok() : bl_mkerr (bl_busy);
   }
-  catch (...) {
+  BL_CATCH (...) {
     return bl_mkerr (bl_error);
   }
 }
@@ -115,11 +115,11 @@ static inline bl_err bl_mutex_trylock (bl_mutex* m)
 static inline bl_err bl_mutex_unlock (bl_mutex* m)
 {
   bl_assert (m);
-  try {
+  BL_TRY {
     m->unlock();
     return bl_mkok();
   }
-  catch (...) {
+  BL_CATCH (...) {
     return bl_mkerr (bl_error);
   }
 }

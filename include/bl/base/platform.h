@@ -7,6 +7,8 @@
 #include <bl/base/arch.h>
 #include <bl/base/compiler.h>
 
+/*TODO: CLANG and INTEL mimic gcc and msvc depending on the platform they run*/
+
 /* static assertions */
 #if BL_COMPILER_IS (GCC)
   #if !defined(__cplusplus)
@@ -134,6 +136,32 @@
 #else
   #define BL_VISIBILITY_DEFAULT
   #define BL_VISIBILITY_HIDDEN
+#endif
+
+/* C++ exceptions enabled */
+#if defined (__cplusplus)
+  #if defined (__cpp_exceptions)
+    #define BL_HAS_CPP_EXCEPTIONS __cpp_exceptions
+  #elif defined (__EXCEPTIONS )
+    #define BL_HAS_CPP_EXCEPTIONS 1
+  #elif defined (_CPPUNWIND)
+    #define BL_HAS_CPP_EXCEPTIONS 1
+  #else
+    #define BL_HAS_CPP_EXCEPTIONS 0
+  #endif
+#else
+  #define BL_HAS_CPP_EXCEPTIONS 0
+#endif
+
+/*try-catch wrapping */
+#if BL_HAS_CPP_EXCEPTIONS
+  #define BL_TRY      try
+  #define BL_CATCH(x) catch (x)
+  #define BL_RETHROW  throw
+#else
+  #define BL_TRY      if (1)
+  #define BL_CATCH(x) if (0)
+  #define BL_RETHROW
 #endif
 
 /* bool/null */
