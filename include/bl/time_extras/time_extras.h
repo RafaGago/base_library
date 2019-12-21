@@ -6,24 +6,31 @@
 #include <bl/base/error.h>
 #include <bl/base/time.h>
 #include <bl/base/platform.h>
-
+/*----------------------------------------------------------------------------*/
+#define BL_CPU_TIMEPT_UNAVAILABLE 0
+#define BL_CPU_TIMEPT_RDTSC       1
+/*----------------------------------------------------------------------------*/
+#if BL_ARCH_IS_X64_X86_IA64
+  #define BL_CPU_TIMEPT BL_CPU_TIMEPT_RDTSC
+#else
+  #define BL_CPU_TIMEPT BL_CPU_TIMEPT_UNAVAILABLE
+#endif
+/*----------------------------------------------------------------------------*/
+#define BL_CPU_TIMEPT_IS(impl) (BL_CPU_TIMEPT == BL_CPU_TIMEPT_##impl)
+#define BL_HAS_CPU_TIMEPT (!BL_CPU_TIMEPT_IS (UNAVAILABLE))
+/*----------------------------------------------------------------------------*/
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /*-----------------------------------------------------------------------------
   A library for more uncommon time-related functions.
   This library is stateful but thread safe.
   ---------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
-/* Initializes this library. This library is stateful. "bl_time_extras_init"
-   has to be called at least once to use any of the functions included on this
-   header. Only the first call will do some work.
-
-   This function tries to empirically acquire information about the clocks by
-   doing measurements. It can rarely fail if the scheduler repeatedly preeempts
-   some critical points inside. This is done by measuring and interpreting the
-   data in a not-completely-naive way.
+/* Initializes this library. If multiple calls were made to" bl_extras_init", as
+many calls need to be done to "bl_time_extras_destroy" and the destruction will
+be done by the last caller. This function can fail, as it tries to get some data
+about the clocks
 */
 extern BL_TIME_EXTRAS_EXPORT bl_err bl_time_extras_init (void);
 /*----------------------------------------------------------------------------*/
@@ -39,24 +46,12 @@ extern BL_TIME_EXTRAS_EXPORT void bl_time_extras_destroy (void);
 extern BL_TIME_EXTRAS_EXPORT
   bl_timeoft64 bl_timept64_to_sysclock64_diff_ns (void);
 /*----------------------------------------------------------------------------*/
-#if BL_ARCH_IS_X64_X86_IA64
-/*----------------------------------------------------------------------------*/
+#if BL_CPU_TIMEPT_IS (RDTSC)
 #if BL_COMPILER_IS (MICROSOFT_VC)
   #include <intrin.h>
 #else
   #include <x86intrin.h>
 #endif
-
-#ifdef __cplusplus
-} /* extern "C" { */
-#endif
-/* this may include C++ files, so we do it outside of the extern "C" block */
-#include <bl/base/atomic.h>
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#define BL_HAS_CPU_TIMEPT 1
 /*----------------------------------------------------------------------------*/
 static inline bl_timept64 bl_cpu_timept_get (void)
 {
@@ -71,6 +66,9 @@ static inline bl_timept64 bl_cpu_timept_get_fast (void)
   return __rdtsc();
 }
 /*----------------------------------------------------------------------------*/
+#endif /* #if BL_CPU_TIMEPT_IS (RDTSC) */
+/*----------------------------------------------------------------------------*/
+#if BL_HAS_CPU_TIMEPT
 extern BL_TIME_EXTRAS_EXPORT bl_u64 bl_cpu_timept_get_freq (void);
 /*----------------------------------------------------------------------------*/
 /* Returns the difference in nanoseconds between the "bl_cpu_timept" monotonic
@@ -81,23 +79,18 @@ extern BL_TIME_EXTRAS_EXPORT bl_u64 bl_cpu_timept_get_freq (void);
 extern BL_TIME_EXTRAS_EXPORT bl_timeoft64
   bl_cpu_timept_to_sysclock64_diff_ns (void);
 /*----------------------------------------------------------------------------*/
-#else /*  BL_ARCH_IS_X64_X86_IA64 */
-#define BL_HAS_CPU_TIMEPT 0
-#endif /* BL_ARCH_IS_X64_X86_IA64 */
-/*----------------------------------------------------------------------------*/
-/*f_timept represents the fastest monotonic clock available on the platform  */
-
-#if BL_HAS_CPU_TIMEPT == 1
+/*fast_timept represents the fastest monotonic clock available on the platform*/
 
 #define bl_fast_timept_get()                   bl_cpu_timept_get()
 #define bl_fast_timept_get_fast()              bl_cpu_timept_get_fast()
 #define bl_fast_timept_get_freq()              bl_cpu_timept_get_freq()
-#define bl_fast_timept_to_sysclock64_diff_ns() bl_cpu_timept_to_sysclock64_diff_ns()
+#define bl_fast_timept_to_sysclock64_diff_ns() \
+  bl_cpu_timept_to_sysclock64_diff_ns()
 
 #include <bl/time_extras/generated/cpu_timept_funcs_arbitrary_base.h>
 #include <bl/time_extras/generated/fast_timept_funcs_from_cpu_timept.h>
 
-#else /* BL_HAS_CPU_TIMEPT == 1 */
+#else /* BL_HAS_CPU_TIMEPT */
 
 #define bl_fast_timept_get()                 bl_timept64_get()
 #define bl_fast_timept_get_fast()            bl_timept64_get()
@@ -106,7 +99,7 @@ extern BL_TIME_EXTRAS_EXPORT bl_timeoft64
 
 #include <bl/time_extras/generated/fast_timept_funcs_from_timept64.h>
 
-#endif /* else BL_HAS_CPU_TIMEPT == 1 */
+#endif /* else BL_HAS_CPU_TIMEPT */
 
 #ifdef __cplusplus
 } /* extern "C" { */

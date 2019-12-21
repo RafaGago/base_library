@@ -21,17 +21,20 @@ static int teardown (void** state)
 }
 #include <stdio.h>
 /*---------------------------------------------------------------------------*/
+#define BL_TEST_YEARS(y) \
+  (((bl_u64) (12. * 30.41 * 24. * 60. * 60. * 1000000000.)) * y );
+/*---------------------------------------------------------------------------*/
 static void bl_timept_to_sysclock_diff_test (void **state)
 {
   /* Assuming no clock changes and a machine with right date. This is written
   in 2019, epoch was in 1970, hence the 49 years */
-  double ns_49y_epoch = 49. * 12. * 30.41 * 24. * 60. * 60. * 1000000000.;
-  double ns_80y_epoch = 80. * 12. * 30.41 * 24. * 60. * 60. * 1000000000.;
+  bl_u64 ns_49y_epoch = BL_TEST_YEARS (49);
+  bl_u64 ns_80y_epoch = BL_TEST_YEARS (80);
 
   bl_timeoft64 diff = bl_timept64_to_sysclock64_diff_ns();
   diff = bl_sysclock64_to_epoch (diff);
-  assert_true (diff > (bl_u64) ns_49y_epoch);
-  assert_true (diff < (bl_u64) ns_80y_epoch);
+  assert_true (diff > ns_49y_epoch);
+  assert_true (diff < ns_80y_epoch);
   bl_timeoft64 diff2 = bl_timept64_to_sysclock64_diff_ns();
   diff2 = bl_sysclock64_to_epoch (diff2);
   /*drifting less than 10ms between calls*/
@@ -70,13 +73,13 @@ static void bl_cpu_timept_to_sysclock_diff_test (void **state)
 {
   /* Assuming no clock changes and a machine with right date. This is written
   in 2019, epoch was in 1970, hence the 49 years */
-  double ns_49y_epoch = 49. * 12. * 30.41 * 24. * 60. * 60. * 1000000000.;
-  double ns_80y_epoch = 80. * 12. * 30.41 * 24. * 60. * 60. * 1000000000.;
+  bl_u64 ns_49y_epoch = BL_TEST_YEARS (49);
+  bl_u64 ns_80y_epoch = BL_TEST_YEARS (80);
 
   bl_timeoft64 diff = bl_cpu_timept_to_sysclock64_diff_ns();
   diff = bl_sysclock64_to_epoch (diff);
-  assert_true (diff > (bl_u64) ns_49y_epoch);
-  assert_true (diff < (bl_u64) ns_80y_epoch);
+  assert_true (diff > ns_49y_epoch);
+  assert_true (diff < ns_80y_epoch);
   bl_timeoft64 diff2 = bl_cpu_timept_to_sysclock64_diff_ns();
   diff2 = bl_sysclock64_to_epoch (diff2);
   /*drifting less than 10ms between calls*/

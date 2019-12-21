@@ -1,269 +1,304 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include <bl/base/thread.h>
 #include <bl/base/atomic.h>
 #include <bl/base/utility.h>
 #include <bl/base/processor_pause.h>
+#include <bl/base/deadline.h>
 
 #include <bl/time_extras/time_extras.h>
-
 /*----------------------------------------------------------------------------*/
-/* Different clock values on this file are calculated by:
-
-  - taking a dataset of BL_TIME_QSAMPLES.
-  - finding the most repeated sample values that are within a dispersion window.
-  - averaging the sample values within that window.
-
-  The macros below control the constanst on these calculations.
-------------------------------------------------------------------------------*/
-/* number of samples to take on each clock measuration function */
 #ifndef BL_TIME_QSAMPLES
-  #define BL_TIME_QSAMPLES 20
-#endif
-
-/* on initialization some functions will retry if they are unable to get stable
-enough values for the clock calculations"*/
-#ifndef BL_TIME_INIT_RETRY_ROUNDS
-  #define BL_TIME_INIT_RETRY_ROUNDS 10
-#endif
-
-/* used as dispersion window size for the conversion to sysclock functions.
-Values within the range specified here are consided a same group.*/
-#ifndef BL_TIME_TO_SYSCLOCK_MAX_SAMPLE_DRIFT_NS
-  #define BL_TIME_TO_SYSCLOCK_MAX_SAMPLE_DRIFT_NS 30
-#endif
-
-/* used as dispersion window size for calculation of the CPU clock frequency
-(when available). This clock is calibrated against the monotonic clock and
-calculated as a ratio to it. Hence the parts per million (PPM) units. */
-#ifndef BL_TIME_CPUFREQ_MAX_SAMPLE_PPM
-  #define BL_TIME_CPUFREQ_MAX_SAMPLE_PPM 20
+  #define BL_TIME_QSAMPLES 50
 #endif
 /*----------------------------------------------------------------------------*/
+#ifndef BL_TIME_MIN_QSAMPLES
+  #define BL_TIME_MIN_QSAMPLES 30
+#endif
 /*----------------------------------------------------------------------------*/
-#define MAGIC_NAN (0x7ff8000000000000UL) /* A NaN value */
-#define IS_MAGIC_NAN(v) ((bl_u64)(v) == (bl_u64) MAGIC_NAN)
+#ifndef BL_TIME_CONTEXT_SWITCH_FACTOR
+  #define BL_TIME_CONTEXT_SWITCH_FACTOR 5
+#endif
 /*----------------------------------------------------------------------------*/
-#define CPUFREQ_WINDOW \
-  (((double) BL_TIME_CPUFREQ_MAX_SAMPLE_PPM) / 1000000.)
+#if BL_HAS_CPU_TIMEPT
+  #ifndef BL_TIME_QPAUSE_US
+    #define BL_TIME_QPAUSE_US 50
+  #endif
+#else
+  #ifdef BL_TIME_QPAUSE_US
+    #undef BL_TIME_QPAUSE_US
+  #endif
+  #define BL_TIME_QPAUSE_US 0
+#endif
 /*----------------------------------------------------------------------------*/
-static int doublecmp (const void * aptr, const void * bptr)
+static inline void bl_time_extras_spinwait (bl_timeoft64 us)
 {
-  double a = *(double*) aptr;
-  double b = *(double*) bptr;
-  if (a > b) {
-    return 1;
+  if (us == 0) {
+    return;
   }
-  else if (a < b) {
-    return -1;
+  bl_timept64 deadline;
+  bl_timept64_deadline_init_usec (&deadline, us);
+  while (!bl_timept64_deadline_expired (deadline)) {
+    bl_processor_pause();
+    bl_processor_pause();
+    bl_processor_pause();
+    bl_processor_pause();
+    bl_processor_pause();
+    bl_processor_pause();
+    bl_processor_pause();
+    bl_processor_pause();
+    bl_processor_pause();
+    bl_processor_pause();
+    bl_processor_pause();
+    bl_processor_pause();
+    bl_processor_pause();
+    bl_processor_pause();
+    bl_processor_pause();
+    bl_processor_pause();
   }
-  return 0;
 }
 /*----------------------------------------------------------------------------*/
-static double find_most_repeated (double* v, bl_uword vcount, double window)
-{
-  struct sample_data{
-    double total;
-    double winstart;
-    bl_uword  count;
-  };
-  qsort (v, vcount, sizeof v[0], doublecmp);
-
-  struct sample_data cur = { v[0], v[0], 1 };
-  struct sample_data max = cur;
-
-  for (bl_uword i = 1; i < vcount; ++i) {
-    if ((v[i] - cur.winstart) < window) {
-      cur.total += v[i];
-      ++cur.count;
-      if (cur.count > max.count) {
-        max = cur;
-      }
-    }
-    else {
-      cur.winstart = v[i];
-      cur.total = v[i];
-      cur.count = 1;
-    }
-  }
-  return (max.count > 1) ?
-    (max.total / (double) max.count) : (double) MAGIC_NAN;
+typedef struct bl_time_extras_syncdata {
+  /* all latencies in clock cycles from "bl_fast_timept" */
+  bl_timept64  timept64_latency;
+  bl_timept64  sysclock64_latency;
+  bl_timept64  tcpu_freq;
+  bl_timeoft64 tcpu_to_timept64_ns;
 }
+bl_time_extras_syncdata;
 /*----------------------------------------------------------------------------*/
-static bl_timept t_get_noinline (void)
-{
-  return bl_timept_get();
+typedef struct bl_time_extras {
+  bl_atomic_i64           timept64_to_sysclock64_ns;
+  bl_atomic_u32           init_flag;
+  bl_time_extras_syncdata syncdata;
 }
+bl_time_extras;
 /*----------------------------------------------------------------------------*/
-static bl_timeoft t_to_nsec_noinline (bl_timept t)
-{
-  return bl_timept_to_nsec (t);
-}
-/*----------------------------------------------------------------------------*/
-typedef struct sysclockdiff {
-  bl_atomic_u64 to_sys_ns;
-  bl_timept (*get) (void);
-  bl_timeoft (*to_nsec) (bl_timept);
-}
-sysclockdiff;
-/*----------------------------------------------------------------------------*/
-/* atomics on this lib won't compile for non lock free implementations of
-and atomic types of different sizes than the basic type size */
-/*----------------------------------------------------------------------------*/
-static sysclockdiff timepoint_sysdata = {
-  (bl_atomic_u64) MAGIC_NAN, &t_get_noinline, &t_to_nsec_noinline
+enum {
+  bl_textras_unitialized  = 0,
+  bl_textras_initializing = 1,
+  bl_textras_initialized  = 2,
 };
 /*----------------------------------------------------------------------------*/
-#ifdef BL_HAS_CPU_TIMEPT
+bl_time_extras state = { 0, bl_textras_unitialized };
 /*----------------------------------------------------------------------------*/
-static bl_timept64 cpu_t_get_noinline (void)
+typedef struct measurements {
+  bl_timept64 t[6];
+  bl_timept64 l[2];
+}
+measurements;
+/*----------------------------------------------------------------------------*/
+static
+  bl_timeoft64 bl_time_extras_interpolate (bl_timept64 small, bl_timept64 big)
 {
-  return bl_cpu_timept_get();
+  return (bl_timeoft64) (small + ((big - small) / 2));
 }
 /*----------------------------------------------------------------------------*/
-static sysclockdiff cputimepoint_sysdata = {
-  (bl_atomic_u64) MAGIC_NAN, &cpu_t_get_noinline, &bl_cpu_timept_to_nsec
-};
-/*----------------------------------------------------------------------------*/
-bl_atomic_u64 cpu_timept_freq = (bl_atomic_u64) 0;
-/*----------------------------------------------------------------------------*/
-static bl_err bl_cpu_timept_freq_set()
+static bl_err bl_time_extras_get_t64_to_sys64(
+  bl_timeoft64* res, bl_time_extras_syncdata const* s
+  )
 {
-  if (bl_cpu_timept_get_freq() != 0) {
-    /* already initialized */
-    return bl_mkok();
-  }
-  bl_timept tprev;
-  bl_timept cpuprev;
-  double ratio[BL_TIME_QSAMPLES];
-  bl_thread_yield(); /* context switching in-between minimization attempt.*/
+  measurements meas;
+  bl_timept64 maxl = (s->timept64_latency + s->sysclock64_latency) * 2;
+  maxl *= BL_TIME_CONTEXT_SWITCH_FACTOR;
 
-  tprev   = bl_timept_get();
-  cpuprev = bl_cpu_timept_get();
+  for (int i = 0; i < BL_TIME_QSAMPLES; ++i) {
+    meas.t[0] = bl_fast_timept_get();
+    meas.t[1] = bl_timept64_get();
+    meas.t[2] = bl_sysclock64_get();
+    meas.t[3] = bl_sysclock64_get();
+    meas.t[4] = bl_timept64_get();
+    meas.t[5] = bl_fast_timept_get();
+    meas.l[0] = meas.t[5] - meas.t[0];
 
-  for (bl_uword i = 0; i < bl_arr_elems (ratio); ++i) {
-    bl_thread_usleep(5000);
-    bl_timept t   = bl_timept_get();
-    bl_timept cpu = bl_cpu_timept_get();
-    ratio[i]   = (double) (cpu - cpuprev);
-    ratio[i]  /= (double) (t - tprev);
-    tprev      = t;
-    cpuprev    = cpu;
+    if (meas.l[0] < maxl) {
+      bl_timept64 t64 = bl_time_extras_interpolate (meas.t[1], meas.t[4]);
+      bl_assert (t64 >= meas.t[1]); /* overflow */
+      bl_timept64 sys = bl_time_extras_interpolate (meas.t[2], meas.t[3]);
+      bl_assert (sys >= meas.t[2]); /* overflow */
+      bl_timeoft64 t64o = bl_timept64_to_nsec (t64);
+      bl_timeoft64 syso = bl_sysclock64_to_nsec (sys);
+      *res = syso - t64o;
+      return bl_mkok();
+    }
+    bl_processor_pause();
   }
-  double avg = find_most_repeated (ratio, bl_arr_elems (ratio), CPUFREQ_WINDOW);
-  if (IS_MAGIC_NAN (avg)) {
-    /*clock jitter couldn't match the defined criteria */
-    return bl_mkerr (bl_error);
+  return bl_mkerr (bl_timeout);
+}
+/*----------------------------------------------------------------------------*/
+static bl_err bl_time_extras_get_ro_data (bl_time_extras_syncdata* s) {
 
+  measurements meas[BL_TIME_QSAMPLES];
+
+  memset (s, 0, sizeof *s);
+
+  bl_timept64 timept64_latency = 0; --timept64_latency;
+  /* calculate timept64_latency. saving the measurements too in case that
+  BL_HAS_CPU_TIMEPT is enabled. */
+  for (int i = 0; i < bl_arr_elems (meas); ++i) {
+    meas[i].t[0] = bl_fast_timept_get();
+    meas[i].t[1] = bl_timept64_get();
+    meas[i].t[2] = bl_fast_timept_get();
+    bl_time_extras_spinwait (BL_TIME_QPAUSE_US);
+    meas[i].t[3] = bl_fast_timept_get();
+    meas[i].t[4] = bl_timept64_get();
+    meas[i].t[5] = bl_fast_timept_get();
+    meas[i].l[0] = meas[i].t[2] - meas[i].t[0];
+    meas[i].l[1] = meas[i].t[5] - meas[i].t[3];
+    timept64_latency = bl_min (timept64_latency, meas[i].l[0]);
+    timept64_latency = bl_min (timept64_latency, meas[i].l[1]);
   }
-  double tfreq = (double) bl_timept_get_freq();
-  bl_atomic_u64_store_rlx (&cpu_timept_freq, (bl_u64) (tfreq * avg));
+  s->timept64_latency = timept64_latency;
+  bl_timept64 timept64_latency_max =
+    timept64_latency * BL_TIME_CONTEXT_SWITCH_FACTOR;
+  bl_assert (timept64_latency_max > timept64_latency); /* overflow */
+
+#if BL_HAS_CPU_TIMEPT
+  int first = -1;
+  int last  = -1;
+
+  /* obtaining first and last good measurements */
+  for (int i = 0; i < bl_arr_elems (meas); ++i) {
+    if(
+      meas[i].l[0] < timept64_latency_max && meas[i].l[1] < timept64_latency_max
+      ) {
+      first = i;
+      break;
+    }
+  }
+  for (int i = bl_arr_elems (meas) - 1; i >= 0; --i) {
+    if(
+      meas[i].l[0] < timept64_latency_max && meas[i].l[1] < timept64_latency_max
+      ) {
+      last = i;
+      break;
+    }
+  }
+  if (first == -1 || last == -1 || last - first < BL_TIME_MIN_QSAMPLES) {
+    return bl_mkerr (bl_timeout);
+  }
+  /* calculate cputimept freq */
+  bl_u64 t64_cycles;
+  bl_u64 cpu_cycles;
+
+  t64_cycles  = meas[last].t[4] - meas[first].t[1];
+  /* averaging the measurements before and after on the CPU clock. Assuming that
+  a 64 bit data type won't overflow on a monotonic clock. */
+  cpu_cycles  = meas[last].t[5] - meas[first].t[2];
+  cpu_cycles += meas[last].t[3] - meas[first].t[0];
+  cpu_cycles /= 2;
+  bl_assert (meas[last].t[0] - meas[first].t[5] < cpu_cycles ); /* overflow */
+
+  double ratio   = ((double) cpu_cycles) / ((double) t64_cycles);
+  s->tcpu_freq = (bl_timept64) (((double) bl_timept64_get_freq()) * ratio);
+
+  /* calculating the ns diff from a non context-switched sample */
+  bl_timeoft64 t64 =
+    bl_time_extras_interpolate (meas[first].t[1],  meas[first].t[4]);
+  bl_assert (t64 >= meas[first].t[1]); /* overflow */
+  bl_timeoft64 tcpu =
+    bl_time_extras_interpolate (meas[first].t[0], meas[first].t[5]);
+  bl_assert (tcpu >= meas[first].t[0]); /* overflow */
+  t64 = bl_timept64_to_nsec (t64);
+  /* unable to use "bl_cpu_timept_to_nsec" yet */
+  bl_u64 sec = tcpu / s->tcpu_freq;
+  bl_u64 rem = tcpu % s->tcpu_freq;
+  tcpu = (bl_timeoft64)
+    ((sec * bl_nsec_in_sec) + ((rem * bl_nsec_in_sec) / s->tcpu_freq));
+  s->tcpu_to_timept64_ns = tcpu - t64;
+#endif /* #if BL_HAS_CPU_TIMEPT */
+
+  bl_timept64 sysclock64_latency = 0; --sysclock64_latency;
+  /* calculate sysclock64 latency*/
+  for (int i = 0; i < bl_arr_elems (meas); ++i) {
+    meas[i].t[0] = bl_fast_timept_get();
+    meas[i].t[1] = bl_sysclock64_get();
+    meas[i].t[2] = bl_fast_timept_get();
+    meas[i].l[0] = meas[i].t[2] - meas[i].t[0];
+    sysclock64_latency = bl_min (sysclock64_latency, meas[i].l[0]);
+  }
+  s->sysclock64_latency = sysclock64_latency;
   return bl_mkok();
 }
-/*----------------------------------------------------------------------------*/
-static bl_err timepoint_cpu_init (void)
-{
-  /* calculate cpu timepoint frequency using the monotonic clock */
-  bl_uword attempts = -1;
-  bl_err err;
-  do {
-    ++attempts;
-    err = bl_cpu_timept_freq_set();
-  }
-  while (err.own && attempts < BL_TIME_INIT_RETRY_ROUNDS);
-  if (err.own) {
-    /*insane clock. unable to proceed */
-    return err;
-  }
-  /* calculate initial difference between cpu timepoint clock and sysclock */
-  attempts = 0;
-  while(
-    IS_MAGIC_NAN (bl_atomic_u64_load_rlx (&cputimepoint_sysdata.to_sys_ns)) &&
-    attempts < BL_TIME_INIT_RETRY_ROUNDS
-    )
-  {
-    /*trying to set an initial value on "ts_to_sys_ns"*/
-    bl_cpu_timept_to_sysclock64_diff_ns();
-    ++attempts;
-  }
-  if (IS_MAGIC_NAN (bl_atomic_u64_load_rlx (&cputimepoint_sysdata.to_sys_ns))) {
-    /*too much jitter in clock.*/
-    return bl_mkerr (bl_error);
-  }
-  return bl_mkok();
-}
-/*----------------------------------------------------------------------------*/
-#endif /*#ifdef BL_HAS_CPU_TIMEPT*/
 /*----------------------------------------------------------------------------*/
 BL_TIME_EXTRAS_EXPORT bl_err bl_time_extras_init (void)
 {
-  bl_uword attempts = 0;
-  /* calculate initial difference between monotonic and sysclock */
-  while(
-    IS_MAGIC_NAN (bl_atomic_u64_load_rlx (&timepoint_sysdata.to_sys_ns)) &&
-    attempts < BL_TIME_INIT_RETRY_ROUNDS
-    )
-  {
-    /*trying to set an initial value on "ts_to_sys_ns"*/
-    bl_timept64_to_sysclock64_diff_ns();
-    ++attempts;
+  bl_u32 exp = bl_textras_unitialized;
+  if (!bl_atomic_u32_strong_cas(
+    &state.init_flag,
+    &exp,
+    bl_textras_initializing,
+    bl_mo_acquire,
+    bl_mo_relaxed
+    )) {
+    /* someone else initialized or is initializing */
+    if (exp == bl_textras_initialized) {
+      return bl_mkok();
+    }
+    bl_u32 flag;
+    while (true) {
+      flag = bl_atomic_u32_load (&state.init_flag, bl_mo_acquire);
+      if (flag != bl_textras_initializing) {
+        break;
+      }
+      bl_thread_yield();
+    }
+    return bl_mkerr (flag == bl_textras_initialized ? bl_ok : bl_timeout);
   }
-  if (IS_MAGIC_NAN (bl_atomic_u64_load_rlx (&timepoint_sysdata.to_sys_ns))) {
-    /*insane clock. unable to proceed */
-    return bl_mkerr (bl_error);
+  /* inititialization attempt */
+  bl_err err = bl_time_extras_get_ro_data (&state.syncdata);
+  if (err.own) {
+    bl_atomic_u32_store(
+      &state.init_flag, bl_textras_unitialized, bl_mo_release
+      );
+    return err;
   }
-#ifdef BL_HAS_CPU_TIMEPT
-  return timepoint_cpu_init();
-#else
-  return bl_mkok();
-#endif
+  /* at this point we are only getting an initial value, so
+  "bl_cpu_timept_to_sysclock64_diff_ns" can return something in case in can
+  do an accurate measurement. */
+  bl_timeoft64 t64_to_sys;
+  err = bl_time_extras_get_t64_to_sys64 (&t64_to_sys, &state.syncdata);
+  if (err.own) {
+    bl_atomic_u32_store(
+      &state.init_flag, bl_textras_unitialized, bl_mo_release
+      );
+    return err;
+  }
+  bl_atomic_i64_store_rlx (&state.timept64_to_sysclock64_ns, t64_to_sys);
+  bl_atomic_u32_store (&state.init_flag, bl_textras_initialized, bl_mo_release);
+  return err;
 }
 /*----------------------------------------------------------------------------*/
 BL_TIME_EXTRAS_EXPORT void bl_time_extras_destroy (void)
 {
-  /*Now this is a no-op. If something has to be done in the future we will
-  need to add thread safety wrt to bl_time_extras_init and to count references.
-  */
-}
-/*----------------------------------------------------------------------------*/
-static bl_timeoft64 bl_timept_to_sysclock_diff_ns_impl (sysclockdiff* sc)
-{
-  double diff[BL_TIME_QSAMPLES];
-  double sys_to_ns =
-    (double) bl_nsec_in_sec / (double) bl_sysclock_get_freq();
-
-  bl_thread_yield(); /* context switching in-between minimization attempt.*/
-  for (bl_uword i = 0; i < bl_arr_elems (diff); ++i) {
-    bl_timept t = sc->get();
-    bl_timept s = bl_sysclock_get();
-    bl_processor_pause();
-    diff[i]  = (((double) s) * sys_to_ns) - ((double) sc->to_nsec (t));
-  }
-  double avg = find_most_repeated(
-    diff, bl_arr_elems (diff), (double) BL_TIME_TO_SYSCLOCK_MAX_SAMPLE_DRIFT_NS
-    );
-  if (!IS_MAGIC_NAN (avg)) {
-    /*good enough dataset. success.*/
-    bl_atomic_u64_store_rlx(&sc->to_sys_ns, (bl_u64) avg);
-  }
-  return (bl_timeoft64) bl_atomic_u64_load_rlx (&sc->to_sys_ns);
+  /* as of now doing nothing */
 }
 /*----------------------------------------------------------------------------*/
 BL_TIME_EXTRAS_EXPORT bl_timeoft64 bl_timept64_to_sysclock64_diff_ns (void)
 {
-  return bl_timept_to_sysclock_diff_ns_impl (&timepoint_sysdata);
+  bl_timeoft64 t64_to_sys64;
+  bl_err err = bl_time_extras_get_t64_to_sys64 (&t64_to_sys64, &state.syncdata);
+  if (!err.own) {
+    bl_atomic_i64_store_rlx (&state.timept64_to_sysclock64_ns, t64_to_sys64);
+    return t64_to_sys64;
+  }
+  else {
+    /* better to return an old value than to return nothing */
+    return bl_atomic_i64_load_rlx (&state.timept64_to_sysclock64_ns);
+  }
 }
 /*----------------------------------------------------------------------------*/
-#ifdef BL_HAS_CPU_TIMEPT
-/*----------------------------------------------------------------------------*/
-BL_TIME_EXTRAS_EXPORT bl_u64 bl_cpu_timept_get_freq (void)
+#if BL_HAS_CPU_TIMEPT
+BL_TIME_EXTRAS_EXPORT bl_timept64 bl_cpu_timept_get_freq (void)
 {
-  return bl_atomic_u64_load_rlx (&cpu_timept_freq);
+  return state.syncdata.tcpu_freq;
 }
 /*----------------------------------------------------------------------------*/
-BL_TIME_EXTRAS_EXPORT bl_timeoft bl_cpu_timept_to_sysclock64_diff_ns (void)
+BL_TIME_EXTRAS_EXPORT bl_timeoft64 bl_cpu_timept_to_sysclock64_diff_ns (void)
 {
-  return bl_timept_to_sysclock_diff_ns_impl (&cputimepoint_sysdata);
+  return
+    bl_timept64_to_sysclock64_diff_ns() + state.syncdata.tcpu_to_timept64_ns;
 }
 /*----------------------------------------------------------------------------*/
 #endif /* #ifdef BL_HAS_CPU_TIMEPT */
