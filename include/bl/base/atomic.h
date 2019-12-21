@@ -173,5 +173,118 @@
 #define bl_atomic_u64_fetch_and_rlx(a, v)\
   bl_atomic_u64_fetch_and (a, v, bl_mo_relaxed)
 /*---------------------------------------------------------------------------*/
+#define bl_atomic_i32_load_rlx(a) \
+  bl_atomic_i32_load ((a), bl_mo_relaxed)
 
+#define bl_atomic_i32_store_rlx(a, v)\
+  bl_atomic_i32_store ((a), (v), bl_mo_relaxed)
+
+#define bl_atomic_i32_exchange_rlx(a, v) \
+  bl_atomic_i32_exchange ((a), (v), bl_mo_relaxed)
+
+#define bl_atomic_i32_strong_cas_rlx(a, e, d)\
+  bl_atomic_i32_strong_cas ((a), (e), (d), bl_mo_relaxed, bl_mo_relaxed)
+
+#define bl_atomic_i32_weak_cas_rlx(a, e, d)\
+  bl_atomic_i32_weak_cas ((a), (e), (d), bl_mo_relaxed, bl_mo_relaxed)
+
+#define bl_atomic_i32_weak_cas_rlx(a, e, d)\
+  bl_atomic_i32_weak_cas ((a), (e), (d), bl_mo_relaxed, bl_mo_relaxed)
+
+#define bl_atomic_i32_weak_cas_rlx(a, e, d)\
+  bl_atomic_i32_weak_cas ((a), (e), (d), bl_mo_relaxed, bl_mo_relaxed)
+
+#define bl_atomic_i32_fetch_add_rlx(a, v)\
+  bl_atomic_i32_fetch_add (a, v, bl_mo_relaxed)
+
+#define bl_atomic_i32_fetch_sub_rlx(a, v)\
+  bl_atomic_i32_fetch_sub (a, v, bl_mo_relaxed)
+
+#define bl_atomic_i32_fetch_or_rlx(a, v)\
+  bl_atomic_i32_fetch_or (a, v, bl_mo_relaxed)
+
+#define bl_atomic_i32_fetch_xor_rlx(a, v)\
+  bl_atomic_i32_fetch_xor (a, v, bl_mo_relaxed)
+
+#define bl_atomic_i32_fetch_and_rlx(a, v)\
+  bl_atomic_i32_fetch_and (a, v, bl_mo_relaxed)
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_i64_load_rlx(a)\
+  bl_atomic_i64_load ((a), bl_mo_relaxed)
+
+#define bl_atomic_i64_store_rlx(a, v)\
+  bl_atomic_i64_store ((a), (v), bl_mo_relaxed)
+
+#define bl_atomic_i64_exchange_rlx(a, v)\
+  bl_atomic_i64_exchange ((a), (v), bl_mo_relaxed)
+
+#define bl_atomic_i64_strong_cas_rlx(a, e, d)\
+  bl_atomic_i64_strong_cas ((a), (e), (d), bl_mo_relaxed, bl_mo_relaxed)
+
+#define bl_atomic_i64_weak_cas_rlx(a, e, d)\
+  bl_atomic_i64_weak_cas ((a), (e), (d), bl_mo_relaxed, bl_mo_relaxed)
+
+#define bl_atomic_i64_weak_cas_rlx(a, e, d)\
+  bl_atomic_i64_weak_cas ((a), (e), (d), bl_mo_relaxed, bl_mo_relaxed)
+
+#define bl_atomic_i64_weak_cas_rlx(a, e, d)\
+  bl_atomic_i64_weak_cas ((a), (e), (d), bl_mo_relaxed, bl_mo_relaxed)
+
+#define bl_atomic_i64_fetch_add_rlx(a, v)\
+  bl_atomic_i64_fetch_add (a, v, bl_mo_relaxed)
+
+#define bl_atomic_i64_fetch_sub_rlx(a, v)\
+  bl_atomic_i64_fetch_sub (a, v, bl_mo_relaxed)
+
+#define bl_atomic_i64_fetch_or_rlx(a, v)\
+  bl_atomic_i64_fetch_or (a, v, bl_mo_relaxed)
+
+#define bl_atomic_i64_fetch_xor_rlx(a, v)\
+  bl_atomic_i64_fetch_xor (a, v, bl_mo_relaxed)
+
+#define bl_atomic_i64_fetch_and_rlx(a, v)\
+  bl_atomic_i64_fetch_and (a, v, bl_mo_relaxed)
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_float_load_rlx(a) \
+  bl_atomic_float_load ((a), bl_mo_relaxed)
+
+#define bl_atomic_float_store_rlx(a, v)\
+  bl_atomic_float_store ((a), (v), bl_mo_relaxed)
+
+#define bl_atomic_float_exchange_rlx(a, v) \
+  bl_atomic_float_exchange ((a), (v), bl_mo_relaxed)
+
+#define bl_atomic_float_strong_cas_rlx(a, e, d)\
+  bl_atomic_float_strong_cas ((a), (e), (d), bl_mo_relaxed, bl_mo_relaxed)
+
+#define bl_atomic_float_weak_cas_rlx(a, e, d)\
+  bl_atomic_float_weak_cas ((a), (e), (d), bl_mo_relaxed, bl_mo_relaxed)
+
+#define bl_atomic_float_weak_cas_rlx(a, e, d)\
+  bl_atomic_float_weak_cas ((a), (e), (d), bl_mo_relaxed, bl_mo_relaxed)
+
+#define bl_atomic_float_weak_cas_rlx(a, e, d)\
+  bl_atomic_float_weak_cas ((a), (e), (d), bl_mo_relaxed, bl_mo_relaxed)
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_double_load_rlx(a)\
+  bl_atomic_double_load ((a), bl_mo_relaxed)
+
+#define bl_atomic_double_store_rlx(a, v)\
+  bl_atomic_double_store ((a), (v), bl_mo_relaxed)
+
+#define bl_atomic_double_exchange_rlx(a, v)\
+  bl_atomic_double_exchange ((a), (v), bl_mo_relaxed)
+
+#define bl_atomic_double_strong_cas_rlx(a, e, d)\
+  bl_atomic_double_strong_cas ((a), (e), (d), bl_mo_relaxed, bl_mo_relaxed)
+
+#define bl_atomic_double_weak_cas_rlx(a, e, d)\
+  bl_atomic_double_weak_cas ((a), (e), (d), bl_mo_relaxed, bl_mo_relaxed)
+
+#define bl_atomic_double_weak_cas_rlx(a, e, d)\
+  bl_atomic_double_weak_cas ((a), (e), (d), bl_mo_relaxed, bl_mo_relaxed)
+
+#define bl_atomic_double_weak_cas_rlx(a, e, d)\
+  bl_atomic_double_weak_cas ((a), (e), (d), bl_mo_relaxed, bl_mo_relaxed)
+/*---------------------------------------------------------------------------*/
 #endif /* __BL_ATOMIC_H__ */

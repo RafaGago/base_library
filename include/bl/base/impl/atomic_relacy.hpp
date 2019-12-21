@@ -20,6 +20,10 @@ typedef rl::atomic<bl_word>  bl_atomic_word;
 typedef rl::atomic<bl_uword> bl_atomic_uword;
 typedef rl::atomic<bl_u32>   bl_atomic_u32;
 typedef rl::atomic<bl_u64>   bl_atomic_u64;
+typedef rl::atomic<bl_i32>   bl_atomic_i32;
+typedef rl::atomic<bl_i64>   bl_atomic_i64;
+typedef rl::atomic<float>    bl_atomic_float;
+typedef rl::atomic<double>   bl_atomic_double;
 /*---------------------------------------------------------------------------*/
 #define bl_mo_relaxed rl::mo_relaxed
 #define bl_mo_consume rl::mo_consume
@@ -493,6 +497,372 @@ static inline bl_u64 bl_atomic_u64_fetch_and_impl(
   )
 {
   return ((rl::atomic<bl_u64>*) a)->fetch_and (v, o, di);
+}
+/*---------------------------------------------------------------------------*/
+/* bl_i32 */
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_i32_store(a, v, o)\
+  bl_atomic_i32_store_impl ((a), (v), (o), $)
+
+static inline void bl_atomic_i32_store_impl(
+  volatile bl_atomic_i32* a, bl_i32 v, bl_mem_order o, rl::debug_info_param di
+  )
+{
+  ((rl::atomic<bl_i32>*) a)->store (v, o, di);
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_i32_load(a, o) bl_atomic_i32_load_impl ((a), (o), $)
+
+static inline bl_i32 bl_atomic_i32_load_impl(
+  volatile bl_atomic_i32* a, bl_mem_order o, rl::debug_info_param di
+  )
+{
+  return ((rl::atomic<bl_i32>*) a)->load (o, di);
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_i32_exchange(a, v, o)\
+  bl_atomic_i32_exchange_impl ((a), (v), (o), $)
+
+static inline bl_i32 bl_atomic_i32_exchange_impl(
+  volatile bl_atomic_i32* a, bl_i32 v, bl_mem_order o, rl::debug_info_param di
+  )
+{
+  return ((rl::atomic<bl_i32>*) a)->exchange (v, o, di);
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_i32_strong_cas(a, e, d, s, f)\
+  bl_atomic_i32_strong_cas_impl ((a), (e), (d), (s), (f), $)
+
+static inline bool bl_atomic_i32_strong_cas_impl(
+  volatile bl_atomic_i32* a,
+  bl_i32*                 expected,
+  bl_i32                  desired,
+  bl_mem_order            success,
+  bl_mem_order            failure,
+  rl::debug_info_param    di
+  )
+{
+  return ((rl::atomic<bl_i32>*) a)->compare_exchange_strong(
+    *expected, desired, success, di, failure, di
+    );
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_i32_weak_cas(a, e, d, s, f)\
+  bl_atomic_i32_weak_cas_impl ((a), (e), (d), (s), (f), $)
+
+static inline bool bl_atomic_i32_weak_cas_impl(
+  volatile bl_atomic_i32* a,
+  bl_i32*                 expected,
+  bl_i32                  desired,
+  bl_mem_order            success,
+  bl_mem_order            failure,
+  rl::debug_info_param    di
+  )
+{
+  return ((rl::atomic<bl_i32>*) a)->compare_exchange_weak(
+    *expected, desired, success, di, failure, di
+    );
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_i32_fetch_add(a, v, o)\
+  bl_atomic_i32_fetch_add_impl ((a), (v), (o), $)
+
+static inline bl_i32 bl_atomic_i32_fetch_add_impl(
+  volatile bl_atomic_i32* a, bl_i32 v, bl_mem_order o, rl::debug_info_param di
+  )
+{
+  return ((rl::atomic<bl_i32>*) a)->fetch_add (v, o, di);
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_i32_fetch_sub(a, v, o)\
+  bl_atomic_i32_fetch_sub_impl ((a), (v), (o), $)
+
+
+static inline bl_i32 bl_atomic_i32_fetch_sub_impl(
+  volatile bl_atomic_i32* a, bl_i32 v, bl_mem_order o, rl::debug_info_param di
+  )
+{
+  return ((rl::atomic<bl_i32>*) a)->fetch_sub (v, o, di);
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_i32_fetch_or(a, v, o)\
+  bl_atomic_i32_fetch_or_impl ((a), (v), (o), $)
+
+static inline bl_i32 bl_atomic_i32_fetch_or_impl(
+  volatile bl_atomic_i32* a, bl_i32 v, bl_mem_order o, rl::debug_info_param di
+  )
+{
+  return ((rl::atomic<bl_i32>*) a)->fetch_or (v, o, di);
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_i32_fetch_xor(a, v, o)\
+  bl_atomic_i32_fetch_xor_impl ((a), (v), (o), $)
+
+static inline bl_i32 bl_atomic_i32_fetch_xor_impl(
+  volatile bl_atomic_i32* a, bl_i32 v, bl_mem_order o, rl::debug_info_param di
+  )
+{
+  return ((rl::atomic<bl_i32>*) a)->fetch_xor (v, o, di);
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_i32_fetch_and(a, v, o)\
+  bl_atomic_i32_fetch_and_impl ((a), (v), (o), $)
+
+static inline bl_i32 bl_atomic_i32_fetch_and_impl(
+  volatile bl_atomic_i32* a, bl_i32 v, bl_mem_order o, rl::debug_info_param di
+  )
+{
+  return ((rl::atomic<bl_i32>*) a)->fetch_and (v, o, di);
+}
+/*---------------------------------------------------------------------------*/
+/* bl_i64 */
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_i64_store(a, v, o) bl_atomic_i64_store_impl ((a), (v), (o), $)
+
+static inline void bl_atomic_i64_store_impl(
+  volatile bl_atomic_i64* a, bl_i64 v, bl_mem_order o, rl::debug_info_param di
+  )
+{
+  ((rl::atomic<bl_i64>*) a)->store (v, o, di);
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_i64_load(a, o) bl_atomic_i64_load_impl ((a), (o), $)
+
+static inline bl_i64 bl_atomic_i64_load_impl(
+  volatile bl_atomic_i64* a, bl_mem_order o, rl::debug_info_param di
+  )
+{
+  return ((rl::atomic<bl_i64>*) a)->load (o, di);
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_i64_exchange(a, v, o)\
+  bl_atomic_i64_exchange_impl ((a), (v), (o), $)
+
+static inline bl_i64 bl_atomic_i64_exchange_impl(
+  volatile bl_atomic_i64* a, bl_i64 v, bl_mem_order o, rl::debug_info_param di
+  )
+{
+  return ((rl::atomic<bl_i64>*) a)->exchange (v, o, di);
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_i64_strong_cas(a, e, d, s, f)\
+  bl_atomic_i64_strong_cas_impl ((a), (e), (d), (s), (f), $)
+
+static inline bool bl_atomic_i64_strong_cas_impl(
+  volatile bl_atomic_i64* a,
+  bl_i64*                 expected,
+  bl_i64                  desired,
+  bl_mem_order            success,
+  bl_mem_order            failure,
+  rl::debug_info_param    di
+  )
+{
+  return ((rl::atomic<bl_i64>*) a)->compare_exchange_strong(
+    *expected, desired, success, di, failure, di
+    );
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_i64_weak_cas(a, e, d, s, f)\
+  bl_atomic_i64_weak_cas_impl ((a), (e), (d), (s), (f), $)
+
+static inline bool bl_atomic_i64_weak_cas_impl(
+  volatile bl_atomic_i64* a,
+  bl_i64*                 expected,
+  bl_i64                  desired,
+  bl_mem_order            success,
+  bl_mem_order            failure,
+  rl::debug_info_param    di
+  )
+{
+  return ((rl::atomic<bl_i64>*) a)->compare_exchange_weak(
+    *expected, desired, success, di, failure, di
+    );
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_i64_fetch_add(a, v, o)\
+  bl_atomic_i64_fetch_add_impl ((a), (v), (o), $)
+
+static inline bl_i64 bl_atomic_i64_fetch_add_impl(
+  volatile bl_atomic_i64* a, bl_i64 v, bl_mem_order o, rl::debug_info_param di
+  )
+{
+  return ((rl::atomic<bl_i64>*) a)->fetch_add (v, o, di);
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_i64_fetch_sub(a, v, o)\
+  bl_atomic_i64_fetch_sub_impl ((a), (v), (o), $)
+
+
+static inline bl_i64 bl_atomic_i64_fetch_sub_impl(
+  volatile bl_atomic_i64* a, bl_i64 v, bl_mem_order o, rl::debug_info_param di
+  )
+{
+  return ((rl::atomic<bl_i64>*) a)->fetch_sub (v, o, di);
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_i64_fetch_or(a, v, o)\
+  bl_atomic_i64_fetch_or_impl ((a), (v), (o), $)
+
+static inline bl_i64 bl_atomic_i64_fetch_or_impl(
+  volatile bl_atomic_i64* a, bl_i64 v, bl_mem_order o, rl::debug_info_param di
+  )
+{
+  return ((rl::atomic<bl_i64>*) a)->fetch_or (v, o, di);
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_i64_fetch_xor(a, v, o)\
+  bl_atomic_i64_fetch_xor_impl ((a), (v), (o), $)
+
+static inline bl_i64 bl_atomic_i64_fetch_xor_impl(
+  volatile bl_atomic_i64* a, bl_i64 v, bl_mem_order o, rl::debug_info_param di
+  )
+{
+  return ((rl::atomic<bl_i64>*) a)->fetch_xor (v, o, di);
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_i64_fetch_and(a, v, o)\
+  bl_atomic_i64_fetch_and_impl ((a), (v), (o), $)
+
+static inline bl_i64 bl_atomic_i64_fetch_and_impl(
+  volatile bl_atomic_i64* a, bl_i64 v, bl_mem_order o, rl::debug_info_param di
+  )
+{
+  return ((rl::atomic<bl_i64>*) a)->fetch_and (v, o, di);
+}
+/*---------------------------------------------------------------------------*/
+/* float */
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_float_store(a, v, o)\
+  bl_atomic_float_store_impl ((a), (v), (o), $)
+
+static inline void bl_atomic_float_store_impl(
+  volatile bl_atomic_float* a, float v, bl_mem_order o, rl::debug_info_param di
+  )
+{
+  ((rl::atomic<float>*) a)->store (v, o, di);
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_float_load(a, o) bl_atomic_float_load_impl ((a), (o), $)
+
+static inline float bl_atomic_float_load_impl(
+  volatile bl_atomic_float* a, bl_mem_order o, rl::debug_info_param di
+  )
+{
+  return ((rl::atomic<float>*) a)->load (o, di);
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_float_exchange(a, v, o)\
+  bl_atomic_float_exchange_impl ((a), (v), (o), $)
+
+static inline float bl_atomic_float_exchange_impl(
+  volatile bl_atomic_float* a, float v, bl_mem_order o, rl::debug_info_param di
+  )
+{
+  return ((rl::atomic<float>*) a)->exchange (v, o, di);
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_float_strong_cas(a, e, d, s, f)\
+  bl_atomic_float_strong_cas_impl ((a), (e), (d), (s), (f), $)
+
+static inline bool bl_atomic_float_strong_cas_impl(
+  volatile bl_atomic_float* a,
+  float*                    expected,
+  float                     desired,
+  bl_mem_order              success,
+  bl_mem_order              failure,
+  rl::debug_info_param      di
+  )
+{
+  return ((rl::atomic<float>*) a)->compare_exchange_strong(
+    *expected, desired, success, di, failure, di
+    );
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_float_weak_cas(a, e, d, s, f)\
+  bl_atomic_float_weak_cas_impl ((a), (e), (d), (s), (f), $)
+
+static inline bool bl_atomic_float_weak_cas_impl(
+  volatile bl_atomic_float* a,
+  float*                    expected,
+  float                     desired,
+  bl_mem_order              success,
+  bl_mem_order              failure,
+  rl::debug_info_param      di
+  )
+{
+  return ((rl::atomic<float>*) a)->compare_exchange_weak(
+    *expected, desired, success, di, failure, di
+    );
+}
+/*---------------------------------------------------------------------------*/
+/* double */
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_double_store(a, v, o) \
+  bl_atomic_double_store_impl ((a), (v), (o), $)
+
+static inline void bl_atomic_double_store_impl(
+  volatile bl_atomic_double* a,
+  double                     v,
+  bl_mem_order               o,
+  rl::debug_info_param       di
+  )
+{
+  ((rl::atomic<double>*) a)->store (v, o, di);
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_double_load(a, o) bl_atomic_double_load_impl ((a), (o), $)
+
+static inline double bl_atomic_double_load_impl(
+  volatile bl_atomic_double* a, bl_mem_order o, rl::debug_info_param di
+  )
+{
+  return ((rl::atomic<double>*) a)->load (o, di);
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_double_exchange(a, v, o)\
+  bl_atomic_double_exchange_impl ((a), (v), (o), $)
+
+static inline double bl_atomic_double_exchange_impl(
+  volatile bl_atomic_double* a,
+  double v, bl_mem_order     o,
+  rl::debug_info_param       di
+  )
+{
+  return ((rl::atomic<double>*) a)->exchange (v, o, di);
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_double_strong_cas(a, e, d, s, f)\
+  bl_atomic_double_strong_cas_impl ((a), (e), (d), (s), (f), $)
+
+static inline bool bl_atomic_double_strong_cas_impl(
+  volatile bl_atomic_double* a,
+  double*                    expected,
+  double                     desired,
+  bl_mem_order               success,
+  bl_mem_order               failure,
+  rl::debug_info_param       di
+  )
+{
+  return ((rl::atomic<double>*) a)->compare_exchange_strong(
+    *expected, desired, success, di, failure, di
+    );
+}
+/*---------------------------------------------------------------------------*/
+#define bl_atomic_double_weak_cas(a, e, d, s, f)\
+  bl_atomic_double_weak_cas_impl ((a), (e), (d), (s), (f), $)
+
+static inline bool bl_atomic_double_weak_cas_impl(
+  volatile bl_atomic_double* a,
+  double*                    expected,
+  double                     desired,
+  bl_mem_order               success,
+  bl_mem_order               failure,
+  rl::debug_info_param       di
+  )
+{
+  return ((rl::atomic<double>*) a)->compare_exchange_weak(
+    *expected, desired, success, di, failure, di
+    );
 }
 /*---------------------------------------------------------------------------*/
 /* Fences */

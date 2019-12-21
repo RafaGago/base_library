@@ -46,6 +46,39 @@ bl_static_assert_ns(
   );
 bl_static_assert_ns (ATOMIC_LONG_LOCK_FREE == 2);
 /*---------------------------------------------------------------------------*/
+typedef atomic_uint bl_atomic_i32;
+bl_static_assert_ns(
+  sizeof (bl_atomic_i32) == sizeof (bl_i32)
+  );
+bl_static_assert_ns(
+  bl_alignof (bl_atomic_i32) == bl_alignof (bl_i32)
+  );
+bl_static_assert_ns (ATOMIC_INT_LOCK_FREE == 2);
+/*---------------------------------------------------------------------------*/
+typedef atomic_ulong bl_atomic_i64;
+bl_static_assert_ns(
+  sizeof (bl_atomic_i64) == sizeof (bl_i64)
+  );
+bl_static_assert_ns(
+  bl_alignof (bl_atomic_i64) == bl_alignof (bl_i64)
+  );
+bl_static_assert_ns (ATOMIC_LONG_LOCK_FREE == 2);
+/*---------------------------------------------------------------------------*/
+typedef bl_atomic_u32 bl_atomic_float;
+typedef bl_atomic_u64 bl_atomic_double;
+/*---------------------------------------------------------------------------*/
+typedef union {
+  bl_u32 i;
+  float  f;
+}
+bl_u32_float_union;
+/*---------------------------------------------------------------------------*/
+typedef union {
+  bl_u64 i;
+  double f;
+}
+bl_u64_double_union;
+/*---------------------------------------------------------------------------*/
 #define bl_mo_relaxed  memory_order_relaxed
 #define bl_mo_consume  memory_order_consume
 #define bl_mo_acquire  memory_order_acquire
@@ -166,8 +199,8 @@ static inline bool bl_atomic_word_strong_cas(
   volatile bl_atomic_word* a,
   bl_word*                 expected,
   bl_word                  desired,
-  bl_mem_order          success,
-  bl_mem_order          failure
+  bl_mem_order             success,
+  bl_mem_order             failure
   )
 {
   return atomic_compare_exchange_strong_explicit(
@@ -389,6 +422,288 @@ static inline bl_u64 bl_atomic_u64_fetch_and(
   )
 {
   return atomic_fetch_and_explicit (a, v, o);
+}
+/*---------------------------------------------------------------------------*/
+/* bl_i32 */
+/*---------------------------------------------------------------------------*/
+static inline void bl_atomic_i32_store(
+  volatile bl_atomic_i32* a, bl_i32 v, bl_mem_order mo
+  )
+{
+  atomic_store_explicit (a, v, mo);
+}
+/*---------------------------------------------------------------------------*/
+static inline bl_i32 bl_atomic_i32_load(
+  volatile bl_atomic_i32* a, bl_mem_order mo
+  )
+{
+  return atomic_load_explicit (a, mo);
+}
+/*---------------------------------------------------------------------------*/
+static inline bl_i32 bl_atomic_i32_exchange(
+  volatile bl_atomic_i32* a, bl_i32 v, bl_mem_order mo
+  )
+{
+  return atomic_exchange_explicit (a, v, mo);
+}
+/*---------------------------------------------------------------------------*/
+static inline bool bl_atomic_i32_strong_cas(
+  volatile bl_atomic_i32* a,
+  bl_i32*                 expected,
+  bl_i32                  desired,
+  bl_mem_order            success,
+  bl_mem_order            failure
+  )
+{
+  return atomic_compare_exchange_strong_explicit(
+    a, expected, desired, success, failure
+    );
+}
+/*---------------------------------------------------------------------------*/
+static inline bool bl_atomic_i32_weak_cas(
+  volatile bl_atomic_i32* a,
+  bl_i32*                 expected,
+  bl_i32                  desired,
+  bl_mem_order            success,
+  bl_mem_order            failure
+  )
+{
+  return atomic_compare_exchange_weak_explicit(
+    a, expected, desired, success, failure
+    );
+}
+/*---------------------------------------------------------------------------*/
+static inline bl_i32 bl_atomic_i32_fetch_add(
+  volatile bl_atomic_i32* a, bl_i32 v, bl_mem_order o
+  )
+{
+  return atomic_fetch_add_explicit (a, v, o);
+}
+/*---------------------------------------------------------------------------*/
+static inline bl_i32 bl_atomic_i32_fetch_sub(
+  volatile bl_atomic_i32* a, bl_i32 v, bl_mem_order o
+  )
+{
+  return atomic_fetch_sub_explicit (a, v, o);
+}
+/*---------------------------------------------------------------------------*/
+static inline bl_i32 bl_atomic_i32_fetch_or(
+  volatile bl_atomic_i32* a, bl_i32 v, bl_mem_order o
+  )
+{
+  return atomic_fetch_or_explicit (a, v, o);
+}
+/*---------------------------------------------------------------------------*/
+static inline bl_i32 bl_atomic_i32_fetch_xor(
+  volatile bl_atomic_i32* a, bl_i32 v, bl_mem_order o
+  )
+{
+  return atomic_fetch_xor_explicit (a, v, o);
+}
+/*---------------------------------------------------------------------------*/
+static inline bl_i32 bl_atomic_i32_fetch_and(
+  volatile bl_atomic_i32* a, bl_i32 v, bl_mem_order o
+  )
+{
+  return atomic_fetch_and_explicit (a, v, o);
+}
+/*---------------------------------------------------------------------------*/
+/* bl_i64 */
+/*---------------------------------------------------------------------------*/
+static inline void bl_atomic_i64_store(
+  volatile bl_atomic_i64* a, bl_i64 v, bl_mem_order mo
+  )
+{
+  atomic_store_explicit (a, v, mo);
+}
+/*---------------------------------------------------------------------------*/
+static inline bl_i64 bl_atomic_i64_load(
+  volatile bl_atomic_i64* a, bl_mem_order mo
+  )
+{
+  return atomic_load_explicit (a, mo);
+}
+/*---------------------------------------------------------------------------*/
+static inline bl_i64 bl_atomic_i64_exchange(
+  volatile bl_atomic_i64* a, bl_i64 v, bl_mem_order mo
+  )
+{
+  return atomic_exchange_explicit (a, v, mo);
+}
+/*---------------------------------------------------------------------------*/
+static inline bool bl_atomic_i64_strong_cas(
+  volatile bl_atomic_i64* a,
+  bl_i64*                 expected,
+  bl_i64                  desired,
+  bl_mem_order            success,
+  bl_mem_order            failure
+  )
+{
+  return atomic_compare_exchange_strong_explicit(
+    a, expected, desired, success, failure
+    );
+}
+/*---------------------------------------------------------------------------*/
+static inline bool bl_atomic_i64_weak_cas(
+  volatile bl_atomic_i64* a,
+  bl_i64*                 expected,
+  bl_i64                  desired,
+  bl_mem_order            success,
+  bl_mem_order            failure
+  )
+{
+  return atomic_compare_exchange_weak_explicit(
+    a, expected, desired, success, failure
+    );
+}
+/*---------------------------------------------------------------------------*/
+static inline bl_i64 bl_atomic_i64_fetch_add(
+  volatile bl_atomic_i64* a, bl_i64 v, bl_mem_order o
+  )
+{
+  return atomic_fetch_add_explicit (a, v, o);
+}
+/*---------------------------------------------------------------------------*/
+static inline bl_i64 bl_atomic_i64_fetch_sub(
+  volatile bl_atomic_i64* a, bl_i64 v, bl_mem_order o
+  )
+{
+  return atomic_fetch_sub_explicit (a, v, o);
+}
+/*---------------------------------------------------------------------------*/
+static inline bl_i64 bl_atomic_i64_fetch_or(
+  volatile bl_atomic_i64* a, bl_i64 v, bl_mem_order o
+  )
+{
+  return atomic_fetch_or_explicit (a, v, o);
+}
+/*---------------------------------------------------------------------------*/
+static inline bl_i64 bl_atomic_i64_fetch_xor(
+  volatile bl_atomic_i64* a, bl_i64 v, bl_mem_order o
+  )
+{
+  return atomic_fetch_xor_explicit (a, v, o);
+}
+/*---------------------------------------------------------------------------*/
+static inline bl_i64 bl_atomic_i64_fetch_and(
+  volatile bl_atomic_i64* a, bl_i64 v, bl_mem_order o
+  )
+{
+  return atomic_fetch_and_explicit (a, v, o);
+}
+/*---------------------------------------------------------------------------*/
+/* float */
+/*---------------------------------------------------------------------------*/
+static inline void bl_atomic_float_store(
+  volatile bl_atomic_float* a, float v, bl_mem_order mo
+  )
+{
+  bl_u32_float_union c;
+  c.f = v;
+  atomic_store_explicit (a, c.i, mo);
+}
+/*---------------------------------------------------------------------------*/
+static inline float bl_atomic_float_load(
+  volatile bl_atomic_float* a, bl_mem_order mo
+  )
+{
+  return atomic_load_explicit (a, mo);
+}
+/*---------------------------------------------------------------------------*/
+static inline float bl_atomic_float_exchange(
+  volatile bl_atomic_float* a, float v, bl_mem_order mo
+  )
+{
+  bl_u32_float_union c;
+  c.f = v;
+  return atomic_exchange_explicit (a, c.i, mo);
+}
+/*---------------------------------------------------------------------------*/
+static inline bool bl_atomic_float_strong_cas(
+  volatile bl_atomic_float* a,
+  float*                    expected,
+  float                     desired,
+  bl_mem_order              success,
+  bl_mem_order              failure
+  )
+{
+  bl_u32_float_union d;
+  d.f = desired;
+  return atomic_compare_exchange_strong_explicit(
+    a, (bl_u32*) expected, d.i, success, failure
+    );
+}
+/*---------------------------------------------------------------------------*/
+static inline bool bl_atomic_float_weak_cas(
+  volatile bl_atomic_float* a,
+  float*                    expected,
+  float                     desired,
+  bl_mem_order              success,
+  bl_mem_order              failure
+  )
+{
+  bl_u32_float_union d;
+  d.f = desired;
+  return atomic_compare_exchange_weak_explicit(
+    a, (bl_u32*) expected, d.i, success, failure
+    );
+}
+/*---------------------------------------------------------------------------*/
+/* double */
+/*---------------------------------------------------------------------------*/
+static inline void bl_atomic_double_store(
+  volatile bl_atomic_double* a, double v, bl_mem_order mo
+  )
+{
+  bl_u64_double_union c;
+  c.f = v;
+  atomic_store_explicit (a, c.i, mo);
+}
+/*---------------------------------------------------------------------------*/
+static inline double bl_atomic_double_load(
+  volatile bl_atomic_double* a, bl_mem_order mo
+  )
+{
+  return atomic_load_explicit (a, mo);
+}
+/*---------------------------------------------------------------------------*/
+static inline double bl_atomic_double_exchange(
+  volatile bl_atomic_double* a, double v, bl_mem_order mo
+  )
+{
+  bl_u64_double_union c;
+  c.f = v;
+  return atomic_exchange_explicit (a, c.i, mo);
+}
+/*---------------------------------------------------------------------------*/
+static inline bool bl_atomic_double_strong_cas(
+  volatile bl_atomic_double* a,
+  double*                    expected,
+  double                     desired,
+  bl_mem_order               success,
+  bl_mem_order               failure
+  )
+{
+  bl_u64_double_union d;
+  d.f = desired;
+  return atomic_compare_exchange_strong_explicit(
+    a, (bl_u64*) expected, d.i, success, failure
+    );
+}
+/*---------------------------------------------------------------------------*/
+static inline bool bl_atomic_double_weak_cas(
+  volatile bl_atomic_double* a,
+  double*                    expected,
+  double                     desired,
+  bl_mem_order               success,
+  bl_mem_order               failure
+  )
+{
+  bl_u64_double_union d;
+  d.f = desired;
+  return atomic_compare_exchange_weak_explicit(
+    a, (bl_u64*) expected, d.i, success, failure
+    );
 }
 /*---------------------------------------------------------------------------*/
 /* Fences */
