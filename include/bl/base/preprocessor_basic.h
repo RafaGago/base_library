@@ -1,6 +1,8 @@
 #ifndef __BL_PREPROCESSOR_BASIC_H__
 #define __BL_PREPROCESSOR_BASIC_H__
 
+#include <bl/base/compiler.h>
+
 /*---------------------------------------------------------------------------*/
 /**
  Convert to string: bl_pp_str(3) => "3"
@@ -41,30 +43,58 @@
 #define bl_pp_lt() <
 #define bl_pp_gt() >
 #define bl_pp_equal() =
+
 /*---------------------------------------------------------------------------*/
 /**
  Get the first argument and ignore the rest.
 */
 /*---------------------------------------------------------------------------*/
-#define bl_pp_vargs_first(a, ...) a
+#if !BL_COMPILER_IS (MICROSOFT_VC)
+    #define bl_pp_vargs_first(a, ...) a
+#else
+    #define bl_pp_msvc_workaround_fwd(fwdmacro, args) \
+        fwdmacro args
+    #define bl_pp_vargs_first_impl(a, ...) a
+    #define bl_pp_vargs_first(...) \
+        bl_pp_msvc_workaround_fwd (bl_pp_vargs_first_impl, (__VA_ARGS__, dummy))
+#endif
 /*---------------------------------------------------------------------------*/
 /**
  Ignore the first argument and get the rest.
 */
 /*---------------------------------------------------------------------------*/
-#define bl_pp_vargs_ignore_first(a, ...) __VA_ARGS__
+#if !BL_COMPILER_IS (MICROSOFT_VC)
+    #define bl_pp_vargs_ignore_first(a, ...) __VA_ARGS__
+#else
+    #define bl_pp_vargs_ignore_first_impl(a, ...) __VA_ARGS__
+    #define bl_pp_vargs_ignore_first(...) \
+        bl_pp_msvc_workaround_fwd (bl_pp_vargs_ignore_first_impl, (__VA_ARGS__))
+#endif
 /*---------------------------------------------------------------------------*/
 /**
  Get the second argument and ignore the rest.
 */
 /*---------------------------------------------------------------------------*/
-#define bl_pp_vargs_second(a, b, ...) b
+#if !BL_COMPILER_IS (MICROSOFT_VC)
+    #define bl_pp_vargs_second(a, b, ...) b
+#else
+    #define bl_pp_vargs_second_impl(a, b, ...) b
+    #define bl_pp_vargs_second(...) \
+        bl_pp_msvc_workaround_fwd (bl_pp_vargs_second_impl, (__VA_ARGS__))
+#endif
 /*---------------------------------------------------------------------------*/
 /**
  Ignore the second argument and get the rest.
 */
 /*---------------------------------------------------------------------------*/
-#define bl_pp_vargs_ignore_second(a, b, ...) a, __VA_ARGS__
+#if !BL_COMPILER_IS (MICROSOFT_VC)
+    #define bl_pp_vargs_ignore_second(a, b, ...) a, __VA_ARGS__
+#else
+    #define bl_pp_vargs_ignore_second_impl(a, b, ...) a, __VA_ARGS__
+    #define bl_pp_vargs_ignore_second(...) \
+        bl_pp_msvc_workaround_fwd( \
+            bl_pp_vargs_ignore_second_impl, (__VA_ARGS__) \
+            )
+#endif
 
 #endif /* __BL_PREPROCESSOR_BASIC_H__ */
-
