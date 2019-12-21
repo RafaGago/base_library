@@ -164,6 +164,25 @@
   #define BL_RETHROW
 #endif
 
+/*debug*/
+#if !defined (BL_IS_DEBUG) /* allowing override from the build system */
+  #if BL_COMPILER_IS (GCC) || BL_COMPILER_IS (CLANG)
+    #if defined (__OPTIMIZE__)
+      #define BL_IS_DEBUG 0
+    #else
+      #define BL_IS_DEBUG 1
+    #endif
+  #elif BL_COMPILER_IS (MICROSOFT_VC)
+    #if defined (_DEBUG )
+      #define BL_IS_DEBUG 1
+    #else
+      #define BL_IS_DEBUG 0
+    #endif
+  #else
+    #define BL_IS_DEBUG 0
+  #endif
+#endif
+
 /* bool/null */
 #ifndef __cplusplus
   #include <stdbool.h>
