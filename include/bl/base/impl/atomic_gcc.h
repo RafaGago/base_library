@@ -50,7 +50,7 @@ static inline void bl_atomic_uword_store(
 }
 /*---------------------------------------------------------------------------*/
 static inline bl_uword bl_atomic_uword_load(
-  volatile bl_atomic_uword* a, bl_mem_order mo
+  volatile bl_atomic_uword const* a, bl_mem_order mo
   )
 {
   return __atomic_load_n (a, mo);
@@ -134,7 +134,7 @@ static inline void bl_atomic_word_store(
 }
 /*---------------------------------------------------------------------------*/
 static inline bl_word bl_atomic_word_load(
-  volatile bl_atomic_word* a, bl_mem_order mo
+  volatile bl_atomic_word const* a, bl_mem_order mo
   )
 {
   return __atomic_load_n (a, mo);
@@ -218,7 +218,7 @@ static inline void bl_atomic_u32_store(
 }
 /*---------------------------------------------------------------------------*/
 static inline bl_u32 bl_atomic_u32_load(
-  volatile bl_atomic_u32* a, bl_mem_order mo
+  volatile bl_atomic_u32 const* a, bl_mem_order mo
   )
 {
   return __atomic_load_n (a, mo);
@@ -295,7 +295,7 @@ static inline void bl_atomic_u64_store(
 }
 /*---------------------------------------------------------------------------*/
 static inline bl_u64 bl_atomic_u64_load(
-  volatile bl_atomic_u64* a, bl_mem_order mo
+  volatile bl_atomic_u64 const* a, bl_mem_order mo
   )
 {
   return __atomic_load_n (a, mo);
@@ -528,7 +528,7 @@ static inline void bl_atomic_float_store(
 }
 /*---------------------------------------------------------------------------*/
 static inline float bl_atomic_float_load(
-  volatile bl_atomic_float* a, bl_mem_order mo
+  volatile bl_atomic_float const* a, bl_mem_order mo
   )
 {
   return __atomic_load_n ((bl_atomic_u32*) a, mo);
@@ -595,7 +595,7 @@ static inline void bl_atomic_double_store(
 }
 /*---------------------------------------------------------------------------*/
 static inline double bl_atomic_double_load(
-  volatile bl_atomic_double* a, bl_mem_order mo
+  volatile bl_atomic_double const* a, bl_mem_order mo
   )
 {
   return __atomic_load_n ((bl_atomic_u64*) a, mo);
