@@ -8,6 +8,8 @@
 #include <bl/base/compiler.h>
 
 /*TODO: CLANG and INTEL mimic gcc and msvc depending on the platform they run*/
+/*TODO: As of now there is no consistency about when macros are upper or
+lowercase*/
 
 /* static assertions */
 #if BL_COMPILER_IS (GCC)
@@ -162,6 +164,15 @@
   #define BL_TRY      if (1)
   #define BL_CATCH(x) if (0)
   #define BL_RETHROW
+#endif
+
+/*branch compiler (and code reader) hints*/
+#if BL_COMPILER_IS (GCC) || BL_COMPILER_IS (CLANG)
+  #define bl_likely(x)   __builtin_expect (!!(x), 1)
+  #define bl_unlikely(x) __builtin_expect (!!(x), 0)
+#else
+  #define bl_likely(x)   (x)
+  #define bl_unlikely(x) (x)
 #endif
 
 /*debug*/

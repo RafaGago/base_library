@@ -39,13 +39,5 @@
 /*---------------------------------------------------------------------------*/
 #define bl_lit_strcmp(str, lit) strncmp ((str), lit, bl_lit_len (lit))
 /*---------------------------------------------------------------------------*/
-#if BL_COMPILER_IS (GCC) || BL_COMPILER_IS (CLANG)
-  #define bl_likely(x)   __builtin_expect (!!(x), 1)
-  #define bl_unlikely(x) __builtin_expect (!!(x), 0)
-#else
-  #define bl_likely(x)   (x)
-  #define bl_unlikely(x) (x)
-#endif
-/*---------------------------------------------------------------------------*/
 #endif /*LGC_UTILITY_H*/
 
