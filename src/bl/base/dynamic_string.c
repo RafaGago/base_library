@@ -270,15 +270,15 @@ BL_EXPORT char* bl_dstr_steal_ownership (bl_dstr *s)
   return ret;
 }
 /*---------------------------------------------------------------------------*/
-BL_EXPORT void bl_dstr_transfer_ownership_l(
-  bl_dstr *s, char* str, bl_uword len
+BL_EXPORT void bl_dstr_transfer_ownership_lc(
+  bl_dstr *s, char* str, bl_uword len, bl_uword capacity
   )
 {
   bl_assert (strnlen (str, len) >= len);
   bl_dstr_destroy (s);
   s->da.str  = str;
   s->len     = len;
-  s->da.size = len + (len != 0);
+  s->da.size = capacity + (capacity != 0);
 }
 /*---------------------------------------------------------------------------*/
 BL_EXPORT bl_uword bl_dstr_find_l(

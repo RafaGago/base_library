@@ -18,7 +18,7 @@ extern "C" {
 typedef int (*bl_ctype_func) (int character);
 /*---------------------------------------------------------------------------*/
 typedef struct bl_dstr_arr {
-  char* str;
+  char*    str;
   bl_uword size;
 }
 bl_dstr_arr;
@@ -80,7 +80,7 @@ static inline char const* bl_dstr_beg (bl_dstr const *s)
 /*---------------------------------------------------------------------------*/
 static inline char const* bl_dstr_end (bl_dstr const *s)
 {
-  return bl_dstr_get (s) + bl_dstr_len (s);
+  return bl_dstr_beg (s) + bl_dstr_len (s);
 }
 /*---------------------------------------------------------------------------*/
 static inline bl_alloc_tbl const* bl_dstr_alloc (bl_dstr const *s)
@@ -90,9 +90,16 @@ static inline bl_alloc_tbl const* bl_dstr_alloc (bl_dstr const *s)
 /*---------------------------------------------------------------------------*/
 extern BL_EXPORT char* bl_dstr_steal_ownership (bl_dstr *s);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT void bl_dstr_transfer_ownership_l(
-  bl_dstr *s, char* heap_string_from_same_alloc, bl_uword len
+extern BL_EXPORT void bl_dstr_transfer_ownership_lc(
+  bl_dstr *s, char* heap_string_from_same_alloc, bl_uword len, bl_uword capacity
   );
+/*---------------------------------------------------------------------------*/
+static inline void bl_dstr_transfer_ownership_l(
+  bl_dstr *s, char* heap_string_from_same_alloc, bl_uword len
+  )
+{
+  bl_dstr_transfer_ownership_lc (s, heap_string_from_same_alloc, len, len);
+}
 /*---------------------------------------------------------------------------*/
 static inline void bl_dstr_transfer_ownership(
   bl_dstr *s, char* heap_string_from_same_alloc
@@ -117,11 +124,11 @@ extern BL_EXPORT bl_uword bl_dstr_find_l(
 extern BL_EXPORT bl_err bl_dstr_replace_l(
   bl_dstr*    s,
   char const* match,
-  bl_uword       match_len,
+  bl_uword    match_len,
   char const* replace,
-  bl_uword       replace_len,
-  bl_uword       offset,
-  bl_uword       max_replace_count /* 0 replaces all matches */
+  bl_uword    replace_len,
+  bl_uword    offset,
+  bl_uword    max_replace_count /* 0 replaces all matches */
   );
 /*---------------------------------------------------------------------------*/
 #define bl_dstr_set_lit(s, lit) bl_dstr_set_l ((s), lit, sizeof lit - 1)
@@ -157,7 +164,7 @@ static inline bl_err bl_dstr_replace(
   bl_dstr    *s,
   char const *match,
   char const *replace,
-  bl_uword   offset,
+  bl_uword    offset,
   bl_uword    count
   )
 {
@@ -188,8 +195,8 @@ static inline bl_err bl_dstr_replace_o(
   bl_dstr       *s,
   bl_dstr const *match,
   bl_dstr const *replace,
-  bl_uword         offset,
-  bl_uword         count
+  bl_uword       offset,
+  bl_uword       count
   )
 {
   return bl_dstr_replace_l(
