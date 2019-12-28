@@ -16,8 +16,6 @@ typedef bl_i32          bl_atomic_i32;
 typedef bl_i64          bl_atomic_i64;
 typedef float           bl_atomic_float;
 typedef double          bl_atomic_double;
-typedef bl_atomic_u32   bl_atomic_float;
-typedef bl_atomic_u64   bl_atomic_double;
 typedef int             bl_memory_order;
 typedef bl_memory_order bl_mem_order;
 /*---------------------------------------------------------------------------*/
