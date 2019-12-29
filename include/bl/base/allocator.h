@@ -36,7 +36,7 @@
 typedef struct bl_alloc_tbl bl_alloc_tbl;
 /*---------------------------------------------------------------------------*/
 typedef void* (*bl_alloc_signature) (size_t bytes, bl_alloc_tbl const* invoker);
-typedef void* (*rebl_alloc_signature)(
+typedef void* (*bl_realloc_signature)(
   void* mem, size_t new_size, bl_alloc_tbl const* invoker
   );
 typedef void (*bl_dealloc_signature)(
@@ -45,7 +45,7 @@ typedef void (*bl_dealloc_signature)(
 /*---------------------------------------------------------------------------*/
 typedef struct bl_alloc_tbl {
   bl_alloc_signature   alloc;
-  rebl_alloc_signature realloc;
+  bl_realloc_signature realloc;
   bl_dealloc_signature dealloc;
 }
 bl_alloc_tbl;
