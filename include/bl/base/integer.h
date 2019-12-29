@@ -90,13 +90,15 @@ typedef int8_t   bl_i8;
   #define BL_HAS_BIG_D4 0
 #endif
 /*---------------------------------------------------------------------------*/
-#define bl_utype_max(type) ((type) (~((type) 0)))
+#define bl_utype_max(type) ((type) (~0ull))
 /*---------------------------------------------------------------------------*/
-#define bl_itype_max(type) (bl_utype_max (type) >> (type) 1)
+#define bl_itype_max(type) \
+  ((type) ((1ull << ((sizeof (type) * 8) - 1)) - 1))
 /*---------------------------------------------------------------------------*/
 #define bl_has_two_comp_arithmetic (bl_utype_max (unsigned) == (unsigned) -1)
 /*---------------------------------------------------------------------------*/
 #define bl_itype_min(type) bl_has_two_comp_arithmetic ?\
   (-bl_itype_max (type) - 1) : (-bl_itype_max (type))
+/*---------------------------------------------------------------------------*/
 
 #endif /* __INTEGER_H__ */

@@ -174,7 +174,7 @@ BL_EXPORT bl_err bl_tm_sem_init (bl_tm_sem* s)
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err bl_tm_sem_destroy (bl_tm_sem* s)
 {
-  bl_word woken = futex_wake (&s->sem, bl_itype_max (bl_word));
+  bl_word woken = futex_wake (&s->sem, bl_itype_max (bl_i32));
   bl_assert (woken == 0);
   /*if this returns an error there still are waiters -> wrong user shutdown*/
   return bl_mkerr ((woken == 0) ? bl_ok : bl_error);
