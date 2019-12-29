@@ -16,6 +16,8 @@
   (((candidate) % (base)) == 0)
 #define bl_is_multiple(candidate, base)\
     ((candidate) && (base) && (bl_is_multiple_unsafe ((candidate), (base))))
+/* only well defined for signed types, as it can wrap */
+#define bl_two_complement_u(v) ((~(v)) + 1)
 /*---------------------------------------------------------------------------*/
 #define bl_pow2_u8(val) (((bl_u8) 1) << (val))
 #define bl_pow2_u16(val) (((bl_u16) 1) << (val))
