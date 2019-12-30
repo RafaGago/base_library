@@ -5,140 +5,174 @@
 #include <bl/base/platform.h>
 #include <bl/base/endian.h>
 #include <bl/base/integer.h>
+#include <bl/base/utility.h>
 
 #define bl_has_one_or_zero_bits_set(x) (!((x) & ((x) - 1)))
 /*---------------------------------------------------------------------------*/
-#define bl_utype_bit(lsb_offset, type)\
-          (((type) 1) << ((type) (lsb_offset)))
-#define bl_utype_bitv(val, lsb_offset, type)\
-          (((val) & ((type) 1)) << ((type) (lsb_offset)))
-#define bl_utype_lsb_set(bit_count, type)\
-          ((((type) 1) << ((type) (bit_count))) - ((type) 1))
-#define bl_utype_msb_set(bit_count, type)\
-          ((type) (~(bl_utype_max (type) >> ((type) (bit_count)))))
-#define bl_utype_lsb_set_shift(bytes_set, from_lsb_shift_bits, type)\
-          (bl_utype_lsb_set \
-            ((bytes_set), type) << ((type) (from_lsb_shift_bits)) \
-            )
-#define bl_utype_lsb_shift(val, lsb_offset, lsb_bit_count, type)\
-          (((val) & bl_utype_lsb_set ((lsb_bit_count), type)) <<\
-              ((type) (lsb_offset)))
-#define bl_utype_get_bit(var, lsb_offset, type)\
-          ((((type) var) >> (lsb_offset)) & ((type) 1))
-#define bl_utype_var_set_bitv(var, lsb_offset, val, type)\
-          (((var) & ~bl_utype_bit ((lsb_offset), type)) |\
-           bl_utype_bitv ((val), (lsb_offset), type))
+/* returns all ones for a given type */
+#define bl_allset(type) ((type) ~((type) 0)) \
+/* returns all bits set if condition is matched, otherwise all bits clear  */
+#define bl_allset_if(cond, type) \
+  (((type) (!(cond))) - (type) 1)
+/* shift just masking the shift count to avoid undefined behavior */
+#define bl_lshift_wrap(v, n, type) \
+  (((type) (v)) << ((n) & (bl_type_bits (type) - 1)))
+/* shift just masking the shift count to avoid undefined behavior */
+#define bl_rshift_wrap(v, n, type) \
+  (((type) (v)) >> ((n) & (bl_type_bits (type) - 1)))
+/* shift with sane behavior, shifts out of range result in 0*/
+#define bl_lshift_safe(v, n, type) \
+  bl_lshift_wrap( \
+    bl_allset_if ((n) < bl_type_bits (type), type) & ((type) (v)), \
+    (n), \
+    type \
+    )
+/* shift with sane behavior, shifts out of range result in 0*/
+#define bl_rshift_safe(v, n, type) \
+  bl_rshift_wrap( \
+    bl_allset_if ((n) < bl_type_bits (type), type) & ((type) (v)), \
+    (n), \
+    type \
+    )
+/* set byte idx starting from LSB */
+#define bl_utype_bit(idx, type) \
+  bl_lshift_safe (1, (idx), type)
+/* set byte idx (starting from LSB) to value  */
+#define bl_utype_bitv(v, idx, type) \
+  bl_lshift_safe (!!(v), idx, type)
+/* set N bits from LSB. 0 does nothing. */
+#define bl_utype_lsb_set(n, type) \
+  (bl_lshift_safe (1, (n), type) - ((type) 1))
+/* set N bits from MSB. 0 does nothing. */
+#define bl_utype_msb_set(n, type) \
+  ((type) ~bl_rshift_safe (bl_allset (type), (n), type))
+/* sets "n" bits from the lsb and shits them "shift" positions */
+#define bl_utype_lsb_set_shift(n, shift, type)\
+  bl_lshift_safe (bl_utype_lsb_set ((n), type), (shift), type)
+/* this could be named "bl_utype_mask_and_lshift". masks a value and shifts it*/
+#define bl_utype_lsb_shift(v, shift, v_lsb_count, type)\
+  bl_lshift_safe( \
+    (((type) (v)) & bl_utype_lsb_set ((v_lsb_count), type)), \
+    (shift), \
+    type \
+    )
+/* gets the value of a bit at some position */
+#define bl_utype_get_bit(v, idx, type) \
+  (bl_rshift_safe ((v), (idx), type) & ((type) 1))
+/* sets the value of a bit at some position */
+#define bl_utype_var_set_bitv(var, idx, v, type)\
+  (((var) & ~bl_utype_bit ((idx), type)) | bl_utype_bitv ((v), (idx), type))
 /*the first LSB that is clear, e.g on 1111001 would return 0000010*/
 #define bl_utype_first_clear_lsb_mask(var, type)\
-          ((type) (~((type) var) & (((type) var) + 1)))
+  ((type) (~((type) (var)) & (((type) (var)) + 1)))
 /*the first LSB that is set, e.g on 1111001 would return 0000001*/
 #define bl_utype_first_set_lsb_mask(var, type)\
-          (((type) var) & -((type) var))
+  (((type) var) & -((type) var))
 /*---------------------------------------------------------------------------*/
-#define bl_u_bit(lsb_offset)\
-          bl_utype_bit ((lsb_offset), bl_uword)
-#define bl_u_bitv(val, lsb_offset)\
-          bl_utype_bitv ((val), (lsb_offset), bl_uword)
+#define bl_u_bit(idx)\
+  bl_utype_bit ((idx), bl_uword)
+#define bl_u_bitv(val, idx)\
+  bl_utype_bitv ((val), (idx), bl_uword)
 #define bl_u_lsb_set(bit_count)\
-          bl_utype_lsb_set ((bit_count), bl_uword)
+  bl_utype_lsb_set ((bit_count), bl_uword)
 #define bl_u_msb_set(bit_count)\
-          bl_utype_msb_set ((bit_count), bl_uword)
+  bl_utype_msb_set ((bit_count), bl_uword)
 #define bl_u_lsb_set_shift(bytes_set, from_lsb_shift_bits)\
-          bl_utype_lsb_set_shift ((bytes_set), (from_lsb_shift_bits), bl_uword)
-#define bl_u_lsb_shift(val, lsb_offset, lsb_bit_count)\
-          bl_utype_lsb_shift ((val), (lsb_offset), (lsb_bit_count), bl_uword)
-#define bl_u_get_bit(var, lsb_offset)\
-          bl_utype_get_bit ((var), (lsb_offset), bl_uword)
-#define bl_u_var_set_bitv(var, lsb_offset, val)\
-          bl_utype_var_set_bitv ((var), (lsb_offset), (val), bl_uword)
+  bl_utype_lsb_set_shift ((bytes_set), (from_lsb_shift_bits), bl_uword)
+#define bl_u_lsb_shift(val, idx, lsb_bit_count)\
+  bl_utype_lsb_shift ((val), (idx), (lsb_bit_count), bl_uword)
+#define bl_u_get_bit(var, idx)\
+  bl_utype_get_bit ((var), (idx), bl_uword)
+#define bl_u_var_set_bitv(var, idx, val)\
+  bl_utype_var_set_bitv ((var), (idx), (val), bl_uword)
 #define bl_u_first_clear_lsb_mask(var)\
-          bl_utype_first_clear_lsb_mask ((var), bl_uword)
+  bl_utype_first_clear_lsb_mask ((var), bl_uword)
 #define bl_u_first_set_lsb_mask(var)\
-           bl_utype_first_set_lsb_mask ((var), bl_uword)
+   bl_utype_first_set_lsb_mask ((var), bl_uword)
 /*---------------------------------------------------------------------------*/
-#define bl_u8_bit(lsb_offset)\
-          bl_utype_bit ((lsb_offset), bl_u8)
-#define bl_u8_bitv(val, lsb_offset)\
-          bl_utype_bitv ((val), (lsb_offset), bl_u8)
+#define bl_u8_bit(idx)\
+  bl_utype_bit ((idx), bl_u8)
+#define bl_u8_bitv(val, idx)\
+  bl_utype_bitv ((val), (idx), bl_u8)
 #define bl_u8_lsb_set(bit_count)\
-          bl_utype_lsb_set ((bit_count), bl_u8)
+  bl_utype_lsb_set ((bit_count), bl_u8)
 #define bl_u8_msb_set(bit_count)\
-          bl_utype_msb_set ((bit_count), bl_u8)
+  bl_utype_msb_set ((bit_count), bl_u8)
 #define bl_u8_lsb_set_shift(bytes_set, from_lsb_shift_bits)\
-          bl_utype_lsb_set_shift ((bytes_set), (from_lsb_shift_bits), bl_u8)
-#define bl_u8_lsb_shift(val, lsb_offset, lsb_bit_count)\
-          bl_utype_lsb_shift ((val), (lsb_offset), (lsb_bit_count), bl_u8)
-#define bl_u8_get_bit(var, lsb_offset)\
-          bl_utype_get_bit ((var), (lsb_offset), bl_u8)
-#define bl_u8_var_set_bitv(var, lsb_offset, val)\
-          bl_utype_var_set_bitv ((var), (lsb_offset), (val), bl_u8)
+  bl_utype_lsb_set_shift ((bytes_set), (from_lsb_shift_bits), bl_u8)
+#define bl_u8_lsb_shift(val, idx, lsb_bit_count)\
+  bl_utype_lsb_shift ((val), (idx), (lsb_bit_count), bl_u8)
+#define bl_u8_get_bit(var, idx)\
+  bl_utype_get_bit ((var), (idx), bl_u8)
+#define bl_u8_var_set_bitv(var, idx, val)\
+  bl_utype_var_set_bitv ((var), (idx), (val), bl_u8)
 #define bl_u8_first_clear_lsb_mask(var)\
-          bl_utype_first_clear_lsb_mask ((var), bl_u8)
+  bl_utype_first_clear_lsb_mask ((var), bl_u8)
 #define bl_u8_first_set_lsb_mask(var)\
-           bl_utype_first_set_lsb_mask ((var), bl_u8)
+   bl_utype_first_set_lsb_mask ((var), bl_u8)
 /*---------------------------------------------------------------------------*/
-#define bl_u16_bit(lsb_offset)\
-          bl_utype_bit ((lsb_offset), bl_u16)
-#define bl_u16_bitv(val, lsb_offset)\
-          bl_utype_bitv ((val), (lsb_offset), bl_u16)
+#define bl_u16_bit(idx)\
+  bl_utype_bit ((idx), bl_u16)
+#define bl_u16_bitv(val, idx)\
+  bl_utype_bitv ((val), (idx), bl_u16)
 #define bl_u16_lsb_set(bit_count)\
-          bl_utype_lsb_set ((bit_count), bl_u16)
+  bl_utype_lsb_set ((bit_count), bl_u16)
 #define bl_u16_msb_set(bit_count)\
-          bl_utype_msb_set ((bit_count), bl_u16)
+  bl_utype_msb_set ((bit_count), bl_u16)
 #define bl_u16_lsb_set_shift(bytes_set, from_lsb_shift_bits)\
-          bl_utype_lsb_set_shift ((bytes_set), (from_lsb_shift_bits), bl_u16)
-#define bl_u16_lsb_shift(val, lsb_offset, lsb_bit_count)\
-          bl_utype_lsb_shift ((val), (lsb_offset), (lsb_bit_count), bl_u16)
-#define bl_u16_get_bit(var, lsb_offset)\
-          bl_utype_get_bit ((var), (lsb_offset), bl_u16)
-#define bl_u16_var_set_bitv(var, lsb_offset, val)\
-          bl_utype_var_set_bitv ((var), (lsb_offset), (val), bl_u16)
+  bl_utype_lsb_set_shift ((bytes_set), (from_lsb_shift_bits), bl_u16)
+#define bl_u16_lsb_shift(val, idx, lsb_bit_count)\
+  bl_utype_lsb_shift ((val), (idx), (lsb_bit_count), bl_u16)
+#define bl_u16_get_bit(var, idx)\
+  bl_utype_get_bit ((var), (idx), bl_u16)
+#define bl_u16_var_set_bitv(var, idx, val)\
+  bl_utype_var_set_bitv ((var), (idx), (val), bl_u16)
 #define bl_u16_first_clear_lsb_mask(var)\
-          bl_utype_first_clear_lsb_mask ((var), bl_u16)
+  bl_utype_first_clear_lsb_mask ((var), bl_u16)
 #define bl_u16_first_set_lsb_mask(var)\
-           bl_utype_first_set_lsb_mask ((var), bl_u16)
+   bl_utype_first_set_lsb_mask ((var), bl_u16)
 /*---------------------------------------------------------------------------*/
-#define bl_u32_bit(lsb_offset)\
-          bl_utype_bit ((lsb_offset), bl_u32)
-#define bl_u32_bitv(val, lsb_offset)\
-          bl_utype_bitv ((val), (lsb_offset), bl_u32)
+#define bl_u32_bit(idx)\
+  bl_utype_bit ((idx), bl_u32)
+#define bl_u32_bitv(val, idx)\
+  bl_utype_bitv ((val), (idx), bl_u32)
 #define bl_u32_lsb_set(bit_count)\
-          bl_utype_lsb_set ((bit_count), bl_u32)
+  bl_utype_lsb_set ((bit_count), bl_u32)
 #define bl_u32_msb_set(bit_count)\
-          bl_utype_msb_set ((bit_count), bl_u32)
+  bl_utype_msb_set ((bit_count), bl_u32)
 #define bl_u32_lsb_set_shift(bytes_set, from_lsb_shift_bits)\
-          bl_utype_lsb_set_shift ((bytes_set), (from_lsb_shift_bits), bl_u32)
-#define bl_u32_lsb_shift(val, lsb_offset, lsb_bit_count)\
-          bl_utype_lsb_shift ((val), (lsb_offset), (lsb_bit_count), bl_u32)
-#define bl_u32_get_bit(var, lsb_offset)\
-          bl_utype_get_bit ((var), (lsb_offset), bl_u32)
-#define bl_u32_var_set_bitv(var, lsb_offset, val)\
-          bl_utype_var_set_bitv ((var), (lsb_offset), (val), bl_u32)
+  bl_utype_lsb_set_shift ((bytes_set), (from_lsb_shift_bits), bl_u32)
+#define bl_u32_lsb_shift(val, idx, lsb_bit_count)\
+  bl_utype_lsb_shift ((val), (idx), (lsb_bit_count), bl_u32)
+#define bl_u32_get_bit(var, idx)\
+  bl_utype_get_bit ((var), (idx), bl_u32)
+#define bl_u32_var_set_bitv(var, idx, val)\
+  bl_utype_var_set_bitv ((var), (idx), (val), bl_u32)
 #define bl_u32_first_clear_lsb_mask(var)\
-          bl_utype_first_clear_lsb_mask ((var), bl_u32)
+  bl_utype_first_clear_lsb_mask ((var), bl_u32)
 #define bl_u32_first_set_lsb_mask(var)\
-           bl_utype_first_set_lsb_mask ((var), bl_u32)
+   bl_utype_first_set_lsb_mask ((var), bl_u32)
 /*---------------------------------------------------------------------------*/
-#define bl_u64_bit(lsb_offset)\
-          bl_utype_bit ((lsb_offset), bl_u64)
-#define bl_u64_bitv(val, lsb_offset)\
-          bl_utype_bitv ((val), (lsb_offset), bl_u64)
+#define bl_u64_bit(idx)\
+  bl_utype_bit ((idx), bl_u64)
+#define bl_u64_bitv(val, idx)\
+  bl_utype_bitv ((val), (idx), bl_u64)
 #define bl_u64_lsb_set(bit_count)\
-          bl_utype_lsb_set ((bit_count), bl_u64)
+  bl_utype_lsb_set ((bit_count), bl_u64)
 #define bl_u64_msb_set(bit_count)\
-          bl_utype_msb_set ((bit_count), bl_u64)
+  bl_utype_msb_set ((bit_count), bl_u64)
 #define bl_u64_lsb_set_shift(bytes_set, from_lsb_shift_bits)\
-          bl_utype_lsb_set_shift ((bytes_set), (from_lsb_shift_bits), bl_u64)
-#define bl_u64_lsb_shift(val, lsb_offset, lsb_bit_count)\
-          bl_utype_lsb_shift ((val), (lsb_offset), (lsb_bit_count), bl_u64)
-#define bl_u64_get_bit(var, lsb_offset)\
-          bl_utype_get_bit ((var), (lsb_offset), bl_u64)
-#define bl_u64_var_set_bitv(var, lsb_offset, val)\
-          bl_utype_var_set_bitv ((var), (lsb_offset), (val), bl_u64)
+  bl_utype_lsb_set_shift ((bytes_set), (from_lsb_shift_bits), bl_u64)
+#define bl_u64_lsb_shift(val, idx, lsb_bit_count)\
+  bl_utype_lsb_shift ((val), (idx), (lsb_bit_count), bl_u64)
+#define bl_u64_get_bit(var, idx)\
+  bl_utype_get_bit ((var), (idx), bl_u64)
+#define bl_u64_var_set_bitv(var, idx, val)\
+  bl_utype_var_set_bitv ((var), (idx), (val), bl_u64)
 #define bl_u64_first_clear_lsb_mask(var)\
-          bl_utype_first_clear_lsb_mask ((var), bl_u64)
+  bl_utype_first_clear_lsb_mask ((var), bl_u64)
 #define bl_u64_first_set_lsb_mask(var)\
-           bl_utype_first_set_lsb_mask ((var), bl_u64)
+   bl_utype_first_set_lsb_mask ((var), bl_u64)
 /*---------------------------------------------------------------------------*/
 #define bl_read_u64_low_mem_to_lsb(byte_ptr)\
   (\
