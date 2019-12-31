@@ -121,6 +121,13 @@ It adds:
 
 Depends on: base.
 
+2. (itostr) Sane string conversions
+-----------------------------------
+
+String conversions with a sane interface.
+
+Depends on: base
+
 Current status
 ==============
 

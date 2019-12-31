@@ -117,6 +117,7 @@ base_srcs = [
     'src/bl/base/ordered_ringbuffer.c',
     'src/bl/base/flat_deadlines.c',
     'src/bl/base/error.c',
+    'src/bl/base/default_allocator.c',
     'src/bl/base/generated/alnls/array_linked_list_u8_basic.c',
     'src/bl/base/generated/alnls/array_linked_list_u8_extended.c',
     'src/bl/base/generated/alnls/array_linked_list_u16_basic.c',
@@ -393,4 +394,41 @@ if get_option ('timepoint_64bit')
                 dependencies        : [cmocka_dep]
             ))
     endif
+endif
+
+# - tostr ----------------------------------------------------------------------
+
+tostr_srcs = [
+    'src/bl/tostr/itostr.c',
+]
+tostr_test_srcs = [
+    'test/src/bl/tostr/itostr_test.c',
+    'test/src/bl/tostr/tests_main.c',
+]
+tostr_lib = build_target(
+    'bl-tostr',
+    tostr_srcs,
+    target_type         : libtype,
+    include_directories : include_dirs,
+    c_args              : cflags + lib_cflags + ['-DBL_COMPILATION'],
+    install             : true
+    )
+pkg_mod.generate(
+    tostr_lib,
+    version     : '0.0.1',
+    name        : 'libbl-tostr',
+    filebase    : 'bl-tostr',
+    description : 'sane string conversions from integers'
+    )
+if not get_option ('bare')
+    test(
+        'bl-tostr-test',
+        executable(
+            'bl-tostr-test',
+            tostr_test_srcs,
+            c_args              : cflags + ['-DBL_COMPILATION'],
+            link_with           : [ base_lib, tostr_lib ] ,
+            include_directories : test_include_dirs,
+            dependencies        : [cmocka_dep]
+        ))
 endif
