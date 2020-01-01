@@ -11,76 +11,61 @@
 #define COMMA() ,
 #define ARGS() 1000 COMMA() 1001
 
-static bl_alloc_tbl alloc;
 /*---------------------------------------------------------------------------*/
-static int run_vasnprintf_ex(
-  char**      str,
-  int         str_size,
-  int         str_offset,
-  char const* format,
-  ...
-  )
+static void bl_string_asnprintf_success_first_alloc (void **state)
 {
-  va_list args;
-  va_start (args, format);
-  int ret = bl_vasprintf_ext(
-    str, str_size, str_offset, 0, &alloc, format, args
-    );
-  va_end (args);
-  return ret;
+  bl_dstrbuf b = bl_dstrbuf_init (nullptr, 0, 0, nullptr);
+  /* exact hint */
+  bl_err err   = bl_asnprintf (&b, bl_lit_len (EXPECTED), FORMAT, ARGS());
+  assert_int_equal (err.own, bl_ok);
+  assert_int_equal (b.len, bl_lit_len (EXPECTED));
+  assert_int_equal (b.maxlen, bl_lit_len (EXPECTED));
+  bl_dealloc (&bl_default_alloc, b.str);
 }
 /*---------------------------------------------------------------------------*/
-static void bl_string_vasnprintf_ex_success_first_alloc (void **state)
+static void bl_string_asnprintf_success_second_alloc (void **state)
 {
-  char* str = nullptr;
-  int ret   = run_vasnprintf_ex (&str, sizeof EXPECTED, 0, FORMAT, ARGS());
-  assert_int_equal (ret, bl_lit_len (EXPECTED));
-  assert_string_equal (str, EXPECTED);
-  bl_dealloc (&alloc, str);
+  bl_dstrbuf b = bl_dstrbuf_init (nullptr, 0, 0, nullptr);
+  bl_err err   = bl_asnprintf (&b, 1, FORMAT, ARGS()); /* bad hint */
+  assert_int_equal (err.own, bl_ok);
+  assert_int_equal (b.len, bl_lit_len (EXPECTED));
+  assert_int_equal (b.maxlen, bl_lit_len (EXPECTED));
+  bl_dealloc (&bl_default_alloc, b.str);
 }
 /*---------------------------------------------------------------------------*/
-static void bl_string_vasnprintf_ex_success_second_alloc (void **state)
+static void bl_string_asnprintf_success_first_alloc_buffer (void **state)
 {
-  char* str = nullptr;
-  int ret   = run_vasnprintf_ex(
-    &str, bl_lit_len (EXPECTED), 0, FORMAT, ARGS()
-    );
-  assert_int_equal (ret, bl_lit_len (EXPECTED));
-  assert_string_equal (str, EXPECTED);
-  bl_dealloc (&alloc, str);
+  char* buff = (char*) bl_alloc (&bl_default_alloc, sizeof EXPECTED);
+  assert_true (buff != nullptr);
+  bl_dstrbuf b = bl_dstrbuf_init (buff, 0, bl_lit_len (EXPECTED), nullptr);
+  bl_err err   = bl_asnprintf (&b, 1, FORMAT, ARGS()); /* bad hint */
+  assert_int_equal (err.own, bl_ok);
+  assert_int_equal (b.len, bl_lit_len (EXPECTED));
+  assert_int_equal (b.maxlen, bl_lit_len (EXPECTED));
+  bl_dealloc (&bl_default_alloc, b.str);
 }
 /*---------------------------------------------------------------------------*/
-static void bl_string_vasnprintf_ex_success_first_alloc_buffer (void **state)
+static void bl_string_asnprintf_success_second_alloc_buffer (void **state)
 {
-  char buff[sizeof EXPECTED];
-  char* str = buff;
-  int ret   = run_vasnprintf_ex (&str, sizeof buff, 0, FORMAT, ARGS());
-  assert_int_equal (ret, bl_lit_len (EXPECTED));
-  assert_string_equal (str, EXPECTED);
-  assert_ptr_equal (str, buff);
-}
-/*---------------------------------------------------------------------------*/
-static void bl_string_vasnprintf_ex_success_second_alloc_buffer (void **state)
-{
-  char buff[bl_lit_len (EXPECTED)];
-  char* str = buff;
-  int ret   = run_vasnprintf_ex (&str, sizeof buff, 0, FORMAT, ARGS());
-  assert_int_equal (ret, bl_lit_len (EXPECTED));
-  assert_string_equal (str, EXPECTED);
-  assert_ptr_not_equal (str, buff);
-  bl_dealloc (&alloc, str);
+  char* buff = (char*) bl_alloc (&bl_default_alloc, sizeof EXPECTED / 2);
+  assert_true (buff != nullptr);
+  bl_dstrbuf b = bl_dstrbuf_init (buff, 0, bl_lit_len (EXPECTED), nullptr);
+  bl_err err   = bl_asnprintf (&b, 1, FORMAT, ARGS()); /* bad hint */
+  assert_int_equal (err.own, bl_ok);
+  assert_int_equal (b.len, bl_lit_len (EXPECTED));
+  assert_int_equal (b.maxlen, bl_lit_len (EXPECTED));
+  bl_dealloc (&bl_default_alloc, b.str);
 }
 /*---------------------------------------------------------------------------*/
 static const struct CMUnitTest tests[] = {
-  cmocka_unit_test (bl_string_vasnprintf_ex_success_first_alloc),
-  cmocka_unit_test (bl_string_vasnprintf_ex_success_second_alloc),
-  cmocka_unit_test (bl_string_vasnprintf_ex_success_first_alloc_buffer),
-  cmocka_unit_test (bl_string_vasnprintf_ex_success_second_alloc_buffer),
+  cmocka_unit_test (bl_string_asnprintf_success_first_alloc),
+  cmocka_unit_test (bl_string_asnprintf_success_second_alloc),
+  cmocka_unit_test (bl_string_asnprintf_success_first_alloc_buffer),
+  cmocka_unit_test (bl_string_asnprintf_success_second_alloc_buffer),
 };
 /*---------------------------------------------------------------------------*/
 int bl_string_tests (void)
 {
-  alloc = bl_get_default_alloc();
   return cmocka_run_group_tests (tests, nullptr, nullptr);
 }
 /*---------------------------------------------------------------------------*/

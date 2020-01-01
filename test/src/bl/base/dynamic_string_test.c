@@ -184,100 +184,100 @@ static void bl_dstrt_insert_middle_to_empty (void **state)
   bl_dstr_destroy (&s);
 }
 /*----------------------------------------------------------------------------*/
-static void bl_dstrt_set_va (void **state)
+static void bl_dstrt_set_va_h (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
-  bl_err err = bl_dstr_set_va (&s, "%s%s%s", STRING1, STRING2, STRING3);
+  bl_err err = bl_dstr_set_va_h (&s, "%s%s%s", STRING1, STRING2, STRING3);
   assert_int_equal (err.own, bl_ok);
   assert_int_equal (bl_dstr_len (&s), bl_lit_len (STRING1 STRING2 STRING3));
   assert_string_equal (bl_dstr_get (&s), STRING1 STRING2 STRING3);
   bl_dstr_destroy (&s);
 }
 /*----------------------------------------------------------------------------*/
-static void bl_dstrt_append_va (void **state)
+static void bl_dstrt_append_va_h (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
   bl_err err = bl_dstr_set (&s, STRING1);
   assert_int_equal (err.own, bl_ok);
-  err = bl_dstr_append_va (&s, "%s%s", STRING2, STRING3);
+  err = bl_dstr_append_va_h (&s, "%s%s", STRING2, STRING3);
   assert_int_equal (err.own, bl_ok);
   assert_int_equal (bl_dstr_len (&s), bl_lit_len (STRING1 STRING2 STRING3));
   assert_string_equal (bl_dstr_get (&s), STRING1 STRING2 STRING3);
   bl_dstr_destroy (&s);
 }
 /*----------------------------------------------------------------------------*/
-static void bl_dstrt_append_va_to_empty (void **state)
+static void bl_dstrt_append_va_h_to_empty (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
-  bl_err err = bl_dstr_append_va (&s, "%s%s", STRING2, STRING3);
+  bl_err err = bl_dstr_append_va_h (&s, "%s%s", STRING2, STRING3);
   assert_int_equal (err.own, bl_ok);
   assert_int_equal (bl_dstr_len (&s), bl_lit_len (STRING2 STRING3));
   assert_string_equal (bl_dstr_get (&s), STRING2 STRING3);
   bl_dstr_destroy (&s);
 }
 /*----------------------------------------------------------------------------*/
-static void bl_dstrt_insert_head_va (void **state)
+static void bl_dstrt_insert_head_va_h (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
   bl_err err = bl_dstr_set (&s, STRING1);
   assert_int_equal (err.own, bl_ok);
-  err = bl_dstr_insert_va (&s, 0, "%s%s", STRING2, STRING3);
+  err = bl_dstr_insert_va_h (&s, 0, "%s%s", STRING2, STRING3);
   assert_int_equal (bl_dstr_len (&s), bl_lit_len (STRING2 STRING3 STRING1));
   assert_string_equal (bl_dstr_get (&s), STRING2 STRING3 STRING1);
   bl_dstr_destroy (&s);
 }
 /*----------------------------------------------------------------------------*/
-static void bl_dstrt_insert_middle_va (void **state)
+static void bl_dstrt_insert_middle_va_h (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
   bl_err err = bl_dstr_set (&s, STRING1 STRING3);
   assert_int_equal (err.own, bl_ok);
-  err = bl_dstr_insert_va (&s, bl_lit_len (STRING1), "%s", STRING2);
+  err = bl_dstr_insert_va_h (&s, bl_lit_len (STRING1), "%s", STRING2);
   assert_int_equal (bl_dstr_len (&s), bl_lit_len (STRING1 STRING2 STRING3));
   assert_string_equal (bl_dstr_get (&s), STRING1 STRING2 STRING3);
   bl_dstr_destroy (&s);
 }
 /*----------------------------------------------------------------------------*/
-static void bl_dstrt_insert_head_va_prealloc (void **state)
+static void bl_dstrt_insert_head_va_h_prealloc (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
   bl_err err = bl_dstr_set_capacity (&s, bl_lit_len (STRING2 STRING3 STRING1));
   assert_int_equal (err.own, bl_ok);
   err = bl_dstr_set (&s, STRING1);
   assert_int_equal (err.own, bl_ok);
-  err = bl_dstr_insert_va (&s, 0, "%s%s", STRING2, STRING3);
+  err = bl_dstr_insert_va_h (&s, 0, "%s%s", STRING2, STRING3);
   assert_int_equal (bl_dstr_len (&s), bl_lit_len (STRING2 STRING3 STRING1));
   assert_string_equal (bl_dstr_get (&s), STRING2 STRING3 STRING1);
   bl_dstr_destroy (&s);
 }
 /*----------------------------------------------------------------------------*/
-static void bl_dstrt_insert_middle_va_prealloc (void **state)
+static void bl_dstrt_insert_middle_va_h_prealloc (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
   bl_err err = bl_dstr_set_capacity (&s, bl_lit_len (STRING1 STRING2 STRING3));
   assert_int_equal (err.own, bl_ok);
   err = bl_dstr_set (&s, STRING1 STRING3);
   assert_int_equal (err.own, bl_ok);
-  err = bl_dstr_insert_va (&s, bl_lit_len (STRING1), "%s", STRING2);
+  err = bl_dstr_insert_va_h (&s, bl_lit_len (STRING1), "%s", STRING2);
   assert_int_equal (bl_dstr_len (&s), bl_lit_len (STRING1 STRING2 STRING3));
   assert_string_equal (bl_dstr_get (&s), STRING1 STRING2 STRING3);
   bl_dstr_destroy (&s);
 }
 /*----------------------------------------------------------------------------*/
-static void bl_dstrt_insert_head_va_to_empty (void **state)
+static void bl_dstrt_insert_head_va_h_to_empty (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
-  bl_err err = bl_dstr_insert_va (&s, 0, "%s%s", STRING2, STRING3);
+  bl_err err = bl_dstr_insert_va_h (&s, 0, "%s%s", STRING2, STRING3);
   assert_int_equal (err.own, bl_ok);
   assert_int_equal (bl_dstr_len (&s), bl_lit_len (STRING2 STRING3));
   assert_string_equal (bl_dstr_get (&s), STRING2 STRING3);
   bl_dstr_destroy (&s);
 }
 /*----------------------------------------------------------------------------*/
-static void bl_dstrt_insert_middle_va_to_empty (void **state)
+static void bl_dstrt_insert_middle_va_h_to_empty (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
-  bl_err err = bl_dstr_insert_va (&s, 99, "%s%s", STRING2, STRING3);
+  bl_err err = bl_dstr_insert_va_h (&s, 99, "%s%s", STRING2, STRING3);
   assert_int_equal (err.own, bl_ok);
   assert_int_equal (bl_dstr_len (&s), bl_lit_len (STRING2 STRING3));
   assert_string_equal (bl_dstr_get (&s), STRING2 STRING3);
@@ -287,7 +287,7 @@ static void bl_dstrt_insert_middle_va_to_empty (void **state)
 static void bl_dstrt_erase_head (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
-  bl_err err = bl_dstr_set_va (&s, STRING1 STRING2);
+  bl_err err = bl_dstr_set_va_h (&s, STRING1 STRING2);
   assert_int_equal (err.own, bl_ok);
   err = bl_dstr_erase_head (&s, bl_lit_len (STRING1));
   assert_int_equal (err.own, bl_ok);
@@ -299,7 +299,7 @@ static void bl_dstrt_erase_head (void **state)
 static void bl_dstrt_erase_head_out_of_range (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
-  bl_err err = bl_dstr_set_va (&s, STRING1);
+  bl_err err = bl_dstr_set_va_h (&s, STRING1);
   assert_int_equal (err.own, bl_ok);
   err = bl_dstr_erase_head (&s, bl_lit_len (STRING1) + 1);
   assert_int_equal (err.own, bl_range);
@@ -311,7 +311,7 @@ static void bl_dstrt_erase_head_out_of_range (void **state)
 static void bl_dstrt_erase_tail (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
-  bl_err err = bl_dstr_set_va (&s, STRING1 STRING2);
+  bl_err err = bl_dstr_set_va_h (&s, STRING1 STRING2);
   assert_int_equal (err.own, bl_ok);
   err = bl_dstr_erase_tail (&s, bl_lit_len (STRING2));
   assert_int_equal (err.own, bl_ok);
@@ -323,7 +323,7 @@ static void bl_dstrt_erase_tail (void **state)
 static void bl_dstrt_erase_tail_out_of_range (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
-  bl_err err = bl_dstr_set_va (&s, STRING1);
+  bl_err err = bl_dstr_set_va_h (&s, STRING1);
   assert_int_equal (err.own, bl_ok);
   err = bl_dstr_erase_tail (&s, bl_lit_len (STRING1) + 1);
   assert_int_equal (err.own, bl_range);
@@ -335,7 +335,7 @@ static void bl_dstrt_erase_tail_out_of_range (void **state)
 static void bl_dstrt_erase (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
-  bl_err err = bl_dstr_set_va (&s, STRING1 STRING2);
+  bl_err err = bl_dstr_set_va_h (&s, STRING1 STRING2);
   assert_int_equal (err.own, bl_ok);
   err = bl_dstr_erase (&s, bl_lit_len (STRING1), bl_lit_len (STRING2));
   assert_int_equal (err.own, bl_ok);
@@ -347,7 +347,7 @@ static void bl_dstrt_erase (void **state)
 static void bl_dstrt_erase_out_of_range (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
-  bl_err err = bl_dstr_set_va (&s, STRING1 STRING2);
+  bl_err err = bl_dstr_set_va_h (&s, STRING1 STRING2);
   assert_int_equal (err.own, bl_ok);
   err = bl_dstr_erase (&s, bl_lit_len (STRING1), bl_lit_len (STRING2) + 1);
   assert_int_equal (err.own, bl_range);
@@ -359,7 +359,7 @@ static void bl_dstrt_erase_out_of_range (void **state)
 static void bl_dstrt_erase_head_while (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
-  bl_err err = bl_dstr_set_va (&s, SPACES STRING1);
+  bl_err err = bl_dstr_set_va_h (&s, SPACES STRING1);
   assert_int_equal (err.own, bl_ok);
   err = bl_dstr_erase_head_while (&s, isspace, 1);
   assert_int_equal (err.own, bl_ok);
@@ -371,7 +371,7 @@ static void bl_dstrt_erase_head_while (void **state)
 static void bl_dstrt_erase_head_while_negated (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
-  bl_err err = bl_dstr_set_va (&s, STRING1 SPACES);
+  bl_err err = bl_dstr_set_va_h (&s, STRING1 SPACES);
   assert_int_equal (err.own, bl_ok);
   err = bl_dstr_erase_head_while (&s, isspace, 0);
   assert_int_equal (err.own, bl_ok);
@@ -383,7 +383,7 @@ static void bl_dstrt_erase_head_while_negated (void **state)
 static void bl_dstrt_erase_tail_while (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
-  bl_err err = bl_dstr_set_va (&s, STRING1 SPACES);
+  bl_err err = bl_dstr_set_va_h (&s, STRING1 SPACES);
   assert_int_equal (err.own, bl_ok);
   err = bl_dstr_erase_tail_while (&s, isspace, 1);
   assert_int_equal (err.own, bl_ok);
@@ -395,7 +395,7 @@ static void bl_dstrt_erase_tail_while (void **state)
 static void bl_dstrt_erase_tail_while_negated (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
-  bl_err err = bl_dstr_set_va (&s, SPACES STRING1);
+  bl_err err = bl_dstr_set_va_h (&s, SPACES STRING1);
   assert_int_equal (err.own, bl_ok);
   err = bl_dstr_erase_tail_while (&s, isspace, 0);
   assert_int_equal (err.own, bl_ok);
@@ -407,7 +407,7 @@ static void bl_dstrt_erase_tail_while_negated (void **state)
 static void bl_dstrt_erase_head_tail_while (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
-  bl_err err = bl_dstr_set_va (&s, SPACES STRING1 SPACES);
+  bl_err err = bl_dstr_set_va_h (&s, SPACES STRING1 SPACES);
   assert_int_equal (err.own, bl_ok);
   err = bl_dstr_erase_head_tail_while (&s, isspace, 1);
   assert_int_equal (err.own, bl_ok);
@@ -419,7 +419,7 @@ static void bl_dstrt_erase_head_tail_while (void **state)
 static void bl_dstrt_erase_head_tail_while_negated (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
-  bl_err err = bl_dstr_set_va (&s, STRING1 SPACES STRING3);
+  bl_err err = bl_dstr_set_va_h (&s, STRING1 SPACES STRING3);
   assert_int_equal (err.own, bl_ok);
   err = bl_dstr_erase_head_tail_while (&s, isspace, 0);
   assert_int_equal (err.own, bl_ok);
@@ -431,7 +431,7 @@ static void bl_dstrt_erase_head_tail_while_negated (void **state)
 static void bl_dstrt_apply_all (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
-  bl_err err = bl_dstr_set_va (&s, STRING1_LOWER);
+  bl_err err = bl_dstr_set_va_h (&s, STRING1_LOWER);
   assert_int_equal (err.own, bl_ok);
   err = bl_dstr_apply_all (&s, toupper);
   assert_int_equal (err.own, bl_ok);
@@ -443,7 +443,7 @@ static void bl_dstrt_apply_all (void **state)
 static void bl_dstrt_apply (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
-  bl_err err = bl_dstr_set_va (&s, STRING1_LOWER STRING2_LOWER);
+  bl_err err = bl_dstr_set_va_h (&s, STRING1_LOWER STRING2_LOWER);
   assert_int_equal (err.own, bl_ok);
   err = bl_dstr_apply(
     &s,
@@ -460,7 +460,7 @@ static void bl_dstrt_apply (void **state)
 static void bl_dstrt_apply_erange_end (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
-  bl_err err = bl_dstr_set_va (&s, STRING1);
+  bl_err err = bl_dstr_set_va_h (&s, STRING1);
   assert_int_equal (err.own, bl_ok);
   err = bl_dstr_apply (&s, toupper, 0, bl_lit_len (STRING1) + 1);
   assert_int_equal (err.own, bl_range);
@@ -470,7 +470,7 @@ static void bl_dstrt_apply_erange_end (void **state)
 static void bl_dstrt_apply_erange_start (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
-  bl_err err = bl_dstr_set_va (&s, STRING1);
+  bl_err err = bl_dstr_set_va_h (&s, STRING1);
   assert_int_equal (err.own, bl_ok);
   err = bl_dstr_apply(
     &s, toupper, (bl_lit_len (STRING1) / 2) + 1, bl_lit_len (STRING1) / 2
@@ -482,7 +482,7 @@ static void bl_dstrt_apply_erange_start (void **state)
 static void bl_dstrt_apply_no_op (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
-  bl_err err = bl_dstr_set_va (&s, STRING1);
+  bl_err err = bl_dstr_set_va_h (&s, STRING1);
   assert_int_equal (err.own, bl_ok);
   err = bl_dstr_apply(
     &s, toupper, bl_lit_len (STRING1) / 2, bl_lit_len (STRING1) / 2
@@ -493,7 +493,7 @@ static void bl_dstrt_apply_no_op (void **state)
   bl_dstr_destroy (&s);
 }
 /*----------------------------------------------------------------------------*/
-static void bl_dstrt_set_capacity_append_va (void **state)
+static void bl_dstrt_set_capacity_append_va_h (void **state)
 {
   bl_dstr s = bl_dstr_init_rv (&alloc);
   assert_int_equal (bl_dstr_get_capacity (&s), 0);
@@ -504,9 +504,9 @@ static void bl_dstrt_set_capacity_append_va (void **state)
   assert_int_equal (err.own, bl_ok);
   char const* ptr = bl_dstr_get (&s);
   bl_dstr_clear (&s);
-  err = bl_dstr_append_va (&s, "%s", STRING1);
+  err = bl_dstr_append_va_h (&s, "%s", STRING1);
   assert_int_equal (err.own, bl_ok);
-  err = bl_dstr_append_va (&s, "%s", STRING2);
+  err = bl_dstr_append_va_h (&s, "%s", STRING2);
   assert_int_equal (err.own, bl_ok);
   assert_int_equal (bl_dstr_get_capacity (&s), bl_dstr_len (&s));
   assert_string_equal (bl_dstr_get (&s), STRING1 STRING2);
@@ -810,15 +810,15 @@ static const struct CMUnitTest tests[] = {
   cmocka_unit_test (bl_dstrt_insert_head_null),
   cmocka_unit_test (bl_dstrt_insert_head_to_empty),
   cmocka_unit_test (bl_dstrt_insert_middle_to_empty),
-  cmocka_unit_test (bl_dstrt_set_va),
-  cmocka_unit_test (bl_dstrt_append_va),
-  cmocka_unit_test (bl_dstrt_append_va_to_empty),
-  cmocka_unit_test (bl_dstrt_insert_head_va),
-  cmocka_unit_test (bl_dstrt_insert_middle_va),
-  cmocka_unit_test (bl_dstrt_insert_head_va_prealloc),
-  cmocka_unit_test (bl_dstrt_insert_middle_va_prealloc),
-  cmocka_unit_test (bl_dstrt_insert_head_va_to_empty),
-  cmocka_unit_test (bl_dstrt_insert_middle_va_to_empty),
+  cmocka_unit_test (bl_dstrt_set_va_h),
+  cmocka_unit_test (bl_dstrt_append_va_h),
+  cmocka_unit_test (bl_dstrt_append_va_h_to_empty),
+  cmocka_unit_test (bl_dstrt_insert_head_va_h),
+  cmocka_unit_test (bl_dstrt_insert_middle_va_h),
+  cmocka_unit_test (bl_dstrt_insert_head_va_h_prealloc),
+  cmocka_unit_test (bl_dstrt_insert_middle_va_h_prealloc),
+  cmocka_unit_test (bl_dstrt_insert_head_va_h_to_empty),
+  cmocka_unit_test (bl_dstrt_insert_middle_va_h_to_empty),
   cmocka_unit_test (bl_dstrt_erase_head),
   cmocka_unit_test (bl_dstrt_erase_head_out_of_range),
   cmocka_unit_test (bl_dstrt_erase_tail),
@@ -836,7 +836,7 @@ static const struct CMUnitTest tests[] = {
   cmocka_unit_test (bl_dstrt_apply_erange_end),
   cmocka_unit_test (bl_dstrt_apply_erange_start),
   cmocka_unit_test (bl_dstrt_apply_no_op),
-  cmocka_unit_test (bl_dstrt_set_capacity_append_va),
+  cmocka_unit_test (bl_dstrt_set_capacity_append_va_h),
   cmocka_unit_test (bl_dstrt_find),
   cmocka_unit_test (bl_dstrt_replace_replacelen_le_matchlen_no_match),
   cmocka_unit_test (bl_dstrt_replace_replacelen_le_matchlen_all),

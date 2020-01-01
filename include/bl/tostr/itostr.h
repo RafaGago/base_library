@@ -303,14 +303,14 @@ Parameters:
     pointer to the array
   v_count:
     number of elements in the array
-  max_tail_free:
+  max_tail_bytes:
     This function makes one initial allocation with space guaranteed to fit a
     series of values of -INTx_MIN or UINTx_MAX depending on the type.
 
     It will often happen than the allocated capacity is bigger than the string
     payload.
 
-    If "(maxlen - strlen (*dst)) > max_tail_free" the
+    If "(maxlen - strlen (*dst)) > max_tail_bytes" the
     memory buffer will be reallocated to (maxlen - strlen (*dst) +
     tail_bytes).
 
@@ -336,7 +336,7 @@ extern BL_TOSTR_EXPORT bl_err bl_itostr_dyn_arr(
   char const*         sep,
   void const*         v,
   size_t              v_count,
-  size_t              max_tail_free,
+  size_t              max_tail_bytes,
   bool                v_type_is_signed,
   bl_uword            v_type_bytes_log2
   );
@@ -373,7 +373,7 @@ extern BL_TOSTR_EXPORT bl_err bl_itostr_dyn_arr(
     bl_static_log2_ceil_u8 (sizeof (v)[0]) \
     )
 
-/* for unsigned types. with "max_tail_free" (wb) */
+/* for unsigned types. with "max_tail_bytes" (wb) */
 #define bl_itostr_dyn_arr_w_u(d, dm, dl, da, f, s, v, vc, wb)\
   bl_itostr_dyn_arr( \
     (d), \
@@ -389,7 +389,7 @@ extern BL_TOSTR_EXPORT bl_err bl_itostr_dyn_arr(
     bl_static_log2_ceil_u8 (sizeof (v)[0]) \
     )
 
-/* for signed types. with "max_tail_free" (wb) */
+/* for signed types. with "max_tail_bytes" (wb) */
 #define bl_itostr_dyn_arr_w_i(d, dm, dl, da, f, s, v, vc, wb)\
   bl_itostr_dyn_arr( \
     (d), \

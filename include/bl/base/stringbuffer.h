@@ -2,8 +2,7 @@
 #define __BL_STRINGBUFFER__
 
 #include <stddef.h>
-
-struct bl_alloc_tbl;
+#include <bl/base/allocator.h>
 
 /*------------------------------------------------------------------------------
  A structure representing a buffer containing a string.
@@ -31,7 +30,7 @@ typedef struct bl_dstrbuf {
   char*  str;    /* string */
   size_t len;    /* actual string length (excluding null termination )*/
   size_t maxlen; /* max/allocated length (excluding null termination )*/
-  struct bl_alloc_tbl const* alloc; /* allocator used to allocate "str" */
+  bl_alloc_tbl const* alloc; /* allocator used to allocate "str" */
 }
 bl_dstrbuf;
 /*----------------------------------------------------------------------------*/
@@ -43,5 +42,18 @@ static inline bl_dstrbuf bl_dstrbuf_init(
   return b;
 }
 /*----------------------------------------------------------------------------*/
-
+static inline void bl_dstrbuf_try_trim (bl_dstrbuf* b, size_t threshold_len)
+{
+  size_t maxlen = b->len + threshold_len;
+  if (maxlen <= b->maxlen || maxlen <= b->len || !b->str) {
+    /* not required or overflow */
+    return;
+  }
+  void* ptr = bl_realloc (b->alloc, b->str, maxlen + 1);
+  if (ptr) {
+    b->maxlen = maxlen;
+    b->str    = (char*) ptr;
+  }
+}
+/*----------------------------------------------------------------------------*/
 #endif

@@ -1,80 +1,75 @@
 #include <stdio.h>
 
+#include <bl/base/assert.h>
 #include <bl/base/string.h>
 #include <bl/base/utility.h>
 #include <bl/base/error.h>
+#include <bl/base/default_allocator.h>
 
+#ifndef BL_VASPRINTF_DEFAULT_HINT
+  #define BL_VASPRINTF_DEFAULT_HINT 128
+#endif
 /*----------------------------------------------------------------------------*/
-BL_EXPORT int bl_vasprintf_ext(
-  char**              str,
-  int                 str_alloc_size,
-  int                 str_offset,
-  int                 do_realloc,
-  bl_alloc_tbl const* alloc,
-  char const*         format,
-  va_list             args
+BL_EXPORT bl_err bl_vasnprintf(
+  bl_dstrbuf* b, size_t strlen_hint, char const* format, va_list args
   )
 {
-  bl_assert(alloc && format && str);
-  char* out_buff;
-  char* in_buff      = *str;
-  int   usable_bytes = str_alloc_size - str_offset;
-  *str               = nullptr;
+  bl_assert (b);
+  bl_assert (b->str != nullptr || b->maxlen == 0);
 
-  if (bl_unlikely(
-      str_alloc_size < 1 || usable_bytes <= 0 || str_offset < 0
-      )) {
-    return -bl_invalid;
-  }
-  if (in_buff) {
-    out_buff = in_buff;
-  }
-  else {
-    out_buff   = (char*) bl_alloc (alloc, str_alloc_size);
-    do_realloc = 1;
-    if (bl_unlikely (!out_buff)) {
-      return -bl_alloc;
-    }
-  }
+  bl_alloc_tbl const* alloc = b->alloc ? b->alloc : &bl_default_alloc;
+  size_t maxlen = b->len;
+  maxlen += (strlen_hint != 0) ? strlen_hint : (BL_VASPRINTF_DEFAULT_HINT - 1);
+
+  bl_err err = bl_mkerr (bl_error);
+
   va_list args_cp;
   va_copy (args_cp, args);
 
-  int size = vsnprintf(out_buff + str_offset, usable_bytes, format, args);
-  if (size < usable_bytes) {
-    size = (size >= 0) ? size : -bl_invalid;
-    goto end;
-  }
-
-  int required_bytes  = str_offset + size + 1;
-  char* out_buff_prev = out_buff;
-  out_buff = (char*) bl_realloc(
-    alloc, do_realloc ? out_buff : nullptr, required_bytes
-    );
-  if (bl_unlikely (!out_buff)) {
-    if (!in_buff) {
-      bl_dealloc (alloc, out_buff_prev);
+  for (int i = 0; i < 2; ++i) {
+    if (!b->str || b->maxlen < maxlen) {
+      void* nbuff = (char*) bl_realloc (alloc, b->str, maxlen + 1);
+      if (bl_unlikely (!nbuff)) {
+        err = bl_mkerr (bl_alloc);
+        break;
+      }
+      b->str    = nbuff;
+      b->maxlen = maxlen;
     }
-    return -bl_alloc;
+    int required;
+    size_t available = maxlen - b->len;
+    if (i == 0) {
+      required = vsnprintf (b->str + b->len, available + 1, format, args);
+    }
+    else {
+      required = vsnprintf (b->str + b->len, available + 1, format, args_cp);
+    }
+    if (required <= available) {
+      if (bl_likely (required > 0)) {
+        b->len += required;
+        bl_assert ((b->len + required) > b->len); /* overflow */
+        err = bl_mkok();
+      }
+      else {
+        err = bl_mkerr (bl_invalid);
+      }
+      break;
+    }
+    maxlen = b->len + required; /* retry with the right size */
+    bl_assert ((b->len + required) > b->len); /* overflow */
   }
-
-  size = vsnprintf (out_buff + str_offset, required_bytes, format, args_cp);
-  bl_assert (size == required_bytes - str_offset - 1);
-end:
   va_end (args_cp);
-  if (bl_likely (size >= 0)) {
-    *str = out_buff;
-  }
-  return size;
+  return err;
 }
 /*----------------------------------------------------------------------------*/
-BL_EXPORT int bl_asprintf(
-  char **str, bl_alloc_tbl const* alloc, const char *format, ...
+BL_EXPORT bl_err bl_asnprintf(
+  bl_dstrbuf* buffer, size_t strlen_hint, char const* format, ...
   )
 {
   va_list args;
   va_start (args, format);
-  int count = bl_vasprintf (str, alloc, format, args);
+  bl_err e = bl_vasnprintf (buffer, strlen_hint, format, args);
   va_end (args);
-  return count;
+  return e;
 }
 /*----------------------------------------------------------------------------*/

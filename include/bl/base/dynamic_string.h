@@ -2,6 +2,7 @@
 #define __BL_DYNSTRING_H__
 
 #include <string.h>
+#include <bl/base/string.h>
 #include <bl/base/platform.h>
 #include <bl/base/libexport.h>
 #include <bl/base/integer.h>
@@ -215,16 +216,44 @@ static inline bl_err bl_dstr_replace_char(
 /*---------------------------------------------------------------------------*/
 /* all the *_va functions use a printf style format string plus varags */
 extern BL_EXPORT bl_err
-  bl_dstr_set_va (bl_dstr *s, char const* fmt, ...)
-   BL_PRINTF_FORMAT (2, 3);
+  bl_dstr_set_va (bl_dstr *s, size_t strlen_hint, char const* fmt, ...)
+   BL_PRINTF_FORMAT (3, 4);
 
 extern BL_EXPORT bl_err
-  bl_dstr_append_va (bl_dstr *s, char const* fmt, ...)
-    BL_PRINTF_FORMAT (2, 3);
-
-extern BL_EXPORT bl_err
-  bl_dstr_insert_va (bl_dstr *s, bl_uword idx, char const* fmt, ...)
+  bl_dstr_append_va (bl_dstr *s, size_t strlen_hint, char const* fmt, ...)
     BL_PRINTF_FORMAT (3, 4);
+
+extern BL_EXPORT bl_err
+  bl_dstr_insert_va(
+    bl_dstr *s, size_t strlen_hint, bl_uword idx, char const* fmt, ...
+    )
+    BL_PRINTF_FORMAT (4, 5);
+
+#ifndef BL_NO_PRINTF_LEN_HINT
+
+#define bl_dstr_set_va_h(s, ...) \
+  bl_dstr_set_va( \
+    (s), \
+    BL_PRINTF_LEN_HINT (__VA_ARGS__), \
+    __VA_ARGS__ \
+    )
+
+#define bl_dstr_append_va_h(s, ...) \
+  bl_dstr_append_va( \
+    (s), \
+    BL_PRINTF_LEN_HINT (__VA_ARGS__), \
+    __VA_ARGS__ \
+    )
+
+#define bl_dstr_insert_va_h(s, idx, ...) \
+  bl_dstr_insert_va( \
+    (s), \
+    BL_PRINTF_LEN_HINT (__VA_ARGS__), \
+    (idx), \
+    __VA_ARGS__ \
+    )
+
+#endif /* #ifndef BL_NO_PRINTF_LEN_HINT */
 /*---------------------------------------------------------------------------*/
 extern BL_EXPORT bl_err
   bl_dstr_erase (bl_dstr *s, bl_uword idx, bl_uword char_count);

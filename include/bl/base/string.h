@@ -3,6 +3,9 @@
 
 #include <stdarg.h>
 
+#include <bl/base/error.h>
+#include <bl/base/platform.h>
+#include <bl/base/stringbuffer.h>
 #include <bl/base/libexport.h>
 #include <bl/base/allocator.h>
 #include <bl/base/assert.h>
@@ -10,80 +13,95 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /*------------------------------------------------------------------------------
-bl_vasprintf_ext: vasprintf with reallocation and offset (append) capabilities.
+bl_vasprintf_hint: vasprintf with reallocation and offset (append) capabilities.
+
+This functions works by doing a dummy call to "vsnprintf" to retrieve the
+the size and then executing "vsnprintf" again with a big enough buffer if
+there wasn't enough buffer space available.
 
 PARAMETERS:
 
-It has two behaviors/use cases depending on if the pointer pointed by "str" is
-null or not. When it's null:
+  buffer:
+    Buffer data.
 
-str: Null at input, points to the newly allocated formatted string at output.
+    "buffer.str":
+      An existing buffer or NULL. This buffer will be newly alloated or
+      reallocated if necessary.
 
-str_alloc_size: An initial buffer of "str_alloc_size" will be allocated. This
-  buffer will be used at the same time that the formatted string length is
-  computed so in case it has enough space the operation can complete in a single
-  step. The value has to be at least 1.
+    "buffer.len":
+      At input:
+        "bl_vasprintf_ext" will start writing at "buffer.str" + len,
+        independently of if the passed buffer is freshly allocated or existed
+        before.
 
-str_offset: Extra room will be left at the head of the allocated buffer (free
-  for other uses after the call).
+      At output.
+        Will contain the total string length (against buffer.str[0]).
 
-do_realloc: The value is ignored.
+    -"buffer.maxlen":
+      At input:
+        The actual string capacity on "buffer.str" (not counting the trailing
+        null)
 
-When the pointer pointed by "str" isn't null:
+      At output:
+        The new string capacity.
 
-str: At input time points a buffer (see "do_realloc" for constraints on it). On
-  return it contains the formatted string.
+    Has to be zero when "buffer.str" is NULL
 
-str_alloc_size: The total size (bytes) of this buffer.
+    When "buffer.str" is not NULL:
 
-str_offset: offset bytes to begin to write the string to. This can be used e.g.
-  to implement string appending.
+      -"buffer.len": bl_vasprintf_ext"
 
-do_realloc: Specifies if the buffer pointed to by "str" can be reallocated by
-  the provided allocator ("alloc" parameter).
+       -"buffer.maxlen": Has to be zero.
 
-  When this is nonzero "realloc" may be called on the provided "str" buffer, so
-  the buffer can _never_ point to buffers .e.g on the stack, buffers provided by
-  another allocator or buffers provided by the passed allocator whose address is
-  at an offset.
+   -"buffer.alloc": allocator. When NULL the standard library's heap will be
+    used.
 
-RETURNS:
-  negative bl_error or the length of the string without null termination and
-  excluding "str_offset". On error the string pointed by str will always be
-  null.
+  strlen_hint:
+    If this parameter is non-zero, "strlen_hint" bytes will be allocated after
+    "buffer.str" + "buffer.len" if necessary before doing the first "vsnprintf"
+    call, so the first call has more chances to succeed.
 
-NOTE that:
-  -On return the address pointed by ptr can change.
-  -The address pointed by str may not change but its buffer size may have been
-   expanded via "realloc". On successful calls the size of the buffer pointed
-   by str will either be "str_alloc_size" or "str_offset" + "return value" + 1.
-  -When "do_realloc": Is false the buffer pointed by str will never be
-   reallocated, so if the function needed a new buffer and the provided buffer
-   was on the heap you may need to deallocate it manually.
+  max_tail_bytes:
+    The amount of acceptable overallocation on exit. If
+    "buffer.maxlen" - "buffer.len" exceeds this value the buffer will be tried
+    to be trimmed to "buffer.len" + "max_tail_bytes" at exit. This is a
+    best-effort parameter. A failure to trim the buffer doesn't signal an error.
 ------------------------------------------------------------------------------*/
-extern BL_EXPORT int bl_vasprintf_ext(
-  char**           str,
-  int              str_alloc_size,
-  int              str_offset,
-  int              do_realloc,
-  bl_alloc_tbl const* alloc,
-  char const*         format,
-  va_list             args
+extern BL_EXPORT bl_err bl_vasnprintf(
+  bl_dstrbuf* b, size_t strlen_hint, char const* format, va_list args
   );
 /*----------------------------------------------------------------------------*/
-static inline int bl_vasprintf(
-  char **str, bl_alloc_tbl const* alloc, const char *format, va_list args
+extern BL_EXPORT bl_err bl_asnprintf(
+  bl_dstrbuf* buffer, size_t strlen_hint, char const* format, ...
   )
-{
-    *str = nullptr;
-    return bl_vasprintf_ext (str, 256, 0, 0, alloc, format, args);
-}
+  BL_PRINTF_FORMAT (3, 4);
 /*----------------------------------------------------------------------------*/
-extern BL_EXPORT int bl_asprintf(
-  char **str, bl_alloc_tbl const* alloc, const char *format, ...
-  );
+#ifndef BL_NO_PRINTF_LEN_HINT
+
+#include <bl/base/preprocessor.h>
+
+/* A compile estimate about the probable size of a printf string. Can be
+improved by using C11
+
+Notice that to avoid macro expansion pitfalls, the format string is included
+as the first argument on __VA_ARGS__
+*/
 /*----------------------------------------------------------------------------*/
+#define BL_PRINTF_LEN_HINT_ARGB(avg_arg_bytes, ...) \
+  (sizeof ("" bl_pp_vargs_first (__VA_ARGS__)) - sizeof ("") + \
+    ((bl_pp_vargs_count (__VA_ARGS__) - 1) * (avg_arg_bytes)) \
+    )
+/*----------------------------------------------------------------------------*/
+#define BL_PRINTF_LEN_HINT(...) \
+  BL_PRINTF_LEN_HINT_ARGB(11, __VA_ARGS__)
+/*----------------------------------------------------------------------------*/
+/* vasnprintf with a BL_PRINTF_LEN_HINT_AB */
+#define bl_asnprintf_h(buffer, ...) \
+  bl_asprintf ((buffer), BL_PRINTF_LEN_HINT (__VA_ARGS__), __VA_ARGS__)
+/*----------------------------------------------------------------------------*/
+#endif /* #ifndef BL_NO_PRINTF_LEN_HINT */
 
 #ifdef __cplusplus
 } //extern "C" {

@@ -4,7 +4,6 @@
 #include <bl/base/integer.h>
 #include <bl/base/integer_math.h>
 #include <bl/base/utility.h>
-#include <bl/base/string.h>
 #include <bl/base/dynamic_string.h>
 
 static bl_uword bl_dstr_minalloc = 32;
@@ -112,43 +111,38 @@ BL_EXPORT bl_err bl_dstr_insert_l(
 }
 /*----------------------------------------------------------------------------*/
 static bl_err bl_dstr_append_va_priv(
-  bl_dstr *s, char const *fmt, va_list list
+  bl_dstr *s, size_t strlen_hint, char const *fmt, va_list list
   )
 {
-  char *str = s->da.str;
-  int len   = bl_vasprintf_ext(
-    &str, str ? s->da.size : bl_dstr_minalloc, s->len, 1, s->alloc, fmt, list
-    );
-  if (bl_unlikely (len < 0)) {
-    return bl_mkerr (-len);
-  }
-  s->da.str  = str;
-  s->len    += len;
-  s->da.size = bl_max (s->da.size, s->len + 1);
-  return bl_mkok();
+  bl_dstrbuf b = bl_dstr_steal_ownership (s);
+  bl_err err   = bl_vasnprintf (&b, strlen_hint, fmt, list);
+  bl_dstr_transfer_ownership (s, &b);
+  return err;
 }
 /*----------------------------------------------------------------------------*/
-BL_EXPORT bl_err bl_dstr_append_va (bl_dstr *s, char const *fmt, ...)
+BL_EXPORT bl_err
+  bl_dstr_append_va (bl_dstr *s, size_t strlen_hint, char const *fmt, ...)
 {
   va_list list;
   va_start (list, fmt);
-  bl_err err = bl_dstr_append_va_priv (s, fmt, list);
+  bl_err err = bl_dstr_append_va_priv (s, strlen_hint, fmt, list);
   va_end (list);
   return err;
 }
 /*----------------------------------------------------------------------------*/
-BL_EXPORT bl_err bl_dstr_set_va (bl_dstr *s, char const *fmt, ...)
+BL_EXPORT bl_err
+  bl_dstr_set_va (bl_dstr *s, size_t strlen_hint, char const *fmt, ...)
 {
   bl_dstr_clear(s);
   va_list list;
   va_start (list, fmt);
-  bl_err err = bl_dstr_append_va_priv (s, fmt, list);
+  bl_err err = bl_dstr_append_va_priv (s, strlen_hint, fmt, list);
   va_end (list);
   return err;
 }
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err bl_dstr_insert_va(
-  bl_dstr *s, bl_uword idx, char const *fmt, ...
+  bl_dstr *s, size_t strlen_hint, bl_uword idx, char const *fmt, ...
   )
 {
   va_list list;
@@ -156,7 +150,7 @@ BL_EXPORT bl_err bl_dstr_insert_va(
   bl_err err = bl_mkok();
   if (bl_dstr_len (s) != 0 && idx < bl_dstr_len (s) - 1) {
     bl_dstr newstr = bl_dstr_init_rv (s->alloc);
-    err = bl_dstr_append_va_priv (&newstr, fmt, list);
+    err = bl_dstr_append_va_priv (&newstr, strlen_hint, fmt, list);
     if (err.own) {
       goto done;
     }
@@ -164,7 +158,7 @@ BL_EXPORT bl_err bl_dstr_insert_va(
     bl_dstr_destroy (&newstr);
   }
   else {
-    err = bl_dstr_append_va_priv (s, fmt, list);
+    err = bl_dstr_append_va_priv (s, strlen_hint, fmt, list);
   }
 done:
   va_end (list);
@@ -253,7 +247,7 @@ BL_EXPORT bl_err bl_dstr_apply(
   if (!fn) {
     return bl_mkerr (bl_invalid);
   }
-  if (start > end || end >= s->da.size) {
+  if (start > end || end > s->len) {
     return bl_mkerr (bl_range);
   }
   for (bl_uword i = start; i < end; ++i) {
