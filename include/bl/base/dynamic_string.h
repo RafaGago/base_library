@@ -7,6 +7,7 @@
 #include <bl/base/integer.h>
 #include <bl/base/allocator.h>
 #include <bl/base/dynarray.h>
+#include <bl/base/default_allocator.h>
 #include <bl/base/stringbuffer.h>
 
 #ifdef __cplusplus
@@ -36,7 +37,7 @@ static inline void bl_dstr_init (bl_dstr *s, bl_alloc_tbl const* alloc)
   s->da.str  = nullptr;
   s->da.size = 0;
   s->len     = 0;
-  s->alloc   = alloc;
+  s->alloc   = alloc ? alloc : &bl_default_alloc;
 }
 /*---------------------------------------------------------------------------*/
 /*adjust the internal string buffer capacity, setting it to "bl_dstr_len" will
