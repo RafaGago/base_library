@@ -922,42 +922,6 @@ static void itostr_dyn_arr_alloc_failures (void **state)
   assert_int_equal (maxlen, 5);
 }
 /*---------------------------------------------------------------------------*/
-static void itostr_dyn_arr_wasted_bytes (void **state)
-{
-  bl_err err;
-  itostr_test_alloc a;
-  itostr_test_alloc_init (&a);
-  char* dst     = nullptr;
-  size_t maxlen = 0;
-  size_t len    = 0;
-
-  bl_u64 v[] = { 1, 1, 1, 1, 1, 1 };
-  bl_uword overalloc, alloc;
-
-  overalloc = ((sizeof (", ") -1) * (bl_arr_elems (v) - 1));
-  alloc     = overalloc;
-
-  overalloc += 20 * bl_arr_elems (v); /* max u64 digits*/
-  alloc     += 1  * bl_arr_elems (v); /* actual digits*/
-
-  err = bl_itostr_dyn_arr_w_u(
-    &dst, &maxlen, &len, &a.tbl, "", ", ", v, bl_arr_elems (v), 1
-    );
-  BL_ITOSTR_CHECK_RESULT (err, len, dst, "1, 1, 1, 1, 1, 1");
-  assert_int_equal (maxlen + 1, a.last_alloc_size);
-  assert_int_equal (maxlen, alloc + 1);
-
-  dst    = nullptr;
-  maxlen = 0;
-  len    = 0;
-  err = bl_itostr_dyn_arr_u(
-    &dst, &maxlen, &len, &a.tbl, "", ", ", v, bl_arr_elems (v)
-    );
-  BL_ITOSTR_CHECK_RESULT (err, len, dst, "1, 1, 1, 1, 1, 1");
-  assert_int_equal (maxlen + 1, a.last_alloc_size);
-  assert_int_equal (maxlen, overalloc);
-}
-/*---------------------------------------------------------------------------*/
 static const struct CMUnitTest tests[] = {
   cmocka_unit_test (itostr_dec_u8),
   cmocka_unit_test (itostr_dec_u16),
@@ -1002,7 +966,6 @@ static const struct CMUnitTest tests[] = {
   cmocka_unit_test (itostr_dyn_arr),
   cmocka_unit_test (itostr_dyn_arr_no_len_no_fmt),
   cmocka_unit_test (itostr_dyn_arr_alloc_failures),
-  cmocka_unit_test (itostr_dyn_arr_wasted_bytes),
 };
 /*---------------------------------------------------------------------------*/
 int bl_itostr_test (void)

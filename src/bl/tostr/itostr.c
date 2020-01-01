@@ -606,7 +606,6 @@ BL_EXPORT bl_err bl_itostr_dyn_arr(
   char const*         sep,
   void const*         v,
   size_t              v_count,
-  size_t              max_tail_bytes,
   bool                v_type_is_signed,
   bl_uword            v_type_bytes_log2
   )
@@ -667,23 +666,6 @@ BL_EXPORT bl_err bl_itostr_dyn_arr(
     );
   bl_assert (!err.own && "bug!"); /* it can't fail: it had enough memory */
   *dst_len = len + wrlen;
-
-  reqcap = len + wrlen + max_tail_bytes;
-  if (reqcap < (len + wrlen)) {
-    /* overflow, ignoring reallocation. this happens when the macros pass
-    (size_t) -1 */
-    return bl_mkok();
-  }
-  if (reqcap < cap) {
-    /* compensating for wasted space */
-    void* ptr = bl_realloc (dst_alloc, (void*) *dst, reqcap + 1);
-    if (bl_unlikely (!ptr)) {
-      /* shouldn't happen when reducing size, not failing anyways */
-      return bl_mkok();
-    }
-    *dst_maxlen = reqcap;
-    *dst = (char*) ptr;
-  }
   return bl_mkok();
 }
 /*----------------------------------------------------------------------------*/
