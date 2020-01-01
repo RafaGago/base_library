@@ -68,8 +68,8 @@ extern BL_EXPORT int bl_vasprintf_ext(
   int              str_offset,
   int              do_realloc,
   bl_alloc_tbl const* alloc,
-  char const*      format,
-  va_list          args
+  char const*         format,
+  va_list             args
   );
 /*----------------------------------------------------------------------------*/
 static inline int bl_vasprintf(

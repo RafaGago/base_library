@@ -7,6 +7,7 @@
 #include <bl/base/integer.h>
 #include <bl/base/allocator.h>
 #include <bl/base/dynarray.h>
+#include <bl/base/stringbuffer.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -88,27 +89,9 @@ static inline bl_alloc_tbl const* bl_dstr_alloc (bl_dstr const *s)
   return s->alloc;
 }
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT char* bl_dstr_steal_ownership (bl_dstr *s);
+extern BL_EXPORT bl_dstrbuf bl_dstr_steal_ownership (bl_dstr *s);
 /*---------------------------------------------------------------------------*/
-extern BL_EXPORT void bl_dstr_transfer_ownership_lc(
-  bl_dstr *s, char* heap_string_from_same_alloc, bl_uword len, bl_uword capacity
-  );
-/*---------------------------------------------------------------------------*/
-static inline void bl_dstr_transfer_ownership_l(
-  bl_dstr *s, char* heap_string_from_same_alloc, bl_uword len
-  )
-{
-  bl_dstr_transfer_ownership_lc (s, heap_string_from_same_alloc, len, len);
-}
-/*---------------------------------------------------------------------------*/
-static inline void bl_dstr_transfer_ownership(
-  bl_dstr *s, char* heap_string_from_same_alloc
-  )
-{
-  bl_dstr_transfer_ownership_l(
-    s, heap_string_from_same_alloc, strlen (heap_string_from_same_alloc)
-    );
-}
+extern BL_EXPORT void bl_dstr_transfer_ownership (bl_dstr *s, bl_dstrbuf* b);
 /*---------------------------------------------------------------------------*/
 extern BL_EXPORT bl_err
   bl_dstr_set_l (bl_dstr *s, char const *str, bl_uword len);

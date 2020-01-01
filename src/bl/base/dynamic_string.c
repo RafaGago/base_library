@@ -262,23 +262,28 @@ BL_EXPORT bl_err bl_dstr_apply(
   return bl_mkok();
 }
 /*---------------------------------------------------------------------------*/
-BL_EXPORT char* bl_dstr_steal_ownership (bl_dstr *s)
+BL_EXPORT bl_dstrbuf bl_dstr_steal_ownership (bl_dstr *s)
 {
-  bl_dstr_set_capacity (s, bl_dstr_len (s));
-  char* ret = s->da.str;
+  bl_dstrbuf ret = bl_dstrbuf_init(
+    s->da.str, bl_dstr_len (s), bl_dstr_get_capacity (s), s->alloc
+    );
   bl_dstr_init (s, s->alloc);
   return ret;
 }
 /*---------------------------------------------------------------------------*/
-BL_EXPORT void bl_dstr_transfer_ownership_lc(
-  bl_dstr *s, char* str, bl_uword len, bl_uword capacity
-  )
+BL_EXPORT void bl_dstr_transfer_ownership (bl_dstr *s, bl_dstrbuf* b)
 {
-  bl_assert (strnlen (str, len) >= len);
+  bl_assert (b);
+  bl_assert (b->alloc);
+  bl_assert (b->len <= b->maxlen);
+  bl_assert (b->str != nullptr || b->maxlen == 0);
+  bl_assert (strnlen (b->str, b->len) >= b->len);
+
   bl_dstr_destroy (s);
-  s->da.str  = str;
-  s->len     = len;
-  s->da.size = capacity + (capacity != 0);
+  s->da.str  = b->str;
+  s->len     = b->len;
+  s->da.size = b->maxlen + (b->str != nullptr);
+  s->alloc   = b->alloc;
 }
 /*---------------------------------------------------------------------------*/
 BL_EXPORT bl_uword bl_dstr_find_l(
