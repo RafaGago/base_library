@@ -305,16 +305,14 @@ static bl_itostr_len bl_itostr_compute_len(
 }
 /*----------------------------------------------------------------------------*/
 static bl_err bl_itostr_out_fmt(
-  char*                dst,
-  size_t               dst_size,
-  size_t*              len,
+  bl_strbuf*           buf,
   bl_itostr_fmt const* fmt,
   bl_u64               v,
   bool                 v_is_negative,
   bl_uword             v_type_bytes
   )
 {
-  bl_assert (dst && fmt && len);
+  bl_assert (buf && buf->str && fmt);
   bl_itostr_buffer rev_num;
   bl_uword digits = 0;
 
@@ -337,14 +335,14 @@ static bl_err bl_itostr_out_fmt(
       digits = bl_itostr_get_reversed_octal (rev_num, v, v_type_bytes);
       break;
   }
-  *len = 0;
   bl_itostr_len flen = bl_itostr_compute_len(
     fmt, ((v != 0) ? digits : !fmt->swallow_zero), v_is_negative
     );
-  if (dst_size < flen.total + 1) {
+  if ((buf->maxlen - buf->len) < flen.total) {
     return bl_mkerr (bl_would_overflow);
   }
 
+  char* dst = buf->str + buf->len;
   bl_uword padding_count = flen.total - flen.number;
   bl_uword padding_point = fmt->left_justify ? 2 : fmt->padding == '0';
 
@@ -388,15 +386,13 @@ static bl_err bl_itostr_out_fmt(
     memset (dst, fmt->padding, padding_count);
     dst += padding_count;
   }
-  *len = flen.total;
+  buf->len += flen.total;
   *dst = 0;
   return bl_mkok();
 }
 /*----------------------------------------------------------------------------*/
 static bl_err bl_itostr_out_arr_fmt(
-  char*                dst,
-  size_t               dst_size,
-  size_t*              len,
+  bl_strbuf*           buf,
   bl_itostr_fmt const* fmt,
   char const*          sep,
   void const*          v,
@@ -405,19 +401,19 @@ static bl_err bl_itostr_out_arr_fmt(
   bl_uword             v_type_bytes_log2
   )
 {
+  bl_assert (buf && buf->str && fmt);
   bl_assert (v_type_bytes_log2 <= 3);
 
   bl_uword sep_len = 0;
   if (sep) {
     sep_len = strnlen (sep, BL_ITOSTR_MAX_SEP);
   }
-  *len = 0;
-  size_t total_len = 0;
-  char* dst_end    = dst + dst_size;
+  size_t startlen = buf->len;
+  bl_err err;
+
   unsigned type_id = v_type_bytes_log2 + ((v_type_is_signed) ? 4 : 0);
 
   for (bl_uword i = 0; i < v_count; ++i) {
-    size_t this_len;
     bl_u64 u = 0;
     bl_i64 s = 0;
     switch (type_id) {
@@ -453,34 +449,31 @@ static bl_err bl_itostr_out_arr_fmt(
       bl_assert (false);
       break;
     }
-    bl_err err = bl_itostr_out_fmt(
-      dst, dst_end - dst, &this_len, fmt, u, s < 0, 1 << v_type_bytes_log2
-      );
+    err = bl_itostr_out_fmt (buf, fmt, u, s < 0, 1 << v_type_bytes_log2);
     if (bl_unlikely (err.own)) {
-      return err;
-    }
-    total_len += this_len;
-    dst       += this_len;
+      goto on_error;
 
+    }
     if (i + 1 != v_count) {
-      if (bl_likely ((dst_end - dst) > sep_len)) {
-        memcpy (dst, sep, sep_len);
-        total_len += sep_len;
-        dst       += sep_len;
+      if (bl_likely ((buf->maxlen - buf->len) >= sep_len)) {
+        memcpy (buf->str + buf->len, sep, sep_len);
+        buf->len += sep_len;
       }
       else {
-        return bl_mkerr (bl_would_overflow);
+        err = bl_mkerr (bl_would_overflow);
+        goto on_error;
       }
     }
   }
-  *len = total_len;
   return bl_mkok();
+on_error:
+  buf->str[startlen] = 0; /* undo */
+  buf->len           = startlen;
+  return err;
 }
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err bl_itostr(
-  char*       dst,
-  size_t      dst_size,
-  size_t*     len,
+  bl_strbuf*  buf,
   char const* fmt,
   bl_u64      v,
   bool        v_is_negative,
@@ -488,10 +481,7 @@ BL_EXPORT bl_err bl_itostr(
   )
 {
   bl_assert (v_type_bytes_log2 <= 3);
-  bl_assert (dst);
 
-  size_t dlen = 0;
-  len = len ? len : &dlen;
   fmt = fmt ? fmt : "";
 
   bl_itostr_fmt f;
@@ -499,15 +489,11 @@ BL_EXPORT bl_err bl_itostr(
   if (bl_unlikely (err.own)) {
     return err;
   }
-  return bl_itostr_out_fmt(
-    dst, dst_size, len, &f, v, v_is_negative, 1 << v_type_bytes_log2
-    );
+  return bl_itostr_out_fmt (buf, &f, v, v_is_negative, 1 << v_type_bytes_log2);
 }
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err bl_itostr_arr(
-  char*       dst,
-  size_t      dst_size,
-  size_t*     len,
+  bl_strbuf*  buf,
   char const* fmt,
   char const* sep,
   void const* v,
@@ -519,11 +505,9 @@ BL_EXPORT bl_err bl_itostr_arr(
   if (bl_unlikely (v_count == 0)) {
     return bl_mkok();
   }
-  bl_assert (v && dst);
+  bl_assert (v);
   bl_assert (v_type_bytes_log2 <= 3);
 
-  size_t dlen = 0;
-  len = len ? len : &dlen;
   fmt = fmt ? fmt : "";
   sep = sep ? sep : ", ";
 
@@ -533,30 +517,23 @@ BL_EXPORT bl_err bl_itostr_arr(
     return err;
   }
   return bl_itostr_out_arr_fmt(
-    dst, dst_size, len, &f, sep, v, v_count, v_type_is_signed, v_type_bytes_log2
+    buf, &f, sep, v, v_count, v_type_is_signed, v_type_bytes_log2
     );
 }
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err bl_itostr_dyn(
-  char**              dst,
-  size_t*             dst_maxlen,
-  size_t*             dst_len,
-  bl_alloc_tbl const* dst_alloc,
-  char const*         fmt,
-  bl_u64              v,
-  bool                v_is_negative,
-  bl_uword            v_type_bytes_log2
+  bl_dstrbuf* buf,
+  char const* fmt,
+  bl_u64      v,
+  bool        v_is_negative,
+  bl_uword    v_type_bytes_log2
   )
 {
-  bl_assert (dst && dst_maxlen);
-  bl_assert(
-    *dst != nullptr || ((*dst_maxlen == 0) && (!dst_len || *dst_len == 0))
-    );
-  bl_assert (!dst_len || (*dst_maxlen >= *dst_len));
+  bl_assert (buf);
+  bl_assert (buf->str != nullptr || ((buf->maxlen == 0) && (buf->len == 0)));
+  bl_assert (buf->maxlen >= buf->len);
 
-  size_t doff = 0;
-  dst_len = dst_len ? dst_len : &doff;
-  dst_alloc = dst_alloc ? dst_alloc : &bl_default_alloc;
+  bl_alloc_tbl const* alloc = buf->alloc ? buf->alloc : &bl_default_alloc;
   fmt = fmt ? fmt : "";
 
   bl_itostr_fmt f;
@@ -564,65 +541,44 @@ BL_EXPORT bl_err bl_itostr_dyn(
   if (bl_unlikely (err.own)) {
     return err;
   }
-  bl_itostr_len flen = bl_itostr_compute_len(
-    &f, f.max_digits, v_is_negative
-    );
+  bl_itostr_len flen = bl_itostr_compute_len (&f, f.max_digits, v_is_negative);
 
-  bl_uword cap = *dst_maxlen;
-  bl_uword len = *dst_len;
-  bl_uword rcap = len + flen.total;
-
-  if (cap < rcap) {
+  bl_uword maxlen = buf->len + flen.total;
+  if (buf->maxlen < maxlen) {
     /*making room */
-    void* ptr = bl_realloc (dst_alloc, (void*) *dst, rcap + 1);
+    void* ptr = bl_realloc (alloc, (void*) buf->str, maxlen + 1);
     if (bl_unlikely (!ptr)) {
       return bl_mkerr (bl_alloc);
     }
-    cap = rcap;
-    *dst_maxlen = rcap;
-    *dst = (char*) ptr;
+    buf->maxlen = maxlen;
+    buf->str    = (char*) ptr;
   }
-  size_t wrlen = 0;
   err = bl_itostr_out_fmt(
-    *dst + len,
-    cap - len + 1,
-    &wrlen,
-    &f,
-    v,
-    v_is_negative,
-    1 << v_type_bytes_log2
+    (bl_strbuf*) buf, &f, v, v_is_negative, 1 << v_type_bytes_log2
     );
   bl_assert (!err.own && "bug!"); /* it can't fail: it had enough memory */
-  *dst_len = len + wrlen;
-  return bl_mkok();
+  return err;
 }
 /*----------------------------------------------------------------------------*/
 BL_EXPORT bl_err bl_itostr_dyn_arr(
-  char**              dst,
-  size_t*             dst_maxlen,
-  size_t*             dst_len,
-  bl_alloc_tbl const* dst_alloc,
-  char const*         fmt,
-  char const*         sep,
-  void const*         v,
-  size_t              v_count,
-  bool                v_type_is_signed,
-  bl_uword            v_type_bytes_log2
+  bl_dstrbuf* buf,
+  char const* fmt,
+  char const* sep,
+  void const* v,
+  size_t      v_count,
+  bool        v_type_is_signed,
+  bl_uword    v_type_bytes_log2
   )
 {
   if (bl_unlikely (v_count == 0)) {
     return bl_mkok();
   }
-  bl_assert (dst && dst_maxlen && v);
-  bl_assert (dst && dst_maxlen);
-  bl_assert(
-    *dst != nullptr || ((*dst_maxlen == 0) && (!dst_len || *dst_len == 0))
-    );
-  bl_assert (!dst_len || (*dst_maxlen >= *dst_len));
+  bl_assert (v);
+  bl_assert (buf);
+  bl_assert (buf->str != nullptr || ((buf->maxlen == 0) && (buf->len == 0)));
+  bl_assert (buf->maxlen >= buf->len);
 
-  size_t doff = 0;
-  dst_len = dst_len ? dst_len : &doff;
-  dst_alloc = dst_alloc ? dst_alloc : &bl_default_alloc;
+  bl_alloc_tbl const* alloc = buf->alloc ? buf->alloc : &bl_default_alloc;
   fmt = fmt ? fmt : "";
   sep = sep ? sep : ", ";
 
@@ -634,38 +590,24 @@ BL_EXPORT bl_err bl_itostr_dyn_arr(
   bl_itostr_len flen = bl_itostr_compute_len(
     &f, f.max_digits, v_type_is_signed
     );
-  bl_uword sep_len = strnlen (sep, BL_ITOSTR_MAX_SEP);
-
-  bl_uword cap = *dst_maxlen;
-  bl_uword len = *dst_len;
   /* a value that will surely fit everything */
-  bl_uword reqcap = len + (flen.total * v_count) + (sep_len * (v_count - 1));
+  size_t maxlen = buf->len;
+  maxlen += (flen.total * v_count);
+  maxlen += ((v_count - 1) * strnlen (sep, BL_ITOSTR_MAX_SEP));
 
-  if (cap < reqcap) {
+  if (buf->maxlen < maxlen) {
     /*making room */
-    void* ptr = bl_realloc (dst_alloc, (void*) *dst, reqcap + 1);
+    void* ptr = bl_realloc (alloc, (void*) buf->str, maxlen + 1);
     if (bl_unlikely (!ptr)) {
       return bl_mkerr (bl_alloc);
     }
-    cap = reqcap;
-    *dst_maxlen = reqcap;
-    *dst = (char*) ptr;
+    buf->maxlen = maxlen;
+    buf->str    = (char*) ptr;
   }
-
-  size_t wrlen = 0;
   err = bl_itostr_out_arr_fmt(
-    *dst + len,
-    cap - len + 1,
-    &wrlen,
-    &f,
-    sep,
-    v,
-    v_count,
-    v_type_is_signed,
-    v_type_bytes_log2
+    (bl_strbuf*) buf, &f, sep, v, v_count, v_type_is_signed, v_type_bytes_log2
     );
   bl_assert (!err.own && "bug!"); /* it can't fail: it had enough memory */
-  *dst_len = len + wrlen;
-  return bl_mkok();
+  return err;
 }
 /*----------------------------------------------------------------------------*/
