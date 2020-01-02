@@ -68,7 +68,7 @@ static inline void bl_dstr_destroy (bl_dstr *s)
 /*---------------------------------------------------------------------------*/
 static inline char const* bl_dstr_get (bl_dstr const *s)
 {
-  return s->da.str ? (char const*) s->da.str : "";
+  return s->len ? (char const*) s->da.str : "";
 }
 /*---------------------------------------------------------------------------*/
 static inline bl_uword bl_dstr_len (bl_dstr const *s)
