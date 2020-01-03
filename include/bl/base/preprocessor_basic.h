@@ -21,7 +21,6 @@
 
 #define bl_pp_tokconcat(a, ...) bl_pp_concat (a, __VA_ARGS__)
 #define bl_pp_tokconcat3(a, b, ...) bl_pp_concat3 (a, __VA_ARGS__)
-
 /*---------------------------------------------------------------------------*/
 /**
  Macros which expand to common values
