@@ -158,7 +158,7 @@ static void itostr_hex8 (void **state)
   bl_i8 s;
   bl_u8 u;
 
-  s = 0xff;
+  s = (bl_i8) 0xff;
   u = 0xff;
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
   bl_err err = bl_itostr_i (&buf, "x", s);;
@@ -184,7 +184,7 @@ static void itostr_hex16 (void **state)
   bl_i16 s;
   bl_u16 u;
 
-  s = 0xffff;
+  s = (bl_i16) 0xffff;
   u = 0xffff;
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
   bl_err err = bl_itostr_i (&buf, "x", s);;
@@ -263,7 +263,7 @@ static void itostr_octal8 (void **state)
   bl_i8 s;
   bl_u8 u;
 
-  s = 0xff;
+  s = (bl_i8) 0xff;
   u = 0xff;
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
   bl_err err = bl_itostr_i (&buf, "o", s);;
@@ -289,7 +289,7 @@ static void itostr_octal16 (void **state)
   bl_i16 s;
   bl_u16 u;
 
-  s = 0xffff;
+  s = (bl_i16) 0xffff;
   u = 0xffff;
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
   bl_err err = bl_itostr_i (&buf, "o", s);;
@@ -344,7 +344,7 @@ static void itostr_octal64 (void **state)
   s = 0xffffffffffffffff;
   u = 0xffffffffffffffff;
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  bl_err err = bl_itostr_i (&buf, "o", s);;
+  bl_err err = bl_itostr_i (&buf, "o", s);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "1777777777777777777777");
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
   err = bl_itostr_u (&buf, "o", u);;
@@ -957,7 +957,7 @@ static void itostr_dyn_arr (void **state)
   bl_dstrbuf buf;
 
   itostr_test_alloc_init (&a);
-  
+
   bl_u8 v[] = { 0, 1, 255 };
   buf = bl_dstrbuf_init (nullptr, 0, 0, &a.tbl);
   err = bl_itostr_dyn_arr_u (&buf, "x", ", ", v, bl_arr_elems (v));

@@ -33,7 +33,7 @@ BL_EXPORT bl_err bl_vasnprintf(
         err = bl_mkerr (bl_alloc);
         break;
       }
-      b->str    = nbuff;
+      b->str    = (char*) nbuff;
       b->maxlen = maxlen;
     }
     int required;

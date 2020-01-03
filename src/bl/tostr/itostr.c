@@ -38,7 +38,7 @@ bl_itostr_fmt;
 /*----------------------------------------------------------------------------*/
 #define BL_ITOSTR_MAX_SEP 8
 /*----------------------------------------------------------------------------*/
-typedef char bl_itostr_buffer[20]; /*any integer fits here, no sign, no null */
+typedef char bl_itostr_buffer[24]; /*any integer fits here, no sign, no null */
 /*----------------------------------------------------------------------------*/
 bl_err bl_itostr_parse_fmt(
   bl_itostr_fmt* f, char const* fstr, bl_uword type_bytes
@@ -372,7 +372,7 @@ static bl_err bl_itostr_out_fmt(
   if (v != 0) {
     memset (dst, '0', flen.numerals - digits);
     dst += flen.numerals - digits;
-    for (bl_uword i = digits - 1; i != (bl_uword) -1ull; --i) {
+    for (bl_uword i = digits - 1; i != bl_utype_max (bl_uword); --i) {
       *dst = rev_num[i];
       ++dst;
     }

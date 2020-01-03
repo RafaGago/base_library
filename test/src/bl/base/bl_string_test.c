@@ -49,7 +49,7 @@ static void bl_string_asnprintf_success_second_alloc_buffer (void **state)
 {
   char* buff = (char*) bl_alloc (&bl_default_alloc, sizeof EXPECTED / 2);
   assert_true (buff != nullptr);
-  bl_dstrbuf b = bl_dstrbuf_init (buff, 0, bl_lit_len (EXPECTED), nullptr);
+  bl_dstrbuf b = bl_dstrbuf_init (buff, 0, (sizeof EXPECTED / 2) - 1, nullptr);
   bl_err err   = bl_asnprintf (&b, 1, FORMAT, ARGS()); /* bad hint */
   assert_int_equal (err.own, bl_ok);
   assert_int_equal (b.len, bl_lit_len (EXPECTED));
