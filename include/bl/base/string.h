@@ -9,6 +9,7 @@
 #include <bl/base/libexport.h>
 #include <bl/base/allocator.h>
 #include <bl/base/assert.h>
+#include <bl/base/preprocessor_basic.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -78,11 +79,7 @@ extern BL_EXPORT bl_err bl_asnprintf(
   )
   BL_PRINTF_FORMAT (3, 4);
 /*----------------------------------------------------------------------------*/
-#ifndef BL_NO_PRINTF_LEN_HINT
-
-#include <bl/base/preprocessor.h>
-
-/* A compile estimate about the probable size of a printf string. Can be
+/* A compile-time estimate about the probable size of a printf string. Can be
 improved by using C11
 
 Notice that to avoid macro expansion pitfalls, the format string is included
@@ -91,7 +88,7 @@ as the first argument on __VA_ARGS__
 /*----------------------------------------------------------------------------*/
 #define BL_PRINTF_LEN_HINT_ARGB(avg_arg_bytes, ...) \
   (sizeof ("" bl_pp_vargs_first (__VA_ARGS__)) - sizeof ("") + \
-    ((bl_pp_vargs_count (__VA_ARGS__) - 1) * (avg_arg_bytes)) \
+    ((bl_pp_nonzero_vargs_count (__VA_ARGS__) - 1) * (avg_arg_bytes)) \
     )
 /*----------------------------------------------------------------------------*/
 #define BL_PRINTF_LEN_HINT(...) \
@@ -101,7 +98,6 @@ as the first argument on __VA_ARGS__
 #define bl_asnprintf_h(buffer, ...) \
   bl_asprintf ((buffer), BL_PRINTF_LEN_HINT (__VA_ARGS__), __VA_ARGS__)
 /*----------------------------------------------------------------------------*/
-#endif /* #ifndef BL_NO_PRINTF_LEN_HINT */
 
 #ifdef __cplusplus
 } //extern "C" {
