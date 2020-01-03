@@ -59,6 +59,9 @@ THE SOFTWARE.
 */
 /*---------------------------------------------------------------------------*/
 #include <bl/base/preprocessor_basic.h>
+#if BL_COMPILER_IS (MICROSOFT_VC)
+  #error "Microsoft VC preprocessor is broken. This header hasn't been ported"
+#endif
 /*---------------------------------------------------------------------------*/
 /*
  Force the pre-processor to expand the macro a large number of times. Usage:
@@ -532,7 +535,14 @@ THE SOFTWARE.
 #define bl_pp_remove_trailing_commas(...) \
 	bl_pp_apply (bl_pp_pass, bl_pp_comma, __VA_ARGS__)
 /*---------------------------------------------------------------------------*/
-/*END OF BORROWED "uSHET" code. Own bruteforce addons*/
+/*END OF BORROWED "uSHET" code. Own addons*/
+/*---------------------------------------------------------------------------*/
+#define bl_pp_vargs_count(...) \
+  bl_pp_if_else (bl_pp_has_vargs (__VA_ARGS__))(\
+    bl_pp_eval (bl_pp_nonzero_vargs_count (__VA_ARGS__)),\
+    0\
+    )
+
 /*---------------------------------------------------------------------------*/
 /**
 Increment/decrement the numeric token value.
@@ -546,25 +556,27 @@ Increment/decrement the numeric token value.
 #define bl_pp_dec(x) bl_pp_tokconcat (bl_pp_dec, x)
 /*---------------------------------------------------------------------------*/
 /*
-bl_pp_varg_count(...) : Counts va_args e.g.
+bl_pp_varg_count_arith(...) : Counts va_args e.g.
 
   bl_pp_varg_count (a, b, c) -> is evaluated to 3.
   bl_pp_varg_count() -> is evaluated to 0.
+
+  This function allows as many arguments as BL_PP_MAX_INC_DEC
 */
 /*---------------------------------------------------------------------------*/
-#define bl_pp_vargs_count_private_name() bl_pp_vargs_count_private
+#define bl_pp_vargs_count_arith_private_name() bl_pp_vargs_count_arith_private
 
-#define bl_pp_vargs_count_private(cnt,cur_val, ...) \
+#define bl_pp_vargs_count_arith_private(cnt,cur_val, ...) \
   bl_pp_if_else (bl_pp_not (bl_pp_has_vargs (__VA_ARGS__)))(\
     (cnt),\
-    (bl_pp_defer2 (bl_pp_vargs_count_private_name) () (\
+    (bl_pp_defer2 (bl_pp_vargs_count_arith_private_name) () (\
       bl_pp_inc (cnt), __VA_ARGS__) \
       )\
     )
 
-#define bl_pp_vargs_count(...) \
+#define bl_pp_vargs_count_arith(...) \
   bl_pp_if_else (bl_pp_has_vargs (__VA_ARGS__))(\
-    bl_pp_eval (bl_pp_vargs_count_private (1, __VA_ARGS__)),\
+    bl_pp_eval (bl_pp_vargs_count_arith_private (1, __VA_ARGS__)),\
     0\
     )
 /*---------------------------------------------------------------------------*/
