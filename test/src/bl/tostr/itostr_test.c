@@ -23,12 +23,12 @@ static void itostr_dec_u8 (void **state)
 
   v = 1;
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  bl_err err = bl_itostr_u (&buf, "", v);;
+  bl_err err = bl_itostr_u (&buf, "", v);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "1");
 
   v = bl_utype_max (bl_u8);
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_u (&buf, "", v);;
+  err = bl_itostr_u (&buf, "", v);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "255");
 }
 /*---------------------------------------------------------------------------*/
@@ -40,12 +40,12 @@ static void itostr_dec_u16 (void **state)
 
   v = 1;
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  bl_err err = bl_itostr_u (&buf, "", v);;
+  bl_err err = bl_itostr_u (&buf, "", v);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "1");
 
   v = bl_utype_max (bl_u16);
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_u (&buf, "", v);;
+  err = bl_itostr_u (&buf, "", v);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "65535");
 }
 /*---------------------------------------------------------------------------*/
@@ -57,12 +57,12 @@ static void itostr_dec_u32 (void **state)
 
   v = 1;
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  bl_err err = bl_itostr_u (&buf, "", v);;
+  bl_err err = bl_itostr_u (&buf, "", v);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "1");
 
   v = bl_utype_max (bl_u32);
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_u (&buf, "", v);;
+  err = bl_itostr_u (&buf, "", v);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "4294967295");
 }
 /*---------------------------------------------------------------------------*/
@@ -74,12 +74,12 @@ static void itostr_dec_u64 (void **state)
 
   v = 1;
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  bl_err err = bl_itostr_u (&buf, "", v);;
+  bl_err err = bl_itostr_u (&buf, "", v);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "1");
 
   v = bl_utype_max (bl_u64);
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_u (&buf, "", v);;
+  err = bl_itostr_u (&buf, "", v);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "18446744073709551615");
 }
 /*---------------------------------------------------------------------------*/
@@ -91,12 +91,12 @@ static void itostr_dec_i8 (void **state)
 
   v = bl_itype_min (bl_i8);
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  bl_err err = bl_itostr_i (&buf, "", v);;
+  bl_err err = bl_itostr_i (&buf, "", v);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "-128");
 
   v = bl_itype_max (bl_i8);
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "", v);;
+  err = bl_itostr_i (&buf, "", v);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "127");
 }
 /*---------------------------------------------------------------------------*/
@@ -108,12 +108,12 @@ static void itostr_dec_i16 (void **state)
 
   v = bl_itype_min (bl_i16);
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  bl_err err = bl_itostr_i (&buf, "", v);;
+  bl_err err = bl_itostr_i (&buf, "", v);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "-32768");
 
   v = bl_itype_max (bl_i16);
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "", v);;
+  err = bl_itostr_i (&buf, "", v);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "32767");
 }
 /*---------------------------------------------------------------------------*/
@@ -125,12 +125,12 @@ static void itostr_dec_i32 (void **state)
 
   v = bl_itype_min (bl_i32);
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  bl_err err = bl_itostr_i (&buf, "", v);;
+  bl_err err = bl_itostr_i (&buf, "", v);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "-2147483648");
 
   v = bl_itype_max (bl_i32);
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "", v);;
+  err = bl_itostr_i (&buf, "", v);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "2147483647");
 }
 /*---------------------------------------------------------------------------*/
@@ -142,12 +142,12 @@ static void itostr_dec_i64 (void **state)
 
   v = bl_itype_min (bl_i64);
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  bl_err err = bl_itostr_i (&buf, "", v);;
+  bl_err err = bl_itostr_i (&buf, "", v);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "-9223372036854775808");
 
   v = bl_itype_max (bl_i64);
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "", v);;
+  err = bl_itostr_i (&buf, "", v);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "9223372036854775807");
 }
 /*---------------------------------------------------------------------------*/
@@ -161,19 +161,19 @@ static void itostr_hex8 (void **state)
   s = (bl_i8) 0xff;
   u = 0xff;
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  bl_err err = bl_itostr_i (&buf, "x", s);;
+  bl_err err = bl_itostr_i (&buf, "x", s);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "ff");
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_u (&buf, "X", u);;
+  err = bl_itostr_u (&buf, "X", u);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "FF");
 
   s = 0x0;
   u = 0x0;
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "x", s);;
+  err = bl_itostr_i (&buf, "x", s);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0");
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_u (&buf, "X", u);;
+  err = bl_itostr_u (&buf, "X", u);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0");
 }
 /*---------------------------------------------------------------------------*/
@@ -187,19 +187,19 @@ static void itostr_hex16 (void **state)
   s = (bl_i16) 0xffff;
   u = 0xffff;
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  bl_err err = bl_itostr_i (&buf, "x", s);;
+  bl_err err = bl_itostr_i (&buf, "x", s);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "ffff");
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_u (&buf, "X", u);;
+  err = bl_itostr_u (&buf, "X", u);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "FFFF");
 
   s = 0x0;
   u = 0x0;
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "x", s);;
+  err = bl_itostr_i (&buf, "x", s);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0");
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_u (&buf, "X", u);;
+  err = bl_itostr_u (&buf, "X", u);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0");
 }
 /*---------------------------------------------------------------------------*/
@@ -213,19 +213,19 @@ static void itostr_hex32 (void **state)
   s = 0xffffffff;
   u = 0xffffffff;
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  bl_err err = bl_itostr_i (&buf, "x", s);;
+  bl_err err = bl_itostr_i (&buf, "x", s);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "ffffffff");
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_u (&buf, "X", u);;
+  err = bl_itostr_u (&buf, "X", u);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "FFFFFFFF");
 
   s = 0x0;
   u = 0x0;
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "x", s);;
+  err = bl_itostr_i (&buf, "x", s);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0");
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_u (&buf, "X", u);;
+  err = bl_itostr_u (&buf, "X", u);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0");
 }
 /*---------------------------------------------------------------------------*/
@@ -240,19 +240,19 @@ static void itostr_hex64 (void **state)
   u = 0xffffffffffffffff;
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  bl_err err = bl_itostr_i (&buf, "x", s);;
+  bl_err err = bl_itostr_i (&buf, "x", s);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "ffffffffffffffff");
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_u (&buf, "X", u);;
+  err = bl_itostr_u (&buf, "X", u);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "FFFFFFFFFFFFFFFF");
 
   s = 0x0;
   u = 0x0;
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "x", s);;
+  err = bl_itostr_i (&buf, "x", s);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0");
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_u (&buf, "X", u);;
+  err = bl_itostr_u (&buf, "X", u);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0");
 }
 /*---------------------------------------------------------------------------*/
@@ -266,19 +266,19 @@ static void itostr_octal8 (void **state)
   s = (bl_i8) 0xff;
   u = 0xff;
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  bl_err err = bl_itostr_i (&buf, "o", s);;
+  bl_err err = bl_itostr_i (&buf, "o", s);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "377");
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_u (&buf, "o", u);;
+  err = bl_itostr_u (&buf, "o", u);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "377");
 
   s = 0x0;
   u = 0x0;
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "o", s);;
+  err = bl_itostr_i (&buf, "o", s);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0");
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_u (&buf, "o", u);;
+  err = bl_itostr_u (&buf, "o", u);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0");
 }
 /*---------------------------------------------------------------------------*/
@@ -292,19 +292,19 @@ static void itostr_octal16 (void **state)
   s = (bl_i16) 0xffff;
   u = 0xffff;
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  bl_err err = bl_itostr_i (&buf, "o", s);;
+  bl_err err = bl_itostr_i (&buf, "o", s);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "177777");
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_u (&buf, "o", u);;
+  err = bl_itostr_u (&buf, "o", u);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "177777");
 
   s = 0x0;
   u = 0x0;
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "o", s);;
+  err = bl_itostr_i (&buf, "o", s);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0");
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_u (&buf, "o", u);;
+  err = bl_itostr_u (&buf, "o", u);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0");
 }
 /*---------------------------------------------------------------------------*/
@@ -318,19 +318,19 @@ static void itostr_octal32 (void **state)
   s = 0xffffffff;
   u = 0xffffffff;
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  bl_err err = bl_itostr_i (&buf, "o", s);;
+  bl_err err = bl_itostr_i (&buf, "o", s);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "37777777777");
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_u (&buf, "o", u);;
+  err = bl_itostr_u (&buf, "o", u);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "37777777777");
 
   s = 0x0;
   u = 0x0;
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "o", s);;
+  err = bl_itostr_i (&buf, "o", s);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0");
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_u (&buf, "o", u);;
+  err = bl_itostr_u (&buf, "o", u);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0");
 }
 /*---------------------------------------------------------------------------*/
@@ -347,16 +347,16 @@ static void itostr_octal64 (void **state)
   bl_err err = bl_itostr_i (&buf, "o", s);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "1777777777777777777777");
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_u (&buf, "o", u);;
+  err = bl_itostr_u (&buf, "o", u);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "1777777777777777777777");
 
   s = 0x0;
   u = 0x0;
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "o", s);;
+  err = bl_itostr_i (&buf, "o", s);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0");
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_u (&buf, "o", u);;
+  err = bl_itostr_u (&buf, "o", u);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0");
 }
 /*---------------------------------------------------------------------------*/
@@ -366,11 +366,11 @@ static void itostr_plus_flag (void **state)
   bl_strbuf buf;
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  bl_err err = bl_itostr_i (&buf, "+", 1234567890);;
+  bl_err err = bl_itostr_i (&buf, "+", 1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "+1234567890");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "+", 0);;
+  err = bl_itostr_i (&buf, "+", 0);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "+0");
 }
 /*---------------------------------------------------------------------------*/
@@ -380,11 +380,11 @@ static void itostr_space_flag (void **state)
   bl_strbuf buf;
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  bl_err err = bl_itostr_i (&buf, " ", 1234567890);;
+  bl_err err = bl_itostr_i (&buf, " ", 1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, " 1234567890");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, " ", 0);;
+  err = bl_itostr_i (&buf, " ", 0);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, " 0");
 }
 /*---------------------------------------------------------------------------*/
@@ -394,15 +394,15 @@ static void itostr_hash_flag (void **state)
   bl_strbuf buf;
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  bl_err err = bl_itostr_i (&buf, "#x", 0x123457890);;
+  bl_err err = bl_itostr_i (&buf, "#x", 0x123457890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0x123457890");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "#o", 0xffffffff);;
+  err = bl_itostr_i (&buf, "#o", 0xffffffff);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "037777777777");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "#", 234);;
+  err = bl_itostr_i (&buf, "#", 234);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "234");
 }
 /*---------------------------------------------------------------------------*/
@@ -413,31 +413,31 @@ static void itostr_padding (void **state)
   bl_err err;
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "4", 1234567890);;
+  err = bl_itostr_i (&buf, "4", 1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "1234567890");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "10", 1234567890);;
+  err = bl_itostr_i (&buf, "10", 1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "1234567890");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "11", 1234567890);;
+  err = bl_itostr_i (&buf, "11", 1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, " 1234567890");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "23", 1234567890);;
+  err = bl_itostr_i (&buf, "23", 1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "             1234567890");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "23", -1234567890);;
+  err = bl_itostr_i (&buf, "23", -1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "            -1234567890");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "+23", 1234567890);;
+  err = bl_itostr_i (&buf, "+23", 1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "            +1234567890");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "#23x", 0x1234567890);;
+  err = bl_itostr_i (&buf, "#23x", 0x1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "           0x1234567890");
 }
 /*---------------------------------------------------------------------------*/
@@ -448,23 +448,23 @@ static void itostr_minus_flag (void **state)
   bl_err err;
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "-4", 1234567890);;
+  err = bl_itostr_i (&buf, "-4", 1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "1234567890");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "-12", 1234567890);;
+  err = bl_itostr_i (&buf, "-12", 1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "1234567890  ");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "-12", -1234567890);;
+  err = bl_itostr_i (&buf, "-12", -1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "-1234567890 ");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "+-12", 1234567890);;
+  err = bl_itostr_i (&buf, "+-12", 1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "+1234567890 ");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "+-18", 1234567890);;
+  err = bl_itostr_i (&buf, "+-18", 1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "+1234567890       ");
 }
 /*---------------------------------------------------------------------------*/
@@ -475,28 +475,28 @@ static void itostr_zero_flag (void **state)
   bl_err err;
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "04", 1234567890);;
+  err = bl_itostr_i (&buf, "04", 1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "1234567890");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "011", 1234567890);;
+  err = bl_itostr_i (&buf, "011", 1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "01234567890");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "023", 1234567890);;
+  err = bl_itostr_i (&buf, "023", 1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "00000000000001234567890");
 
   /* ignored with left justification */
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "-012", 1234567890);;
+  err = bl_itostr_i (&buf, "-012", 1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "1234567890  ");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "+023", 1234567890);;
+  err = bl_itostr_i (&buf, "+023", 1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "+0000000000001234567890");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "#010x", 0xff);;
+  err = bl_itostr_i (&buf, "#010x", 0xff);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0x000000ff");
 }
 /*---------------------------------------------------------------------------*/
@@ -507,39 +507,39 @@ static void itostr_numeric_precision (void **state)
   bl_err err;
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, ".4", 1234567890);;
+  err = bl_itostr_i (&buf, ".4", 1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "1234567890");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, ".10", 1234567890);;
+  err = bl_itostr_i (&buf, ".10", 1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "1234567890");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, ".12", 1234567890);;
+  err = bl_itostr_i (&buf, ".12", 1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "001234567890");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, ".12", -1234567890);;
+  err = bl_itostr_i (&buf, ".12", -1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "-001234567890");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "+.12", 1234567890);;
+  err = bl_itostr_i (&buf, "+.12", 1234567890);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "+001234567890");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, ".0", 0);;
+  err = bl_itostr_i (&buf, ".0", 0);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "+.0", 0);;
+  err = bl_itostr_i (&buf, "+.0", 0);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "+");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, ".8x", 0xff);;
+  err = bl_itostr_i (&buf, ".8x", 0xff);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "000000ff");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "#.8x", 0xff);;
+  err = bl_itostr_i (&buf, "#.8x", 0xff);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0x000000ff");
 }
 /*---------------------------------------------------------------------------*/
@@ -550,52 +550,52 @@ static void itostr_automatic_precision (void **state)
   bl_err err;
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, ".w", (bl_i8) 1);;
+  err = bl_itostr_i (&buf, ".w", (bl_i8) 1);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "001");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, ".w", (bl_i16) 1);;
+  err = bl_itostr_i (&buf, ".w", (bl_i16) 1);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "00001");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, ".w", (bl_i32) 1);;
+  err = bl_itostr_i (&buf, ".w", (bl_i32) 1);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0000000001");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, ".w", (bl_i64) 1);;
+  err = bl_itostr_i (&buf, ".w", (bl_i64) 1);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "00000000000000000001");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, ".wx", (bl_i8) 15);;
+  err = bl_itostr_i (&buf, ".wx", (bl_i8) 15);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0f");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, ".wx", (bl_i16) 15);;
+  err = bl_itostr_i (&buf, ".wx", (bl_i16) 15);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "000f");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, ".wx", (bl_i32) 15);;
+  err = bl_itostr_i (&buf, ".wx", (bl_i32) 15);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0000000f");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, ".wx", (bl_i64) 15);;
+  err = bl_itostr_i (&buf, ".wx", (bl_i64) 15);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "000000000000000f");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, ".wo", (bl_i8) 7);;
+  err = bl_itostr_i (&buf, ".wo", (bl_i8) 7);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "007");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, ".wo", (bl_i16) 7);;
+  err = bl_itostr_i (&buf, ".wo", (bl_i16) 7);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "000007");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, ".wo", (bl_i32) 7);;
-  BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "000000000007");
+  err = bl_itostr_i (&buf, ".wo", (bl_i32) 7);
+  BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "00000000007");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, ".wo", (bl_i64) 7);;
-  BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "000000000000000000000007");
+  err = bl_itostr_i (&buf, ".wo", (bl_i64) 7);
+  BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0000000000000000000007");
 }
 /*---------------------------------------------------------------------------*/
 static void itostr_width_precision_combinations (void **state)
@@ -605,17 +605,17 @@ static void itostr_width_precision_combinations (void **state)
   bl_err err;
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "20.10", 12345);;
+  err = bl_itostr_i (&buf, "20.10", 12345);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "          0000012345");
 
   /* zero flag ignored */
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "020.10", -12345);;
+  err = bl_itostr_i (&buf, "020.10", -12345);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "         -0000012345");
 
 /* zero flag ignored again */
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "#020.10x", 0xff);;
+  err = bl_itostr_i (&buf, "#020.10x", 0xff);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "        0x00000000ff");
 }
 /*---------------------------------------------------------------------------*/
@@ -626,11 +626,11 @@ static void itostr_combinations (void **state)
   bl_err err;
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "+- #015.10x", 0xff);;
+  err = bl_itostr_i (&buf, "+- #015.10x", 0xff);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0x00000000ff   ");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "+ #015.10x", 0xff);;
+  err = bl_itostr_i (&buf, "+ #015.10x", 0xff);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "   0x00000000ff");
 }
 /*---------------------------------------------------------------------------*/
@@ -641,27 +641,27 @@ static void itostr_repeated_flags (void **state)
   bl_err err;
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "     ", 0);;
+  err = bl_itostr_i (&buf, "     ", 0);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, " 0");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "+++++", 0);;
+  err = bl_itostr_i (&buf, "+++++", 0);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "+0");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "-----2", 0);;
+  err = bl_itostr_i (&buf, "-----2", 0);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0 ");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "#####x", 0);;
+  err = bl_itostr_i (&buf, "#####x", 0);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0x0");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "000002", 0);;
+  err = bl_itostr_i (&buf, "000002", 0);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "00");
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "-#-#-4x", 0);;
+  err = bl_itostr_i (&buf, "-#-#-4x", 0);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "0x0 ");
 }
 /*---------------------------------------------------------------------------*/
@@ -672,19 +672,19 @@ static void itostr_fmt_string_length_limiting (void **state)
   bl_err err;
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "++++++", 0);;
+  err = bl_itostr_i (&buf, "++++++", 0);
   assert_int_equal (err.own, bl_invalid);
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "123", 0);;
+  err = bl_itostr_i (&buf, "123", 0);
   assert_int_equal (err.own, bl_invalid);
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, ".123", 0);;
+  err = bl_itostr_i (&buf, ".123", 0);
   assert_int_equal (err.own, bl_invalid);
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "xX", 0);;
+  err = bl_itostr_i (&buf, "xX", 0);
   assert_int_equal (err.own, bl_invalid);
 }
 /*---------------------------------------------------------------------------*/
@@ -695,23 +695,23 @@ static void itostr_invalid_chars (void **state)
   bl_err err;
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "+_", 0);;
+  err = bl_itostr_i (&buf, "+_", 0);
   assert_int_equal (err.own, bl_invalid);
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "12j", 0);;
+  err = bl_itostr_i (&buf, "12j", 0);
   assert_int_equal (err.own, bl_invalid);
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, ".12j", 0);;
+  err = bl_itostr_i (&buf, ".12j", 0);
   assert_int_equal (err.own, bl_invalid);
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, "n", 0);;
+  err = bl_itostr_i (&buf, "n", 0);
   assert_int_equal (err.own, bl_invalid);
 
   buf = bl_strbuf_init (b, 0, bl_arr_elems (b));
-  err = bl_itostr_i (&buf, ".0w", 0);;
+  err = bl_itostr_i (&buf, ".0w", 0);
   assert_int_equal (err.own, bl_invalid);
 }
 /*---------------------------------------------------------------------------*/
@@ -738,15 +738,15 @@ static void itostr_not_enough_space (void **state)
   assert_int_equal (err.own, bl_would_overflow);
 
   buf = bl_strbuf_init (b, 0, 3);
-  err = bl_itostr_i (&buf, "x", 0xffff);;
+  err = bl_itostr_i (&buf, "x", 0xffff);
   assert_int_equal (err.own, bl_would_overflow);
 
   buf = bl_strbuf_init (b, 0, 4);
-  err = bl_itostr_i (&buf, "x", 0xfffff);;
+  err = bl_itostr_i (&buf, "x", 0xfffff);
   assert_int_equal (err.own, bl_would_overflow);
 
   buf = bl_strbuf_init (b, 0, 5);
-  err = bl_itostr_i (&buf, "x", 0xffff);;
+  err = bl_itostr_i (&buf, "x", 0xffff);
   BL_ITOSTR_CHECK_RESULT (err, buf.len, buf.str, "ffff");
 }
 /*---------------------------------------------------------------------------*/

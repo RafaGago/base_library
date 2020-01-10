@@ -38,7 +38,7 @@ bl_itostr_fmt;
 /*----------------------------------------------------------------------------*/
 #define BL_ITOSTR_MAX_SEP 8
 /*----------------------------------------------------------------------------*/
-typedef char bl_itostr_buffer[24]; /*any integer fits here, no sign, no null */
+typedef char bl_itostr_buffer[64];
 /*----------------------------------------------------------------------------*/
 bl_err bl_itostr_parse_fmt(
   bl_itostr_fmt* f, char const* fstr, bl_uword type_bytes
@@ -165,7 +165,7 @@ process_specifiers:
     ++fmt;
   }
   else if (*fmt == 'o') {
-    f->max_digits = type_bytes * 3;
+    f->max_digits = ((type_bytes * 8) / 3) + 1;
     f->mode = bl_itostr_fmt_octal;
     if (prefix_enabled) {
       f->prefix = "0";
@@ -313,6 +313,7 @@ static bl_err bl_itostr_out_fmt(
   )
 {
   bl_assert (buf && buf->str && fmt);
+  bl_assert (fmt->max_digits <= sizeof (bl_itostr_buffer));
   bl_itostr_buffer rev_num;
   bl_uword digits = 0;
 
