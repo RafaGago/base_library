@@ -1,3 +1,6 @@
+![](https://github.com/RafaGago/base_library/workflows/ci_linux/badge.svg)
+![](https://github.com/RafaGago/base_library/workflows/ci_windows/badge.svg)
+
 Description
 ===========
 
