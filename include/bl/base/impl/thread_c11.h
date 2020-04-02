@@ -46,8 +46,8 @@ static inline bl_err bl_thread_join (bl_thread* t)
 /*----------------------------------------------------------------------------*/
 #define bl_thread_local thread_local
 typedef tss_t      bl_tss;
-typedef tss_dtor_t bl_tss_dtor;
 #define            bl_tss_dtor_callconv
+typedef tss_dtor_t bl_tss_cleanup_func;
 /*----------------------------------------------------------------------------*/
 static inline bl_err bl_tss_init (bl_tss* key, bl_tss_cleanup_func cleanup)
 {
@@ -85,7 +85,8 @@ static inline bl_err bl_mutex_init (bl_mutex* m)
 static inline bl_err bl_mutex_destroy (bl_mutex* m)
 {
   bl_assert (m);
-  return bl_thread_error_convert (mtx_destroy (m));
+  mtx_destroy (m);
+  return bl_mkok();
 }
 /*----------------------------------------------------------------------------*/
 static inline bl_err bl_mutex_lock (bl_mutex* m)
@@ -108,4 +109,3 @@ static inline bl_err bl_mutex_unlock (bl_mutex* m)
 /*----------------------------------------------------------------------------*/
 
 #endif /* __BL_CC_THREAD_H__ */
-

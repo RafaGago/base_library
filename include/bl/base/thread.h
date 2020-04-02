@@ -183,4 +183,3 @@ static inline bl_err bl_get_thread_affinity (bl_thread t, bl_affinity_mask* m)
 /*---------------------------------------------------------------------------*/
 
 #endif /* __BL_THREAD_H__ */
-
