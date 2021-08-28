@@ -60,7 +60,7 @@ Or:
 #define BL_COMPILER_VER_IS_GE(major, minor, rev)\
    (BL_COMPILER_VER >= BL_VER_GET ((major), (minor), (rev)))
 
-#if defined (__GNUC__)
+#if defined (__GNUC__) && !defined (__clang__)
   #define BL_COMPILER      BL_COMPILER_GCC
   #define BL_COMPILER_NAME "GNU gcc"
 
@@ -79,7 +79,7 @@ Or:
     BL_VER_GET (__clang_major__, __clang_minor__, __clang_patchlevel__)
 #endif
 
-#if defined (_MSC_VER)
+#if defined (_MSC_VER) && !defined (__clang__)
   #define BL_COMPILER      BL_COMPILER_MICROSOFT_VC
   #define BL_COMPILER_NAME "Microsoft Visual C/C++"
 
@@ -216,10 +216,12 @@ Or:
   #endif
 #endif
 
+#if 0
 #if defined (__llvm__)
   #define BL_COMPILER      BL_COMPILER_LLVM
   #define BL_COMPILER_NAME "LLVM"
   #define BL_COMPILER_VER  BL_VER_UNAVAILABLE
+#endif
 #endif
 
 #if defined (__TenDRA__)
