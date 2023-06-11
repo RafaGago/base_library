@@ -41,7 +41,7 @@ static inline void bl_thread_yield (void)
 static inline bl_err bl_thread_join (bl_thread* t)
 {
   bl_assert (t);
-  return bl_thread_error_convert (thrd_join (t, nullptr));
+  return bl_thread_error_convert (thrd_join (*t, nullptr));
 }
 /*----------------------------------------------------------------------------*/
 #define bl_thread_local thread_local
