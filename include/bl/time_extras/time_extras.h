@@ -10,8 +10,12 @@
 #define BL_CPU_TIMEPT_UNAVAILABLE 0
 #define BL_CPU_TIMEPT_RDTSC       1
 /*----------------------------------------------------------------------------*/
-#if BL_ARCH_IS_X64_X86_IA64
-  #define BL_CPU_TIMEPT BL_CPU_TIMEPT_RDTSC
+#ifndef BL_NO_CPU_TIMEPT
+  #if BL_ARCH_IS_X64_X86_IA64
+    #define BL_CPU_TIMEPT BL_CPU_TIMEPT_RDTSC
+  #else
+    #define BL_CPU_TIMEPT BL_CPU_TIMEPT_UNAVAILABLE
+  #endif
 #else
   #define BL_CPU_TIMEPT BL_CPU_TIMEPT_UNAVAILABLE
 #endif
