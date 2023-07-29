@@ -65,7 +65,7 @@ static inline bl_u32 bl_mpmc_bpm_slot_size (bl_mpmc_bpm const* q)
 static inline bl_uword
   bl_mpmc_bpm_required_slots (bl_mpmc_bpm const* q, bl_uword payload)
 {
-  return bl_round_to_next_multiple (payload + sizeof (bl_u32), q->slot_size);
+  return bl_div_ceil (payload + sizeof (bl_u32), q->slot_size);
 }
 /*----------------------------------------------------------------------------*/
 static inline bl_uword
