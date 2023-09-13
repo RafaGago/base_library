@@ -1,3 +1,9 @@
+Notice
+======
+
+I'm leaving Github. The main official location for this project is now:
+https://codeberg.org/RafaGago/base_library
+
 ![](https://github.com/RafaGago/base_library/workflows/ci_linux/badge.svg)
 ![](https://github.com/RafaGago/base_library/workflows/ci_windows/badge.svg)
 
